@@ -1,0 +1,12 @@
+---
+- hosts: all
+
+  tasks:
+    - name: Verify that ansible can connect to the VM
+      command: >
+        hostname
+      register: hostname_result
+
+    - name: Print the hostname
+      debug:
+        msg: "Ansible is ready to automate setup of your VM named {{ hostname_result.stdout }}"
