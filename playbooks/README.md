@@ -1,9 +1,13 @@
 # Playbooks
 
-Playbooks to setup and update my computers and virtual machines.
+This folder contains only the playbooks to setup and update my computers and
+virtual machines.
+
+The ansible configuration and inventory files are in the
+[../inventory/](../inventory/) folder.
 
 To run these playbooks, either start the test system as described in
-([../test/README.md](../test/README.md)) or run them with your own inventory. My inventory is defined in [../inventory/](../inventory/).
+([../test/README.md](../test/README.md)) or run them with your own inventory.
 
 ## Add a developer vm with Hetzner
 
@@ -53,82 +57,28 @@ the new server's IP address.
 Verify that the server is reachable via SSH:
 
 ```bash
-cd inventory## Adding a developer vm with Hetzner
+cd inventory
+ansible dev -a "hostname" --extra-vars 'ansible_user=root'
+```
 
-### Prerequisites
+### Configure access and secure SSH
 
-You need a cloud project with [Hetzner](https://www.hetzner.com/). The project
-should contain a firewall definition, which allows inbound SSH connections.
-
-Your SSH key must be registered, so that new servers can use it. This will
-allow root login via SSH.
-
-### Create the VM
-
-Create a new server using the
-[Server](https://console.hetzner.cloud/projects/10607445/servers) menu.
-
-Select the following options:
-
-- Location: Helsinki
-- Image: Ubuntu 24.04
-- Type: Shared vCPU / x86 (Intel/AMD) - CX32
-- Networking
-  - IPv4 disabled
-  - IPv6 enabled
-  - no private network
-- SSH Key: Select your SSH key
-- Volumes: none
-- Firewall: Select your firewall
-- Backups: none
-- Placement groups: none
-- Labels: none
-- Cloud config: none
-- Name: `<pick a name and add it to your inventory>`
-
-When the server is created, its IPv6 network is displayed. The server address is
-the first address in the network range, i.e. replace `::/64` by `::1` to get
-the address.
-
-Update the inventory file [../inventory/hosts.ini](../inventory/hosts.ini) with
-the new server's IP address.
-
-Verify that the server is reachable via SSH:
+The following playbook must be executed first, so that the ansible user can
+use sudo. It must be executed as root, because no other users exist yet.
 
 ```bash
 cd inventory
-ansible dev -a "hostname"
+ansible-playbook ../playbooks/configure-access.yml --extra-vars 'ansible_user=root'
 ```
 
-### Run the playbook
+### Install other playbooks
 
-The playbook will install the development server including an XFCE desktop.
+The sequence of installation for the other playbooks is irrelevant. However, I
+recommend to start with `setup-basics.yml`.
 
-If the playbook is executed for the first time and the destkop user does not
-exist, then provide the password for the new user via the --extra-vars option:
+Adapt the command to install playbooks as needed:
 
 ```bash
 cd inventory
-ansible-playbook ../playbooks/developer-vm.yml --extra-vars 'desktop_user_password=yourpassword'
+ansible-playbook ../playbooks/<playbook>.yml
 ```
-
-Now you can log in either via SSH as `root` or via Remote Desktop as the
-desktop_user_name user specified in the playbook.
-
-ansible dev -a "hostname"
-```
-
-### Run the playbook
-
-The playbook will install the development server including an XFCE desktop.
-
-If the playbook is executed for the first time and the destkop user does not
-exist, then provide the password for the new user via the --extra-vars option:
-
-```bash
-cd inventory
-ansible-playbook ../playbooks/developer-vm.yml --extra-vars 'desktop_user_password=yourpassword'
-```
-
-Now you can log in either via SSH as `root` or via Remote Desktop as the
-desktop_user_name user specified in the playbook.

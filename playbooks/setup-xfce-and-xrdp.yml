@@ -1,0 +1,92 @@
+---
+- hosts: all
+  become: true
+
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+    - name: Update apt cache if needed
+      apt: update_cache=yes cache_valid_time=3600
+
+    - name: Upgrade all packages
+      apt: upgrade=safe
+      notify: Cleanup apt cache
+
+  handlers:
+    - name: Cleanup apt cache
+      apt:
+        autoremove: yes
+        autoclean: yes
+
+    - name: Restart XRDP
+      service:
+        name: xrdp
+        state: restarted
+
+  tasks:
+    - name: Install minimal GNOME desktop
+      apt:
+        name:
+          - build-essential
+          - dotnet-sdk-8.0
+          - keepassxc
+          - seahorse
+          - ubuntu-desktop-minimal
+        state: present
+      notify: Cleanup apt cache
+
+    - name: Remove GNOME remote desktop
+      apt:
+        name: gnome-remote-desktop
+        state: absent
+      notify: Cleanup apt cache
+    
+    - name: Install XFCE desktop and XRDP
+      apt:
+        name:
+          - xfce4
+          - xfce4-goodies
+          - xrdp
+        state: present
+      notify: Cleanup apt cache
+
+    - name: Start and enable XRDP
+      service:
+        name: xrdp
+        state: started
+        enabled: yes
+
+    - name: Remove light-locker
+      apt:
+        name: light-locker
+        state: absent
+      notify: Cleanup apt cache
+
+#    - name: Check whether the file .xsession exists for {{ desktop_user_name }}
+#      stat:
+#        path: "/home/{{ desktop_user_name }}/.xsession"
+#      register: xsession_file
+#      ignore_errors: yes
+#      changed_when: false
+#
+#    - name: Create .xsession for {{ desktop_user_name }} if it does not exist
+#      file:
+#        path: /home/galadriel/.xsession
+#        state: touch
+#        owner: galadriel
+#        group: galadriel
+#        mode: 0644
+#      when: not xsession_file.stat.exists
+
+    - name: Enable XFCE session for {{ desktop_user_name }}
+      lineinfile:
+        dest: "/home/{{ desktop_user_name }}/.xsession"
+        regexp: '^.*'
+        line: xfce4-session
+        create: yes
+        owner: galadriel
+        group: galadriel
+        mode: 0644
+        state: present
+      notify: Restart XRDP

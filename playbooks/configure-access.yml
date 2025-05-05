@@ -1,0 +1,75 @@
+---
+- hosts: all
+  become: true
+
+  vars_files:
+    - vars.yml
+
+  vars_prompt:
+    - name: ansible_user_password
+      prompt: "Enter the password for the ansible user {{ ansible_user_name }}"
+      private: yes
+
+    - name: ansible_user_key
+      prompt: "Enter the SSH public key for the ansible user {{ ansible_user_name }}"
+      private: no
+
+    - name: desktop_user_password
+      prompt: "Enter the password for the desktop user {{ desktop_user_name }}"
+      private: yes
+
+  handlers:
+    - name: Restart SSH
+      service:
+        name: ssh
+        state: restarted
+
+  tasks:
+    - name: Setup the ansible user
+      user:
+        name: "{{ ansible_user_name }}"
+        password: "{{ ansible_user_password | password_hash('sha512') }}"
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+        state: present
+
+    - name: Allow passwordless sudo for ansible user
+      lineinfile:
+        path: /etc/sudoers.d/50-ansible-user-does-not-need-password
+        regexp: '^{{ ansible_user_name }}'
+        line: '{{ ansible_user_name }} ALL=(ALL) NOPASSWD:ALL'
+        validate: 'visudo -cf %s'
+        create: yes
+        state: present
+        
+    - name: Add SSH public key for ansible user
+      authorized_key:
+        user: "{{ ansible_user_name }}"
+        key: "{{ ansible_user_key }}"
+        state: present
+
+    - name: Disable root login via SSH
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PermitRootLogin'
+        line: 'PermitRootLogin no'
+        state: present
+      notify: Restart SSH
+    
+    - name: Disable password authentication for SSH
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: 'PasswordAuthentication no'
+        state: present
+      notify: Restart SSH
+
+    - name: Create account {{ desktop_user_name }} if it does not exist
+      user:
+        name: "{{ desktop_user_name }}"
+        password: "{{ desktop_user_password | password_hash('sha512') }}"
+        shell: /bin/bash
+        groups: sudo
+        append: yes
+        state: present

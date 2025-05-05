@@ -14,6 +14,8 @@ ENV container=docker
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
     cron \
+    curl \
+    git \
     gnupg \
     hostname \
     openssh-server \
@@ -22,6 +24,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-packaging \
     sudo \
     systemd \
+    util-linux-extra \
+    vim \
     which \
     && rm -rf /var/lib/apt/lists/*
 

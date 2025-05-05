@@ -1,0 +1,3 @@
+---
+ansible_user_name: "gandalf"
+desktop_user_name: "galadriel"

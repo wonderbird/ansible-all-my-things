@@ -1,0 +1,65 @@
+---
+# WARNING: This playbook only works with an IPv4 enabled network interface.
+#
+# Unfortunately, GitHub does not support cloning over IPv6.
+#
+# See:
+#
+# - https://github.com/orgs/community/discussions/10539
+#
+# This is the root cause analysis:
+#
+# - https://docs.brew.sh/Installation describes how to install
+# - https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+#   is executed to install Homebrew
+#
+# Installation fails with the following error:
+#
+#   fatal: unable to access 'https://github.com/Homebrew/brew/':
+#   Failed to connect to github.com port 443 after 136221 ms:
+#   Couldn't connect to server
+#   Warning: Trying again in 2 seconds: /usr/bin/git fetch --quiet --force origin
+#
+# Investigation shows that IPv4 is needed to clone from GitHub:
+#
+# - https://www.reddit.com/r/hetzner/comments/111j6on/hetzner_server_can_only_connect_to_certain_sites/
+# - https://stackoverflow.com/questions/41843247/how-to-curl-using-ipv6-address
+# - https://github.com/Homebrew/brew/issues/15534
+# - https://github.com/orgs/community/discussions/10539
+#
+- hosts: all
+  become: true
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Install homebrew
+      shell:
+        cmd: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        executable: /bin/bash
+        creates: /home/linuxbrew/.linuxbrew/bin/brew
+      environment:
+        NONINTERACTIVE: 1
+      become_user: "{{ ansible_env.SUDO_USER }}"
+      register: brew_install
+
+    - name: Add homebrew environment to .bash_profile of the users
+      lineinfile:
+        dest: "/home/{{ item }}/.bash_profile"
+        regex: '^eval "\$\(.*\/brew shellenv\)"'
+        line: 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
+        create: yes
+        state: present
+      loop:
+        - "{{ desktop_user_name }}"
+        - "{{ ansible_env.SUDO_USER }}"
+      when: brew_install is changed
+
+    - name: Install brew packages
+      homebrew:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - mob
