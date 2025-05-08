@@ -28,12 +28,31 @@
 # - https://github.com/orgs/community/discussions/10539
 #
 - hosts: all
-  become: true
+  become: false
 
   vars_files:
     - vars.yml
 
+  pre_tasks:
+    - name: Update apt cache if needed
+      apt: update_cache=yes cache_valid_time=3600
+
   tasks:
+    # The Requirements section in the documentation for Homebrew on Linux
+    # describes the prerequisites for installing Homebrew on Linux:
+    # https://docs.brew.sh/Homebrew-on-Linux#requirements
+    - name: Install homebrew prerequisites
+      apt:
+        name: "{{ item }}"
+        state: present
+      become: true
+      loop:
+        - build-essential
+        - procps
+        - curl
+        - file
+        - git
+
     - name: Install homebrew
       shell:
         cmd: |
@@ -42,7 +61,6 @@
         creates: /home/linuxbrew/.linuxbrew/bin/brew
       environment:
         NONINTERACTIVE: 1
-      become_user: "{{ ansible_env.SUDO_USER }}"
       register: brew_install
 
     - name: Add homebrew environment to .bash_profile of the users
@@ -52,10 +70,10 @@
         line: 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"'
         create: yes
         state: present
+      become: true
       loop:
         - "{{ desktop_user_name }}"
-        - "{{ ansible_env.SUDO_USER }}"
-      when: brew_install is changed
+        - "{{ ansible_user_name }}"
 
     - name: Install brew packages
       homebrew:

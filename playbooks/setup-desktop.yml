@@ -9,10 +9,6 @@
     - name: Update apt cache if needed
       apt: update_cache=yes cache_valid_time=3600
 
-    - name: Upgrade all packages
-      apt: upgrade=safe
-      notify: Cleanup apt cache
-
   handlers:
     - name: Cleanup apt cache
       apt:

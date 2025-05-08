@@ -80,5 +80,15 @@ Adapt the command to install playbooks as needed:
 
 ```bash
 cd inventory
+
+# Basic configuration: Timezone, Install updates
+ansible-playbook ../playbooks/setup-basics.yml
+
+# Install Homebrew and homebrew packages
+ansible-playbook ../playbooks/setup-homebrew.yml
+
+# Enable remote desktop and install desktop environment
+ansible-playbook ../playbooks/setup-desktop.yml
+
 ansible-playbook ../playbooks/<playbook>.yml
 ```

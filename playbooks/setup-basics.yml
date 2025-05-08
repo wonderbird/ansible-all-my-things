@@ -5,6 +5,20 @@
   vars_files:
     - vars.yml
 
+  handlers:
+    - name: Cleanup apt cache
+      apt:
+        autoremove: yes
+        autoclean: yes
+
+  pre_tasks:
+    - name: Update apt cache if needed
+      apt: update_cache=yes cache_valid_time=3600
+
+    - name: Upgrade all packages
+      apt: upgrade=safe
+      notify: Cleanup apt cache
+
   tasks:
     - name: Set timezone to Europe/Berlin
       timezone:
