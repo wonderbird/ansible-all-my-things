@@ -6,13 +6,13 @@
     - vars.yml
 
   vars_prompt:
+    - name: ssh_public_key
+      prompt: "Enter the SSH public key for all users"
+      private: no
+
     - name: ansible_user_password
       prompt: "Enter the password for the ansible user {{ ansible_user_name }}"
       private: yes
-
-    - name: ansible_user_key
-      prompt: "Enter the SSH public key for the ansible user {{ ansible_user_name }}"
-      private: no
 
     - name: desktop_user_password
       prompt: "Enter the password for the desktop user {{ desktop_user_name }}"
@@ -25,14 +25,18 @@
         state: restarted
 
   tasks:
-    - name: Setup the ansible user
+    - name: Setup user accounts
+      no_log: true # Prevent logging the passwords
       user:
-        name: "{{ ansible_user_name }}"
-        password: "{{ ansible_user_password | password_hash('sha512') }}"
+        name: "{{ item.user }}"
+        password: "{{ item.password | password_hash('sha512') }}"
         shell: /bin/bash
         groups: sudo
         append: yes
         state: present
+      loop:
+        - { user: "{{ ansible_user_name }}", password: "{{ ansible_user_password }}" }
+        - { user: "{{ desktop_user_name }}", password: "{{ desktop_user_password }}" }
 
     - name: Allow passwordless sudo for ansible user
       lineinfile:
@@ -42,12 +46,16 @@
         validate: 'visudo -cf %s'
         create: yes
         state: present
-        
-    - name: Add SSH public key for ansible user
+
+    - name: Add SSH public key to all users
       authorized_key:
-        user: "{{ ansible_user_name }}"
-        key: "{{ ansible_user_key }}"
+        user: "{{ item }}"
+        key: "{{ ssh_public_key }}"
         state: present
+      loop:
+        - "root"
+        - "{{ ansible_user_name }}"
+        - "{{ desktop_user_name }}"
 
     - name: Disable root login via SSH
       lineinfile:
@@ -64,12 +72,3 @@
         line: 'PasswordAuthentication no'
         state: present
       notify: Restart SSH
-
-    - name: Create account {{ desktop_user_name }} if it does not exist
-      user:
-        name: "{{ desktop_user_name }}"
-        password: "{{ desktop_user_password | password_hash('sha512') }}"
-        shell: /bin/bash
-        groups: sudo
-        append: yes
-        state: present

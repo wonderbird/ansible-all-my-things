@@ -84,6 +84,8 @@ cd inventory
 # Basic configuration: Timezone, Install updates
 ansible-playbook ../playbooks/setup-basics.yml
 
+# TODO: Reboot the machine after updating (the kernel)
+
 # Install Homebrew and homebrew packages
 ansible-playbook ../playbooks/setup-homebrew.yml
 
