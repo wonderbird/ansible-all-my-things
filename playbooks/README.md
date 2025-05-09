@@ -24,7 +24,40 @@ should contain a firewall definition, which allows
 Your SSH key must be registered, so that new servers can use it. This will
 allow root login via SSH.
 
-### Create the VM
+### Create a new VM
+
+This section gives two options to create a new VM:
+
+- using Ansible
+- using the Hetzner console
+
+#### Create the VM using Ansible
+
+First, configure the `hcloud_` properties for server size and SSH key ID in [./vars.yml](./vars.yml).
+
+Next, publish your API token to the HCLOUD_TOKEN environment variable, which
+is used by default by the
+[hetzner.hcloud ansible modules](https://docs.ansible.com/ansible/latest/collections/hetzner/hcloud/).
+
+```bash
+echo -n "hcloud API token: "; read -s HCLOUD_TOKEN; export HCLOUD_TOKEN
+```
+
+Then create the server using the following command:
+
+```bash
+ansible-playbook ../playbooks/launch-hcloud-server.yml
+```
+
+Update the inventory file [../inventory/hosts.ini](../inventory/hosts.ini) with
+the new server's IP address:
+
+```bash
+cd inventory
+ansible localhost -m hcloud_server_info -a "name=lorien"
+```
+
+#### Create the VM via Hetzner console
 
 Create a new server using the
 [Server](https://console.hetzner.cloud/projects/10607445/servers) menu.
@@ -54,7 +87,7 @@ the address.
 Update the inventory file [../inventory/hosts.ini](../inventory/hosts.ini) with
 the new server's IP address.
 
-Verify that the server is reachable via SSH:
+### Verify that the server is reachable via SSH
 
 ```bash
 cd inventory
@@ -94,3 +127,13 @@ ansible-playbook ../playbooks/setup-desktop.yml
 
 ansible-playbook ../playbooks/<playbook>.yml
 ```
+
+## Delete the VM
+
+To delete the VM including its primary IPv4 address, use the following command:
+
+```bash
+hcloud server delete lorien
+```
+
+You can verify that the server is deleted in your [Hetzner console project](https://console.hetzner.cloud/projects/10607445/servers).

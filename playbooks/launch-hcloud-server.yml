@@ -1,0 +1,19 @@
+---
+- name: Setup developer server
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  user: root
+
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Create developer server
+      hcloud_server:
+        name: lorien
+        server_type: "{{ hcloud_server_type }}"
+        image: ubuntu-24.04
+        location: hel1
+        ssh_keys: "{{ hcloud_ssh_key_name }}"
+        state: present

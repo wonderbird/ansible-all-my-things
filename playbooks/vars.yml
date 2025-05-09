@@ -1,3 +1,7 @@
 ---
+hcloud_server_type: "cx22" # 0,005 €/h, max 3,29 €/mon, 2 vCPUs, 4 GB RAM, 40 GB SSD
+# hcloud_server_type: "cx32" # 0,011 €/h, max 6,30 €/mon, 4 vCPUs, 8 GB RAM, 80 GB SSD
+hcloud_ssh_key_name: "stefan@Fangorn.fritz.box"
+
 ansible_user_name: "gandalf"
 desktop_user_name: "galadriel"
