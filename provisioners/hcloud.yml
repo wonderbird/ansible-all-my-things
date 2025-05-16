@@ -1,0 +1,51 @@
+---
+# Prerequisite:
+#
+# - Hetzner hcloud API token set in environment variable HCLOUD_TOKEN
+#
+- name: Setup developer server
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars:
+    # The following table gives an overview of server types and prices for servers
+    # hosted in Finland (hel1) with an IPv4 address.
+    #
+    # | Server Type | Price per hour | Price per month | vCPUs | RAM   | SSD    |
+    # |-------------|----------------|-----------------|-------|-------|--------|
+    # | cx22        | 0,006 €        | 3,79 €          | 2     | 4 GB  | 40 GB  |
+    # | cx32        | 0,0113 €       | 6,80 €          | 4     | 8 GB  | 80 GB  |
+    # | cx42        | 0,0273 €       | 16,40 €         | 8     | 16 GB | 160 GB |
+    #
+    # Lookup current values at https://www.hetzner.com/cloud
+    #
+    hcloud_server_type: "cx22"
+    hcloud_ssh_key_name: "stefan@Fangorn.fritz.box"
+
+  tasks:
+    - name: Create developer server
+      hetzner.hcloud.server:
+        state: present
+        name: lorien
+        labels:
+          ansible_group: dev
+        server_type: "{{ hcloud_server_type }}"
+        image: ubuntu-24.04
+        location: hel1
+        ssh_keys: "{{ hcloud_ssh_key_name }}"
+      register: hcloud
+
+    - name: Refresh inventory to ensure new host is available
+      meta: refresh_inventory
+
+- hosts: hcloud
+  remote_user: root
+  gather_facts: False
+
+  vars:
+    ansible_user: "root"
+
+  tasks:
+    - name: Wait for host to become reachable
+      wait_for_connection:

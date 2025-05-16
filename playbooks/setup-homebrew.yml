@@ -30,9 +30,6 @@
 - hosts: all
   become: false
 
-  vars_files:
-    - vars.yml
-
   pre_tasks:
     - name: Update apt cache if needed
       apt: update_cache=yes cache_valid_time=3600
@@ -72,8 +69,8 @@
         state: present
       become: true
       loop:
-        - "{{ desktop_user_name }}"
-        - "{{ ansible_user_name }}"
+        - "{{ ansible_user }}"
+        - "{{ desktop_user }}"
 
     - name: Install brew packages
       homebrew:

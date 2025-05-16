@@ -1,0 +1,4 @@
+---
+# Define global variables for the entire play
+- import_playbook: provisioners/hcloud.yml
+- import_playbook: configure.yml

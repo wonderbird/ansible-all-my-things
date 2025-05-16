@@ -1,0 +1,7 @@
+---
+# TODO: smell: redundant definition of the ansible_user in setup-users.yml and here
+# Note: You can check whether this variable works by `ansible dev -a "whoami"`
+ansible_user: "gandalf"
+
+# TODO: smell: redundant definition of the default desktop_user in setup-users.yml and here
+desktop_user: "galadriel"

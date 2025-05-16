@@ -1,0 +1,37 @@
+# Generate dynamic inventory for Hetzner Cloud
+#
+# To show a graph of the inventory, run:
+#
+#   ansible-inventory -i ./hcloud.yml --graph
+#
+# To show all properties of the inventory, run:
+#
+#   ansible-inventory -i ./hcloud.yml --list
+#
+# Note: This file must be named `hcloud.yml` to be recognized by the
+#       Ansible module `hetzner.hcloud.hcloud` (1).
+#
+# The Hetzner documentation (2) shows more examples of how to use the hcloud
+# inventory plugin. The playbook `launch-hcloud-server.yml` uses the label
+# (3) (4) (5) "ansible_group" to group the servers.
+#
+# See also:
+#
+# (1) https://www.mattknight.io/blog/dynamic-inventory-in-ansible-with-hetzner-cloud
+# (2) https://docs.ansible.com/ansible/latest/collections/hetzner/hcloud/hcloud_inventory.html
+# (3) https://docs.hetzner.com/cloud/servers/getting-started/creating-a-server/
+# (4) https://docs.hetzner.cloud/#labels
+# (5) https://docs.ansible.com/ansible/latest/collections/hetzner/hcloud/server_module.html#ansible-collections-hetzner-hcloud-server-module
+---
+plugin: hetzner.hcloud.hcloud
+
+keyed_groups:
+
+  # Suppress the prefix and the separator so that the group names are not
+  # prefixed with "_".
+  - key: labels.ansible_group
+    prefix: ""
+    separator: ""
+
+hostnames:
+  - name

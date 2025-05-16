@@ -1,9 +1,25 @@
 ---
 - hosts: all
-  become: true
+  remote_user: root
+  
+  vars:
+    # Override the default ansible_user with root, because no other users are
+    # present on a fresh system.
+    ansible_user: root
 
-  vars_files:
-    - vars.yml
+    # Because this play is run as root, we cannot use {{ ansible_user }}
+    # Thus, we directly assign the value defined in
+    # ./inventories/group_vars/dev/vars.yml
+    # TODO: smell: redundant definition of the ansible_user in inventory group variables and here
+    ansible_user_name: "gandalf"
+    # TODO: smell: redundant definition of the default desktop_user in inventory group variables and here
+    desktop_user_name: "{{ desktop_user | default('galadriel') }}"
+
+    users:
+      - name: "{{ ansible_user_name }}"
+        password: "{{ ansible_user_password }}"
+      - name: "{{ desktop_user_name }}"
+        password: "{{ desktop_user_password }}"
 
   vars_prompt:
     - name: ssh_public_key
@@ -28,15 +44,13 @@
     - name: Setup user accounts
       no_log: true # Prevent logging the passwords
       user:
-        name: "{{ item.user }}"
+        name: "{{ item.name }}"
         password: "{{ item.password | password_hash('sha512') }}"
         shell: /bin/bash
         groups: sudo
         append: yes
         state: present
-      loop:
-        - { user: "{{ ansible_user_name }}", password: "{{ ansible_user_password }}" }
-        - { user: "{{ desktop_user_name }}", password: "{{ desktop_user_password }}" }
+      loop: "{{ users }}"
 
     - name: Allow passwordless sudo for ansible user
       lineinfile:
@@ -48,22 +62,12 @@
         state: present
 
     - name: Add SSH public key to all users
+      no_log: true # Prevent logging the passwords
       authorized_key:
-        user: "{{ item }}"
+        user: "{{ item.name }}"
         key: "{{ ssh_public_key }}"
         state: present
-      loop:
-        - "root"
-        - "{{ ansible_user_name }}"
-        - "{{ desktop_user_name }}"
-
-    - name: Disable root login via SSH
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '^PermitRootLogin'
-        line: 'PermitRootLogin no'
-        state: present
-      notify: Restart SSH
+      loop: "{{ users }}"
     
     - name: Disable password authentication for SSH
       lineinfile:
