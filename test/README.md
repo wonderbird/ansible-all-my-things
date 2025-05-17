@@ -24,9 +24,17 @@ ssh-keygen -q -N "" -t ecdsa -b 521 -f ./ssh_user_key/id_ecdsa -C vagrant@testla
 
 ## Incompatibility
 
+If a playbook is incompatible with my macOS arm64 (Apple Silicon) system,
+it is tagged with `not-supported-on-vagrant-arm64` in
+[../configure.yml](../configure.yml). The
+[Vagrantfile](./Vagrantfile) skips these playbooks.
+
 Unfortunately, the linux homebrew edition does not support the arm64
 architecture. This means that you cannot use this test environment with
 homebrew an Apple Silicon Macs.
+
+Further it seems as if the docker Ubuntu image does not support the XFCE
+desktop environment.
 
 ## Prerequisites
 

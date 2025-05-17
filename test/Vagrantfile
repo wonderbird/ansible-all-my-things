@@ -22,15 +22,20 @@ Vagrant.configure("2") do |config|
 
       # Run Ansible provisioner once for all VMs at the end
       lorien.vm.provision "ansible" do |ansible|
-        # Vagrant fails to detect the Ansible version. Thus we force it to
-        # use v2.
-        ansible.compatibility_mode = "2.0"
-
         ansible.playbook = "../configure.yml"
+
+        # On macOS with Apple Silicon, some playbooks are not supported.
+        # In the configure.yml, these are tagged with "not-supported-on-vagrant-arm64".
+        # We have to skip them here.
+        ansible.skip_tags = "not-supported-on-vagrant-arm64"
         
         # Debug by uncommenting the following line:
         #ansible.verbose = "vvv"
         
+        # Vagrant fails to detect the Ansible version. Thus we force it to
+        # use v2.
+        ansible.compatibility_mode = "2.0"
+
         # Especially the setup-users.yml playbook uses "root" as the remote
         # user, because the Hetzner VMs have only root in the first place.
         # Thus, we must allow root here in order to mimic the target

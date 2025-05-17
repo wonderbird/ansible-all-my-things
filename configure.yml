@@ -2,3 +2,6 @@
 - import_playbook: playbooks/setup-users.yml
 - import_playbook: playbooks/setup-basics.yml
 - import_playbook: playbooks/setup-homebrew.yml
+  tags: not-supported-on-vagrant-arm64
+- import_playbook: playbooks/setup-desktop.yml
+  tags: not-supported-on-vagrant-arm64

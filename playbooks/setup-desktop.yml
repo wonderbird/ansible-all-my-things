@@ -3,10 +3,12 @@
   become: true
 
   pre_tasks:
+    # TODO: smell - Update apt cache is duplicate in several playbooks
     - name: Update apt cache if needed
       apt: update_cache=yes cache_valid_time=3600
 
   handlers:
+    # TODO: smell - cleanup apt cache is duplicate in several playbooks
     - name: Cleanup apt cache
       apt:
         autoremove: yes
