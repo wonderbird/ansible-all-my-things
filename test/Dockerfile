@@ -13,6 +13,7 @@ ENV container=docker
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     apt-utils \
+    ca-certificates \
     cron \
     curl \
     git \
@@ -48,7 +49,7 @@ RUN chmod 600 /etc/ssh/*_key \
 # Enable public key authentication.
 # Add the vagrant user to the sudo group.
 # Allow sudo without password.
-RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
     && sed -i 's/#PubkeyAuthentication yes/PubkeyAuthentication yes/' /etc/ssh/sshd_config \
     && useradd -m -s /bin/bash vagrant \
     && usermod -aG sudo vagrant \
@@ -60,6 +61,12 @@ RUN mkdir -p /home/vagrant/.ssh \
     && chmod 700 /home/vagrant/.ssh \
     && chmod 600 /home/vagrant/.ssh/authorized_keys \
     && chown -R vagrant:vagrant /home/vagrant/.ssh
+
+COPY ./ssh_user_key/id_ecdsa.pub /root/.ssh/authorized_keys
+RUN mkdir -p /root/.ssh \
+    && chmod 700 /root/.ssh \
+    && chmod 600 /root/.ssh/authorized_keys \
+    && chown -R root:root /root/.ssh
 
 EXPOSE 22
 
