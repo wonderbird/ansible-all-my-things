@@ -24,19 +24,19 @@ Next, publish your API token to the HCLOUD_TOKEN environment variable, which
 is used by default by the
 [hetzner.hcloud ansible modules](https://docs.ansible.com/ansible/latest/collections/hetzner/hcloud/).
 
-```bash
+```shell
 echo -n "hcloud API token: "; read -s HCLOUD_TOKEN; export HCLOUD_TOKEN
 ```
 
 Then create the server using the following command:
 
-```bash
+```shell
 ansible-playbook ./provision.yml
 ```
 
 To verify the setup, execute the `mob moo` command on the server:
 
-```bash
+```shell
 # Source .bash_profile to load the environment variables
 ansible dev -m shell -a '. $HOME/.bash_profile; mob moo'
 ```
@@ -45,14 +45,14 @@ ansible dev -m shell -a '. $HOME/.bash_profile; mob moo'
 
 Remove the SSH host keys from the known hosts file:
 
-```bash
+```shell
 export IPV4_ADDRESS=$(hcloud server list -o json | jq '.[0].public_net.ipv4.ip' | tr -d '"'); echo "IPv4 address: \"$IPV4_ADDRESS\""
 ssh-keygen -R $IPV4_ADDRESS
 ```
 
 To delete the VM including its primary IPv4 address, use the following command:
 
-```bash
+```shell
 hcloud server delete lorien
 ```
 

@@ -4,4 +4,4 @@
 - import_playbook: playbooks/setup-homebrew.yml
   tags: not-supported-on-vagrant-arm64
 - import_playbook: playbooks/setup-desktop.yml
-  tags: not-supported-on-vagrant-arm64
+  tags: not-supported-on-vagrant-docker

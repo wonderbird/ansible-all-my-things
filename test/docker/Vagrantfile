@@ -1,0 +1,70 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+    config.ssh.insert_key = false
+    config.ssh.private_key_path = ["../ssh_user_key/id_ecdsa"]
+    
+    config.vm.synced_folder ".", "/vagrant", disabled: true
+    
+    config.vm.provider "docker" do |d|
+      d.build_dir = "."
+      d.dockerfile = "./Dockerfile"
+      d.create_args = ["--privileged"]
+      d.has_ssh = true
+    end
+  
+    # Ubuntu Developer VM
+    config.vm.define "lorien" do |lorien|
+      lorien.vm.hostname = "lorien"
+      lorien.vm.network :forwarded_port, guest: 22, host: 2223, id: "ssh", auto_correct: true
+
+      # Run Ansible provisioner once for all VMs at the end
+      lorien.vm.provision "ansible" do |ansible|
+        ansible.playbook = "../../configure.yml"
+
+        # On macOS with Apple Silicon, some playbooks are not supported.
+        # In the configure.yml, these are tagged with "not-supported-on-vagrant-arm64".
+        # We have to skip them here.
+        ansible.skip_tags = [
+          "not-supported-on-vagrant-arm64",
+          "not-supported-on-vagrant-docker"
+        ]
+        
+        # Debug by uncommenting the following line:
+        #ansible.verbose = "vvv"
+        
+        # Vagrant fails to detect the Ansible version. Thus we force it to
+        # use v2.
+        ansible.compatibility_mode = "2.0"
+
+        # Especially the setup-users.yml playbook uses "root" as the remote
+        # user, because the Hetzner VMs have only root in the first place.
+        # Thus, we must allow root here in order to mimic the target
+        # environment.
+        ansible.force_remote_user = false
+
+        ansible.limit = "all"
+        ansible.extra_vars = {
+          # When executing `vagrant provision` we run in non-interactive mode.
+          # Thus, we need to hand over the passwords which would usually be
+          # prompted.
+          ansible_user_password: "gandalf",
+          desktop_user_password: "galadriel",
+
+          # Public key is copied from ../ssh_user_key/id_ecdsa.pub
+          ssh_public_key: "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGodZbJdnsMg04quzgawuI5wCQtxCTnLzevJbM8skRBc93exnvRrmYx9UWXlSVSP1MzYBADtcEqK36qYFx5jQRc3QEvKYO501QIJAKsixKvnPWkrPg19L6QHWHA9D0EBDNG2WZYAMySrZQHsnRpmIAEct0bV6V+7i7X/GjtxP4ctI0q6A== vagrant@testlab",
+          
+          ansible_ssh_private_key_file: "../ssh_user_key/id_ecdsa",
+        }
+        ansible.groups = {
+          "dev" => ["lorien"],
+          "dev:vars" => {
+            "ansible_user" => "gandalf",
+            "desktop_user" => "galadriel"
+          }
+        }
+      end
+    end
+end
