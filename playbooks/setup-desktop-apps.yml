@@ -12,6 +12,11 @@
 
   tasks:
 
+    # Visual Studio Code requires Chromium for key management
+    # See: https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
+    - name: Install Chrome
+      snap: name=chromium state=present
+
     # Check if the Microsoft signing key is already installed
     - name: Check if Microsoft apt key is already installed
       command: >
@@ -75,3 +80,13 @@
         name: code
         state: present
       notify: Cleanup apt cache
+
+    # The keyring configuration follows
+    # https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
+    - name: Configure keyring
+      become_user: "{{ desktop_user }}"
+      lineinfile:
+        path: /home/{{ desktop_user }}/.vscode/argv.json
+        insertafter: '^{$'
+        line: '	"password-store": "gnome-libsecret",'
+        state: present

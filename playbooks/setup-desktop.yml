@@ -26,6 +26,8 @@
           - build-essential
           - dotnet-sdk-8.0
           - keepassxc
+          - dbus-x11
+          - libsecret-tools
           - seahorse
           - ubuntu-desktop-minimal
         state: present
@@ -69,3 +71,4 @@
         mode: 0644
         state: present
       notify: Restart XRDP
+

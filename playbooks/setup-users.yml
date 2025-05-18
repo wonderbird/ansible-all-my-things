@@ -31,6 +31,7 @@
       prompt: "Enter the password for the ansible user {{ ansible_user_name }}"
       private: yes
 
+    # TODO: smell: desktop_user_password is requested multiple times
     - name: desktop_user_password
       prompt: "Enter the password for the desktop user {{ desktop_user_name }}"
       private: yes

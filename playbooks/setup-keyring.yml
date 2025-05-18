@@ -1,0 +1,108 @@
+---
+# Create default GNOME keyring for the desktop user
+#
+# Adopted from
+# https://unix.stackexchange.com/questions/473528/how-do-you-enable-the-secret-tool-command-backed-by-gnome-keyring-libsecret-an
+#
+- hosts: dev
+  become: true
+
+  vars:
+    # TODO: smell: redundant definition of the default desktop_user in inventory group variables and here
+    desktop_user_name: "{{ desktop_user | default('galadriel') }}"
+
+  vars_prompt:
+    # TODO: smell: desktop_user_password is requested multiple times
+    - name: desktop_user_password
+      prompt: "Enter the password for the desktop user {{ desktop_user_name }}"
+      private: yes
+
+  pre_tasks:
+    # TODO: smell - Update apt cache is duplicate in several playbooks
+    - name: Update apt cache if needed
+      apt: update_cache=yes cache_valid_time=3600
+
+  handlers:
+    # TODO: smell - cleanup apt cache is duplicate in several playbooks
+    - name: Cleanup apt cache
+      apt:
+        autoremove: yes
+        autoclean: yes
+
+  tasks:
+    - name: Install keyring dependencies
+      apt:
+        name:
+          - dbus-x11
+          - libsecret-tools
+        state: present
+      notify: Cleanup apt cache
+
+    - name: Ensure keyring directories exist
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ desktop_user }}"
+        group: "{{ desktop_user }}"
+        mode: 0700
+      loop:
+        - "/home/{{ desktop_user }}/.cache"
+        - "/home/{{ desktop_user }}/.local/share/keyrings"
+
+    - name: Start dbus message bus
+      become_user: "{{ desktop_user }}"
+      shell: |
+        eval $(dbus-launch --sh-syntax)
+
+        export DBUS_SESSION_BUS_ADDRESS
+        echo $DBUS_SESSION_BUS_ADDRESS
+        export DBUS_SESSION_BUS_PID
+        echo $DBUS_SESSION_BUS_PID
+      args:
+        executable: /bin/bash
+      register: dbus_launch
+      changed_when: false
+
+    - name: Debug dbus-launch
+      debug:
+        var: dbus_launch
+
+    - name: Save dbus session environment variables
+      set_fact:
+        dbus_session:
+          bus_address: "{{ dbus_launch.stdout_lines[0] }}"
+          bus_pid: "{{ dbus_launch.stdout_lines[1] }}"
+    
+    - name: Debug dbus session
+      debug:
+        var: dbus_session
+
+    - name: Create default keyring
+      become_user: "{{ desktop_user }}"
+      shell: |
+        eval "$(printf '{{ desktop_user_password }}' | gnome-keyring-daemon --unlock)"
+        echo $SSH_AUTH_SOCK
+      register: gnome_keyring
+      changed_when: true
+      environment:
+        DBUS_SESSION_BUS_ADDRESS: "{{ dbus_session.bus_address }}"
+        DBUS_SESSION_BUS_PID: "{{ dbus_session.bus_pid }}"
+  
+    - name: Save SSH_AUTH_SOCK
+      set_fact:
+        ssh_auth_sock: "{{ gnome_keyring.stdout }}"
+      
+    - name: Debug SSH_AUTH_SOCK
+      debug:
+        var: ssh_auth_sock
+
+    - name: Start gnome-keyring-daemon
+      become_user: "{{ desktop_user }}"
+      shell: |
+        eval "$(printf '{{ desktop_user_password }}' | /usr/bin/gnome-keyring-daemon --start)"
+      register: gnome_keyring_daemon
+      changed_when: true
+      environment:
+        DBUS_SESSION_BUS_ADDRESS: "{{ dbus_session.bus_address }}"
+        DBUS_SESSION_BUS_PID: "{{ dbus_session.bus_pid }}"
+        SSH_AUTH_SOCK: "{{ ssh_auth_sock }}"

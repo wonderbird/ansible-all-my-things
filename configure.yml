@@ -14,8 +14,8 @@
 - import_playbook: playbooks/setup-desktop.yml
   tags: not-supported-on-vagrant-docker
 
-- import_playbook: playbooks/setup-vs-code.yml
+- import_playbook: playbooks/setup-keyring.yml
   tags: not-supported-on-vagrant-docker
 
-- import_playbook: playbooks/setup-chrome.yml
+- import_playbook: playbooks/setup-desktop-apps.yml
   tags: not-supported-on-vagrant-docker
