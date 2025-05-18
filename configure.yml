@@ -8,8 +8,14 @@
 # Setup desktop environment
 #
 # These playbooks are not supported on Vagrant with Docker provider
+# I assume that the underlying reason is that the docker image is minimized
+# and cannot be unminimized.
 #
 - import_playbook: playbooks/setup-desktop.yml
   tags: not-supported-on-vagrant-docker
+
 - import_playbook: playbooks/setup-vs-code.yml
+  tags: not-supported-on-vagrant-docker
+
+- import_playbook: playbooks/setup-chrome.yml
   tags: not-supported-on-vagrant-docker
