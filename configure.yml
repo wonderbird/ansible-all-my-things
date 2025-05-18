@@ -1,7 +1,15 @@
 ---
 - import_playbook: playbooks/setup-users.yml
 - import_playbook: playbooks/setup-basics.yml
+
 - import_playbook: playbooks/setup-homebrew.yml
   tags: not-supported-on-vagrant-arm64
+
+# Setup desktop environment
+#
+# These playbooks are not supported on Vagrant with Docker provider
+#
 - import_playbook: playbooks/setup-desktop.yml
+  tags: not-supported-on-vagrant-docker
+- import_playbook: playbooks/setup-vs-code.yml
   tags: not-supported-on-vagrant-docker

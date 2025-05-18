@@ -1,0 +1,77 @@
+---
+# Adopted from https://code.visualstudio.com/docs/setup/linux
+- hosts: dev
+  become: true
+
+  handlers:
+    # TODO: smell - cleanup apt cache is duplicate in several playbooks
+    - name: Cleanup apt cache
+      apt:
+        autoremove: yes
+        autoclean: yes
+
+  tasks:
+
+    # Check if the Microsoft signing key is already installed
+    - name: Check if Microsoft apt key is already installed
+      command: >
+        gpg --list-keys --keyring /etc/apt/keyrings/packages.microsoft.gpg
+      register: have_microsoft_key
+      changed_when: false
+      failed_when: false
+
+    # Warning:
+    #   To install the Microsoft signing key,
+    #   do not use apt_key module, because it is deprecated.
+    #
+    # Instead follow the instructions at
+    # https://code.visualstudio.com/docs/setup/linux
+    - name: Download Microsoft apt key to /tmp
+      get_url:
+        url: https://packages.microsoft.com/keys/microsoft.asc
+        dest: /tmp/microsoft.asc
+      when: have_microsoft_key.rc != 0
+
+    - name: Dearmor Microsoft apt key
+      command: gpg --dearmor /tmp/microsoft.asc
+      args:
+        creates: /tmp/microsoft.asc.gpg
+      when: have_microsoft_key.rc != 0
+
+    - name: Install Microsoft apt key to /etc/apt/keyrings
+      # Instead of using the copy module, use the install command
+      command: >
+        install -D -o root -g root -m 644
+                /tmp/microsoft.asc.gpg
+                /etc/apt/keyrings/packages.microsoft.gpg
+      when: have_microsoft_key.rc != 0
+
+    - name: Remove Microsoft apt key from /tmp
+      file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /tmp/microsoft.asc
+        - /tmp/microsoft.asc.gpg
+      when: have_microsoft_key.rc != 0
+
+    # Include arm64 architecture to support Apple Silicon when running
+    # on the Vagrant / Tart test environment
+    - name: Add Microsoft apt repository
+      apt_repository:
+        repo: deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main
+        state: present
+
+    - name: Install apt-transport-https
+      apt:
+        name: apt-transport-https
+        state: present
+
+    - name: Update apt cache
+      apt: update_cache=yes
+
+    - name: Install VS Code
+      apt:
+        name: code
+        state: present
+      notify: Cleanup apt cache
