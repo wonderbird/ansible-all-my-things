@@ -1,5 +1,4 @@
 ---
-# Adopted from https://code.visualstudio.com/docs/setup/linux
 - hosts: dev
   become: true
 
@@ -12,10 +11,51 @@
 
   tasks:
 
-    # Visual Studio Code requires Chromium for key management
+    #####
+    # Install and configure Chromium
+    #####
+
+    # Visual Studio Code requires Chromium for key management. Thus, Chromium is
+    # installed first.
     # See: https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
-    - name: Install Chrome
+    - name: Install Chromium
       snap: name=chromium state=present
+
+    # Recursively copy configuration/etc/chromium-browser/policies
+    #
+    # Policy configuration is described in
+    #
+    # - https://www.chromium.org/administrators/linux-quick-start/
+    # - https://chromeenterprise.google/policies/
+    #
+    # More information on Chromium policies
+    #
+    # https://www.chromium.org/administrators/policy-templates/
+    #
+    # How to set up a default configuration - for the first start only -
+    # and policies
+    #
+    # https://www.chromium.org/administrators/configuring-other-preferences/
+    #
+    - name: Update Chromium policies
+      synchronize:
+        src: "../configuration/etc/chromium-browser/"
+        dest: "/etc/chromium-browser"
+        delete: true
+        recursive: true
+
+    - name: Set ownership of Chromium policies
+      file:
+        path: "/etc/chromium-browser"
+        recurse: true
+        owner: root
+        group: root
+        mode: "0755"
+
+    #####
+    # Install and configure Visual Studio Code
+    #####
+    # Adopted from https://code.visualstudio.com/docs/setup/linux
 
     # Check if the Microsoft signing key is already installed
     - name: Check if Microsoft apt key is already installed
@@ -81,7 +121,7 @@
         state: present
       notify: Cleanup apt cache
 
-    # The keyring configuration follows
+    # Configure keyring as described in
     # https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
     - name: Configure keyring
       become_user: "{{ desktop_user }}"

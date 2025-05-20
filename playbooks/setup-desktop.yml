@@ -20,6 +20,13 @@
         state: restarted
 
   tasks:
+    - name: Install console utilities
+      apt:
+        name:
+          - tree
+        state: present
+      notify: Cleanup apt cache
+
     - name: Install minimal GNOME desktop
       apt:
         name:
