@@ -2,4 +2,4 @@ Ask clarifying questions if my instructions are unclear.
 
 Repeat my question briefly before responding.
 
-When you finish your code changes, save them to git with a commit. Your commit message should have two parts: a headline that explains what new feature you added, followed by a short description of your changes (keep it under 50 words).
+After completing code changes, commit to git with a conventional message: headline stating new capability (not action taken) + brief description under 50 words (bullet points allowed for readability). Example: use 'feat: show hello message on startup' not 'feat: implement printing hello on startup'.
