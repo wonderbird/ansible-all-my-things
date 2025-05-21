@@ -1,0 +1,66 @@
+---
+- hosts: dev
+  become: true
+
+  tasks:
+
+    #####
+    # Backup Chromium settings
+    #####
+    
+    - name: Create timestamp variable for backup filename
+      set_fact:
+        timestamp: "{{ lookup('pipe', 'date +%Y%m%d-%H%M%S') }}"
+      run_once: true
+
+    - name: Create chromium backup directory if it doesn't exist
+      file:
+        path: "/home/{{ desktop_user }}/snap"
+        state: directory
+        mode: '0755'
+
+    - name: Check if Chromium config directory exists
+      stat:
+        path: "/home/{{ desktop_user }}/snap/chromium/common/chromium/Default"
+      register: chromium_config_dir
+
+    - name: Create tar.gz archive of Chromium settings
+      archive:
+        path: "/home/{{ desktop_user }}/snap/chromium/common/chromium/Default"
+        dest: "/home/{{ desktop_user }}/chromium-backup-{{ timestamp }}.tar.gz"
+        format: gz
+      when: chromium_config_dir.stat.exists
+      register: archive_result
+
+    - name: Create local backup directory if it doesn't exist
+      delegate_to: localhost
+      file:
+        path: "{{ playbook_dir }}/../configuration/home/{{ desktop_user }}"
+        state: directory
+        mode: '0755'
+      when: archive_result.changed | default(false)
+      become: false
+
+    - name: Fetch backup file to local machine
+      fetch:
+        src: "/home/{{ desktop_user }}/chromium-backup-{{ timestamp }}.tar.gz"
+        dest: "{{ playbook_dir }}/../configuration/home/{{ desktop_user }}/chromium-backup-{{ timestamp }}.tar.gz"
+        flat: yes
+      when: archive_result.changed | default(false)
+
+    - name: Delete backup file from remote server
+      file:
+        path: "/home/{{ desktop_user }}/chromium-backup-{{ timestamp }}.tar.gz"
+        state: absent
+      when: archive_result.changed | default(false)
+
+    - name: Show backup status
+      debug:
+        msg: "Chromium backup completed successfully. Backup saved to configuration/home/{{ desktop_user }}/chromium-backup-{{ timestamp }}.tar.gz"
+      when: archive_result.changed | default(false)
+
+    - name: Show backup status when no Chromium configuration exists
+      debug:
+        msg: "No Chromium configuration found at /home/{{ desktop_user }}/snap/chromium/common/chromium/Default. No backup created."
+      when: not chromium_config_dir.stat.exists
+

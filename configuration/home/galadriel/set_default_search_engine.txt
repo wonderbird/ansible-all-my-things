@@ -1,0 +1,4 @@
+Hemingway Bridge: Check ~/Library/Application\ Support/Google/Chrome/Default/
+to find in which file the default search engine is defined.
+
+grep -r "startpage.com" ~/Library/Application\ Support/Google/Chrome/Default/
