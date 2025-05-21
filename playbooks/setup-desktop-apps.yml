@@ -2,6 +2,10 @@
 - hosts: dev
   become: true
 
+  vars:
+    backup_remote_path: "/home/{{ desktop_user }}/chromium-backup.tar.gz"
+    backup_local_path: "{{ playbook_dir }}/../configuration{{ backup_remote_path }}"
+
   handlers:
     # TODO: smell - cleanup apt cache is duplicate in several playbooks
     - name: Cleanup apt cache
@@ -21,65 +25,29 @@
     - name: Install Chromium
       snap: name=chromium state=present
 
-    # Recursively copy configuration/etc/chromium-browser/policies
-    #
-    # Policy configuration is described in
-    #
-    # - https://www.chromium.org/administrators/linux-quick-start/
-    # - https://chromeenterprise.google/policies/
-    #
-    # More information on Chromium policies
-    #
-    # https://www.chromium.org/administrators/policy-templates/
-    #
-    # How to set up a default configuration - for the first start only -
-    # and policies
-    #
-    # https://www.chromium.org/administrators/configuring-other-preferences/
-    #
-    - name: Update Chromium policies
-      synchronize:
-        src: "../configuration/etc/chromium-browser/"
-        dest: "/etc/chromium-browser"
-        delete: true
-        recursive: true
-
-    - name: Set ownership of Chromium policies
-      file:
-        path: "/etc/chromium-browser"
-        recurse: true
-        owner: root
-        group: root
-        mode: "0755"
-
-    # Upload and extract chromium backup
     - name: Check if backup file exists locally
       delegate_to: localhost
       become: false
       stat:
-        path: "{{ playbook_dir }}/../configuration/home/{{ desktop_user }}/chromium-backup-*.tar.gz"
-      register: backup_file_stat
+        path: "{{ backup_local_path }}"
+      register: backup_local
 
-    - name: Find most recent backup file
-      delegate_to: localhost
-      become: false
-      shell: "ls -t {{ playbook_dir }}/../configuration/home/{{ desktop_user }}/chromium-backup-*.tar.gz | head -1"
-      register: latest_backup
-      changed_when: false
-      when: backup_file_stat.stat.exists | default(false)
+    - name: Upload Chromium backup file to remote server
+      copy:
+        src: "{{ backup_local_path }}"
+        dest: "{{ backup_remote_path }}"
+        owner: "{{ desktop_user }}"
+        group: "{{ desktop_user }}"
+        mode: '0644'
+      when: backup_local.stat.exists
+      register: upload_result
 
-    - name: Check if Chromium profile directory exists
-      stat:
-        path: "/home/{{ desktop_user }}/snap/chromium/common/chromium/Default"
-        follow: yes
-      register: chromium_profile_dir
-      when: backup_file_stat.stat.exists | default(false)
-      
-    - name: Remove existing Chromium profile if it exists
+
+    - name: Remove existing Chromium profile
       file:
         path: "/home/{{ desktop_user }}/snap/chromium/common/chromium/Default"
         state: absent
-      when: backup_file_stat.stat.exists | default(false) and chromium_profile_dir.stat.exists | default(false)
+      when: not upload_result.failed | default(true)
 
     - name: Ensure Chromium base directory exists
       file:
@@ -88,42 +56,32 @@
         mode: '0755'
         owner: "{{ desktop_user }}"
         group: "{{ desktop_user }}"
-      when: backup_file_stat.stat.exists | default(false)
-
-    - name: Upload Chromium backup file to remote server
-      copy:
-        src: "{{ latest_backup.stdout }}"
-        dest: "/home/{{ desktop_user }}/chromium-backup.tar.gz"
-        owner: "{{ desktop_user }}"
-        group: "{{ desktop_user }}"
-        mode: '0644'
-      when: backup_file_stat.stat.exists | default(false)
-      register: upload_result
+      when: not upload_result.failed | default(true)
 
     - name: Extract Chromium backup
       become_user: "{{ desktop_user }}"
       unarchive:
-        src: "/home/{{ desktop_user }}/chromium-backup.tar.gz"
+        src: "{{ backup_remote_path }}"
         dest: "/home/{{ desktop_user }}/snap/chromium/common/chromium/"
         remote_src: yes
-      when: upload_result.changed | default(false)
+      when: not upload_result.failed | default(true)
       register: extract_result
 
     - name: Remove temporary archive from remote server
       file:
-        path: "/home/{{ desktop_user }}/chromium-backup.tar.gz"
+        path: "{{ backup_remote_path }}"
         state: absent
       when: extract_result.changed | default(false)
 
     - name: Show restore status
       debug:
-        msg: "Chromium profile restored successfully from {{ latest_backup.stdout | basename }}"
+        msg: "Chromium profile restored successfully from {{ backup_local_path | basename }}"
       when: extract_result.changed | default(false)
 
     - name: Show status when no backup found
       debug:
         msg: "No Chromium backup found. Skipping restore."
-      when: not backup_file_stat.stat.exists | default(false)
+      when: not backup_local.stat.exists
 
     #####
     # Install and configure Visual Studio Code
