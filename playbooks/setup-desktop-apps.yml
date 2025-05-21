@@ -70,19 +70,25 @@
 
     - name: Check if Chromium profile directory exists
       stat:
-        path: "/home/{{ desktop_user }}/snap/chromium/common/chromium"
+        path: "/home/{{ desktop_user }}/snap/chromium/common/chromium/Default"
         follow: yes
-      register: chromium_dir
+      register: chromium_profile_dir
       when: backup_file_stat.stat.exists | default(false)
+      
+    - name: Remove existing Chromium profile if it exists
+      file:
+        path: "/home/{{ desktop_user }}/snap/chromium/common/chromium/Default"
+        state: absent
+      when: backup_file_stat.stat.exists | default(false) and chromium_profile_dir.stat.exists | default(false)
 
-    - name: Create Chromium profile directory if it doesn't exist
+    - name: Ensure Chromium base directory exists
       file:
         path: "/home/{{ desktop_user }}/snap/chromium/common/chromium"
         state: directory
         mode: '0755'
         owner: "{{ desktop_user }}"
         group: "{{ desktop_user }}"
-      when: backup_file_stat.stat.exists | default(false) and not chromium_dir.stat.exists | default(false)
+      when: backup_file_stat.stat.exists | default(false)
 
     - name: Upload Chromium backup file to remote server
       copy:
