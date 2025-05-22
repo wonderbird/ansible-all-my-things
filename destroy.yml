@@ -1,0 +1,11 @@
+---
+- name: Setup developer server
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  tasks:
+    - name: Destroy developer server
+      hetzner.hcloud.server:
+        state: absent
+        name: lorien

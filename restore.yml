@@ -1,0 +1,2 @@
+---
+- import_playbook: playbooks/restore-chromium-settings.yml

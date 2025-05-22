@@ -41,6 +41,22 @@ To verify the setup, execute the `mob moo` command on the server:
 ansible dev -m shell -a '. $HOME/.bash_profile; mob moo'
 ```
 
+## Restore a backup of the desktop user
+
+To restore a backup of the desktop user, use the following command:
+
+```shell
+ansible-playbook ./restore.yml
+```
+
+## Backup working directory of desktop user
+
+To backup the working directory of the desktop user, use the following command:
+
+```shell
+ansible-playbook ./backup.yml
+```
+
 ## Delete the VM
 
 Remove the SSH host keys from the known hosts file:

@@ -1,0 +1,66 @@
+---
+- hosts: dev
+  become: true
+
+  vars:
+    backup_remote_path: "/home/{{ desktop_user }}/chromium-backup.tar.gz"
+    backup_local_path: "{{ playbook_dir }}/../configuration{{ backup_remote_path }}"
+
+  tasks:
+
+    - name: Check if backup file exists locally
+      delegate_to: localhost
+      become: false
+      stat:
+        path: "{{ backup_local_path }}"
+      register: backup_local
+
+    - name: Upload Chromium backup file to remote server
+      copy:
+        src: "{{ backup_local_path }}"
+        dest: "{{ backup_remote_path }}"
+        owner: "{{ desktop_user }}"
+        group: "{{ desktop_user }}"
+        mode: '0644'
+      when: backup_local.stat.exists
+      register: upload_result
+
+    - name: Remove existing Chromium profile
+      file:
+        path: "/home/{{ desktop_user }}/snap/chromium/common/chromium/Default"
+        state: absent
+      when: not upload_result.failed | default(true)
+
+    - name: Ensure Chromium base directory exists
+      file:
+        path: "/home/{{ desktop_user }}/snap/chromium/common/chromium"
+        state: directory
+        mode: '0755'
+        owner: "{{ desktop_user }}"
+        group: "{{ desktop_user }}"
+      when: not upload_result.failed | default(true)
+
+    - name: Extract Chromium backup
+      become_user: "{{ desktop_user }}"
+      unarchive:
+        src: "{{ backup_remote_path }}"
+        dest: "/home/{{ desktop_user }}/snap/chromium/common/chromium/"
+        remote_src: yes
+      when: not upload_result.failed | default(true)
+      register: extract_result
+
+    - name: Remove temporary archive from remote server
+      file:
+        path: "{{ backup_remote_path }}"
+        state: absent
+      when: extract_result.changed | default(false)
+
+    - name: Show restore status
+      debug:
+        msg: "Chromium profile restored successfully from {{ backup_local_path | basename }}"
+      when: extract_result.changed | default(false)
+
+    - name: Show status when no backup found
+      debug:
+        msg: "No Chromium backup found. Skipping restore."
+      when: not backup_local.stat.exists

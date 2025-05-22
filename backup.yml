@@ -1,0 +1,2 @@
+---
+- import_playbook: playbooks/backup-chromium-settings.yml
