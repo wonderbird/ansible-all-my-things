@@ -43,7 +43,11 @@ ansible dev -m shell -a '. $HOME/.bash_profile; mob moo'
 
 ## Restore a backup of the desktop user
 
-To restore a backup of the desktop user, use the following command:
+Restoring the backup is a part of the [./configure.yml](./configure.yml)
+playbook.
+
+To restore a backup of the desktop user later manually, use the following
+command:
 
 ```shell
 ansible-playbook ./restore.yml
@@ -59,17 +63,10 @@ ansible-playbook ./backup.yml
 
 ## Delete the VM
 
-Remove the SSH host keys from the known hosts file:
+To delete the VM, use the following command:
 
 ```shell
-export IPV4_ADDRESS=$(hcloud server list -o json | jq '.[0].public_net.ipv4.ip' | tr -d '"'); echo "IPv4 address: \"$IPV4_ADDRESS\""
-ssh-keygen -R $IPV4_ADDRESS
-```
-
-To delete the VM including its primary IPv4 address, use the following command:
-
-```shell
-hcloud server delete lorien
+ansible-playbook ./destroy.yml
 ```
 
 You can verify that the server is deleted in your [Hetzner console project](https://console.hetzner.cloud/projects/10607445/servers).

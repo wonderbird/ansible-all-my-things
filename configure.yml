@@ -12,3 +12,6 @@
 - import_playbook: playbooks/setup-desktop.yml
 - import_playbook: playbooks/setup-keyring.yml
 - import_playbook: playbooks/setup-desktop-apps.yml
+
+# Restore backup
+- import_playbook: ./restore.yml

@@ -5,6 +5,15 @@
   gather_facts: False
 
   tasks:
+    - name: Get IP address of developer server
+      hetzner.hcloud.server_info:
+        name: lorien
+      register: server
+
+    - name: Remove server from authorized SSH keys
+      shell:
+        cmd: ssh-keygen -R "{{ server.hcloud_server_info[0].ipv4_address }}"
+
     - name: Destroy developer server
       hetzner.hcloud.server:
         state: absent
