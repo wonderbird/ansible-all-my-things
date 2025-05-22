@@ -28,6 +28,7 @@
 # - https://github.com/orgs/community/discussions/10539
 #
 - hosts: all
+  tags: not-supported-on-vagrant-arm64
   become: false
 
   pre_tasks:

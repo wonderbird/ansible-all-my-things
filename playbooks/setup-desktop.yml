@@ -1,5 +1,6 @@
 ---
 - hosts: all
+  tags: not-supported-on-vagrant-docker
   become: true
 
   pre_tasks:
