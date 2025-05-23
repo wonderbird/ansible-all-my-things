@@ -2,9 +2,12 @@
 - hosts: dev
   become: true
 
+  # TODO: smell - copied from backup-chromium-settings.yml - can we abstract this?
+
   vars:
-    config_remote_dir: "/home/{{ desktop_user }}/snap/chromium/common/chromium/Default"
-    backup_remote_path: "/home/{{ desktop_user }}/chromium-backup.tar.gz"
+    config_remote_dir: "/home/{{ desktop_user }}/.vscode"
+    extensions_remote_file: "/home/{{ desktop_user }}/vscode-extension-list.txt"
+    backup_remote_path: "/home/{{ desktop_user }}/vscode-backup.tar.gz"
     backup_local_path: "{{ playbook_dir }}/../configuration{{ backup_remote_path }}"
 
   tasks:
@@ -14,21 +17,19 @@
         path: "{{ config_remote_dir }}"
       register: config_dir
 
+    - name: Export list of extensions
+      shell: code --list-extensions > "{{ extensions_remote_file }}"
+      become_user: "{{ desktop_user }}"
+      when: config_dir.stat.exists
+
     - name: Create tar.gz archive of config directory
       archive:
-        path: "{{ config_remote_dir }}"
+        path:
+          - "{{ config_remote_dir }}"
+          - "{{ extensions_remote_file }}"
         dest: "{{ backup_remote_path }}"
-        format: gz
         exclusion_patterns:
-          - "*Cache*"
-          - "*cache*"
-          - "*History*"
-          - "*Local Storage*"
-          - "*Session Storage*"
-          - "*SharedStorage*"
-          - "*WebStorage*"
-          - "*blob_storage*"
-          - "*Favicons*"
+          - "*extensions*"
       when: config_dir.stat.exists
       register: archive_result
 
@@ -42,6 +43,12 @@
     - name: Delete archive from remote
       file:
         path: "{{ backup_remote_path }}"
+        state: absent
+      when: archive_result.changed | default(false)
+
+    - name: Delete list of extensions from remote
+      file:
+        path: "{{ extensions_remote_file }}"
         state: absent
       when: archive_result.changed | default(false)
 

@@ -1,0 +1,83 @@
+---
+- hosts: dev
+  become: true
+
+  # TODO: smell - copied from restore-chromium-settings.yml - can we abstract this?
+
+  vars:
+    config_remote_dir: "/home/{{ desktop_user }}/.vscode"
+    backup_remote_path: "/home/{{ desktop_user }}/vscode-backup.tar.gz"
+    backup_local_path: "{{ playbook_dir }}/../configuration{{ backup_remote_path }}"
+
+  tasks:
+
+    - name: Check if archive exists locally
+      delegate_to: localhost
+      become: false
+      stat:
+        path: "{{ backup_local_path }}"
+      register: backup_local
+
+    # TODO: is it required to upload the archive or can the unarchive module upload it?
+    - name: Upload archive to remote server
+      copy:
+        src: "{{ backup_local_path }}"
+        dest: "{{ backup_remote_path }}"
+        owner: "{{ desktop_user }}"
+        group: "{{ desktop_user }}"
+        mode: '0644'
+      when: backup_local.stat.exists
+      register: upload_result
+
+    - name: Remove existing config directory
+      file:
+        path: "{{ config_remote_dir }}"
+        state: absent
+      when: not upload_result.failed | default(true)
+
+    - name: Extract archive
+      become_user: "{{ desktop_user }}"
+      unarchive:
+        src: "{{ backup_remote_path }}"
+        dest: "/home/{{ desktop_user }}/"
+        remote_src: yes
+      when: not upload_result.failed | default(true)
+      register: extract_result
+
+    - name: Remove temporary archive from remote server
+      file:
+        path: "{{ backup_remote_path }}"
+        state: absent
+      when: extract_result.changed | default(false)
+
+    - name: Install VSCode extensions
+      shell: cat /home/{{ desktop_user }}/vscode-extension-list.txt | xargs -n 1 code --force --install-extension
+      become_user: "{{ desktop_user }}"
+      when: not upload_result.failed | default(true)
+      register: install_result
+
+    - name: Remove extensions list from remote server
+      file:
+        path: "/home/{{ desktop_user }}/vscode-extension-list.txt"
+        state: absent
+      when: install_result is defined and install_result.rc == 0
+
+    - name: Show restore status
+      debug:
+        msg: "Configuration restored successfully from {{ backup_local_path | basename }}"
+      when: extract_result.changed | default(false)
+
+    - name: Show result of extension installation
+      debug:
+        msg: "Extensions installed successfully."
+      when: install_result is defined and install_result.rc == 0
+
+    - name: Show status when no archive found
+      debug:
+        msg: "No archive found. Skipping restore."
+      when: not backup_local.stat.exists
+
+    - name: Show failure of extension installation
+      debug:
+        msg: "Extensions failed to install"
+      when: install_result is undefined or install_result.rc != 0

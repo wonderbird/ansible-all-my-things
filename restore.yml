@@ -1,2 +1,3 @@
 ---
 - import_playbook: playbooks/restore-chromium-settings.yml
+- import_playbook: playbooks/restore-vscode-settings.yml
