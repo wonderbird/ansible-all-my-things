@@ -2,9 +2,16 @@
 
 Automated setup and updates for my IT system.
 
+- [./configuration/README.md](./configuration/README.md) describes the default configuration
 - [./inventories/README.md](./inventories/README.md) describes the inventories
 - [./playbooks/README.md](./playbooks/README.md) describes the playbooks
 - [./test/README.md](./test/README.md) describes how to test the playbooks
+
+## Notes
+
+The GNOME keyring needs to be unlocked when you launch an application using
+it, e.g. Visual Studio Code. The password for the default keyring is the same
+as the login password of the desktop user.
 
 ## Add a developer vm with Hetzner
 

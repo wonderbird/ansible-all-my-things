@@ -6,6 +6,10 @@
   vars:
     backup_remote_path: "/home/{{ desktop_user }}/chromium-backup.tar.gz"
     backup_local_path: "{{ playbook_dir }}/../configuration{{ backup_remote_path }}"
+    vscode_keyring_configuration: |
+      // Configure the keyring as described in
+      // https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
+      "password-store": "gnome-libsecret",
 
   handlers:
     # TODO: smell - cleanup apt cache is duplicate in several playbooks
@@ -95,12 +99,28 @@
         state: present
       notify: Cleanup apt cache
 
-    # Configure keyring as described in
-    # https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
-    - name: Configure keyring
+    # Configure VS Code
+    - name: Check whether .vscode directory exists
+      stat:
+        path: /home/{{ desktop_user }}/.vscode
+      register: argv_json
+      changed_when: false
+
+    - name: Copy default .vscode configuration
+      copy:
+        src: "{{ playbook_dir }}/../configuration/home/{{ desktop_user }}/.vscode/"
+        dest: /home/{{ desktop_user }}/.vscode/
+        owner: "{{ desktop_user }}"
+        group: "{{ desktop_user }}"
+        mode: '0775'
+      when: not argv_json.stat.exists
+
+    - name: Configure keyring for VS Code
       become_user: "{{ desktop_user }}"
-      lineinfile:
+      blockinfile:
         path: /home/{{ desktop_user }}/.vscode/argv.json
         insertafter: '^{$'
-        line: '	"password-store": "gnome-libsecret",'
+        block: "{{ vscode_keyring_configuration | indent(4, True) }}"
+        marker: "// {mark} ANSIBLE MANAGED BLOCK"
+        append_newline: true
         state: present
