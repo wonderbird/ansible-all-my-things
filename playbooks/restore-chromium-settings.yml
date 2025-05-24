@@ -8,6 +8,8 @@
 
   tasks:
 
+    # TODO: smell - complicated error handling - consider using `block`, `rescue`, `always` - see p. 121 (147 in PDF) of Ansible for DevOps
+
     - name: Check if backup file exists locally
       delegate_to: localhost
       become: false
