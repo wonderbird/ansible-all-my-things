@@ -3,37 +3,30 @@
   remote_user: root
   become: true
   
-  vars:
-    # Override the default ansible_user with root, because no other users are
-    # present on a fresh system.
-    ansible_user: root
+  vars_files:
+    - vars-usernames.yml
 
-    # Because this play is run as root, we cannot use {{ ansible_user }}
-    # Thus, we directly assign the value defined in
-    # ./inventories/group_vars/dev/vars.yml
-    # TODO: smell: redundant definition of the ansible_user in inventory group variables and here
-    ansible_user_name: "gandalf"
-    # TODO: smell: redundant definition of the default desktop_user in inventory group variables and here
-    desktop_user_name: "{{ desktop_user | default('galadriel') }}"
+  vars:
+    ansible_user: "{{ admin_user_on_fresh_system }}"
 
     users:
-      - name: "{{ ansible_user_name }}"
-        password: "{{ ansible_user_password }}"
-      - name: "{{ desktop_user_name }}"
-        password: "{{ desktop_user_password }}"
+      - name: "{{ my_ansible_user }}"
+        password: "{{ my_ansible_user_password }}"
+      - name: "{{ my_desktop_user }}"
+        password: "{{ my_desktop_user_password }}"
 
   vars_prompt:
     - name: ssh_public_key
       prompt: "Enter the SSH public key for all users"
       private: no
 
-    - name: ansible_user_password
-      prompt: "Enter the password for the ansible user {{ ansible_user_name }}"
+    - name: my_ansible_user_password
+      prompt: "Enter the password for the ansible user {{ my_ansible_user }}"
       private: yes
 
-    # TODO: smell: desktop_user_password is requested multiple times
-    - name: desktop_user_password
-      prompt: "Enter the password for the desktop user {{ desktop_user_name }}"
+    # TODO: smell: my_desktop_user_password is requested multiple times
+    - name: my_desktop_user_password
+      prompt: "Enter the password for the desktop user {{ my_desktop_user }}"
       private: yes
 
   handlers:
@@ -57,8 +50,8 @@
     - name: Allow passwordless sudo for ansible user
       lineinfile:
         path: /etc/sudoers.d/50-ansible-user-does-not-need-password
-        regexp: '^{{ ansible_user_name }}'
-        line: '{{ ansible_user_name }} ALL=(ALL) NOPASSWD:ALL'
+        regexp: '^{{ my_ansible_user }}'
+        line: '{{ my_ansible_user }} ALL=(ALL) NOPASSWD:ALL'
         validate: 'visudo -cf %s'
         create: yes
         state: present

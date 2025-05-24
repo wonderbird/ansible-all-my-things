@@ -1,13 +1,16 @@
 ---
 - hosts: dev
+  tags: not-supported-on-vagrant-docker
   become: true
 
   # TODO: smell - copied from restore-chromium-settings.yml - can we abstract this?
+  vars_files:
+    - vars-usernames.yml
 
   vars:
-    config_remote_dir: "/home/{{ desktop_user }}/.vscode"
-    backup_remote_path: "/home/{{ desktop_user }}/vscode-backup.tar.gz"
-    backup_local_path: "{{ playbook_dir }}/../configuration{{ backup_remote_path }}"
+    config_remote_dir: "/home/{{ my_desktop_user }}/.vscode"
+    backup_remote_path: "/home/{{ my_desktop_user }}/vscode-backup.tar.gz"
+    backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/vscode-backup.tar.gz"
 
   tasks:
 
@@ -25,8 +28,8 @@
       copy:
         src: "{{ backup_local_path }}"
         dest: "{{ backup_remote_path }}"
-        owner: "{{ desktop_user }}"
-        group: "{{ desktop_user }}"
+        owner: "{{ my_desktop_user }}"
+        group: "{{ my_desktop_user }}"
         mode: '0644'
       when: backup_local.stat.exists
       register: upload_result
@@ -38,10 +41,10 @@
       when: not upload_result.failed | default(true)
 
     - name: Extract archive
-      become_user: "{{ desktop_user }}"
+      become_user: "{{ my_desktop_user }}"
       unarchive:
         src: "{{ backup_remote_path }}"
-        dest: "/home/{{ desktop_user }}/"
+        dest: "/home/{{ my_desktop_user }}/"
         remote_src: yes
       when: not upload_result.failed | default(true)
       register: extract_result
@@ -53,14 +56,14 @@
       when: extract_result.changed | default(false)
 
     - name: Install VSCode extensions
-      shell: cat /home/{{ desktop_user }}/vscode-extension-list.txt | xargs -n 1 code --force --install-extension
-      become_user: "{{ desktop_user }}"
+      shell: cat /home/{{ my_desktop_user }}/vscode-extension-list.txt | xargs -n 1 code --force --install-extension
+      become_user: "{{ my_desktop_user }}"
       when: not upload_result.failed | default(true)
       register: install_result
 
     - name: Remove extensions list from remote server
       file:
-        path: "/home/{{ desktop_user }}/vscode-extension-list.txt"
+        path: "/home/{{ my_desktop_user }}/vscode-extension-list.txt"
         state: absent
       when: install_result is defined and install_result.rc == 0
 

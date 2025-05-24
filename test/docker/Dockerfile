@@ -41,7 +41,7 @@ RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == system
     systemctl enable ssh;
 
 # Ensure that the SSH server has a consistent host key.
-COPY ./ssh_host_keys/* /etc/ssh/
+COPY ./docker/ssh_host_keys/* /etc/ssh/
 RUN chmod 600 /etc/ssh/*_key \
     && chmod 644 /etc/ssh/*_key.pub
 
@@ -56,13 +56,13 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/
     && echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
     && mkdir -p /run/sshd
 
-COPY ../ssh_user_key/id_ecdsa.pub /home/vagrant/.ssh/authorized_keys
+COPY ./ssh_user_key/id_ecdsa.pub /home/vagrant/.ssh/authorized_keys
 RUN mkdir -p /home/vagrant/.ssh \
     && chmod 700 /home/vagrant/.ssh \
     && chmod 600 /home/vagrant/.ssh/authorized_keys \
     && chown -R vagrant:vagrant /home/vagrant/.ssh
 
-COPY ../ssh_user_key/id_ecdsa.pub /root/.ssh/authorized_keys
+COPY ./ssh_user_key/id_ecdsa.pub /root/.ssh/authorized_keys
 RUN mkdir -p /root/.ssh \
     && chmod 700 /root/.ssh \
     && chmod 600 /root/.ssh/authorized_keys \

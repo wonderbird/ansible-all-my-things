@@ -3,7 +3,7 @@
 This test system uses the Vagrant / Docker Provider stack described in
 [boos2025b](../README.md#references).
 
-## Warning
+## Warning: Refresh SSH Keys after cloning this repository
 
 The SSH keys in this project are known to the entire world! If you use these
 keys, you risk being hacked.
@@ -26,6 +26,32 @@ ssh-keygen -q -N "" -t ecdsa -b 521 -f ../ssh_user_key/id_ecdsa -C vagrant@testl
 
 Install the Vagrant / Docker Provider stack as described in
 [boos2025b](../../README.md#references).
+
+## Running the test system
+
+In the following, replace the user name `galadriel` with the `desktop_user_name`
+configured in
+[../../playbooks/vars-usernames.yml](../../playbooks/vars-usernames.yml).
+
+Launch the test system with
+
+```shell
+vagrant up
+```
+
+Once everything is installed, you can connect to the test system with
+
+```shell
+ssh -i ../ssh_user_key/id_ecdsa galadriel@localhost -p 2223
+```
+
+(note that you can also use the `vagrant ssh` command).
+
+When you are done, stop the test system with
+
+```shell
+vagrant halt
+```
 
 ## References
 

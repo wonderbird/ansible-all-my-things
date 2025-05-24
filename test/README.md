@@ -28,10 +28,20 @@ cd test/tart
 vagrant up
 
 # Verify the configuration
-# The following command should show that ansible uses the user
-# "gandalf" and the host name is "lorien"
+# The following command should show that ansible uses the user configured
+# in the playbook vars-usernames.yml and the host name is "lorien"
 ansible dev -m shell -a "whoami"
 
 # Destroy the local test system
 vagrant destroy -f
+```
+
+## Run configure.yml playbook on the test system
+
+If you wish to reconfigure the test system, you can run the `configure.yml`
+playbook on the test system with the following command:
+
+```shell
+cd test/tart
+ansible-playbook ../../configure.yml --skip-tags not-supported-on-vagrant-arm64
 ```

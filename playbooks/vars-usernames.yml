@@ -1,0 +1,6 @@
+---
+# We cannot use the ansible_user variable here, because this would complicate
+# user account setup in the setup-users.yml playbook.
+
+my_ansible_user: "gandalf"
+my_desktop_user: "galadriel"

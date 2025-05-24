@@ -3,6 +3,9 @@
   tags: not-supported-on-vagrant-docker
   become: true
 
+  vars_files:
+    - vars-usernames.yml
+
   pre_tasks:
     # TODO: smell - Update apt cache is duplicate in several playbooks
     - name: Update apt cache if needed
@@ -68,14 +71,14 @@
         state: absent
       notify: Cleanup apt cache
 
-    - name: Enable XFCE session for {{ desktop_user }}
+    - name: Enable XFCE session for {{ my_desktop_user }}
       lineinfile:
-        dest: "/home/{{ desktop_user }}/.xsession"
+        dest: "/home/{{ my_desktop_user }}/.xsession"
         regexp: '^.*'
         line: xfce4-session
         create: yes
-        owner: galadriel
-        group: galadriel
+        owner: "{{ my_desktop_user }}"
+        group: "{{ my_desktop_user }}"
         mode: 0644
         state: present
       notify: Restart XRDP

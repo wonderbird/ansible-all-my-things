@@ -8,14 +8,13 @@
   tags: not-supported-on-vagrant-docker
   become: true
 
-  vars:
-    # TODO: smell: redundant definition of the default desktop_user in inventory group variables and here
-    desktop_user_name: "{{ desktop_user | default('galadriel') }}"
+  vars_files:
+    - vars-usernames.yml
 
   vars_prompt:
-    # TODO: smell: desktop_user_password is requested multiple times
-    - name: desktop_user_password
-      prompt: "Enter the password for the desktop user {{ desktop_user_name }}"
+    # TODO: smell: my_desktop_user_password is requested multiple times
+    - name: my_desktop_user_password
+      prompt: "Enter the password for the desktop user {{ my_desktop_user }}"
       private: yes
 
   pre_tasks:
@@ -43,15 +42,15 @@
       file:
         path: "{{ item }}"
         state: directory
-        owner: "{{ desktop_user }}"
-        group: "{{ desktop_user }}"
+        owner: "{{ my_desktop_user }}"
+        group: "{{ my_desktop_user }}"
         mode: 0700
       loop:
-        - "/home/{{ desktop_user }}/.cache"
-        - "/home/{{ desktop_user }}/.local/share/keyrings"
+        - "/home/{{ my_desktop_user }}/.cache"
+        - "/home/{{ my_desktop_user }}/.local/share/keyrings"
 
     - name: Start dbus message bus
-      become_user: "{{ desktop_user }}"
+      become_user: "{{ my_desktop_user }}"
       shell: |
         eval $(dbus-launch --sh-syntax)
 
@@ -79,9 +78,9 @@
         var: dbus_session
 
     - name: Create default keyring
-      become_user: "{{ desktop_user }}"
+      become_user: "{{ my_desktop_user }}"
       shell: |
-        eval "$(printf '{{ desktop_user_password }}' | gnome-keyring-daemon --unlock)"
+        eval "$(printf '{{ my_desktop_user_password }}' | gnome-keyring-daemon --unlock)"
         echo $SSH_AUTH_SOCK
       register: gnome_keyring
       changed_when: true
@@ -98,9 +97,9 @@
         var: ssh_auth_sock
 
     - name: Start gnome-keyring-daemon
-      become_user: "{{ desktop_user }}"
+      become_user: "{{ my_desktop_user }}"
       shell: |
-        eval "$(printf '{{ desktop_user_password }}' | /usr/bin/gnome-keyring-daemon --start)"
+        eval "$(printf '{{ my_desktop_user_password }}' | /usr/bin/gnome-keyring-daemon --start)"
       register: gnome_keyring_daemon
       changed_when: true
       environment:

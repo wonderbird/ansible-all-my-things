@@ -1,11 +1,15 @@
 ---
 - hosts: dev
+  tags: not-supported-on-vagrant-docker
   become: true
 
+  vars_files:
+    - vars-usernames.yml
+
   vars:
-    config_remote_dir: "/home/{{ desktop_user }}/snap/chromium/common/chromium/Default"
-    backup_remote_path: "/home/{{ desktop_user }}/chromium-backup.tar.gz"
-    backup_local_path: "{{ playbook_dir }}/../configuration{{ backup_remote_path }}"
+    config_remote_dir: "/home/{{ my_desktop_user }}/snap/chromium/common/chromium/Default"
+    backup_remote_path: "/home/{{ my_desktop_user }}/chromium-backup.tar.gz"
+    backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/chromium-backup.tar.gz"
 
   tasks:
 

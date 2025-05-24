@@ -13,7 +13,39 @@ The GNOME keyring needs to be unlocked when you launch an application using
 it, e.g. Visual Studio Code. The password for the default keyring is the same
 as the login password of the desktop user.
 
-## Add a developer vm with Hetzner
+## Important concepts
+
+### Admin user on fresh system
+
+Different providers set up machines with different administrator users:
+
+- Hetzner Cloud: `root`, see [./inventories/hcloud/group_vars/dev/vars.yml](./inventories/hcloud/group_vars/dev/vars.yml),
+- Vagrant with Tart: `admin`, see [./test/tart/Vagrantfile](./test/tart/Vagrantfile),
+- Vagrant with Docker: `vagrant`, see [./test/docker/Vagrantfile](./test/docker/Vagrantfile) and [./test/docker/Dockerfile](./test/docker/Dockerfile),
+- Vagrant with VirtualBox: `vagrant`.
+
+The inventory files for each provider must specify the variable
+`admin_user_on_fresh_system`. It contains the name of the admin user
+to be used by ansible for the initial setup of the system.
+
+### Ansible user
+
+The `root` user shall only be used for a very short time. Thus, the
+[./playbooks/setup-users.yml](./playbooks/setup-users.yml) playbook is run
+as early as possible to create a new user with sudo privileges.
+
+This `ansible_user` is configured in
+[./playbooks/vars-usernames.yml](./playbooks/vars-usernames.yml) and in
+the inventory files for the non-test systems.
+
+### Desktop user
+
+The desktop user is the user that is used to log in to the desktop environment.
+
+This `my_desktop_user` is configured in
+[./playbooks/vars-usernames.yml](./playbooks/vars-usernames.yml).
+
+## Create a developer VM with Hetzner
 
 ### Prerequisites
 

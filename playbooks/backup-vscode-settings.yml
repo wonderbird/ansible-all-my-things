@@ -1,14 +1,17 @@
 ---
 - hosts: dev
+  tags: not-supported-on-vagrant-docker
   become: true
 
   # TODO: smell - copied from backup-chromium-settings.yml - can we abstract this?
+  vars_files:
+    - vars-usernames.yml
 
   vars:
-    config_remote_dir: "/home/{{ desktop_user }}/.vscode"
-    extensions_remote_file: "/home/{{ desktop_user }}/vscode-extension-list.txt"
-    backup_remote_path: "/home/{{ desktop_user }}/vscode-backup.tar.gz"
-    backup_local_path: "{{ playbook_dir }}/../configuration{{ backup_remote_path }}"
+    config_remote_dir: "/home/{{ my_desktop_user }}/.vscode"
+    extensions_remote_file: "/home/{{ my_desktop_user }}/vscode-extension-list.txt"
+    backup_remote_path: "/home/{{ my_desktop_user }}/vscode-backup.tar.gz"
+    backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/vscode-backup.tar.gz"
 
   tasks:
 
@@ -21,7 +24,7 @@
 
     - name: Export list of extensions
       shell: code --list-extensions > "{{ extensions_remote_file }}"
-      become_user: "{{ desktop_user }}"
+      become_user: "{{ my_desktop_user }}"
       when: config_dir.stat.exists
 
     - name: Create tar.gz archive of config directory
