@@ -10,12 +10,7 @@
 
   vars_files:
     - vars-usernames.yml
-
-  vars_prompt:
-    # TODO: smell: my_desktop_user_password is requested multiple times
-    - name: my_desktop_user_password
-      prompt: "Enter the password for the desktop user {{ my_desktop_user }}"
-      private: yes
+    - vars-secrets.yml
 
   pre_tasks:
     # TODO: smell - Update apt cache is duplicate in several playbooks

@@ -20,6 +20,7 @@ Vagrant.configure("2") do |config|
       # Run Ansible provisioner once for all VMs at the end
       config.vm.provision "ansible" do |ansible|
         ansible.playbook = "../../configure.yml"
+        ansible.vault_password_file = "../../ansible-vault-password.txt"
 
         # On macOS with Apple Silicon, some playbooks are not supported.
         # In the configure.yml, these are tagged with
@@ -39,16 +40,7 @@ Vagrant.configure("2") do |config|
         ansible.force_remote_user = true
 
         ansible.limit = "all"
-        ansible.extra_vars = {
-          # When executing `vagrant provision` we run in non-interactive mode.
-          # Thus, we need to hand over the passwords which would usually be
-          # prompted.
-          my_ansible_user_password: "gandalf",
-          my_desktop_user_password: "galadriel",
 
-          # Public key is copied from ../ssh_user_key/id_ecdsa.pub
-          ssh_public_key: "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGodZbJdnsMg04quzgawuI5wCQtxCTnLzevJbM8skRBc93exnvRrmYx9UWXlSVSP1MzYBADtcEqK36qYFx5jQRc3QEvKYO501QIJAKsixKvnPWkrPg19L6QHWHA9D0EBDNG2WZYAMySrZQHsnRpmIAEct0bV6V+7i7X/GjtxP4ctI0q6A== vagrant@testlab",
-        }
         ansible.groups = {
           "dev" => ["lorien"],
           "dev:vars" => {

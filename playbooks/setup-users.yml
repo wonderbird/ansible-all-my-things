@@ -5,29 +5,18 @@
   
   vars_files:
     - vars-usernames.yml
+    - vars-secrets.yml
 
   vars:
     ansible_user: "{{ admin_user_on_fresh_system }}"
 
     users:
       - name: "{{ my_ansible_user }}"
-        password: "{{ my_ansible_user_password }}"
+        password: "{{ my_ansible_user_password | default('{{ secrets must be specified in vars-secrets.yml }}') }}"
       - name: "{{ my_desktop_user }}"
-        password: "{{ my_desktop_user_password }}"
+        password: "{{ my_desktop_user_password | default('{{ secrets must be specified in vars-secrets.yml }}') }}"
 
-  vars_prompt:
-    - name: ssh_public_key
-      prompt: "Enter the SSH public key for all users"
-      private: no
-
-    - name: my_ansible_user_password
-      prompt: "Enter the password for the ansible user {{ my_ansible_user }}"
-      private: yes
-
-    # TODO: smell: my_desktop_user_password is requested multiple times
-    - name: my_desktop_user_password
-      prompt: "Enter the password for the desktop user {{ my_desktop_user }}"
-      private: yes
+    ssh_public_key: "{{ my_ssh_public_key | default('secrets must be specified in vars-secrets.yml') }}"
 
   handlers:
     - name: Restart SSH

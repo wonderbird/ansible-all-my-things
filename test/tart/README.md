@@ -12,10 +12,6 @@ vagrant reload
 
 ## Running the test system
 
-In the following, replace the user name `galadriel` with the `desktop_user_name`
-configured in
-[../../playbooks/vars-usernames.yml](../../playbooks/vars-usernames.yml).
-
 Launch the test system with
 
 ```shell

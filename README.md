@@ -15,7 +15,47 @@ as the login password of the desktop user.
 
 ## Important concepts
 
-### Admin user on fresh system
+### Secrets are encrypted with Ansible Vault
+
+The playbooks create user accounts and register SSH keys for passwordless login.
+
+The required secrets are stored in the
+[./playbooks/vars-secrets.yml](./playbooks/vars-secrets.yml) file, which is
+encrypted with Ansible Vault.
+
+This repository contains an initial version, which you should replace with
+your own secrets after checking out the repository.
+
+The file is excluded from git via [.gitignore](./.gitignore), so that your
+actual secrets are not accidentally committed to the repository.
+
+The password for the file in this repository is stored in
+[./ansible-vault-password.txt](./ansible-vault-password.txt), so that
+the vagrant provisioners in [./test/](./test/) can access it.
+
+You can decrypt the file and show it to the console with the following command:
+
+```shell
+ansible-vault view ./playbooks/vars-secrets.yml
+```
+
+After checking out this repository you should change the vault password and the
+stored secrets:
+
+```shell
+# Change the vault password
+echo -n "New ansible vault password: "
+read -s ANSIBLE_VAULT_PASSWORD
+
+ansible-vault rekey ./playbooks/vars-secrets.yml
+
+echo $ANSIBLE_VAULT_PASSWORD > ./ansible-vault-password.txt
+
+# Change the secrets
+ansible-vault edit ./playbooks/vars-secrets.yml
+```
+
+### Admin user on fresh system differs per provider
 
 Different providers set up machines with different administrator users:
 
@@ -28,7 +68,7 @@ The inventory files for each provider must specify the variable
 `admin_user_on_fresh_system`. It contains the name of the admin user
 to be used by ansible for the initial setup of the system.
 
-### Ansible user
+### Same ansible user is set up for each provider
 
 The `root` user shall only be used for a very short time. Thus, the
 [./playbooks/setup-users.yml](./playbooks/setup-users.yml) playbook is run
@@ -38,11 +78,12 @@ This `ansible_user` is configured in
 [./playbooks/vars-usernames.yml](./playbooks/vars-usernames.yml) and in
 the inventory files for the non-test systems.
 
-### Desktop user
+### Desktop user is used to log in
 
-The desktop user is the user that is used to log in to the desktop environment.
+The desktop user is the user that is used to log in to the (desktop)
+environment.
 
-This `my_desktop_user` is configured in
+The user name is set by the variable `my_desktop_user` in
 [./playbooks/vars-usernames.yml](./playbooks/vars-usernames.yml).
 
 ## Create a developer VM with Hetzner
@@ -51,12 +92,10 @@ This `my_desktop_user` is configured in
 
 You need a cloud project with [Hetzner](https://www.hetzner.com/).
 
-Your SSH key must be registered, so that new servers can use it. This will
-allow root login via SSH.
+Your SSH key must be registered in the cloud project, so that new servers can
+use it. This will allow `root` login via SSH.
 
-### Create the VM
-
-First, configure the `hcloud_` properties for server size and SSH key ID in
+Now configure the `hcloud_` properties for server size and the SSH key ID in
 [./provisioners/hcloud.yml](./provisioners/hcloud.yml).
 
 Next, publish your API token to the HCLOUD_TOKEN environment variable, which
@@ -67,11 +106,20 @@ is used by default by the
 echo -n "hcloud API token: "; read -s HCLOUD_TOKEN; export HCLOUD_TOKEN
 ```
 
-Then create the server using the following command:
+Finally, follow the instructions in section [Important concepts](#important-concepts)
+to update your secrets in
+[./ansible-vault-password.txt](./ansible-vault-password.txt) and in
+[./playbooks/vars-secrets.yml](./playbooks/vars-secrets.yml).
+
+### Create the VM
+
+Create the server using the following command:
 
 ```shell
-ansible-playbook ./provision.yml
+ansible-playbook --ask-vault-pass ./provision.yml
 ```
+
+This will take some 10 - 15 minutes.
 
 To verify the setup, execute the `mob moo` command on the server:
 
