@@ -1,3 +1,7 @@
+# Skip secrets and vault password files
+*password*
+*secrets*
+
 # Skip backup files
 *-backup.tar.gz
 
