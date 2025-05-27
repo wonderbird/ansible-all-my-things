@@ -1,0 +1,9 @@
+---
+- name: Check if reboot is required
+  stat: path=/var/run/reboot-required get_checksum=no
+  register: reboot_required
+  changed_when: false
+
+- name: Reboot if required
+  reboot:
+  when: reboot_required.stat.exists == true

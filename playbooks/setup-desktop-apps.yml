@@ -7,6 +7,7 @@
     - vars-usernames.yml
 
   vars:
+    ansible_user: "{{ my_ansible_user }}"
     vscode_keyring_configuration: |
       // Configure the keyring as described in
       // https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues

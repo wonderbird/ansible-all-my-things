@@ -8,6 +8,7 @@
     - vars-usernames.yml
 
   vars:
+    ansible_user: "{{ my_ansible_user }}"
     config_remote_dir: "/home/{{ my_desktop_user }}/.vscode"
     extensions_remote_file: "/home/{{ my_desktop_user }}/vscode-extension-list.txt"
     backup_remote_path: "/home/{{ my_desktop_user }}/vscode-backup.tar.gz"

@@ -44,15 +44,15 @@ stored secrets:
 
 ```shell
 # Change the vault password
-echo -n "New ansible vault password: "
-read -s ANSIBLE_VAULT_PASSWORD
-
-ansible-vault rekey ./playbooks/vars-secrets.yml
-
-echo $ANSIBLE_VAULT_PASSWORD > ./ansible-vault-password.txt
+echo -n "New ansible vault password: " \
+  && read -s ANSIBLE_VAULT_PASSWORD \
+  && echo "$ANSIBLE_VAULT_PASSWORD" > ./new-ansible-vault-password.txt \
+  && ansible-vault rekey --vault-password-file ansible-vault-password.txt --new-vault-password-file new-ansible-vault-password.txt ./playbooks/vars-secrets.yml \
+  && cp ./new-ansible-vault-password.txt ./ansible-vault-password.txt \
+  && rm ./new-ansible-vault-password.txt
 
 # Change the secrets
-ansible-vault edit ./playbooks/vars-secrets.yml
+ansible-vault edit --vault-password-file ansible-vault-password.txt ./playbooks/vars-secrets.yml
 ```
 
 ### Admin user on fresh system differs per provider
@@ -95,8 +95,8 @@ You need a cloud project with [Hetzner](https://www.hetzner.com/).
 Your SSH key must be registered in the cloud project, so that new servers can
 use it. This will allow `root` login via SSH.
 
-Now configure the `hcloud_` properties for server size and the SSH key ID in
-[./provisioners/hcloud.yml](./provisioners/hcloud.yml).
+Now configure the `hcloud_` properties for **server size** and the
+**SSH key ID** in [./provisioners/hcloud.yml](./provisioners/hcloud.yml).
 
 Next, publish your API token to the HCLOUD_TOKEN environment variable, which
 is used by default by the
@@ -116,17 +116,44 @@ to update your secrets in
 Create the server using the following command:
 
 ```shell
-ansible-playbook --ask-vault-pass ./provision.yml
+ansible-playbook --vault-password-file ansible-vault-password.txt ./provision.yml
 ```
 
-This will take some 10 - 15 minutes.
+You will be asked to add the SSH key of the new server to your local
+`~/.ssh/known_hosts` file.
+
+After that, the setup will take some 10 - 15 minutes.
 
 To verify the setup, execute the `mob moo` command on the server:
 
 ```shell
+ansible dev -m shell -a 'whoami'
+
 # Source .bash_profile to load the environment variables
 ansible dev -m shell -a '. $HOME/.bash_profile; mob moo'
 ```
+
+>[!IMPORTANT]
+> Add additional SSH keys to the `authorized_keys` files on the server.
+
+## Log in to the desktop user
+
+The username of the desktop user is set configured in
+[./playbooks/vars-usernames.yml](./playbooks/vars-usernames.yml). Here, we
+assume it is `galadriel`.
+
+To log in to the desktop user, use the following command:
+
+```shell
+# Receive the IP address of the server from the Hetzner API
+export IPV4_ADDRESS=$(hcloud server list -o json | jq '.[0].public_net.ipv4.ip' | tr -d '"'); echo "IPv4 address: \"$IPV4_ADDRESS\""
+
+# Connect to the server via SSH, forwarding the RDP port
+ssh -L 3389:localhost:3389 galadriel@$IPV4_ADDRESS
+```
+
+Now you can open an RDP client like Remmina, Windows App or Remote Desktop to
+connect to the server at `localhost` with user `galadriel`.
 
 ## Restore a backup of the desktop user
 

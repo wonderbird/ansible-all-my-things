@@ -6,6 +6,9 @@
   vars_files:
     - vars-usernames.yml
 
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+
   pre_tasks:
     # TODO: smell - Update apt cache is duplicate in several playbooks
     - name: Update apt cache if needed

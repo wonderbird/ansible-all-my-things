@@ -7,6 +7,7 @@
     - vars-usernames.yml
 
   vars:
+    ansible_user: "{{ my_ansible_user }}"
     config_remote_dir: "/home/{{ my_desktop_user }}/snap/chromium/common/chromium/Default"
     backup_remote_path: "/home/{{ my_desktop_user }}/chromium-backup.tar.gz"
     backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/chromium-backup.tar.gz"

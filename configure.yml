@@ -15,3 +15,6 @@
 
 # Restore backup
 - import_playbook: ./restore.yml
+
+# Finally, reboot the system if required
+- import_playbook: playbooks/reboot-if-required.yml

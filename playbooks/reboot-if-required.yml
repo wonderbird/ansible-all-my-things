@@ -1,0 +1,12 @@
+---
+- hosts: all
+  become: true
+
+  vars_files:
+    - vars-usernames.yml
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+
+  tasks:
+    - import_tasks: tasks/reboot-if-required.yml

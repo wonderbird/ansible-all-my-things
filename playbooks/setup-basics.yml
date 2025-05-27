@@ -2,6 +2,12 @@
 - hosts: all
   become: true
 
+  vars_files:
+    - vars-usernames.yml
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+
   handlers:
     # TODO: smell - cleanup apt cache is duplicate in several playbooks
     - name: Cleanup apt cache
@@ -18,14 +24,7 @@
       apt: upgrade=safe
       notify: Cleanup apt cache
 
-    - name: Check if reboot is required
-      stat: path=/var/run/reboot-required get_checksum=no
-      register: reboot_required
-      changed_when: false
-
-    - name: Reboot if required
-      reboot:
-      when: reboot_required.stat.exists == true
+    - import_tasks: tasks/reboot-if-required.yml
 
   tasks:
     - name: Set timezone to Europe/Berlin
