@@ -1,0 +1,75 @@
+---
+- hosts: dev
+  tags: not-supported-on-vagrant-docker
+  become: true
+
+  vars_files:
+    - vars-usernames.yml
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    config_remote_dir: "/home/{{ my_desktop_user }}/.local/share/keyrings"
+    config_remote_parent_dir: "{{ config_remote_dir | dirname }}"
+    backup_remote_path: "/home/{{ my_desktop_user }}/keyrings-backup.tar.gz"
+    backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/keyrings-backup.tar.gz"
+
+  tasks:
+
+    # TODO: smell - complicated error handling - consider using `block`, `rescue`, `always` - see p. 121 (147 in PDF) of Ansible for DevOps
+
+    - name: Check if archive file exists locally
+      delegate_to: localhost
+      become: false
+      stat:
+        path: "{{ backup_local_path }}"
+      register: backup_local
+
+    - name: Upload archive file to remote server
+      copy:
+        src: "{{ backup_local_path }}"
+        dest: "{{ backup_remote_path }}"
+        owner: "{{ my_desktop_user }}"
+        group: "{{ my_desktop_user }}"
+        mode: '0644'
+      when: archive_local.stat.exists
+      register: upload_result
+
+    - name: Remove existing configuration
+      file:
+        path: "{{ config_remote_dir }}"
+        state: absent
+      when: not upload_result.failed | default(true)
+
+    - name: Ensure configuration parent directory exists
+      file:
+        path: "{{ config_remote_parent_dir }}"
+        state: directory
+        mode: '0755'
+        owner: "{{ my_desktop_user }}"
+        group: "{{ my_desktop_user }}"
+      when: not upload_result.failed | default(true)
+
+    - name: Extract archive
+      become_user: "{{ my_desktop_user }}"
+      unarchive:
+        src: "{{ backup_remote_path }}"
+        dest: "{{ config_remote_parent_dir }}"
+        remote_src: yes
+      when: not upload_result.failed | default(true)
+      register: extract_result
+
+    - name: Remove temporary archive from remote server
+      file:
+        path: "{{ backup_remote_path }}"
+        state: absent
+      when: extract_result.changed | default(false)
+
+    - name: Show restore status
+      debug:
+        msg: "Backup restored successfully from {{ backup_local_path | basename }}"
+      when: extract_result.changed | default(false)
+
+    - name: Show status when no archive found
+      debug:
+        msg: "No backup found. Skipping restore."
+      when: not archive_local.stat.exists

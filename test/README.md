@@ -27,6 +27,10 @@ cd test/tart
 # Initialize the local test system
 vagrant up
 
+# If provisioning the VM fails, then you can execute the corresponding
+# ansible-playbook command manually.
+ansible-playbook ../../configure.yml --skip-tags not-supported-on-vagrant-arm64 --vault-password-file ../../ansible-vault-password.txt
+
 # Verify the configuration
 # The following command should show that ansible uses the user configured
 # in the playbook vars-usernames.yml and the host name is "lorien"
