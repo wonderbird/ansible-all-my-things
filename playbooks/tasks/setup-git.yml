@@ -4,3 +4,4 @@
   shell: |
     git config --global user.name "{{ my_desktop_user }}"
     git config --global user.email "{{ my_desktop_user }}@example.com"
+    git config --global init.defaultBranch main
