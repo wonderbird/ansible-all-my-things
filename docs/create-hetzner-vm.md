@@ -37,24 +37,34 @@ You will be asked to add the SSH key of the new server to your local
 
 After that, the setup will take some 10 - 15 minutes.
 
-To verify the setup, execute the `mob moo` command on the server:
+Verify the setup:
 
 ```shell
-ansible dev -m shell -a 'whoami'
+# Show the inventory
+ansible-inventory --graph
 
- Source .bash_profile to load the environment variables
-ansible dev -m shell -a '. $HOME/.bash_profile; mob moo'
+# Check whether the server can be reached
+ansible dev -m shell -a 'whoami' --extra-vars "ansible_user=gandalf"
+
+# Source .bash_profile to load the environment variables
+ansible dev -m shell -a '. $HOME/.bash_profile; mob moo' --extra-vars "ansible_user=gandalf"
 ```
 
 >[!IMPORTANT]
-> Add additional SSH keys to the `authorized_keys` files on the server.
+> You might want to add additional SSH keys to the `authorized_keys` files on
+> the server.
 
 ## Delete the VM
 
 To delete the VM, use the following command:
 
 ```shell
+# Backup your configuration
+ansible-playbook --vault-password-file ansible-vault-password.txt ./backup.yml
+
+# Destroy
 ansible-playbook ./destroy.yml
 ```
 
-You can verify that the server is deleted in your [Hetzner console project](https://console.hetzner.cloud/projects/10607445/servers).
+You can verify that the server is deleted in your
+[Hetzner console project](https://console.hetzner.cloud/projects/10607445/servers).
