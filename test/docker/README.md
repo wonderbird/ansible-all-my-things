@@ -1,7 +1,7 @@
 # Test system using the Vagrant Docker Provider
 
 This test system uses the Vagrant / Docker Provider stack described in
-[boos2025b](../README.md#references).
+[boos2025b](../../README.md#references).
 
 ## Warning: Refresh SSH Keys after cloning this repository
 
