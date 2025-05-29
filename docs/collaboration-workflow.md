@@ -6,9 +6,7 @@ private repository.
 This allows making changes remotely and getting them back to the working
 repository on the desktop computer.
 
-Outlook: Describe how to use the `mob` command in this context.
-
-## On my desktop computer: Copy the working repository to a remote server
+## On your desktop computer: Copy the working repository to a remote server
 
 Set the environment variable `IPV4_ADDRESS` as described in
 [Obtain Remote IP Address](./obtain-remote-ip-address.md).
@@ -65,12 +63,15 @@ mob start
 git switch mob/main
 ```
 
-- Make some changes
-- Commit and push to the bare repository
+Now make some changes.
 
-## On my desktop computer: Bring the changes from the remote server back
+Then use the [mob tool](https://mob.sh) or commit and push to the bare
+repository.
 
-- In my working directory, pull the changes from the remote bare repository
+## On your desktop computer: Bring the changes from the remote server back
+
+In your working directory, use the [mob tool](https://mob.sh) or pull the
+changes from the remote bare repository `lorien`.
 
 ## Cleanup
 
@@ -86,5 +87,9 @@ rm -rf ~/Documents/my-it-landscape
 As an alternative to cleaning up on the remote you could simply destroy it.
 
 ```shell
+# Backup your configuration
+ansible-playbook --vault-password-file ansible-vault-password.txt ./backup.yml
+
+# Destroy
 ansible-playbook ./destroy.yml
 ```

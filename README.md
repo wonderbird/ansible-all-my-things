@@ -2,19 +2,12 @@
 
 Automated setup and updates for my IT system.
 
-## Usage oriented instructions
+## Instructions
 
 - [Important Concepts](./docs/important-concepts.md)
 - [Create Hetzner VM](./docs/create-hetzner-vm.md)
 - [Work with a VM](./docs/work-with-vm.md)
-- [A Collaboration Workflow](./docs/collaboration-workflow.md)
-
-## More or less technical documentation
-
-- [./configuration/README.md](./configuration/README.md) describes the default configuration
-- [./inventories/README.md](./inventories/README.md) describes the inventories
-- [./playbooks/README.md](./playbooks/README.md) describes the playbooks
-- [./test/README.md](./test/README.md) describes how to test the playbooks
+- [A collaboration workflow](./docs/collaboration-workflow.md)
 
 ## References
 
