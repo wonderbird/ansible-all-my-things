@@ -1,0 +1,3 @@
+---
+- name: Install Chromium
+  snap: name=chromium state=present

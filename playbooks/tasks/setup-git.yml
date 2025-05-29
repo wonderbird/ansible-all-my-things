@@ -1,0 +1,6 @@
+---
+- name: Configure git for {{ my_desktop_user }}
+  become_user: "{{ my_desktop_user }}"
+  shell: |
+    git config --global user.name "{{ my_desktop_user }}"
+    git config --global user.email "{{ my_desktop_user }}@example.com"
