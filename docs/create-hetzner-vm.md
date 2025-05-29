@@ -8,7 +8,7 @@ Your SSH key must be registered in the cloud project, so that new servers can
 use it. This will allow `root` login via SSH.
 
 Now configure the `hcloud_` properties for **server size** and the
-**SSH key ID** in [./provisioners/hcloud.yml](./provisioners/hcloud.yml).
+**SSH key ID** in [/provisioners/hcloud.yml](../provisioners/hcloud.yml).
 
 Next, publish your API token to the HCLOUD_TOKEN environment variable, which
 is used by default by the
