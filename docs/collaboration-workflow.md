@@ -16,16 +16,16 @@ remote server:
 
 ```shell
 # Clone the working repository into a bare repository
-git clone --bare . ~/source/my-it-landscape.git
+git clone --bare . ~/source/ansible-all-my-things.git
 
 # Use ansible with rsync to copy the bare repository to the server
-rsync -avz --stats --progress --delete --delete-during ~/source/my-it-landscape.git galadriel@$IPV4_ADDRESS:Documents/
+rsync -avz --stats --progress --delete --delete-during ~/source/ansible-all-my-things.git galadriel@$IPV4_ADDRESS:Documents/
 
 # Delete the bare repository on the desktop computer
-rm -rf ~/source/my-it-landscape.git
+rm -rf ~/source/ansible-all-my-things.git
 
 # In my working repository, set the bare remote repository as "remote"
-git remote add lorien galadriel@$IPV4_ADDRESS:Documents/my-it-landscape.git
+git remote add lorien galadriel@$IPV4_ADDRESS:Documents/ansible-all-my-things.git
 
 # Get the tracking branch for the remote repository
 git pull lorien main
@@ -54,7 +54,7 @@ git config --global user.email "galadriel@middle-earth.com"
 # Clone the bare repository into a working repository
 # and use the same name for the remote as on the local computer ("lorien").
 # This allows using the same .mob configuration on both computers
-git clone --origin lorien my-it-landscape.git
+git clone --origin lorien ansible-all-my-things.git
 
 # Checkout the mob branch
 mob start
@@ -80,8 +80,8 @@ changes from the remote bare repository `lorien`.
 git remote remove lorien
 
 # Delete repositories on the remote server
-rm -rf ~/Documents/my-it-landscape.git
-rm -rf ~/Documents/my-it-landscape
+rm -rf ~/Documents/ansible-all-my-things.git
+rm -rf ~/Documents/ansible-all-my-things
 ```
 
 As an alternative to cleaning up on the remote you could simply destroy it.

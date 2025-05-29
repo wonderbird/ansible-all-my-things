@@ -22,14 +22,13 @@ cd test/tart
 # Initialize the local test system
 vagrant up
 
-# For the Tart provider, automatically installing the VM fails :-(
-# Execute the corresponding ansible-playbook command manually:
-ansible-playbook ../../configure.yml --skip-tags not-supported-on-vagrant-arm64 --vault-password-file ../../ansible-vault-password.txt
-
 # Verify the configuration
 # The following command should show that ansible uses the user configured
-# in the playbook vars-usernames.yml and the host name is "lorien"
+# in Vagrantfile (extra_vars) and the host name is "lorien"
 ansible dev -m shell -a "whoami"
+
+# List the users we have added to the system
+ansible dev -m shell -a 'ls /home'
 
 # Stop the local test system
 vagrant halt

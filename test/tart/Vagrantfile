@@ -38,6 +38,9 @@ Vagrant.configure("2") do |config|
         # We deliberately deviate from the Hetzner configuration using "root"
         # as the remote user. Tart only supports "admin" as the remote user.
         ansible.force_remote_user = true
+        ansible.extra_vars = {
+          "ansible_user" => "admin"
+        }
 
         ansible.limit = "all"
 
