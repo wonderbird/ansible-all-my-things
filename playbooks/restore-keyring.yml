@@ -22,7 +22,7 @@
       become: false
       stat:
         path: "{{ backup_local_path }}"
-      register: backup_local
+      register: archive_local
 
     - name: Upload archive file to remote server
       copy:
