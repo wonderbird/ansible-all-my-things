@@ -8,6 +8,9 @@
 # Skip backup files
 *-backup.tar.gz
 
+# Skip mob.sh configuration file
+.mob
+
 # Created by https://www.toptal.com/developers/gitignore/api/vagrant,ansible,visualstudiocode,macos,linux,windows
 # Edit at https://www.toptal.com/developers/gitignore?templates=vagrant,ansible,visualstudiocode,macos,linux,windows
 
