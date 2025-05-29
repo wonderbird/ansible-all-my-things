@@ -10,10 +10,13 @@ Outlook: Describe how to use the `mob` command in this context.
 
 ## On my desktop computer: Copy the working repository to a remote server
 
-```shell
-# Assign the IPv4 address of the remote server to a variable
-export IPV4_ADDRESS=$(tart ip lorien)
+Set the environment variable `IPV4_ADDRESS` as described in
+[Obtain Remote IP Address](./obtain-remote-ip-address.md).
 
+Next, execute the following commands to copy the working repository to the
+remote server:
+
+```shell
 # Clone the working repository into a bare repository
 git clone --bare . ~/source/my-it-landscape.git
 
@@ -28,12 +31,15 @@ git remote add lorien galadriel@$IPV4_ADDRESS:Documents/my-it-landscape.git
 
 # Get the tracking branch for the remote repository
 git pull lorien main
+```
 
-# Configure mob.sh to use the remote
+If the `.mob` configuration does not exist, then run the following setup:
+
+```shell
 mob config > .mob
 ```
 
-Finally, edit `.mob` and update the entries for
+Edit `.mob` and update the entries for
 
 - `MOB_REMOTE_NAME`
 - `MOB_SKIP_CI_PUSH_OPTION_ENABLED`

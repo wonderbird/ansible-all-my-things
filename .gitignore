@@ -2,6 +2,9 @@
 *password*
 *secrets*
 
+# ... but keep the secrets template (it may only contain placeholders for secrets)
+!/playbooks/vars-secrets-template.yml
+
 # Skip backup files
 *-backup.tar.gz
 

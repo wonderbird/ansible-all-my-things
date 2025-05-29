@@ -19,7 +19,7 @@ echo -n "hcloud API token: "; read -s HCLOUD_TOKEN; export HCLOUD_TOKEN
 ```
 
 Finally, follow the instructions in section
-[Important concepts](./docs/important-concepts.md)
+[Important concepts](./important-concepts.md)
 to update your secrets in
 [./ansible-vault-password.txt](./ansible-vault-password.txt) and in
 [./playbooks/vars-secrets.yml](./playbooks/vars-secrets.yml).
