@@ -1,6 +1,6 @@
-## Create a developer VM with Hetzner
+# Create a developer VM with Hetzner
 
-### Prerequisites
+## Prerequisites
 
 You need a cloud project with [Hetzner](https://www.hetzner.com/).
 
@@ -24,7 +24,7 @@ to update your secrets in
 [./ansible-vault-password.txt](./ansible-vault-password.txt) and in
 [./playbooks/vars-secrets.yml](./playbooks/vars-secrets.yml).
 
-### Create the VM
+## Create the VM
 
 Create the server using the following command:
 
@@ -42,14 +42,14 @@ To verify the setup, execute the `mob moo` command on the server:
 ```shell
 ansible dev -m shell -a 'whoami'
 
-# Source .bash_profile to load the environment variables
+ Source .bash_profile to load the environment variables
 ansible dev -m shell -a '. $HOME/.bash_profile; mob moo'
 ```
 
 >[!IMPORTANT]
 > Add additional SSH keys to the `authorized_keys` files on the server.
 
-### Delete the VM
+## Delete the VM
 
 To delete the VM, use the following command:
 

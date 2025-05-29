@@ -41,8 +41,8 @@ mob config > .mob
 
 Edit `.mob` and update the entries for
 
-- `MOB_REMOTE_NAME`
-- `MOB_SKIP_CI_PUSH_OPTION_ENABLED`
+- `MOB_REMOTE_NAME` should be `lorien`
+- `MOB_SKIP_CI_PUSH_OPTION_ENABLED` should be `false`
 
 Then start mobbing.
 

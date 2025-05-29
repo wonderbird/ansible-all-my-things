@@ -10,36 +10,40 @@ If the system is running while you change the configuration, restart it by
 vagrant reload
 ```
 
-## Running the test system
+## Run the test system
 
-Launch the test system with
+The following instructions show how to run a test system with Vagrant.
+For the Docker provider, executed the same commands from the `test/docker`
+folder.
 
 ```shell
+cd test/tart
+
+# Initialize the local test system
 vagrant up
-```
 
-Once everything is installed, you can forward the RDP port to your host with
+# For the Tart provider, automatically installing the VM fails :-(
+# Execute the corresponding ansible-playbook command manually:
+ansible-playbook ../../configure.yml --skip-tags not-supported-on-vagrant-arm64 --vault-password-file ../../ansible-vault-password.txt
 
-```shell
-ssh -fN -i ../ssh_user_key/id_ecdsa -L 3389:localhost:3389 galadriel@$(tart ip lorien)
-```
+# Verify the configuration
+# The following command should show that ansible uses the user configured
+# in the playbook vars-usernames.yml and the host name is "lorien"
+ansible dev -m shell -a "whoami"
 
-This will keep the SSH tunnel open in the background (`-fN`).
-
-Connect to `localhost` with user `galadriel` and password `galadriel` using an
-RDP client like Remmina, Windows App or Remote Desktop.
-
-When you are done, disconnect the SSH tunnel with
-
-```shell
-ssh -O exit galadriel@$(tart ip lorien)
-```
-
-Then stop the test system with
-
-```shell
+# Stop the local test system
 vagrant halt
+
+# Restart the local test system
+# Note that booting will take about a minute, because the desktop environment
+# needs to be loaded.
+vagrant up
+
+# Destroy the local test system
+vagrant destroy -f
 ```
 
-Note that the next boot will take about a minute, because the desktop
-environment needs to be started.
+## Log in as the desktop user
+
+Refer to [Work with a VM](../../docs/work-with-vm.md) for instructions on how to
+log in as the desktop user.

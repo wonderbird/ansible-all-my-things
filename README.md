@@ -2,22 +2,14 @@
 
 Automated setup and updates for my IT system.
 
-## Notes
-
-The GNOME keyring needs to be unlocked when you launch an application using
-it, e.g. Visual Studio Code. The password for the default keyring is the same
-as the login password of the desktop user.
-
-## Table of Contents
-
-### Usage oriented instructions
+## Usage oriented instructions
 
 - [Important Concepts](./docs/important-concepts.md)
 - [Create Hetzner VM](./docs/create-hetzner-vm.md)
 - [Work with a VM](./docs/work-with-vm.md)
 - [A Collaboration Workflow](./docs/collaboration-workflow.md)
 
-### More or less technical documentation
+## More or less technical documentation
 
 - [./configuration/README.md](./configuration/README.md) describes the default configuration
 - [./inventories/README.md](./inventories/README.md) describes the inventories
