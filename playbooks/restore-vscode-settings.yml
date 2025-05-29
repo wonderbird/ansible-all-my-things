@@ -35,10 +35,13 @@
       when: backup_local.stat.exists
       register: upload_result
 
-    - name: Remove existing config directory
+    - name: Remove existing config directories
       file:
-        path: "{{ config_remote_dir }}"
+        path: "{{ item }}"
         state: absent
+      with_items:
+        - "/home/{{ my_desktop_user }}/.vscode"
+        - "/home/{{ my_desktop_user }}/.config/Code/User"
       when: not upload_result.failed | default(true)
 
     - name: Extract archive
