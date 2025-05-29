@@ -3,67 +3,30 @@
   tags: not-supported-on-vagrant-docker
   become: true
 
-  # TODO: smell - copied from backup-chromium-settings.yml - can we abstract this?
   vars_files:
     - vars-usernames.yml
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    config_remote_dir: "/home/{{ my_desktop_user }}/.vscode"
     extensions_remote_file: "/home/{{ my_desktop_user }}/vscode-extension-list.txt"
-    backup_remote_path: "/home/{{ my_desktop_user }}/vscode-backup.tar.gz"
-    backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/vscode-backup.tar.gz"
 
   tasks:
-
-    # TODO: smell - complicated error handling - consider using `block`, `rescue`, `always` - see p. 121 (147 in PDF) of Ansible for DevOps
-
-    - name: Check if config directory exists
-      stat:
-        path: "{{ config_remote_dir }}"
-      register: config_dir
 
     - name: Export list of extensions
       shell: code --list-extensions > "{{ extensions_remote_file }}"
       become_user: "{{ my_desktop_user }}"
-      when: config_dir.stat.exists
 
-    - name: Create tar.gz archive of config directory
-      archive:
+    - import_tasks: tasks/backup-directory.yml
+      vars:
         path:
-          - "{{ config_remote_dir }}"
           - "{{ extensions_remote_file }}"
-        dest: "{{ backup_remote_path }}"
+          - "/home/{{ my_desktop_user }}/.vscode"
+        temp_backup_path: "/home/{{ my_desktop_user }}/vscode-backup.tar.gz"
+        dest: "{{ playbook_dir }}/../configuration/home/my_desktop_user/vscode-backup.tar.gz"
         exclusion_patterns:
           - "*extensions*"
-      when: config_dir.stat.exists
-      register: archive_result
-
-    - name: Copy archive to local machine
-      fetch:
-        src: "{{ backup_remote_path }}"
-        dest: "{{ backup_local_path }}"
-        flat: yes
-      when: archive_result.changed | default(false)
-
-    - name: Delete archive from remote
-      file:
-        path: "{{ backup_remote_path }}"
-        state: absent
-      when: archive_result.changed | default(false)
 
     - name: Delete list of extensions from remote
       file:
         path: "{{ extensions_remote_file }}"
         state: absent
-      when: archive_result.changed | default(false)
-
-    - name: Show success result
-      debug:
-        msg: "Succsessfully saved backup to {{ backup_local_path }}"
-      when: archive_result.changed | default(false)
-
-    - name: Show result when config directory does not exist
-      debug:
-        msg: "No configuration found at {{ backup_remote_path }}. No backup created."
-      when: not config_dir.stat.exists

@@ -1,0 +1,32 @@
+---
+# Usage: Import this task into your playbook
+#
+# Parameters
+# ----------
+#
+#   path:             single file / directory or list of files / directories
+#                     to backup
+#
+#   temp_backup_path: path of a temporary backup target on the remote
+#
+#   dest:             destination path on the local machine
+#
+#   exclusion_patterns: list of patterns to exclude from the backup
+#
+- name: "Create tar.gz backup"
+  archive:
+    path: "{{ path }}"
+    dest: "{{ temp_backup_path }}"
+    format: gz
+    exclusion_patterns: "{{ exclusion_patterns | default([]) }}"
+
+- name: Fetch backup file
+  fetch:
+    src: "{{ temp_backup_path }}"
+    dest: "{{ dest }}"
+    flat: yes
+
+- name: Delete backup from remote
+  file:
+    path: "{{ temp_backup_path }}"
+    state: absent
