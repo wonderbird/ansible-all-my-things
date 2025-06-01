@@ -16,16 +16,17 @@ remote server:
 
 ```shell
 # Clone the working repository into a bare repository
-git clone --bare . ~/source/ansible-all-my-things.git
+export REPO=codewars-pyramid-array
+git clone --bare . ~/source/$REPO.git
 
 # Use ansible with rsync to copy the bare repository to the server
-rsync -avz --stats --progress --delete --delete-during ~/source/ansible-all-my-things.git galadriel@$IPV4_ADDRESS:Documents/
+rsync -avz --stats --progress --delete --delete-during ~/source/$REPO.git galadriel@$IPV4_ADDRESS:Documents/
 
 # Delete the bare repository on the desktop computer
-rm -rf ~/source/ansible-all-my-things.git
+rm -rf ~/source/$REPO.git
 
 # In my working repository, set the bare remote repository as "remote"
-git remote add lorien galadriel@$IPV4_ADDRESS:Documents/ansible-all-my-things.git
+git remote add lorien galadriel@$IPV4_ADDRESS:Documents/$REPO.git
 
 # Get the tracking branch for the remote repository
 git pull lorien main
@@ -48,13 +49,13 @@ Then start mobbing.
 
 ```shell
 # Set up a git user
-git config --global user.name "Galadriel"
-git config --global user.email "galadriel@middle-earth.com"
+git config --global user.name "Stefan Boos"; \
+git config --global user.email "kontakt@boos.systems"
 
 # Clone the bare repository into a working repository
 # and use the same name for the remote as on the local computer ("lorien").
 # This allows using the same .mob configuration on both computers
-git clone --origin lorien ansible-all-my-things.git
+git clone --origin lorien $REPO.git
 
 # Checkout the mob branch
 mob start
@@ -80,8 +81,8 @@ changes from the remote bare repository `lorien`.
 git remote remove lorien
 
 # Delete repositories on the remote server
-rm -rf ~/Documents/ansible-all-my-things.git
-rm -rf ~/Documents/ansible-all-my-things
+rm -rf ~/Documents/$REPO.git
+rm -rf ~/Documents/$REPO
 ```
 
 As an alternative to cleaning up on the remote you could simply destroy it.

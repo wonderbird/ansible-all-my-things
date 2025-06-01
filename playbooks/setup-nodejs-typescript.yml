@@ -1,0 +1,22 @@
+---
+- hosts: dev
+  become: true
+  
+  vars_files:
+    - vars-usernames.yml
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+
+  tasks:
+    - name: Install Node.js and npm
+      apt:
+        name:
+          - nodejs
+          - npm
+        state: present
+
+    - name: Install TypeScript globally
+      npm:
+        name: typescript
+        global: true
