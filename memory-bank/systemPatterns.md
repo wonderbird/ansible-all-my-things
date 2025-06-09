@@ -169,10 +169,16 @@ test/
 
 ## Design Principles
 
+### Core Architecture Drivers
+- **Understandability**: Code and configuration should be self-documenting and easy to comprehend
+- **Maintainability**: Minimize complexity, reduce configuration parameters to essentials only
+- **Extensibility**: Design for easy addition of new providers, applications, and environments
+
 ### Provider Abstraction
 - Common playbooks work across all providers
 - Provider-specific code isolated to provisioners/
 - Inventory variables handle provider differences
+- Minimal provider-specific overrides (follow Hetzner pattern)
 
 ### Fail-Fast Philosophy
 - Early user creation and SSH key setup
@@ -189,6 +195,12 @@ test/
 - No root user operations after initial setup
 - SSH key-based authentication only
 - Minimal privilege escalation
+
+### Configuration Minimalism
+- Keep only essential provider-specific differences in group_vars
+- Avoid unnecessary configuration parameters
+- Default to sensible values rather than exposing every option
+- Prefer convention over configuration
 
 ## Extension Points
 
