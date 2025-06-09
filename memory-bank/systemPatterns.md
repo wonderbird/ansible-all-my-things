@@ -202,6 +202,16 @@ test/
 - Default to sensible values rather than exposing every option
 - Prefer convention over configuration
 
+### Quality Criteria Conflict Resolution
+- **Identify Trade-offs**: When quality criteria conflict (e.g., extensibility vs. simplicity), explicitly identify the tension
+- **Communicate Conflicts**: Inform users about competing priorities that could lead to unclear design decisions
+- **Document Decisions**: Record which quality criterion takes precedence and why
+- **Examples of Common Conflicts**:
+  - Extensibility vs. Understandability (more options vs. simpler configuration)
+  - Maintainability vs. Performance (cleaner code vs. optimized execution)
+  - Security vs. Usability (strict controls vs. ease of use)
+  - Cost Optimization vs. Reliability (minimal resources vs. redundancy)
+
 ## Extension Points
 
 ### Adding New Providers
