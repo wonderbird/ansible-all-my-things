@@ -1,0 +1,63 @@
+---
+# AWS EC2 Dynamic Inventory Configuration
+# Groups instances by ansible_group tag for consistent inventory management
+
+plugin: amazon.aws.aws_ec2
+
+# AWS connection settings
+regions:
+  - us-east-1
+  - us-west-2
+  - eu-west-1
+  - eu-central-1
+
+# Instance filters - only include running instances created by ansible
+filters:
+  instance-state-name: running
+  "tag:CreatedBy": ansible
+
+# Grouping configuration
+keyed_groups:
+  # Group by ansible_group tag (e.g., aws_dev)
+  - key: tags.ansible_group
+    prefix: ""
+    separator: ""
+  # Group by instance type
+  - key: instance_type
+    prefix: type
+  # Group by region
+  - key: placement.region
+    prefix: region
+
+# Hostname configuration
+hostnames:
+  # Use public IP as hostname for SSH connectivity
+  - ip-address
+  - dns-name
+
+# Variables to include in inventory
+compose:
+  # Set ansible_host to public IP
+  ansible_host: public_ip_address
+  # Set ansible_user based on AMI (Ubuntu uses 'ubuntu')
+  ansible_user: ubuntu
+  # Include useful instance information
+  instance_id: instance_id
+  instance_type: instance_type
+  aws_region: placement.region
+  aws_availability_zone: placement.availability_zone
+  # Include all tags as variables
+  aws_tags: tags
+
+# Cache settings for performance
+cache: true
+cache_plugin: memory
+cache_timeout: 300
+cache_connection: /tmp/ansible-aws-ec2-cache
+
+# Include/exclude patterns
+include_filters: []
+exclude_filters: []
+
+# Strict mode - fail if plugin cannot contact AWS
+strict: false

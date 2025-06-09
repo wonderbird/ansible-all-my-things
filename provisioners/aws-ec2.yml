@@ -1,0 +1,104 @@
+---
+# AWS EC2 Provisioner
+# Creates EC2 instance for development environment following Hetzner Cloud pattern
+
+- name: Create AWS EC2 Development Environment
+  hosts: localhost
+  gather_facts: false
+  vars:
+    # Default values - can be overridden in group_vars
+    aws_region: "{{ aws_default_region | default('us-east-1') }}"
+    aws_instance_type: "{{ aws_default_instance_type | default('t3.micro') }}"
+    aws_ami_id: "{{ aws_default_ami_id | default('ami-0c02fb55956c7d316') }}"  # Ubuntu 24.04 LTS in us-east-1
+    aws_key_name: "{{ aws_ssh_key_name }}"
+    aws_security_group_name: "ansible-dev-sg"
+    aws_instance_name: "ansible-dev-{{ ansible_date_time.epoch }}"
+
+  tasks:
+    - name: Ensure required variables are defined
+      ansible.builtin.assert:
+        that:
+          - aws_ssh_key_name is defined
+          - aws_ssh_key_name | length > 0
+        fail_msg: "aws_ssh_key_name must be defined in group_vars or extra_vars"
+
+    - name: Get current public IP for security group
+      ansible.builtin.uri:
+        url: https://ipinfo.io/ip
+        return_content: true
+      register: current_ip_result
+
+    - name: Set current IP fact
+      ansible.builtin.set_fact:
+        current_public_ip: "{{ current_ip_result.content | trim }}"
+
+    - name: Create security group for SSH access
+      amazon.aws.ec2_security_group:
+        name: "{{ aws_security_group_name }}"
+        description: "Security group for Ansible development environment"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp
+            ports:
+              - 22
+            cidr_ip: "{{ current_public_ip }}/32"
+            rule_desc: "SSH access from current IP"
+        tags:
+          Name: "{{ aws_security_group_name }}"
+          Purpose: "ansible-dev-env"
+          CreatedBy: "ansible"
+      register: security_group
+
+    - name: Launch EC2 instance
+      amazon.aws.ec2_instance:
+        name: "{{ aws_instance_name }}"
+        image_id: "{{ aws_ami_id }}"
+        instance_type: "{{ aws_instance_type }}"
+        key_name: "{{ aws_key_name }}"
+        security_groups:
+          - "{{ aws_security_group_name }}"
+        region: "{{ aws_region }}"
+        state: present
+        wait: true
+        wait_timeout: 300
+        volumes:
+          - device_name: /dev/sda1
+            ebs:
+              volume_type: gp3
+              volume_size: 20
+              delete_on_termination: true
+        tags:
+          Name: "{{ aws_instance_name }}"
+          ansible_group: "aws_dev"
+          Purpose: "ansible-dev-env"
+          CreatedBy: "ansible"
+          Environment: "development"
+      register: ec2_instance
+
+    - name: Wait for SSH to become available
+      ansible.builtin.wait_for:
+        host: "{{ ec2_instance.instances[0].public_ip_address }}"
+        port: 22
+        delay: 30
+        timeout: 300
+        state: started
+      when: ec2_instance.instances | length > 0
+
+    - name: Display instance information
+      ansible.builtin.debug:
+        msg:
+          - "EC2 Instance created successfully!"
+          - "Instance ID: {{ ec2_instance.instances[0].instance_id }}"
+          - "Public IP: {{ ec2_instance.instances[0].public_ip_address }}"
+          - "Instance Type: {{ ec2_instance.instances[0].instance_type }}"
+          - "SSH Command: ssh -i ~/.ssh/{{ aws_key_name }}.pem ubuntu@{{ ec2_instance.instances[0].public_ip_address }}"
+          - ""
+          - "To configure this instance, run:"
+          - "ansible-playbook -i inventories/aws/aws_ec2.yml configure.yml"
+      when: ec2_instance.instances | length > 0
+
+    - name: Save instance information for inventory
+      ansible.builtin.set_fact:
+        aws_instance_id: "{{ ec2_instance.instances[0].instance_id }}"
+        aws_instance_ip: "{{ ec2_instance.instances[0].public_ip_address }}"
+      when: ec2_instance.instances | length > 0

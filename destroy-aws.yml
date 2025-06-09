@@ -1,0 +1,92 @@
+---
+# AWS Destroy Playbook
+# Completely destroys AWS EC2 development environment and all associated resources
+
+- name: Destroy AWS EC2 Development Environment
+  hosts: localhost
+  gather_facts: false
+  vars:
+    aws_region: "{{ aws_default_region | default('us-east-1') }}"
+    aws_security_group_name: "ansible-dev-sg"
+
+  tasks:
+    - name: Get all EC2 instances created by ansible
+      amazon.aws.ec2_instance_info:
+        region: "{{ aws_region }}"
+        filters:
+          "tag:CreatedBy": "ansible"
+          "tag:Purpose": "ansible-dev-env"
+          instance-state-name: ["running", "stopped", "stopping"]
+      register: ansible_instances
+
+    - name: Display instances to be terminated
+      ansible.builtin.debug:
+        msg:
+          - "Found {{ ansible_instances.instances | length }} instance(s) to terminate:"
+          - "{{ ansible_instances.instances | map(attribute='instance_id') | list }}"
+      when: ansible_instances.instances | length > 0
+
+    - name: Terminate all ansible-created EC2 instances
+      amazon.aws.ec2_instance:
+        instance_ids: "{{ ansible_instances.instances | map(attribute='instance_id') | list }}"
+        region: "{{ aws_region }}"
+        state: terminated
+        wait: true
+        wait_timeout: 300
+      when: ansible_instances.instances | length > 0
+      register: terminated_instances
+
+    - name: Wait for instances to be fully terminated
+      amazon.aws.ec2_instance_info:
+        region: "{{ aws_region }}"
+        instance_ids: "{{ ansible_instances.instances | map(attribute='instance_id') | list }}"
+      register: instance_status
+      until: instance_status.instances | selectattr('state.name', 'ne', 'terminated') | list | length == 0
+      retries: 30
+      delay: 10
+      when: ansible_instances.instances | length > 0
+
+    - name: Delete security group
+      amazon.aws.ec2_security_group:
+        name: "{{ aws_security_group_name }}"
+        region: "{{ aws_region }}"
+        state: absent
+      register: sg_deletion
+      ignore_errors: true  # May fail if instances are still terminating
+
+    - name: Retry security group deletion if needed
+      amazon.aws.ec2_security_group:
+        name: "{{ aws_security_group_name }}"
+        region: "{{ aws_region }}"
+        state: absent
+      when: sg_deletion is failed
+      retries: 5
+      delay: 30
+
+    - name: Verify all resources are cleaned up
+      amazon.aws.ec2_instance_info:
+        region: "{{ aws_region }}"
+        filters:
+          "tag:CreatedBy": "ansible"
+          "tag:Purpose": "ansible-dev-env"
+          instance-state-name: ["running", "stopped", "stopping", "pending"]
+      register: remaining_instances
+
+    - name: Display cleanup results
+      ansible.builtin.debug:
+        msg:
+          - "AWS Environment Cleanup Complete!"
+          - "Terminated instances: {{ terminated_instances.instance_ids | default([]) | length }}"
+          - "Remaining instances: {{ remaining_instances.instances | length }}"
+          - "Security group deleted: {{ 'Yes' if sg_deletion is not failed else 'Failed - may need manual cleanup' }}"
+          - ""
+          - "All AWS resources have been destroyed."
+          - "No ongoing costs should be incurred."
+
+    - name: Warn about remaining resources
+      ansible.builtin.fail:
+        msg:
+          - "WARNING: {{ remaining_instances.instances | length }} instances still exist!"
+          - "Instance IDs: {{ remaining_instances.instances | map(attribute='instance_id') | list }}"
+          - "Please check AWS console and terminate manually if needed."
+      when: remaining_instances.instances | length > 0
