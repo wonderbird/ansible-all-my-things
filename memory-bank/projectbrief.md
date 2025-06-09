@@ -5,6 +5,8 @@ An Ansible-based infrastructure automation system for personal IT environment ma
 
 ## Core Purpose
 Automate the complete lifecycle of personal development environments across multiple cloud providers and local testing environments, with emphasis on:
+- **Cross-Architecture Support**: Enable amd64 development from Apple Silicon (arm64) host systems
+- **Platform Diversity**: Support Linux and Windows development environments
 - Reproducible system configurations
 - Secure credential management
 - Multi-provider support
@@ -13,8 +15,10 @@ Automate the complete lifecycle of personal development environments across mult
 ## Key Requirements
 
 ### Multi-Provider Support
-- **Hetzner Cloud**: Primary cloud provider for production environments
-- **AWS EC2**: New target for secure development environments (MVP in progress)
+- **Hetzner Cloud**: Primary cloud provider for amd64 Linux environments
+- **AWS EC2**: Target for both Linux and Windows development environments
+  - Current: Linux (Ubuntu) for amd64 compatibility and secure testing
+  - Future: Windows Server for Windows-specific development tools
 - **Local Testing**: Vagrant with Docker, Tart, and VirtualBox providers
 
 ### Complete Lifecycle Management
@@ -39,7 +43,13 @@ Automate the complete lifecycle of personal development environments across mult
 - Keyring and settings backup/restore
 
 ## Current Development Focus
-**MVP AWS Development Environment**: Creating a secure, isolated AWS EC2 environment for testing untrusted software (LLMs with MCP support) that can be provisioned in 10-15 minutes and completely destroyed to eliminate ongoing costs.
+**MVP AWS Development Environment**: Creating secure, isolated AWS EC2 environments that provide:
+- **amd64 Architecture Access**: Run x86_64 tools unavailable on Apple Silicon
+- **Secure Testing Environment**: Isolated environment for untrusted software (LLMs with MCP support)
+- **Cross-Platform Foundation**: Linux implementation as stepping stone to Windows support
+- **Cost Efficiency**: 10-15 minute provisioning with complete resource cleanup
+
+**Long-term Vision**: Extend AWS support to include Windows Server instances for Windows-specific development tools and applications not available on macOS/Linux.
 
 ## Success Metrics
 - Environments can be provisioned in 10-15 minutes

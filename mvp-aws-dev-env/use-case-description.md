@@ -1,22 +1,24 @@
-# MVP Use Case: Secure AWS Development Environment
+# MVP Use Case: Cross-Architecture AWS Development Environment
 
 ## Problem Statement
-I need a secure, isolated environment to safely test untrusted software (specifically LLMs with MCP support) for web development and backend server development without risking my local machine's security.
+I need access to amd64 (x86_64) architecture for development tools and software that are not available on Apple Silicon (arm64), while also providing a secure, isolated environment to safely test untrusted software (specifically LLMs with MCP support) without risking my local machine's security.
 
 ## Solution Overview
-Create an on-demand AWS EC2 instance running Ubuntu that can be provisioned in 10-15 minutes before work sessions and completely destroyed afterward to eliminate ongoing costs.
+Create an on-demand AWS EC2 instance running Ubuntu on amd64 architecture that can be provisioned in 10-15 minutes before work sessions and completely destroyed afterward to eliminate ongoing costs. This provides both cross-architecture compatibility and secure isolation for development work.
 
 ## MVP Requirements
 
 ### Core Functionality
-- **Provision**: Create a small AWS EC2 instance running Ubuntu 24.04 LTS
+- **Provision**: Create a small AWS EC2 instance running Ubuntu 24.04 LTS on amd64 architecture
 - **Configure**: Basic Ubuntu server setup (minimal, no desktop environment initially)
 - **Access**: SSH access for command-line development work
+- **Cross-Architecture Support**: Enable running x86_64 tools unavailable on Apple Silicon
 - **Destroy**: Complete teardown of all AWS resources to ensure zero ongoing costs
 
 ### Technical Specifications
-- **Instance Type**: t3.micro or t3.small (sufficient for LLM API calls to external providers)
-- **Operating System**: Ubuntu 24.04 LTS
+- **Architecture**: amd64 (x86_64) for compatibility with tools unavailable on Apple Silicon
+- **Instance Type**: t3.micro or t3.small (sufficient for LLM API calls and development tools)
+- **Operating System**: Ubuntu 24.04 LTS (foundation for future Windows Server support)
 - **Storage**: 20GB GP3 EBS volume (cost-effective, adequate for basic development)
 - **Network**: Default VPC with SSH access (port 22) from user's IP
 - **Security**: Standard AWS isolation, basic Ubuntu security hardening
@@ -41,6 +43,7 @@ Create an on-demand AWS EC2 instance running Ubuntu that can be provisioned in 1
 
 ## Out of Scope (Future Iterations)
 - Graphical desktop environment
+- Windows Server instances (planned for future implementation)
 - Advanced security hardening
 - GPU instances for local LLM hosting
 - Persistent storage or data backup
