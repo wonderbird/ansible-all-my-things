@@ -2,73 +2,12 @@
 # AWS Development Environment Variables
 # Configuration specific to AWS EC2 instances in the aws_dev group
 
-# AWS Infrastructure Settings
-aws_default_region: "us-east-1"
-aws_default_instance_type: "t3.micro"  # Free tier eligible
-aws_default_ami_id: "ami-0c02fb55956c7d316"  # Ubuntu 24.04 LTS in us-east-1
+# User Configuration (Ubuntu-specific)
+# Ubuntu AMI uses 'ubuntu' as the default user, not 'root' like Hetzner
+admin_user_on_fresh_system: "ubuntu"
 
 # SSH Configuration
 # Note: aws_ssh_key_name must be set via environment variable or extra_vars
 # Example: ansible-playbook -e "aws_ssh_key_name=my-aws-key" provision-aws.yml
 ansible_ssh_private_key_file: "~/.ssh/{{ aws_ssh_key_name }}.pem"
 ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
-
-# User Configuration (Ubuntu-specific)
-# Ubuntu AMI uses 'ubuntu' as the default user, not 'root' like Hetzner
-admin_user_on_fresh_system: "ubuntu"
-ansible_user: "ansible"
-my_desktop_user: "{{ vault_my_desktop_user }}"
-
-# System Configuration
-setup_desktop: true  # Enable desktop environment setup
-setup_development_tools: true  # Install Node.js, TypeScript, etc.
-setup_applications: true  # Install VS Code, Chromium, etc.
-
-# Package Management
-# Ubuntu uses apt package manager
-package_manager: "apt"
-update_cache: true
-upgrade_packages: false  # Skip upgrades for faster provisioning
-
-# Security Settings
-disable_password_auth: true
-allow_ssh_password_auth: false
-configure_firewall: false  # AWS security groups handle this
-
-# Development Environment
-nodejs_version: "20"  # LTS version
-install_homebrew: true
-install_typescript: true
-
-# Desktop Environment (when setup_desktop is true)
-desktop_environment: "ubuntu-desktop-minimal"
-install_firefox: false  # Use Chromium instead
-install_chromium: true
-
-# Backup/Restore Configuration
-backup_enabled: true
-backup_vscode_settings: true
-backup_chromium_settings: true
-backup_keyring: true
-
-# AWS-Specific Settings
-aws_instance_monitoring: false  # Disable detailed monitoring to save costs
-aws_ebs_optimized: false  # Not needed for t3.micro
-aws_placement_tenancy: "default"  # Shared tenancy for cost savings
-
-# Cost Optimization
-# These settings help minimize AWS costs
-terminate_on_shutdown: true
-delete_on_termination: true
-no_elastic_ip: true  # Use dynamic public IP
-
-# Regional AMI IDs for Ubuntu 24.04 LTS
-# Update these periodically as new AMIs are released
-aws_ami_ids:
-  us-east-1: "ami-0c02fb55956c7d316"
-  us-west-2: "ami-0aff18ec83b712f05"
-  eu-west-1: "ami-0c1bc246476a5572b"
-  eu-central-1: "ami-0e067cc8a2b58de59"
-
-# Override AMI based on region
-aws_ami_id: "{{ aws_ami_ids[aws_default_region] | default(aws_default_ami_id) }}"
