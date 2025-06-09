@@ -1,3 +1,11 @@
 ---
-- import_playbook: provisioners/hcloud.yml
-- import_playbook: configure.yml
+# Hetzner Cloud Provision Playbook
+# Provisions and configures Hetzner Cloud development environment
+
+- name: Provision Hetzner Cloud Instance
+  import_playbook: provisioners/hcloud.yml
+
+- name: Configure Hetzner Development Environment
+  import_playbook: configure.yml
+  vars:
+    target_inventory: inventories/hcloud/hcloud.yml
