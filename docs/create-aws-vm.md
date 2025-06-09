@@ -6,6 +6,52 @@ You need an AWS account with programmatic access configured.
 
 ### AWS Credentials Setup
 
+If you don't have an AWS account yet, follow these steps:
+
+#### 1. Create AWS Account
+- Go to [aws.amazon.com](https://aws.amazon.com) and click "Create an AWS Account"
+- Provide email, password, and account name
+- Enter payment information (required even for free tier)
+- Verify phone number and identity
+
+#### 2. Create IAM User for Programmatic Access
+- Log into AWS Console → Go to IAM service
+- Click "Users" → "Create user"
+- Username: `ansible-automation` (or similar)
+- Select "Programmatic access" (API access)
+
+#### 3. Set Permissions
+**For quick setup (broader permissions):**
+- Attach existing policy: `AmazonEC2FullAccess`
+
+**For production (minimal permissions):**
+- Create custom policy with these permissions:
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:RunInstances", "ec2:TerminateInstances",
+        "ec2:DescribeInstances", "ec2:DescribeImages",
+        "ec2:DescribeKeyPairs", "ec2:DescribeSecurityGroups",
+        "ec2:CreateSecurityGroup", "ec2:DeleteSecurityGroup",
+        "ec2:AuthorizeSecurityGroupIngress", "ec2:CreateTags"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+#### 4. Get Access Keys
+- After user creation, **immediately download** the CSV file with:
+  - Access Key ID
+  - Secret Access Key
+- Store these securely - you cannot retrieve the secret key again
+
+#### 5. Configure Credentials Locally
 Configure your AWS credentials using one of these methods:
 
 **Option 1: Environment Variables (Recommended)**
@@ -17,8 +63,21 @@ export AWS_DEFAULT_REGION="us-east-1"  # or your preferred region
 
 **Option 2: AWS CLI Configuration**
 ```shell
+# Install AWS CLI if needed
+pip install awscli
+
+# Configure credentials
 aws configure
 ```
+
+#### 6. Test Access
+```shell
+# Test connection
+aws ec2 describe-regions
+```
+
+>[!NOTE]
+> The free tier includes 750 hours/month of t3.micro instances for the first 12 months, which covers this project's usage perfectly.
 
 ### SSH Key Pair Setup
 
