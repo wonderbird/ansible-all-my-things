@@ -55,6 +55,7 @@
 - ✅ `inventories/aws/group_vars/aws_dev/vars.yml` - Minimal AWS-specific variables
 - ✅ `provision-aws.yml`, `configure-aws.yml`, `destroy-aws.yml` - Main playbooks
 - ✅ Cross-architecture documentation and use case clarification
+- ✅ `docs/create-aws-vm.md` - Comprehensive setup documentation with account creation
 
 **Architecture Improvements Made**:
 - Simplified configuration following Hetzner pattern (minimal overrides)
@@ -158,7 +159,7 @@
 - [ ] Validate existing configuration playbooks work with AWS instances
 - [ ] Test complete destroy operation eliminates all AWS resources
 - [ ] Verify cost remains under $10/month for typical usage patterns
-- [ ] Create AWS setup documentation
+- ✅ Create AWS setup documentation
 
 ### Windows Server Foundation
 - [ ] Research Windows Server AMI options and costs
