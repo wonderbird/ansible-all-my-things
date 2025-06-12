@@ -68,7 +68,7 @@ graph TD
 ```
 
 ### Technical Decisions Needed
-- **AWS Region**: Default to us-east-1 or allow configuration?
+- **AWS Region**: Default to eu-north-1 or allow configuration?
 - **Instance Naming**: Follow existing naming conventions
 - **Security Groups**: Create dedicated or use default?
 - **Key Pair Management**: Auto-generate or use existing?

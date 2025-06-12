@@ -108,7 +108,7 @@ boto3>=1.0 (for AWS)
 
 #### AWS EC2
 - **Instance Types**: t3.micro, t3.small (cost-optimized)
-- **Regions**: Configurable, default to us-east-1
+- **Regions**: Configurable, default to eu-north-1
 - **Images**: Ubuntu 24.04 LTS AMI
 - **Storage**: GP3 EBS volumes (cost-effective)
 

@@ -6,7 +6,7 @@
   hosts: localhost
   gather_facts: false
   vars:
-    aws_region: "{{ aws_default_region | default('us-east-1') }}"
+    aws_region: "{{ aws_default_region | default('eu-north-1') }}"
     aws_security_group_name: "ansible-dev-sg"
 
   tasks:

@@ -58,15 +58,21 @@ Configure your AWS credentials using one of these methods:
 ```shell
 export AWS_ACCESS_KEY_ID="your-access-key-id"
 export AWS_SECRET_ACCESS_KEY="your-secret-access-key"
-export AWS_DEFAULT_REGION="us-east-1"  # or your preferred region
+export AWS_DEFAULT_REGION="eu-north-1"  # or your preferred region
 ```
 
 **Option 2: AWS CLI Configuration**
 ```shell
+# Setup and activate python virtual environment
+python3 -m venv ./venv
+source ./venv/bin/activate
+
 # Install AWS CLI if needed
 pip install awscli
 
 # Configure credentials
+# NOTE: I currently use eu-north-1 as the default region
+#       and leave the default output format as None.
 aws configure
 ```
 
@@ -85,16 +91,8 @@ Create or import an SSH key pair in the AWS EC2 console:
 
 1. Go to EC2 → Key Pairs in your AWS console
 2. Either create a new key pair or import your existing public key
-3. Note the key pair name for configuration
-4. Ensure you have the corresponding private key file (`.pem` format) in your `~/.ssh/` directory
-
-### Install AWS Ansible Collection
-
-Install the required Ansible collection:
-
-```shell
-ansible-galaxy collection install amazon.aws
-```
+3. Note the key pair name for configuration (galadriel@lorien.hetzner)
+4. Ensure you have the corresponding private key file (`.pem` format) in your `~/.ssh/` directory with permissions restricted to 600: `chmod 600 ~/.ssh/*pem`
 
 ### Configure Secrets
 
@@ -105,12 +103,13 @@ Follow the instructions in section [Important concepts](./important-concepts.md)
 Create the EC2 instance using the following command, specifying your AWS SSH key name:
 
 ```shell
+# Assuming that your key pair is named galadriel@lorien.hetzner
 ansible-playbook --vault-password-file ansible-vault-password.txt \
-  -e "aws_ssh_key_name=your-key-pair-name" \
+  -e "aws_ssh_key_name=galadriel@lorien.hetzner" \
   ./provision-aws.yml
 ```
 
-Replace `your-key-pair-name` with the name of your AWS key pair (without the `.pem` extension).
+Replace `galadriel@lorien.hetzner` with the name of your AWS key pair (without the `.pem` extension).
 
 The provisioner will:
 - Automatically detect your current public IP for security group access

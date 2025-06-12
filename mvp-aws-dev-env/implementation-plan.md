@@ -83,7 +83,7 @@ The AWS IAM user/role needs these permissions:
    ```bash
    export AWS_ACCESS_KEY_ID="your-access-key"
    export AWS_SECRET_ACCESS_KEY="your-secret-key"
-   export AWS_DEFAULT_REGION="us-east-1"  # or preferred region
+   export AWS_DEFAULT_REGION="eu-north-1"  # or preferred region
    ```
 3. Install AWS Ansible collection:
    ```bash
@@ -102,7 +102,7 @@ The AWS IAM user/role needs these permissions:
 # Set AWS credentials (if not already configured)
 export AWS_ACCESS_KEY_ID="your-access-key"
 export AWS_SECRET_ACCESS_KEY="your-secret-key"
-export AWS_DEFAULT_REGION="us-east-1"
+export AWS_DEFAULT_REGION="eu-north-1"
 
 # Provision and configure the AWS development environment
 ansible-playbook --vault-password-file ansible-vault-password.txt ./provision-aws.yml
