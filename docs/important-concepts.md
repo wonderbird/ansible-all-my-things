@@ -52,10 +52,11 @@ This `ansible_user` is configured in
 [/playbooks/vars-usernames.yml](../playbooks/vars-usernames.yml) and in
 the inventory files for the non-test systems.
 
-## Desktop user is used to log in
+## Desktop user accounts are used to log in
 
-The desktop user is the user that is used to log in to the (desktop)
-environment.
+[/playbooks/vars-secrets.yml](../playbooks/vars-secrets.yml) defines user names
+and passwords for the `desktop_users`. These accounts are intended for logging
+into the (desktop) environment.
 
-The user name is set by the variable `my_desktop_user` in
-[/playbooks/vars-usernames.yml](../playbooks/vars-usernames.yml).
+The corresponding template file shows the structure of the secrets file:
+[/playbooks/vars-secrets-template.yml](../playbooks/vars-secrets-template.yml).

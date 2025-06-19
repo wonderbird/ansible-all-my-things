@@ -3,4 +3,3 @@
 # user account setup in the setup-users.yml playbook.
 
 my_ansible_user: "gandalf"
-my_desktop_user: "galadriel"

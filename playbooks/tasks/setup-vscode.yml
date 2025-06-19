@@ -4,6 +4,11 @@
 #####
 # Adopted from https://code.visualstudio.com/docs/setup/linux
 
+- name: Install apt-transport-https
+  apt:
+    name: apt-transport-https
+    state: present
+
 # Check if the Microsoft signing key is already installed
 - name: Check if Microsoft apt key is already installed
   command: >
@@ -54,10 +59,7 @@
     repo: deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main
     state: present
 
-- name: Install apt-transport-https
-  apt:
-    name: apt-transport-https
-    state: present
+- include_tasks: remove-deprecated-microsoft-apt-sources.yml
 
 - name: Update apt cache
   apt: update_cache=yes
@@ -67,26 +69,31 @@
     name: code
     state: present
 
-# Configure VS Code
-- name: Check whether .vscode directory exists
-  stat:
-    path: /home/{{ my_desktop_user }}/.vscode
-  register: argv_json
-  changed_when: false
+- include_tasks: remove-deprecated-microsoft-apt-sources.yml
 
-- name: Copy default .vscode configuration
-  copy:
-    src: "{{ playbook_dir }}/../configuration/home/my_desktop_user/.vscode/"
-    dest: /home/{{ my_desktop_user }}/.vscode/
-    owner: "{{ my_desktop_user }}"
-    group: "{{ my_desktop_user }}"
+# Configure VS Code
+- name: Create .vscode directory
+  file:
+    path: /home/{{ item }}/.vscode
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
     mode: '0775'
-  when: not argv_json.stat.exists
+  loop: "{{ desktop_user_names }}"
+
+- name: Create empty .vscode/argv.json
+  copy:
+    src: "{{ playbook_dir }}/../configuration/home/my_desktop_user/.vscode/argv.json"
+    dest: /home/{{ item }}/.vscode/argv.json
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0775'
+  loop: "{{ desktop_user_names }}"
 
 - name: Configure keyring for VS Code
-  become_user: "{{ my_desktop_user }}"
+  become_user: "{{ item }}"
   blockinfile:
-    path: /home/{{ my_desktop_user }}/.vscode/argv.json
+    path: /home/{{ item }}/.vscode/argv.json
     insertafter: '^{$'
     block: "{{ vscode_keyring_configuration | indent(4, True) }}"
     marker: "// {mark} ANSIBLE MANAGED BLOCK"
@@ -97,3 +104,4 @@
       // Configure the keyring as described in
       // https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
       "password-store": "gnome-libsecret",
+  loop: "{{ desktop_user_names }}"

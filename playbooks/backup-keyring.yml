@@ -5,13 +5,15 @@
 
   vars_files:
     - vars-usernames.yml
+    - vars-secrets.yml
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
+    backup_user: "{{ desktop_users[0].name }}"
 
   tasks:
     - import_tasks: tasks/backup-directory.yml
       vars:
-        path: "/home/{{ my_desktop_user }}/.local/share/keyrings"
-        temp_backup_path: "/home/{{ my_desktop_user }}/keyrings-backup.tar.gz"
-        dest: "{{ playbook_dir }}/../configuration/home/my_desktop_user/keyrings-backup.tar.gz"
+        path: "/home/{{ backup_user }}/.local/share/keyrings"
+        temp_backup_path: "/home/{{ backup_user }}/keyrings-backup.tar.gz"
+        dest: "{{ playbook_dir }}/../configuration/home/{{ backup_user }}/keyrings-backup.tar.gz"

@@ -5,9 +5,11 @@
 
   vars_files:
     - vars-usernames.yml
+    - vars-secrets.yml
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
 
   tasks:
 
