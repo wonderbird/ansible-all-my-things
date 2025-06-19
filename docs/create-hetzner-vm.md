@@ -1,5 +1,12 @@
 # Create a developer VM with Hetzner
 
+## Notes on Performance
+
+If you experience poor performance, then consider the following tuning parameters:
+
+- select a different location in [./provisioners/hcloud.yml](../provisioners/hcloud.yml)
+- select a larger server type in [./provisioners/hcloud.yml](../provisioners/hcloud.yml)
+
 ## Prerequisites
 
 You need a cloud project with [Hetzner](https://www.hetzner.com/).

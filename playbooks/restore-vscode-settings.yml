@@ -6,11 +6,12 @@
   # TODO: smell - copied from restore-chromium-settings.yml - can we abstract this?
   vars_files:
     - vars-usernames.yml
+    - vars-secrets.yml
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    config_remote_dir: "/home/{{ my_desktop_user }}/.vscode"
-    backup_remote_path: "/home/{{ my_desktop_user }}/vscode-backup.tar.gz"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    backup_remote_path: "/tmp/vscode-backup.tar.gz"
     backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/vscode-backup.tar.gz"
 
   tasks:
@@ -24,14 +25,10 @@
         path: "{{ backup_local_path }}"
       register: backup_local
 
-    # TODO: is it required to upload the archive or can the unarchive module upload it?
     - name: Upload archive to remote server
       copy:
         src: "{{ backup_local_path }}"
         dest: "{{ backup_remote_path }}"
-        owner: "{{ my_desktop_user }}"
-        group: "{{ my_desktop_user }}"
-        mode: '0644'
       when: backup_local.stat.exists
       register: upload_result
 
@@ -40,53 +37,37 @@
         path: "{{ item }}"
         state: absent
       with_items:
-        - "/home/{{ my_desktop_user }}/.vscode"
-        - "/home/{{ my_desktop_user }}/.config/Code/User"
+        - "/home/{{ item }}/.vscode"
+        - "/home/{{ item }}/.config/Code/User"
+      loop: "{{ desktop_user_names }}"
       when: not upload_result.failed | default(true)
 
     - name: Extract archive
-      become_user: "{{ my_desktop_user }}"
+      become_user: "{{ item }}"
       unarchive:
         src: "{{ backup_remote_path }}"
-        dest: "/home/{{ my_desktop_user }}/"
+        dest: "/home/{{ item }}/"
+        owner: "{{ item }}"
+        group: "{{ item }}"
         remote_src: yes
+      loop: "{{ desktop_user_names }}"
       when: not upload_result.failed | default(true)
-      register: extract_result
 
-    - name: Remove temporary archive from remote server
+    - name: Remove temporary archive
       file:
         path: "{{ backup_remote_path }}"
         state: absent
-      when: extract_result.changed | default(false)
+      ignore_errors: true
 
     - name: Install VSCode extensions
-      shell: cat /home/{{ my_desktop_user }}/vscode-extension-list.txt | xargs -n 1 code --force --install-extension
-      become_user: "{{ my_desktop_user }}"
+      shell: cat /home/{{ item }}/vscode-extension-list.txt | xargs -n 1 code --force --install-extension
+      become_user: "{{ item }}"
+      loop: "{{ desktop_user_names }}"
       when: not upload_result.failed | default(true)
-      register: install_result
 
-    - name: Remove extensions list from remote server
+    - name: Remove extensions list
       file:
-        path: "/home/{{ my_desktop_user }}/vscode-extension-list.txt"
+        path: "/home/{{ item }}/vscode-extension-list.txt"
         state: absent
-      when: install_result is defined and install_result.rc == 0
-
-    - name: Show restore status
-      debug:
-        msg: "Configuration restored successfully from {{ backup_local_path | basename }}"
-      when: extract_result.changed | default(false)
-
-    - name: Show result of extension installation
-      debug:
-        msg: "Extensions installed successfully."
-      when: install_result is defined and install_result.rc == 0
-
-    - name: Show status when no archive found
-      debug:
-        msg: "No archive found. Skipping restore."
-      when: not backup_local.stat.exists
-
-    - name: Show failure of extension installation
-      debug:
-        msg: "Extensions failed to install"
-      when: install_result is undefined or install_result.rc != 0
+      loop: "{{ desktop_user_names }}"
+      ignore_errors: true

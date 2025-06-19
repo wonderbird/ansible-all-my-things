@@ -33,9 +33,17 @@
 
   vars_files:
     - vars-usernames.yml
+    - vars-secrets.yml
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
+
+    console_users:
+      - "{{ my_ansible_user }}"
+
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+
+    all_users: "{{ console_users + desktop_user_names }}"
 
   pre_tasks:
     - name: Update apt cache if needed
@@ -67,7 +75,7 @@
         NONINTERACTIVE: 1
       register: brew_install
 
-    - name: Add homebrew environment to .bash_profile of the users
+    - name: Add homebrew environment to .bash_profile of {{ all_users | join(', ') }}
       lineinfile:
         dest: "/home/{{ item }}/.bash_profile"
         regex: '^eval "\$\(.*\/brew shellenv\)"'
@@ -75,9 +83,7 @@
         create: yes
         state: present
       become: true
-      loop:
-        - "{{ my_ansible_user }}"
-        - "{{ my_desktop_user }}"
+      loop: "{{ all_users }}"
 
     - name: Install brew packages
       homebrew:

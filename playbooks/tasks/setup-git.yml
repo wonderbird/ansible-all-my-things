@@ -1,7 +1,8 @@
 ---
-- name: Configure git for {{ my_desktop_user }}
-  become_user: "{{ my_desktop_user }}"
+- name: Configure git for "{{ desktop_user_names | join(', ') }}"
+  become_user: "{{ item }}"
   shell: |
-    git config --global user.name "{{ my_desktop_user }}"
-    git config --global user.email "{{ my_desktop_user }}@example.com"
+    git config --global user.name "{{ item }}"
+    git config --global user.email "{{ item }}@example.com"
     git config --global init.defaultBranch main
+  loop: "{{ desktop_user_names }}"

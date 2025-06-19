@@ -14,6 +14,7 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
+    my_desktop_user: "{{ desktop_users[0].name }}"
 
   pre_tasks:
     # TODO: smell - Update apt cache is duplicate in several playbooks

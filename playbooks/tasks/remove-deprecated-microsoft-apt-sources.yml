@@ -1,0 +1,18 @@
+---
+# Installing the VS Code package will automatically add a deprecated
+# APT source file at /etc/apt/sources.list.d/vscode.sources
+# and an associated keyring file /usr/share/keyrings/microsoft.gpg
+# These files are no longer needed and should be removed to avoid confusion.
+#
+# See: https://ubuntuhandbook.org/index.php/2023/12/install-ubuntu-24-04/
+- name: Remove deprecated VS Code APT source
+  file:
+    path: /etc/apt/sources.list.d/vscode.sources
+    state: absent
+  ignore_errors: true
+
+- name: Remove deprecated Microsoft APT keyring
+  file:
+    path: /usr/share/keyrings/microsoft.gpg
+    state: absent
+  ignore_errors: true

@@ -5,10 +5,12 @@
 
   vars_files:
     - vars-usernames.yml
+    - vars-secrets.yml
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    backup_remote_path: "/home/{{ my_desktop_user }}/chromium-backup.tar.gz"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    backup_remote_path: "/tmp/chromium-backup.tar.gz"
     backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/chromium-backup.tar.gz"
 
   tasks:
@@ -26,48 +28,39 @@
       copy:
         src: "{{ backup_local_path }}"
         dest: "{{ backup_remote_path }}"
-        owner: "{{ my_desktop_user }}"
-        group: "{{ my_desktop_user }}"
-        mode: '0644'
       when: backup_local.stat.exists
       register: upload_result
 
     - name: Remove existing Chromium profile
       file:
-        path: "/home/{{ my_desktop_user }}/snap/chromium/common/chromium/Default"
+        path: "/home/{{ item }}/snap/chromium/common/chromium/Default"
         state: absent
       when: not upload_result.failed | default(true)
+      loop: "{{ desktop_user_names }}"
 
     - name: Ensure Chromium base directory exists
       file:
-        path: "/home/{{ my_desktop_user }}/snap/chromium/common/chromium"
+        path: "/home/{{ item }}/snap/chromium/common/chromium"
         state: directory
         mode: '0755'
-        owner: "{{ my_desktop_user }}"
-        group: "{{ my_desktop_user }}"
+        owner: "{{ item }}"
+        group: "{{ item }}"
       when: not upload_result.failed | default(true)
+      loop: "{{ desktop_user_names }}"
 
     - name: Extract Chromium backup
-      become_user: "{{ my_desktop_user }}"
+      become_user: "{{ item }}"
       unarchive:
         src: "{{ backup_remote_path }}"
-        dest: "/home/{{ my_desktop_user }}/snap/chromium/common/chromium/"
+        dest: "/home/{{ item }}/snap/chromium/common/chromium/"
+        owner: "{{ item }}"
+        group: "{{ item }}"
         remote_src: yes
+      loop: "{{ desktop_user_names }}"
       when: not upload_result.failed | default(true)
-      register: extract_result
 
-    - name: Remove temporary archive from remote server
+    - name: Remove temporary archive
       file:
         path: "{{ backup_remote_path }}"
         state: absent
-      when: extract_result.changed | default(false)
-
-    - name: Show restore status
-      debug:
-        msg: "Chromium profile restored successfully from {{ backup_local_path | basename }}"
-      when: extract_result.changed | default(false)
-
-    - name: Show status when no backup found
-      debug:
-        msg: "No Chromium backup found. Skipping restore."
-      when: not backup_local.stat.exists
+      ignore_errors: true

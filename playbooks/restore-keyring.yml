@@ -5,13 +5,15 @@
 
   vars_files:
     - vars-usernames.yml
+    - vars-secrets.yml
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    config_remote_dir: "/home/{{ my_desktop_user }}/.local/share/keyrings"
+    backup_user: "{{ desktop_users[0].name }}"
+    config_remote_dir: "/home/{{ backup_user }}/.local/share/keyrings"
     config_remote_parent_dir: "{{ config_remote_dir | dirname }}"
-    backup_remote_path: "/home/{{ my_desktop_user }}/keyrings-backup.tar.gz"
-    backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/keyrings-backup.tar.gz"
+    backup_remote_path: "/home/{{ backup_user }}/keyrings-backup.tar.gz"
+    backup_local_path: "{{ playbook_dir }}/../configuration/home/{{ backup_user }}/keyrings-backup.tar.gz"
 
   tasks:
 
@@ -28,8 +30,8 @@
       copy:
         src: "{{ backup_local_path }}"
         dest: "{{ backup_remote_path }}"
-        owner: "{{ my_desktop_user }}"
-        group: "{{ my_desktop_user }}"
+        owner: "{{ backup_user }}"
+        group: "{{ backup_user }}"
         mode: '0644'
       when: archive_local.stat.exists
       register: upload_result
@@ -45,12 +47,12 @@
         path: "{{ config_remote_parent_dir }}"
         state: directory
         mode: '0755'
-        owner: "{{ my_desktop_user }}"
-        group: "{{ my_desktop_user }}"
+        owner: "{{ backup_user }}"
+        group: "{{ backup_user }}"
       when: not upload_result.failed | default(true)
 
     - name: Extract archive
-      become_user: "{{ my_desktop_user }}"
+      become_user: "{{ backup_user }}"
       unarchive:
         src: "{{ backup_remote_path }}"
         dest: "{{ config_remote_parent_dir }}"
@@ -62,14 +64,4 @@
       file:
         path: "{{ backup_remote_path }}"
         state: absent
-      when: extract_result.changed | default(false)
-
-    - name: Show restore status
-      debug:
-        msg: "Backup restored successfully from {{ backup_local_path | basename }}"
-      when: extract_result.changed | default(false)
-
-    - name: Show status when no archive found
-      debug:
-        msg: "No backup found. Skipping restore."
-      when: not archive_local.stat.exists
+      ignore_errors: true
