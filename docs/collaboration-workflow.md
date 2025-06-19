@@ -16,10 +16,12 @@ remote server:
 
 ```shell
 # Clone the working repository into a bare repository
-export REPO=codewars-pyramid-array
+export REPO=ansible-all-my-things
 git clone --bare . ~/source/$REPO.git
 
 # Use ansible with rsync to copy the bare repository to the server
+# NOTE: If nothing happens for some 10 seconds then probably the IPV4_ADDRESS
+#       variable is empty. Check the ./obtain-remote-ip-address.md again.
 rsync -avz --stats --progress --delete --delete-during ~/source/$REPO.git galadriel@$IPV4_ADDRESS:Documents/
 
 # Delete the bare repository on the desktop computer
@@ -49,12 +51,14 @@ Then start mobbing.
 
 ```shell
 # Set up a git user
-git config --global user.name "Stefan Boos"; \
+git config --global user.name "Stefan Boos + Claude 4-20250514 Sonnet"; \
 git config --global user.email "kontakt@boos.systems"
 
 # Clone the bare repository into a working repository
 # and use the same name for the remote as on the local computer ("lorien").
 # This allows using the same .mob configuration on both computers
+mkdir ~/Documents/Cline
+cd ~/Documents/Cline
 git clone --origin lorien $REPO.git
 
 # Checkout the mob branch
