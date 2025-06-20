@@ -14,7 +14,7 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    my_desktop_user: "{{ desktop_users[0].name }}"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
 
   pre_tasks:
     # TODO: smell - Update apt cache is duplicate in several playbooks
@@ -37,71 +37,19 @@
         state: present
       notify: Cleanup apt cache
 
-    - name: Ensure keyring directories exist
+    - name: Upload create-default-gnome-keyring.sh script
+      copy:
+        src: ./scripts/create-default-gnome-keyring.sh
+        dest: /tmp/create-default-gnome-keyring.sh
+        mode: '0755'
+
+    - name: Create GNOME keyring for {{ desktop_user_names | join(', ') }}
+      shell: |
+        /tmp/create-default-gnome-keyring.sh "{{ gnome_keyring_password }}"
+      become_user: "{{ item }}"
+      loop: "{{ desktop_user_names }}"
+
+    - name: Remove temporary script
       file:
-        path: "{{ item }}"
-        state: directory
-        owner: "{{ my_desktop_user }}"
-        group: "{{ my_desktop_user }}"
-        mode: 0700
-      loop:
-        - "/home/{{ my_desktop_user }}/.cache"
-        - "/home/{{ my_desktop_user }}/.local/share/keyrings"
-
-    - name: Start dbus message bus
-      become_user: "{{ my_desktop_user }}"
-      shell: |
-        eval $(dbus-launch --sh-syntax)
-
-        export DBUS_SESSION_BUS_ADDRESS
-        echo $DBUS_SESSION_BUS_ADDRESS
-        export DBUS_SESSION_BUS_PID
-        echo $DBUS_SESSION_BUS_PID
-      args:
-        executable: /bin/bash
-      register: dbus_launch
-      changed_when: false
-
-    - name: Debug dbus-launch
-      debug:
-        var: dbus_launch
-
-    - name: Save dbus session environment variables
-      set_fact:
-        dbus_session:
-          bus_address: "{{ dbus_launch.stdout_lines[0] }}"
-          bus_pid: "{{ dbus_launch.stdout_lines[1] }}"
-    
-    - name: Debug dbus session
-      debug:
-        var: dbus_session
-
-    - name: Create default keyring
-      become_user: "{{ my_desktop_user }}"
-      shell: |
-        eval "$(printf '{{ my_desktop_user_password }}' | gnome-keyring-daemon --unlock)"
-        echo $SSH_AUTH_SOCK
-      register: gnome_keyring
-      changed_when: true
-      environment:
-        DBUS_SESSION_BUS_ADDRESS: "{{ dbus_session.bus_address }}"
-        DBUS_SESSION_BUS_PID: "{{ dbus_session.bus_pid }}"
-  
-    - name: Save SSH_AUTH_SOCK
-      set_fact:
-        ssh_auth_sock: "{{ gnome_keyring.stdout }}"
-      
-    - name: Debug SSH_AUTH_SOCK
-      debug:
-        var: ssh_auth_sock
-
-    - name: Start gnome-keyring-daemon
-      become_user: "{{ my_desktop_user }}"
-      shell: |
-        eval "$(printf '{{ my_desktop_user_password }}' | /usr/bin/gnome-keyring-daemon --start)"
-      register: gnome_keyring_daemon
-      changed_when: true
-      environment:
-        DBUS_SESSION_BUS_ADDRESS: "{{ dbus_session.bus_address }}"
-        DBUS_SESSION_BUS_PID: "{{ dbus_session.bus_pid }}"
-        SSH_AUTH_SOCK: "{{ ssh_auth_sock }}"
+        path: /tmp/create-default-gnome-keyring.sh
+        state: absent
