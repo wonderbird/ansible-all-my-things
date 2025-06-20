@@ -10,10 +10,9 @@
   vars:
     ansible_user: "{{ my_ansible_user }}"
     backup_user: "{{ desktop_users[0].name }}"
-    config_remote_dir: "/home/{{ backup_user }}/.local/share/keyrings"
-    config_remote_parent_dir: "{{ config_remote_dir | dirname }}"
-    backup_remote_path: "/home/{{ backup_user }}/keyrings-backup.tar.gz"
-    backup_local_path: "{{ playbook_dir }}/../configuration/home/{{ backup_user }}/keyrings-backup.tar.gz"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    backup_remote_path: "/tmp/keyrings-backup.tar.gz"
+    backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/keyrings-backup.tar.gz"
 
   tasks:
 
@@ -30,35 +29,35 @@
       copy:
         src: "{{ backup_local_path }}"
         dest: "{{ backup_remote_path }}"
-        owner: "{{ backup_user }}"
-        group: "{{ backup_user }}"
         mode: '0644'
       when: archive_local.stat.exists
       register: upload_result
 
     - name: Remove existing configuration
       file:
-        path: "{{ config_remote_dir }}"
+        path: "/home/{{ item }}/.local/share/keyrings"
         state: absent
       when: not upload_result.failed | default(true)
+      loop: "{{ desktop_user_names }}"
 
     - name: Ensure configuration parent directory exists
       file:
-        path: "{{ config_remote_parent_dir }}"
+        path: "/home/{{ item }}/.local/share"
         state: directory
         mode: '0755'
-        owner: "{{ backup_user }}"
-        group: "{{ backup_user }}"
+        owner: "{{ item }}"
+        group: "{{ item }}"
       when: not upload_result.failed | default(true)
+      loop: "{{ desktop_user_names }}"
 
     - name: Extract archive
-      become_user: "{{ backup_user }}"
+      become_user: "{{ item }}"
       unarchive:
         src: "{{ backup_remote_path }}"
-        dest: "{{ config_remote_parent_dir }}"
+        dest: "/home/{{ item }}/.local/share"
         remote_src: yes
       when: not upload_result.failed | default(true)
-      register: extract_result
+      loop: "{{ desktop_user_names }}"
 
     - name: Remove temporary archive from remote server
       file:

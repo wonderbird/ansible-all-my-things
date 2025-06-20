@@ -14,18 +14,17 @@ in parentheses at the end of the heading.
 - [x] Fix: Visual Studio Code Installation is broken. It seems as if the microsoft package repository has been integrated into the standard apt sources. Verify that assumption. Then fix the issue.
 - [x] Update the template `vars-secrets-template.yml`
 - [x] Update the documentation
-- [ ] Keep `vars-usernames.yml` only when required in the changed backup/restore files
+- [x] Keep `vars-usernames.yml` only when required in the changed backup/restore files
+- [x] Setup a default GNOME keyring for all desktop users, so that they can use Cline with my API key
 
 ## Ongoing (1)
 
 ## Prioritized next (1-2)
 
-- [ ] Setup a default GNOME keyring for all desktop users
-- [ ] Use a separate, but same password for the default GNOME keyring, so that all desktop users can use the restored Cline Plugin configuration, including the API keys in the keyring
-
 ## Planned
 
 - [ ] Rename the folder `configuration/home/my_desktop_user` to `.../backup_user`
+- [ ] Fix: Installing VS Code results an error that prevents all further `apt update` commands: "E:Conflicting values set for option Signed-By regarding source https://packages.microsoft.com/repos/code/ stable: /etc/apt/keyrings/packages.microsoft.gpg != /usr/share/keyrings/microsoft.gpg, E:The list of sources could not be read." (workaround: 'ansible lorien -bm file -a "path=/etc/apt/sources.list.d/vscode.sources state=absent" --extra-vars "ansible_user=gandalf"')
 
 ## Backlog of ideas
 
