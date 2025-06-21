@@ -50,6 +50,8 @@ Then start mobbing.
 ## On the remote computer: Make changes to the repository
 
 ```shell
+export REPO=ansible-all-my-things
+
 # Set up a git user
 git config --global user.name "Stefan Boos + Claude 4-20250514 Sonnet"; \
 git config --global user.email "kontakt@boos.systems"
@@ -59,8 +61,14 @@ git config --global user.email "kontakt@boos.systems"
 # This allows using the same .mob configuration on both computers
 mkdir ~/Documents/Cline
 cd ~/Documents/Cline
-git clone --origin lorien $REPO.git
+git clone --origin lorien ~/Documents/$REPO.git
+```
 
+Now open the cloned folder in Visual Studio Code.
+
+If you want to pair with the coding assistant, then you can use the `mob` command:
+
+```shell
 # Checkout the mob branch
 mob start
 
@@ -77,6 +85,12 @@ repository.
 
 In your working directory, use the [mob tool](https://mob.sh) or pull the
 changes from the remote bare repository `lorien`.
+
+```shell
+git push lorien
+
+git pull lorien main
+```
 
 ## Cleanup
 
