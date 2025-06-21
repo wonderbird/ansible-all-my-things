@@ -46,6 +46,8 @@
           - libsecret-tools
           - seahorse
           - ubuntu-desktop-minimal
+          - python3-full
+          - ansible-core
         state: present
       notify: Cleanup apt cache
 
