@@ -49,6 +49,14 @@
           CreatedBy: "ansible"
       register: security_group
 
+    - name: Check if instance already exists
+      amazon.aws.ec2_instance_info:
+        region: "{{ aws_region }}"
+        filters:
+          "tag:Name": "{{ aws_instance_name }}"
+          instance-state-name: ["running", "pending", "stopping", "stopped"]
+      register: existing_instances
+
     - name: Launch EC2 instance (idempotent)
       amazon.aws.ec2_instance:
         name: "{{ aws_instance_name }}"
@@ -59,9 +67,6 @@
           - "{{ aws_security_group_name }}"
         region: "{{ aws_region }}"
         state: present
-        exact_count: 1
-        count_tag:
-          Name: "{{ aws_instance_name }}"
         wait: true
         wait_timeout: 300
         volumes:
@@ -77,6 +82,22 @@
           CreatedBy: "ansible"
           Environment: "development"
       register: ec2_instance
+      when: existing_instances.instances | length == 0
+
+    - name: Get existing instance info if not created
+      amazon.aws.ec2_instance_info:
+        region: "{{ aws_region }}"
+        filters:
+          "tag:Name": "{{ aws_instance_name }}"
+          instance-state-name: ["running", "pending", "stopping", "stopped"]
+      register: ec2_instance_info
+      when: existing_instances.instances | length > 0
+
+    - name: Set instance facts for existing instance
+      ansible.builtin.set_fact:
+        ec2_instance:
+          instances: "{{ ec2_instance_info.instances }}"
+      when: existing_instances.instances | length > 0
 
     - name: Wait for SSH to become available
       ansible.builtin.wait_for:
