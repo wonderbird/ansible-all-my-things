@@ -17,15 +17,17 @@ I ask the user whether I shall create a new feature branch, if we are `main` and
 
 ### Commit conventions
 
-All commits must use one of the following conventional commit prefixes: `feat:`, `refactor:`, `docs:`. If the correct prefix is unclear, I ask the user.
+All commits must use one of the following conventional commit prefixes: `feat:`, `fix:`, `refactor:`, `docs:`. If the correct prefix is unclear, I ask the user.
 
 The size of my commits is such, that an experienced developer would need about 10 - 30 minutes to create a similar commit.
 
 Every commit is a small coherent and working increment.
 
-The headline of a `feat:` commit explains the new capability of the project in short. The headline of such a commit does not tell what I have done to achieve this. Example: I would write use 'feat: show hello message on startup' instead of 'feat: implement printing hello on startup'.
+The headline of a `feat:` commit explains the new capability of the project in short. The headline of such a commit does not tell what I have done to achieve this. Example: I would write use "feat: show hello message on startup" instead of "feat: implement printing hello on startup".
 
-I only add a brief description of at most 50 words, if the changes were complicated.
+The headline of a `fix:` commit describes the most important symptom of the problem in past tense. The commit message body describes the problem and its root cause. It may also contain the major steps required to fix the problem.
+
+The brief description of a commit body shall not exceed 50 words.
 
 ## Code style
 
