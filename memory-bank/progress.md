@@ -49,9 +49,9 @@
 - **Destruction**: Complete resource cleanup implemented
 - **Cross-Architecture Support**: Enables amd64 development from Apple Silicon hosts
 
-**Critical Findings**:
-- 🔧 `provisioners/aws-ec2.yml` - Not idempotent, creates multiple instances instead of maintaining count of 1
-- 🔧 `inventories/aws/aws_ec2.yml` - Inventory discovery not working, instances not shown in graph
+**Critical Findings Resolved**:
+- ✅ `provisioners/aws-ec2.yml` - Fixed idempotency using "lorien" identifier with proper ec2_instance_info checks
+- ✅ `inventories/aws/aws_ec2.yml` - Fixed inventory discovery by simplifying config and correcting region to eu-north-1
 
 **Implemented Components**:
 - 🔧 `inventories/aws/aws_ec2.yml` - Needs simplification following Hetzner pattern

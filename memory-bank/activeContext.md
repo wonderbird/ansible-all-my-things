@@ -4,14 +4,16 @@
 
 ### Review Findings Resolution
 **Primary Objective**: Fix 2 new critical findings discovered in AWS implementation:
-- **AWS Provisioning Idempotency**: provision-aws.yml creates multiple instances instead of being idempotent
-- **AWS Inventory Discovery**: ansible-inventory doesn't show provisioned AWS instances
+- ✅ **AWS Provisioning Idempotency**: Fixed - provision-aws.yml now maintains exactly one instance using "lorien" identifier
+- ✅ **AWS Inventory Discovery**: Fixed - simplified inventory configuration to match correct region and follow Hetzner pattern
 
-**Status**: 2 new critical findings identified, must be fixed sequentially with user review after each
+**Status**: Both critical findings resolved and committed
 
-**Approach**: Fix one finding per commit, request user review before proceeding to next finding
+**Approach**: Fixed one finding per commit with user review between fixes
 
-**Solution Strategy**: Use fixed instance identifier "lorien" instead of computed IDs for idempotency
+**Solutions Implemented**:
+- **Idempotency**: Used fixed instance identifier "lorien" with proper ec2_instance_info checks
+- **Inventory Discovery**: Simplified configuration, fixed region mismatch (eu-north-1), removed complexity
 
 ### MVP AWS Development Environment (Background Context)
 **Objective**: Create secure, isolated AWS EC2 environments that provide:
