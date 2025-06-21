@@ -4,12 +4,12 @@
 
 - name: Create AWS EC2 Development Environment
   hosts: localhost
-  gather_facts: false
+  gather_facts: true
   vars:
     # Default values - can be overridden in group_vars
     aws_region: "{{ aws_default_region | default('eu-north-1') }}"
     aws_instance_type: "{{ aws_default_instance_type | default('t3.micro') }}"
-    aws_ami_id: "{{ aws_default_ami_id | default('ami-042b4708b1d05f512') }}"  # Ubuntu 24.04 LTS in eu-north-1
+    aws_ami_id: "{{ aws_default_ami_id | default('ami-0989fb15ce71ba39e') }}"  # Ubuntu 24.04 LTS in eu-north-1
     aws_key_name: "{{ aws_ssh_key_name }}"
     aws_security_group_name: "ansible-dev-sg"
     aws_instance_name: "ansible-dev-{{ ansible_date_time.epoch }}"
