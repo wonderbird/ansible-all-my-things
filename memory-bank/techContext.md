@@ -12,12 +12,13 @@
 - **Hetzner Cloud**: Primary production environment provider
   - API: Hetzner Cloud API via `hetzner.hcloud` collection
   - Authentication: `HCLOUD_TOKEN` environment variable
-- **AWS EC2**: Cross-architecture development environment
+- **AWS EC2**: Cross-architecture development environment (implemented)
   - API: AWS EC2 API via `amazon.aws` collection
   - Authentication: AWS credentials via environment variables
   - Instance Types: t3.micro, t3.small (cost-optimized, free tier eligible)
   - Regions: Configurable, default eu-north-1
   - Storage: GP3 EBS volumes (cost-effective)
+  - Status: Provisioning and inventory working, minor package additions needed
 - **Local Testing**: Vagrant with multiple providers
 
 ### Operating Systems
@@ -90,7 +91,7 @@ ansible-all-my-things/
 - **Collections Required**:
   - `community.general`
   - `hetzner.hcloud`
-  - `amazon.aws` (planned)
+  - `amazon.aws` (implemented)
 
 ### Python Dependencies
 ```yaml
@@ -103,7 +104,8 @@ collections:
 # requirements.txt (Python packages)
 ansible>=4.0
 hcloud>=1.0
-boto3>=1.0 (for AWS)
+boto3>=1.0
+botocore>=1.0
 ```
 
 ### Provider-Specific Limitations
@@ -114,11 +116,12 @@ boto3>=1.0 (for AWS)
 - **Images**: Ubuntu 20.04/22.04/24.04 LTS
 - **Networking**: Default VPC with SSH access
 
-#### AWS EC2
+#### AWS EC2 (Implemented)
 - **Instance Types**: t3.micro, t3.small (cost-optimized)
 - **Regions**: Configurable, default to eu-north-1
 - **Images**: Ubuntu 24.04 LTS AMI
 - **Storage**: GP3 EBS volumes (cost-effective)
+- **Status**: Provisioning idempotent, inventory working, minor package additions needed
 
 #### Local Testing
 - **Docker**: No desktop environment support
