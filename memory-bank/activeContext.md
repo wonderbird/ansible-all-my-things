@@ -3,15 +3,15 @@
 ## Current Work Focus
 
 ### Review Findings Resolution
-**Primary Objective**: Fix identified issues in AWS implementation to make it production-ready:
-- **Code Issues**: Resolve undefined variables and invalid AMI references
-- **Configuration Simplification**: Streamline inventory and configuration files
-- **Documentation Compliance**: Fix markdown violations and add missing sections
-- **Integration Completion**: Merge MVP documentation into memory bank
+**Primary Objective**: Fix 2 new critical findings discovered in AWS implementation:
+- **AWS Provisioning Idempotency**: provision-aws.yml creates multiple instances instead of being idempotent
+- **AWS Inventory Discovery**: ansible-inventory doesn't show provisioned AWS instances
 
-**Status**: 6 of 12 findings completed, 6 remaining to fix sequentially with user review after each
+**Status**: 2 new critical findings identified, must be fixed sequentially with user review after each
 
 **Approach**: Fix one finding per commit, request user review before proceeding to next finding
+
+**Solution Strategy**: Use fixed instance identifier "lorien" instead of computed IDs for idempotency
 
 ### MVP AWS Development Environment (Background Context)
 **Objective**: Create secure, isolated AWS EC2 environments that provide:

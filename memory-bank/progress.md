@@ -42,20 +42,21 @@
 
 ## What's Left to Build
 
-### AWS EC2 Integration 🔧 (Issues Identified)
-- **Provisioning**: Infrastructure creation implemented but has issues
-- **Dynamic Inventory**: Automatic host discovery implemented but needs simplification
-- **Configuration**: Reuses existing playbooks but missing required packages
+### AWS EC2 Integration 🔧 (New Critical Issues Identified)
+- **Provisioning**: Infrastructure creation implemented but not idempotent
+- **Dynamic Inventory**: Automatic host discovery not working properly
+- **Configuration**: Reuses existing playbooks (ready for testing after fixes)
 - **Destruction**: Complete resource cleanup implemented
 - **Cross-Architecture Support**: Enables amd64 development from Apple Silicon hosts
 
+**New Critical Findings**:
+- 🔧 `provisioners/aws-ec2.yml` - Not idempotent, creates multiple instances instead of maintaining count of 1
+- 🔧 `inventories/aws/aws_ec2.yml` - Inventory discovery not working, instances not shown in graph
+
 **Implemented Components**:
-- 🔧 `provisioners/aws-ec2.yml` - Has undefined variable and invalid AMI ID issues
-- 🔧 `inventories/aws/aws_ec2.yml` - Needs simplification following Hetzner pattern
 - ✅ `inventories/aws/group_vars/aws_dev/vars.yml` - Minimal AWS-specific variables
 - ✅ `provision-aws.yml`, `configure-aws.yml`, `destroy-aws.yml` - Main playbooks
 - ✅ Cross-architecture documentation and use case clarification
-- 🔧 `docs/create-aws-vm.md` - Has markdown violations and missing performance section
 
 **Architecture Improvements Made**:
 - ✅ Simplified configuration following Hetzner pattern (minimal overrides)
@@ -64,8 +65,8 @@
 - ✅ Standardized playbook structure across providers
 
 **Review Findings Status**:
-- ✅ 6 of 12 findings completed (memory bank updates, architecture improvements)
-- 🔧 6 findings remaining to fix sequentially with user review after each
+- 🔧 2 new critical findings identified, must be fixed sequentially with user review after each
+- ✅ Previous 12 findings completed (memory bank updates, architecture improvements)
 
 ### Enhanced Cost Management 📋 (Planned)
 - [ ] Cost estimation tools
