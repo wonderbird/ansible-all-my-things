@@ -26,3 +26,7 @@ Every commit is a small coherent and working increment.
 The headline of a `feat:` commit explains the new capability of the project in short. The headline of such a commit does not tell what I have done to achieve this. Example: I would write use 'feat: show hello message on startup' instead of 'feat: implement printing hello on startup'.
 
 I only add a brief description of at most 50 words, if the changes were complicated.
+
+## Code style
+
+**Markdown** must comply with the rules specified by the Visual Studio Code **markdownlint** plugin. These rules are maintained here: https://raw.githubusercontent.com/DavidAnson/markdownlint/refs/heads/main/doc/Rules.md
