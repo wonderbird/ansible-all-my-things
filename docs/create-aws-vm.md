@@ -4,8 +4,8 @@
 
 If you experience poor performance, then consider the following tuning parameters:
 
-- select a different region
-- select a larger instance type
+- select a different region in [./provisioners/aws-ec2.yml](../provisioners/aws-ec2.yml)
+- select a larger instance type in [./provisioners/aws-ec2.yml](../provisioners/aws-ec2.yml)
 
 ## Prerequisites
 
@@ -89,7 +89,7 @@ aws configure
 aws ec2 describe-regions
 ```
 
->[!NOTE]
+> [!NOTE]
 > The free tier includes 750 hours/month of t3.micro instances for the first 12 months, which covers this project's usage perfectly.
 
 ### SSH Key Pair Setup
@@ -149,7 +149,7 @@ ssh -i ~/.ssh/your-key-pair-name.pem ubuntu@$IPV4_ADDRESS
 
 The instance public IP will be displayed in the provisioning output.
 
->[!IMPORTANT]
+> [!IMPORTANT]
 > The security group is configured to allow SSH access only from your current public IP address. If your IP changes, you may need to update the security group rules in the AWS console.
 
 ## Delete the VM
