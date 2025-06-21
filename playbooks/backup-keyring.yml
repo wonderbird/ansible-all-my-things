@@ -16,4 +16,4 @@
       vars:
         path: "/home/{{ backup_user }}/.local/share/keyrings"
         temp_backup_path: "/home/{{ backup_user }}/keyrings-backup.tar.gz"
-        dest: "{{ playbook_dir }}/../configuration/home/{{ backup_user }}/keyrings-backup.tar.gz"
+        dest: "{{ playbook_dir }}/../configuration/home/my_desktop_user/keyrings-backup.tar.gz"

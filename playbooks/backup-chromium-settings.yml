@@ -5,6 +5,7 @@
 
   vars_files:
     - vars-usernames.yml
+    - vars-secrets.yml
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
@@ -15,7 +16,7 @@
       vars:
         path: "/home/{{ backup_user }}/snap/chromium/common/chromium/Default"
         temp_backup_path: "/home/{{ backup_user }}/chromium-backup.tar.gz"
-        dest: "{{ playbook_dir }}/../configuration/home/{{ backup_user }}/chromium-backup.tar.gz"
+        dest: "{{ playbook_dir }}/../configuration/home/my_desktop_user/chromium-backup.tar.gz"
         exclusion_patterns:
           - "*Cache*"
           - "*cache*"

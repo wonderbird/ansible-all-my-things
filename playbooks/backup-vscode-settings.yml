@@ -25,7 +25,7 @@
           - "/home/{{ backup_user }}/.vscode"
           - "/home/{{ backup_user }}/.config/Code/User"
         temp_backup_path: "/home/{{ backup_user }}/vscode-backup.tar.gz"
-        dest: "{{ playbook_dir }}/../configuration/home/{{ backup_user }}/vscode-backup.tar.gz"
+        dest: "{{ playbook_dir }}/../configuration/home/my_desktop_user/vscode-backup.tar.gz"
         exclusion_patterns:
           - "*extensions*"
 
