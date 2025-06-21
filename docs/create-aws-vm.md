@@ -129,13 +129,15 @@ Once provisioning is complete, verify the setup:
 ansible-inventory -i inventories/aws/aws_ec2.yml --graph
 
 # Check whether the server can be reached
-ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami'
+ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' -e "ansible_user=ubuntu aws_ssh_key_name=galadriel@lorien.hetzner"
 ```
 
 You can also SSH directly to the instance:
 
 ```shell
-ssh -i ~/.ssh/your-key-pair-name.pem ubuntu@<instance-public-ip>
+export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=lorien" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+
+ssh -i ~/.ssh/your-key-pair-name.pem ubuntu@$IPV4_ADDRESS
 ```
 
 The instance public IP will be displayed in the provisioning output.
