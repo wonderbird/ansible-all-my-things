@@ -4,8 +4,8 @@
 
 If you experience poor performance, then consider the following tuning parameters:
 
-- select a different region in [./inventories/aws/group_vars/aws_dev/vars.yml](../inventories/aws/group_vars/aws_dev/vars.yml)
-- select a larger instance type in [./provisioners/aws-ec2.yml](../provisioners/aws-ec2.yml)
+- select a different region
+- select a larger instance type
 
 ## Prerequisites
 

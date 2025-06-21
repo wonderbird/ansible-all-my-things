@@ -15,8 +15,6 @@ Managing personal development environments across multiple cloud providers and l
 
 **Security Isolation Need**: Testing untrusted software (such as LLMs with MCP support) requires secure, isolated environments that don't risk the local machine's security. Cloud-based environments provide complete isolation with the ability to destroy compromised systems entirely.
 
-**Specific Use Case**: Need access to amd64 architecture for development tools unavailable on Apple Silicon, while providing secure isolation for testing untrusted software (specifically LLMs with MCP support) without risking local machine security. Usage pattern: ~10-15 hours/week with complete provision → work → destroy lifecycle.
-
 ### The Solution Vision
 A unified, automated system that treats infrastructure as code, enabling:
 - **Reproducible Environments**: Identical setups across any supported provider
