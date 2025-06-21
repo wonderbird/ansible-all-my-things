@@ -1,5 +1,12 @@
 # Create a developer VM with AWS EC2
 
+## Notes on Performance
+
+If you experience poor performance, then consider the following tuning parameters:
+
+- select a different region in [./inventories/aws/group_vars/aws_dev/vars.yml](../inventories/aws/group_vars/aws_dev/vars.yml)
+- select a larger instance type in [./provisioners/aws-ec2.yml](../provisioners/aws-ec2.yml)
+
 ## Prerequisites
 
 You need an AWS account with programmatic access configured.
