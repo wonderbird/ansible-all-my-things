@@ -3,17 +3,23 @@
 ## Current Work Focus
 
 ### Review Findings Resolution
-**Primary Objective**: Fix 2 new critical findings discovered in AWS implementation:
+**Primary Objective**: Fix 4 critical findings discovered in AWS implementation:
 - ✅ **AWS Provisioning Idempotency**: Fixed - provision-aws.yml now maintains exactly one instance using "lorien" identifier
 - ✅ **AWS Inventory Discovery**: Fixed - simplified inventory configuration to match correct region and follow Hetzner pattern
+- 🔧 **Development Environment Packages**: Add python3-full and ansible-core to setup-desktop.yml (benefits all environments)
+- 🔧 **AWS Documentation**: Fix markdown violations in docs/create-aws-vm.md and add "Notes on Performance" section
 
-**Status**: Both critical findings resolved and committed
+**Status**: 2 of 4 critical findings resolved and committed, 2 remaining
 
-**Approach**: Fixed one finding per commit with user review between fixes
+**Approach**: Fix one finding per commit with user review between fixes
 
 **Solutions Implemented**:
 - **Idempotency**: Used fixed instance identifier "lorien" with proper ec2_instance_info checks
 - **Inventory Discovery**: Simplified configuration, fixed region mismatch (eu-north-1), removed complexity
+
+**Next Fixes Required**:
+- **setup-desktop.yml**: Add `python3-full` and `ansible-core` packages to general package list
+- **docs/create-aws-vm.md**: Fix markdown violations and adopt "Notes on Performance" section from create-hetzner-vm.md
 
 ### MVP AWS Development Environment (Background Context)
 **Objective**: Create secure, isolated AWS EC2 environments that provide:
@@ -59,20 +65,18 @@
 ## Next Steps
 
 ### Review Findings to Fix (Sequential Order)
-1. 🔧 **Fix provisioners/aws-ec2.yml**: Resolve undefined `ansible_date_time` variable and invalid AMI ID
-2. 🔧 **Simplify inventories/aws/aws_ec2.yml**: Reduce complexity following Hetzner pattern
-3. 🔧 **Update playbooks/setup-desktop.yml**: Add required packages for AWS development environment
-4. 🔧 **Fix docs/create-aws-vm.md**: Resolve markdown violations and add performance notes
-5. 🔧 **Merge MVP Documentation**: Integrate implementation-plan.md and use-case-description.md
-6. 🔧 **Cleanup MVP Directory**: Remove mvp-aws-dev-env/ after successful merge
+1. 🔧 **Update playbooks/setup-desktop.yml**: Add `python3-full` and `ansible-core` packages to general package list
+2. 🔧 **Fix docs/create-aws-vm.md**: Resolve markdown violations and add "Notes on Performance" section from create-hetzner-vm.md
 
 ### Completed Review Findings
-1. ✅ **Memory Bank Updates**: Cross-architecture rationale documented
-2. ✅ **Architecture Drivers**: Understandability, maintainability, extensibility established
-3. ✅ **Quality Conflict Resolution**: Guidance for competing design priorities added
-4. ✅ **Standardize provision.yml**: Structure updated to match provision-aws.yml
-5. ✅ **Simplify vars.yml**: Reduced to minimal essential configuration parameters
-6. ✅ **Clean docs/create-aws-vm.md**: Removed non-user-manual information
+1. ✅ **AWS Provisioning Idempotency**: Fixed using "lorien" identifier with proper ec2_instance_info checks
+2. ✅ **AWS Inventory Discovery**: Simplified configuration, fixed region mismatch (eu-north-1), removed complexity
+3. ✅ **Memory Bank Updates**: Cross-architecture rationale documented
+4. ✅ **Architecture Drivers**: Understandability, maintainability, extensibility established
+5. ✅ **Quality Conflict Resolution**: Guidance for competing design priorities added
+6. ✅ **Standardize provision.yml**: Structure updated to match provision-aws.yml
+7. ✅ **Simplify vars.yml**: Reduced to minimal essential configuration parameters
+8. ✅ **Clean docs/create-aws-vm.md**: Removed non-user-manual information
 
 ### Future Priorities (After Review Findings)
 - **Test Integration**: Ensure existing playbooks work with AWS instances
@@ -173,7 +177,8 @@ graph TD
 - **Cost Awareness**: Clear understanding of architectural benefits vs. costs
 
 ## Memory Bank Maintenance Notes
-- **Last Updated**: Initial creation during memory bank initialization
-- **Next Review**: After AWS MVP implementation completion
-- **Key Files to Monitor**: AWS provisioner, inventory, and group variables
+- **Last Updated**: Updated with past 9 commits progress (AWS idempotency and inventory fixes completed)
+- **Next Review**: After remaining 2 review findings are resolved
+- **Key Files to Monitor**: playbooks/setup-desktop.yml, docs/create-aws-vm.md
 - **Success Metrics**: 10-15 minute provision time, zero ongoing costs, identical UX to Hetzner
+- **Recent Changes**: Documented successful AWS provisioning and inventory implementation, updated status to show 2 of 4 critical findings resolved

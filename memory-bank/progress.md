@@ -42,22 +42,26 @@
 
 ## What's Left to Build
 
-### AWS EC2 Integration 🔧 (Issues Identified, Sorted by Priority)
-- **Provisioning**: Infrastructure creation implemented but not idempotent
-- **Dynamic Inventory**: Automatic host discovery not working properly
-- **Configuration**: Reuses existing playbooks but missing required packages
-- **Destruction**: Complete resource cleanup implemented
-- **Cross-Architecture Support**: Enables amd64 development from Apple Silicon hosts
+### AWS EC2 Integration 🚧 (Partially Complete)
+- ✅ **Provisioning**: Infrastructure creation implemented with proper idempotency
+- ✅ **Dynamic Inventory**: Automatic host discovery working correctly
+- 🔧 **Configuration**: Reuses existing playbooks but missing python3-full and ansible-core packages
+- ✅ **Destruction**: Complete resource cleanup implemented
+- ✅ **Cross-Architecture Support**: Enables amd64 development from Apple Silicon hosts
 
-**Critical Findings Resolved**:
-- ✅ `provisioners/aws-ec2.yml` - Fixed idempotency using "lorien" identifier with proper ec2_instance_info checks
-- ✅ `inventories/aws/aws_ec2.yml` - Fixed inventory discovery by simplifying config and correcting region to eu-north-1
+**Critical Findings Status (2 of 4 resolved)**:
+- ✅ **AWS Provisioning Idempotency**: Fixed using "lorien" identifier with proper ec2_instance_info checks
+- ✅ **AWS Inventory Discovery**: Fixed by simplifying config and correcting region to eu-north-1
+- 🔧 **Development Environment Packages**: Need to add python3-full and ansible-core to setup-desktop.yml
+- 🔧 **AWS Documentation**: Fix markdown violations and add "Notes on Performance" section
 
 **Implemented Components**:
-- 🔧 `inventories/aws/aws_ec2.yml` - Needs simplification following Hetzner pattern
+- ✅ `provisioners/aws-ec2.yml` - Working with proper idempotency
+- ✅ `inventories/aws/aws_ec2.yml` - Simplified and working correctly
 - ✅ `inventories/aws/group_vars/aws_dev/vars.yml` - Minimal AWS-specific variables
 - ✅ `provision-aws.yml`, `configure-aws.yml`, `destroy-aws.yml` - Main playbooks
 - ✅ Cross-architecture documentation and use case clarification
+- 🔧 `playbooks/setup-desktop.yml` - Missing python3-full and ansible-core packages
 - 🔧 `docs/create-aws-vm.md` - Has markdown violations and missing performance section
 
 **Architecture Improvements Made**:
@@ -66,8 +70,9 @@
 - ✅ Added quality criteria conflict resolution guidance
 - ✅ Standardized playbook structure across providers
 
-**Review Findings Status**:
-- 🔧 several findings remaining to fix sequentially with user review after each
+**Remaining Work**:
+- 🔧 Add python3-full and ansible-core packages to setup-desktop.yml (benefits all environments)
+- 🔧 Fix markdown violations in docs/create-aws-vm.md and add "Notes on Performance" section
 
 ### Enhanced Cost Management 📋 (Planned)
 - [ ] Cost estimation tools
@@ -162,15 +167,15 @@
 - **Reliable Operation**: Repeatable results across multiple deployments
 - **Clear Documentation**: Comprehensive setup and usage instructions
 
-## Next Milestone: Review Findings Resolution
+## Next Milestone: Complete Review Findings Resolution
 
 ### Immediate Priorities (Sequential)
-1. 🔧 **Fix provisioners/aws-ec2.yml**: Resolve undefined `ansible_date_time` variable and invalid AMI ID
-2. 🔧 **Simplify inventories/aws/aws_ec2.yml**: Reduce complexity following Hetzner pattern
-3. 🔧 **Update playbooks/setup-desktop.yml**: Add required packages for AWS development environment
-4. 🔧 **Fix docs/create-aws-vm.md**: Resolve markdown violations and add performance notes
-5. 🔧 **Merge MVP Documentation**: Integrate implementation-plan.md and use-case-description.md
-6. 🔧 **Cleanup MVP Directory**: Remove mvp-aws-dev-env/ after successful merge
+1. 🔧 **Update playbooks/setup-desktop.yml**: Add `python3-full` and `ansible-core` packages to general package list (benefits all environments)
+2. 🔧 **Fix docs/create-aws-vm.md**: Resolve markdown violations and add "Notes on Performance" section from create-hetzner-vm.md
+
+### Recently Completed
+1. ✅ **AWS Provisioning Idempotency**: Fixed using "lorien" identifier with proper ec2_instance_info checks
+2. ✅ **AWS Inventory Discovery**: Simplified configuration, fixed region mismatch (eu-north-1), removed complexity
 
 ### AWS MVP Testing (After Fixes)
 - [ ] Test AWS EC2 provisioning with actual credentials

@@ -39,6 +39,12 @@ provision-aws.yml → provisioners/aws-ec2.yml → configure-aws.yml → playboo
 - **Networking**: Security group creation required (vs. automatic for Hetzner)
 - **Tagging**: AWS tags (vs. Hetzner labels)
 
+**Proven AWS Patterns (Implemented and Working):**
+- **Idempotency Pattern**: Use fixed instance identifier ("lorien") with `ec2_instance_info` checks before creation
+- **Inventory Simplification**: Minimal configuration following Hetzner pattern, avoid complex grouping/filtering
+- **Region Consistency**: Use single region (eu-north-1) consistently across provisioner and inventory
+- **Hostname Configuration**: Use `tag:Name` as primary hostname source with `public-ip-address` as fallback
+
 ## Key Technical Decisions
 
 ### User Management Strategy
@@ -255,6 +261,23 @@ test/
   - Maintainability vs. Performance (cleaner code vs. optimized execution)
   - Security vs. Usability (strict controls vs. ease of use)
   - Cost Optimization vs. Reliability (minimal resources vs. redundancy)
+
+## Lessons Learned from AWS Implementation
+
+### AWS-Specific Implementation Insights
+- **Fixed Instance Identifiers**: Using dynamic names (like timestamps) breaks idempotency; fixed identifiers ("lorien") with proper existence checks work reliably
+- **Inventory Simplification**: Complex inventory configurations with multiple regions/filters create maintenance burden; minimal configuration following established patterns is more reliable
+- **Region Consistency**: Mismatched regions between provisioner and inventory cause discovery failures; use single region consistently
+- **Hostname Display**: Using IP addresses as hostnames reduces readability; tag-based hostnames with IP fallback provides better user experience
+
+### Development Environment Packages
+- **Universal Packages**: `python3-full` and `ansible-core` are beneficial for all environments, not just AWS-specific ones
+- **Package Strategy**: Add generally useful packages to all environments rather than creating provider-specific conditionals
+
+### Commit Strategy Effectiveness
+- **Sequential Fixes**: Fixing one issue per commit with user review between fixes prevents compound problems
+- **Clear Commit Messages**: Conventional commit format with detailed descriptions helps track progress and understand changes
+- **Status Tracking**: Maintaining accurate status of what's resolved vs. what remains prevents confusion and duplicate work
 
 ## Extension Points
 
