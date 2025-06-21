@@ -15,12 +15,11 @@ in parentheses at the end of the heading.
 - [x] Update the documentation
 - [x] Keep `vars-usernames.yml` only when required in the changed backup/restore files
 - [x] Setup a default GNOME keyring for all desktop users, so that they can use Cline with my API key
+- [x] Fix: Installing VS Code results an error that prevents all further `apt update` commands: "E:Conflicting values set for option Signed-By regarding source https://packages.microsoft.com/repos/code/ stable: /etc/apt/keyrings/packages.microsoft.gpg != /usr/share/keyrings/microsoft.gpg, E:The list of sources could not be read." (workaround: 'ansible lorien -bm file -a "path=/etc/apt/sources.list.d/vscode.sources state=absent" --extra-vars "ansible_user=gandalf"')
 
 ## Ongoing (1)
 
 ## Prioritized next (1-2)
-
-- [ ] Fix: Installing VS Code results an error that prevents all further `apt update` commands: "E:Conflicting values set for option Signed-By regarding source https://packages.microsoft.com/repos/code/ stable: /etc/apt/keyrings/packages.microsoft.gpg != /usr/share/keyrings/microsoft.gpg, E:The list of sources could not be read." (workaround: 'ansible lorien -bm file -a "path=/etc/apt/sources.list.d/vscode.sources state=absent" --extra-vars "ansible_user=gandalf"')
 
 ## Planned
 

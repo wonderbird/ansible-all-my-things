@@ -2,74 +2,86 @@
 #####
 # Install and configure Visual Studio Code
 #####
+
 # Adopted from https://code.visualstudio.com/docs/setup/linux
-
-- name: Install apt-transport-https
-  apt:
-    name: apt-transport-https
-    state: present
-
-# Check if the Microsoft signing key is already installed
-- name: Check if Microsoft apt key is already installed
-  command: >
-    gpg --list-keys --keyring /etc/apt/keyrings/packages.microsoft.gpg
-  register: have_microsoft_key
-  changed_when: false
-  failed_when: false
-
-# Warning:
-#   To install the Microsoft signing key,
-#   do not use apt_key module, because it is deprecated.
 #
-# Instead follow the instructions at
-# https://code.visualstudio.com/docs/setup/linux
-- name: Download Microsoft apt key to /tmp
+# Notes:
+#
+# - Installing VS Code via apt might cause errors in apt sources. See https://ubuntuhandbook.org/index.php/2023/12/install-ubuntu-24-04/
+# - The snap package is only available for the AMD64 architecture.
+
+# The ansible module apt_repository installs the Microsoft repository into
+# /etc/apt/sources.list.d/vscode.list with old and deprecated format.
+#
+# The VS Code installer renames /etc/apt/sources.list.d/vscode.list
+# to /etc/apt/sources.list.d/vscode.sources and updates its format.
+#
+# As a consequence, we must not add the Microsoft repository again, if the
+# file /etc/apt/sources.list.d/vscode.sources already exists.
+#
+# Otherwise a conflict of apt sources will occur.
+- name: Check whether Microsoft repository is already configured
+  stat:
+    path: /etc/apt/sources.list.d/vscode.sources
+  register: vscode_sources_file
+
+# wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /tmp/packages.microsoft.gpg
+- name: Download Microsoft ASCII-armored GPG key
   get_url:
     url: https://packages.microsoft.com/keys/microsoft.asc
     dest: /tmp/microsoft.asc
-  when: have_microsoft_key.rc != 0
+    mode: '0644'
+  when: not vscode_sources_file.stat.exists
 
-- name: Dearmor Microsoft apt key
-  command: gpg --dearmor /tmp/microsoft.asc
-  args:
-    creates: /tmp/microsoft.asc.gpg
-  when: have_microsoft_key.rc != 0
+- name: Convert ASCII-armored key to binary GPG format
+  shell: cat /tmp/microsoft.asc | gpg --dearmor > /tmp/packages.microsoft.gpg
+  when: not vscode_sources_file.stat.exists
 
-- name: Install Microsoft apt key to /etc/apt/keyrings
-  # Instead of using the copy module, use the install command
-  command: >
-    install -D -o root -g root -m 644
-            /tmp/microsoft.asc.gpg
-            /etc/apt/keyrings/packages.microsoft.gpg
-  when: have_microsoft_key.rc != 0
+# sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
+- name: Install Microsoft GPG key for VS Code
+  copy:
+    remote_src: yes
+    src: /tmp/packages.microsoft.gpg
+    dest: /etc/apt/keyrings/packages.microsoft.gpg
+    owner: root
+    group: root
+    mode: '0644'
+  when: not vscode_sources_file.stat.exists
 
-- name: Remove Microsoft apt key from /tmp
+# echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" |sudo tee /etc/apt/sources.list.d/vscode.list > /dev/null
+- name: Add VS Code repository to apt sources
+  apt_repository:
+    repo: "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main"
+    filename: vscode
+    state: present
+  when: not vscode_sources_file.stat.exists
+
+# rm -f /tmp/packages.microsoft.gpg and /tmp/microsoft.asc
+- name: Remove temporary Microsoft GPG key files
   file:
     path: "{{ item }}"
     state: absent
   loop:
+    - /tmp/packages.microsoft.gpg
     - /tmp/microsoft.asc
-    - /tmp/microsoft.asc.gpg
-  when: have_microsoft_key.rc != 0
+  when: not vscode_sources_file.stat.exists
 
-# Include arm64 architecture to support Apple Silicon when running
-# on the Vagrant / Tart test environment
-- name: Add Microsoft apt repository
-  apt_repository:
-    repo: deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main
+# sudo apt install apt-transport-https
+- name: Ensure apt-transport-https is installed
+  apt:
+    name: apt-transport-https
     state: present
 
-- include_tasks: remove-deprecated-microsoft-apt-sources.yml
+# sudo apt update
+- name: Update apt package index
+  apt:
+    update_cache: yes
 
-- name: Update apt cache
-  apt: update_cache=yes
-
-- name: Install VS Code
+# sudo apt install code # or code-insiders
+- name: Install Visual Studio Code
   apt:
     name: code
     state: present
-
-- include_tasks: remove-deprecated-microsoft-apt-sources.yml
 
 # Configure VS Code
 - name: Create .vscode directory
