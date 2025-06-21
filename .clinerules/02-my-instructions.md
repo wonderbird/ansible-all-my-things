@@ -8,9 +8,10 @@ If my instructions are unclear, ambiguous or inconsistent, I describe this situa
 
 ### Git branching strategy
 
-- Only the first commit is allowed on the main branch.
+- Only the first commit is allowed on the `main` branch.
 - All commits after the first require a feature branch.
 - Feature branches are named `feat/feature-name`. The feature name MUST NOT contain suffixes like "-docs".
+- The commit resulting from merging a feature branch into `main` is tagged. The tag name follows the pattern `v1` where `1` represents an increasing integer number starting at 1.
 
 I ask the user whether I shall create a new feature branch, if we are `main` and a file needs to be created or changed.
 
