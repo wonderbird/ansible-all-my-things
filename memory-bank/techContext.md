@@ -5,264 +5,216 @@
 ### Ansible Ecosystem
 - **Ansible Core**: Infrastructure automation and configuration management
 - **Ansible Vault**: Encryption for sensitive data and credentials
-- **Dynamic Inventory**: Provider-specific inventory plugins
-- **Collections**: Extended functionality for cloud providers
+- **Dynamic Inventory**: AWS EC2 plugin for automatic host discovery
+- **Collections**: Extended functionality for AWS and Windows
 
-### Cloud Providers & APIs
-- **Hetzner Cloud**: Primary production environment provider
-  - API: Hetzner Cloud API via `hetzner.hcloud` collection
-  - Authentication: `HCLOUD_TOKEN` environment variable
-- **AWS EC2**: Cross-architecture development environment (implemented)
-  - API: AWS EC2 API via `amazon.aws` collection
-  - Authentication: AWS credentials via environment variables
-  - Instance Types: t3.micro, t3.small (cost-optimized, free tier eligible)
-  - Regions: Configurable, default eu-north-1
-  - Storage: GP3 EBS volumes (cost-effective)
-  - Status: Provisioning and inventory working, minor package additions needed
-- **Local Testing**: Vagrant with multiple providers
+### Cloud Provider & Platform
+- **AWS EC2**: Primary cloud provider for both Linux and Windows
+  - **Linux**: Working implementation (Ubuntu 24.04 LTS)
+  - **Windows**: Target implementation (Windows Server 2022)
+  - **Authentication**: AWS credentials via environment variables
+  - **Regions**: eu-north-1 (cost-optimized)
 
-### Operating Systems
-- **Primary Target**: Ubuntu 24.04 LTS
-- **Testing Environments**: 
-  - Docker containers (minimal Ubuntu)
-  - Tart VMs (macOS virtualization)
-  - VirtualBox VMs (cross-platform)
+### Target Applications
+- **Primary**: Claude Desktop Application (Windows-only)
+- **Foundation**: Proven Linux development environment automation
 
 ## Development Setup
 
 ### Required Tools
 ```bash
 # Core requirements
-ansible >= 2.9
+ansible >= 4.0
 python >= 3.8
-vagrant >= 2.0 (for testing)
+boto3 >= 1.0
+botocore >= 1.0
 
-# Cloud provider tools
-hcloud CLI (for Hetzner)
-aws CLI (for AWS)
+# AWS tools
+aws CLI (for credential management)
 
-# Testing tools
-docker (for container testing)
-virtualbox (for VM testing)
-
-# AWS development environment specific
-python3-full (for AWS instances)
-ansible-core (for AWS instances)
+# Windows-specific (planned)
+ansible.windows collection
+community.windows collection
 ```
 
 ### Environment Configuration
 ```bash
 # Required environment variables
-export HCLOUD_TOKEN="your-hetzner-token"
 export AWS_ACCESS_KEY_ID="your-aws-key"
 export AWS_SECRET_ACCESS_KEY="your-aws-secret"
-export AWS_DEFAULT_REGION="eu-north-1"  # or preferred region
+export AWS_DEFAULT_REGION="eu-north-1"
 
 # Ansible configuration
 export ANSIBLE_VAULT_PASSWORD_FILE="./ansible-vault-password.txt"
 export ANSIBLE_HOST_KEY_CHECKING=False
 ```
 
-### Project Structure
+### Project Structure (Windows Extension)
 ```
 ansible-all-my-things/
-├── ansible.cfg                 # Ansible configuration
-├── provision.yml              # Main provisioning entry point
-├── configure.yml              # Main configuration entry point
-├── backup.yml                 # Backup operations
-├── restore.yml                # Restore operations
-├── destroy.yml                # Resource cleanup
-├── inventories/               # Provider-specific inventories
-│   ├── hcloud/               # Hetzner Cloud
-│   ├── aws/                  # AWS EC2
-│   └── local/                # Local testing
-├── playbooks/                # Functional playbooks
-├── provisioners/             # Provider-specific provisioning
-├── configuration/            # Backup storage
-├── test/                     # Testing environments
-└── memory-bank/              # Project documentation
+├── provision-aws-windows.yml     # Windows Server provisioning
+├── configure-aws-windows.yml     # Windows Server configuration
+├── destroy-aws-windows.yml       # Windows Server cleanup
+├── inventories/aws/              # Shared AWS inventory
+├── provisioners/
+│   ├── aws-ec2.yml              # Linux provisioning (working)
+│   └── aws-windows.yml          # Windows provisioning (planned)
+├── playbooks/
+│   ├── setup-*.yml              # Linux playbooks (working)
+│   └── setup-windows-*.yml      # Windows playbooks (planned)
+└── memory-bank/                  # Streamlined documentation
 ```
 
 ## Technical Constraints
 
-### Ansible Version Compatibility
-- **Minimum**: Ansible 2.9 (for collection support)
-- **Recommended**: Ansible 4.0+ (for latest cloud provider features)
-- **Collections Required**:
-  - `community.general`
-  - `hetzner.hcloud`
-  - `amazon.aws` (implemented)
+### Windows Server Requirements
+- **Minimum Instance**: t3.medium (2 vCPU, 4GB RAM for GUI)
+- **Storage**: 50GB GP3 EBS (Windows Server space requirements)
+- **Network**: RDP (3389) access with IP restrictions
+- **AMI**: Windows Server 2022 with Desktop Experience
 
-### Python Dependencies
+### Ansible Windows Support
 ```yaml
-# requirements.yml (Ansible collections)
+# requirements.yml (Windows collections)
 collections:
-  - name: community.general
-  - name: hetzner.hcloud
+  - name: ansible.windows
+  - name: community.windows
   - name: amazon.aws
 
-# requirements.txt (Python packages)
-ansible>=4.0
-hcloud>=1.0
-boto3>=1.0
-botocore>=1.0
+# Windows connection requirements
+ansible_connection: winrm
+ansible_winrm_transport: basic
+ansible_port: 5985
 ```
 
-### Provider-Specific Limitations
-
-#### Hetzner Cloud
-- **Regions**: Limited to available Hetzner regions
-- **Instance Types**: cx11, cx21, cx31, etc.
-- **Images**: Ubuntu 20.04/22.04/24.04 LTS
-- **Networking**: Default VPC with SSH access
-
-#### AWS EC2 (Implemented)
-- **Instance Types**: t3.micro, t3.small (cost-optimized)
-- **Regions**: Configurable, default to eu-north-1
-- **Images**: Ubuntu 24.04 LTS AMI
-- **Storage**: GP3 EBS volumes (cost-effective)
-- **Status**: Provisioning idempotent, inventory working, minor package additions needed
-
-#### Local Testing
-- **Docker**: No desktop environment support
-- **Vagrant**: Full desktop support with VirtualBox/Tart
-- **Limitations**: Provider-specific admin users
+### Cost Constraints
+- **Target Budget**: ~$15/month for typical usage
+- **Usage Pattern**: 10-15 hours/week (not continuous)
+- **Instance Costs**: t3.medium ~$0.0416/hour
+- **Storage Costs**: 50GB GP3 ~$4/month
 
 ## Tool Usage Patterns
 
-### Ansible Configuration
-```ini
-# ansible.cfg
-[defaults]
-host_key_checking = False
-inventory = inventories/
-vault_password_file = ansible-vault-password.txt
-roles_path = roles/
-collections_paths = collections/
-
-[inventory]
-enable_plugins = hetzner.hcloud.hcloud, amazon.aws.aws_ec2
-
-[ssh_connection]
-ssh_args = -o ControlMaster=auto -o ControlPersist=60s
-pipelining = True
-```
-
-### Dynamic Inventory Configuration
+### Windows Server Configuration
 ```yaml
-# inventories/hcloud/hcloud.yml
-plugin: hetzner.hcloud.hcloud
-regions:
-  - eu-central
-types:
-  - cx11
-  - cx21
-keyed_groups:
-  - key: hcloud_type
-    prefix: type
-  - key: hcloud_datacenter
-    prefix: datacenter
-
-# inventories/aws/aws_ec2.yml
-plugin: amazon.aws.aws_ec2
-regions:
-  - eu-north-1
-filters:
-  tag:ansible_group: aws_dev
-keyed_groups:
-  - key: instance_type
-    prefix: type
-  - key: placement.availability_zone
-    prefix: az
-hostnames:
-  - public-ip-address
+# Windows inventory configuration (planned)
+# inventories/aws/group_vars/aws_windows/vars.yml
+admin_user_on_fresh_system: Administrator
+ansible_user: ansible-service
+desktop_user: claude-user
+ansible_connection: winrm
+ansible_winrm_transport: basic
+ansible_port: 5985
 ```
 
-### Vault Management
-```bash
-# Create encrypted secrets file
-ansible-vault create playbooks/vars-secrets.yml
+### Windows Package Management
+```yaml
+# Chocolatey installation pattern
+- name: Install Chocolatey
+  win_chocolatey:
+    name: chocolatey
+    state: present
 
-# Edit encrypted secrets
-ansible-vault edit playbooks/vars-secrets.yml
+- name: Install Claude Desktop
+  win_chocolatey:
+    name: claude-desktop
+    state: present
+```
 
-# View encrypted content
-ansible-vault view playbooks/vars-secrets.yml
+### RDP Access Configuration
+```yaml
+# Security group for RDP access
+- name: Create RDP security group
+  amazon.aws.ec2_group:
+    name: "{{ security_group_rdp }}"
+    description: "RDP access for Windows Server"
+    rules:
+      - proto: tcp
+        ports:
+          - 3389
+        cidr_ip: "{{ user_ip }}/32"
+        rule_desc: "RDP from user IP"
 ```
 
 ## Dependencies & Integration
 
-### External Services
-- **Hetzner Cloud API**: Infrastructure provisioning
-- **AWS EC2 API**: Alternative infrastructure provisioning
-- **Package Repositories**: Ubuntu APT, Homebrew
-- **Application Sources**: VS Code, Chromium, Node.js
+### AWS Infrastructure (Reused from Linux)
+- **Dynamic Inventory**: `amazon.aws.aws_ec2` plugin
+- **Instance Management**: `amazon.aws.ec2_instance` module
+- **Security Groups**: Automated firewall rule management
+- **Resource Tagging**: Consistent naming and cleanup patterns
 
-### Internal Dependencies
+### Windows-Specific Dependencies
 ```yaml
-# Playbook execution order (configure.yml)
-1. setup-users.yml          # User management
-2. setup-basics.yml         # System packages
-3. setup-homebrew.yml       # Package manager
-4. setup-nodejs-typescript.yml # Development tools
-5. setup-desktop.yml        # GUI environment
-6. setup-keyring.yml        # Credential storage
-7. setup-desktop-apps.yml   # Applications
-8. restore.yml              # Configuration restore
-9. reboot-if-required.yml   # System restart
+# Windows Server configuration dependencies
+1. setup-windows-users.yml      # Windows user management
+2. setup-windows-desktop.yml    # Desktop experience configuration
+3. setup-claude-desktop.yml     # Claude Desktop installation
+4. setup-windows-rdp.yml        # RDP optimization
 ```
 
-### Testing Dependencies
-```yaml
-# Vagrant providers
-- virtualbox: Cross-platform VM testing
-- docker: Lightweight container testing
-- tart: macOS-specific VM testing (Apple Silicon)
-
-# Test environments
-- test/docker/: Minimal Ubuntu container
-- test/tart/: Full Ubuntu desktop VM
-- test/vagrant/: Standard VirtualBox VM
-```
+### Application Dependencies
+- **Claude Desktop**: Primary target application
+- **Supporting Software**: .NET runtime, Visual C++ redistributables
+- **RDP Client**: For accessing Windows desktop environment
 
 ## Performance Considerations
 
-### Provisioning Time Targets
-- **Infrastructure**: 2-5 minutes (cloud provider dependent)
-- **Configuration**: 10-15 minutes (full desktop setup)
-- **Backup/Restore**: 1-3 minutes (configuration files only)
+### Windows Server Performance
+- **Provisioning Time**: 15-20 minutes (Windows startup + configuration)
+- **Instance Requirements**: t3.medium minimum for responsive GUI
+- **RDP Performance**: Optimized for desktop application usage
+- **Storage Performance**: GP3 for cost-effective disk I/O
 
-### Resource Requirements
+### Cost Optimization
 ```yaml
-# Minimum instance specifications
-CPU: 1 vCPU
-RAM: 1GB (2GB recommended for desktop)
-Storage: 20GB (adequate for development)
-Network: Standard cloud networking
+# Target usage pattern
+Provision: 5 minutes
+Usage: 2-3 hours per session
+Destroy: 2 minutes
+Sessions: 3-5 per week
+Monthly cost: ~$15 (vs $34 continuous)
 ```
-
-### Optimization Strategies
-- **Parallel Execution**: Ansible parallelism where possible
-- **Package Caching**: APT cache updates only when needed
-- **Conditional Tasks**: Skip unnecessary operations
-- **Efficient Transfers**: Rsync for large file operations
 
 ## Security Architecture
 
-### Credential Management
-- **Ansible Vault**: All secrets encrypted at rest
-- **Environment Variables**: Provider API credentials
-- **SSH Keys**: Automated key pair management
-- **No Hardcoded Secrets**: All sensitive data externalized
+### Windows Security Model
+- **RDP Access**: Restricted to user's IP address only
+- **Windows Firewall**: Configured for minimal exposure
+- **User Accounts**: 
+  - Administrator (initial setup)
+  - ansible-service (automation)
+  - claude-user (desktop application usage)
+- **Credential Management**: Windows passwords via Ansible Vault
 
 ### Network Security
-- **SSH Only**: No password authentication
-- **Minimal Exposure**: Only required ports open
-- **Provider Security**: Leverage cloud provider security groups
-- **Key Rotation**: Support for SSH key updates
+- **Security Groups**: AWS-managed firewall rules
+- **Port Access**: Only RDP (3389) and WinRM (5985) as needed
+- **IP Restrictions**: User's IP address only
+- **Encryption**: RDP with TLS encryption
 
-### System Security
-- **Sudo Access**: Limited to ansible user
-- **Package Updates**: Automatic security updates
-- **Firewall**: Basic UFW configuration
-- **User Isolation**: Separate admin, ansible, and desktop users
+## Windows Server Implementation Plan
+
+### Phase 1: Infrastructure (Current Priority)
+- Research Windows Server 2022 AMI options
+- Determine optimal instance type and storage configuration
+- Plan RDP security group and access patterns
+- Calculate actual costs vs. budget targets
+
+### Phase 2: Provisioning
+- Create `provisioners/aws-windows.yml`
+- Implement Windows Server instance creation
+- Configure WinRM for Ansible connectivity
+- Test basic Windows Server provisioning
+
+### Phase 3: Configuration
+- Develop Windows-specific playbooks
+- Implement Claude Desktop installation automation
+- Configure RDP for optimal performance
+- Test complete provision → configure → access workflow
+
+### Phase 4: Integration
+- Integrate with existing AWS infrastructure patterns
+- Document Windows Server usage procedures
+- Validate cost and performance targets
+- Complete end-to-end testing

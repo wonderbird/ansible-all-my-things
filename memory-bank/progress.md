@@ -2,224 +2,148 @@
 
 ## What Works (Completed Features)
 
-### Hetzner Cloud Integration ✅
-- **Provisioning**: Complete infrastructure creation via `provisioners/hcloud.yml`
-- **Dynamic Inventory**: Automatic host discovery with `hetzner.hcloud.hcloud` plugin
-- **Configuration**: Full system setup from bare Ubuntu to configured desktop
-- **Destruction**: Complete resource cleanup to eliminate ongoing costs
-- **Testing**: Validated through multiple deployment cycles
-
-### Multi-Provider Testing Infrastructure ✅
-- **Docker Testing**: Minimal Ubuntu container testing (no desktop)
-- **Tart Testing**: macOS VM testing with full desktop support
-- **VirtualBox Testing**: Cross-platform VM testing
-- **Vagrant Integration**: Consistent testing across all providers
-
-### Core System Configuration ✅
-- **User Management**: Three-tier user model (admin → ansible → desktop)
-- **Basic System Setup**: Package installation, security hardening, networking
-- **Development Environment**: Node.js, TypeScript, Homebrew installation
-- **Desktop Environment**: Full GUI setup where supported
-- **Application Installation**: VS Code, Chromium, essential development tools
-
-### Security & Credential Management ✅
-- **Ansible Vault**: All secrets encrypted with vault password file
-- **SSH Key Management**: Automated key pair creation and distribution
-- **Provider Authentication**: Environment variable-based credential handling
-- **User Isolation**: Proper separation of admin, automation, and user accounts
-
-### Backup & Restore System ✅
-- **VS Code Settings**: Complete configuration backup and restore
-- **Chromium Settings**: Browser configuration preservation
-- **Keyring Management**: Secure credential storage backup
-- **Symmetric Operations**: Every backup has corresponding restore operation
-
-### Project Structure & Documentation ✅
-- **Modular Design**: Clear separation of concerns across playbooks
-- **Provider Abstraction**: Common configuration works across providers
-- **Testing Strategy**: Comprehensive local testing before cloud deployment
-- **Documentation**: Clear setup instructions and important concepts
-
-## What's Left to Build
-
-### AWS EC2 Integration ✅ (Complete - Ready for Testing)
-- ✅ **Provisioning**: Infrastructure creation implemented with proper idempotency
-- ✅ **Dynamic Inventory**: Automatic host discovery working correctly
-- ✅ **Configuration**: Reuses existing playbooks with python3-full and ansible-core packages
-- ✅ **Destruction**: Complete resource cleanup implemented with host key removal
-- ✅ **Cross-Architecture Support**: Enables amd64 development from Apple Silicon hosts
-- ✅ **Documentation**: Complete user manual with performance tuning guidance
-
-**Critical Findings Status (All 7 resolved)**:
-- ✅ **AWS Provisioning Idempotency**: Fixed using "lorien" identifier with proper ec2_instance_info checks
-- ✅ **AWS Inventory Discovery**: Fixed by simplifying config and correcting region to eu-north-1
-- ✅ **Development Environment Packages**: python3-full and ansible-core already present in setup-desktop.yml
-- ✅ **AWS Documentation**: Fixed markdown violations and added "Notes on Performance" section
-- ✅ **Merge MVP Documentation**: MVP directory not found - likely already integrated or removed
-- ✅ **Cleanup MVP Directory**: MVP directory not present - cleanup already completed
-- ✅ **AWS Host Key Cleanup**: RESOLVED - destroy-aws.yml now removes host keys from known_hosts file
-
-**Implemented Components**:
-- ✅ `provisioners/aws-ec2.yml` - Working with proper idempotency
-- ✅ `inventories/aws/aws_ec2.yml` - Simplified and working correctly
-- ✅ `inventories/aws/group_vars/aws_dev/vars.yml` - Minimal AWS-specific variables
-- ✅ `provision-aws.yml`, `configure-aws.yml`, `destroy-aws.yml` - Main playbooks
-- ✅ Cross-architecture documentation and use case clarification
-- ✅ `playbooks/setup-desktop.yml` - python3-full and ansible-core packages already present
-- 🔧 `docs/create-aws-vm.md` - Has markdown violations and missing performance section
-
-**Architecture Improvements Made**:
-- ✅ Simplified configuration following Hetzner pattern (minimal overrides)
-- ✅ Established core architecture drivers (understandability, maintainability, extensibility)
-- ✅ Added quality criteria conflict resolution guidance
-- ✅ Standardized playbook structure across providers
-
-**Cost Optimization Details**:
-- **t3.micro**: ~$0.0104/hour × 15 hours/week = ~$6.50/month
-- **Storage**: 20GB GP3 × $0.08/GB/month = ~$1.60/month (only when running)
-- **Total**: ~$8-10/month maximum (only when actively used)
-- **Usage Pattern**: ~10-15 hours/week with complete provision → work → destroy lifecycle
-
-**Next Phase**: AWS MVP ready for integration testing and validation
-
-### Enhanced Cost Management 📋 (Planned)
-- [ ] Cost estimation tools
-- [ ] Resource tagging for cost tracking
-- [ ] Automated cost alerts
-- [ ] Usage reporting and optimization
-
-### Additional Cloud Providers 📋 (Future)
-- [ ] Google Cloud Platform integration
-- [ ] DigitalOcean integration
-- [ ] Azure integration
-- [ ] Provider comparison documentation
-
-### Advanced Security Features 📋 (Future)
-- [ ] Advanced system hardening
-- [ ] Security monitoring and logging
-- [ ] Automated security updates
-- [ ] Compliance reporting
-
-## Current Status Summary
-
-### Fully Functional ✅
-- **Hetzner Cloud**: Production-ready with complete lifecycle management
-- **AWS EC2**: Complete implementation ready for integration testing
-- **Local Testing**: Comprehensive testing across multiple virtualization platforms
-- **Core Configuration**: All essential development tools and applications
-- **Security**: Proper credential management and user isolation
-- **Documentation**: Complete user manuals for all providers
-
-### Ready for Testing 🧪
-- **AWS MVP Integration**: All critical findings resolved, ready for end-to-end testing
-- **Cross-Architecture Validation**: amd64 development from Apple Silicon hosts
-- **Cost Validation**: Verify ~$8-10/month target for typical usage patterns
-
-### Planned 📋
-- **Windows Server Support**: AWS EC2 Windows instances for Windows-specific development
-- **Additional Providers**: Google Cloud, DigitalOcean, Azure
-- **Enhanced Features**: Advanced security, monitoring, cost management
-- **Automation**: CI/CD integration and scheduled operations
-
-## Known Issues & Limitations
-
-### Current Limitations
-- **Desktop on Docker**: Cannot run desktop environment in Docker containers
-- **Provider-Specific Admin Users**: Different initial users across providers
-- **Manual Credential Setup**: Initial vault and provider credential configuration
-- **Single Region**: Currently limited to single region per provider
-
-### Technical Debt
-- **Error Handling**: Could be more comprehensive across all playbooks
-- **Testing Coverage**: Need automated testing for all provider combinations
-- **Documentation**: Some playbooks need better inline documentation
-- **Performance**: Optimization opportunities in package installation
-
-### Monitoring Gaps
-- **Cost Tracking**: No automated cost monitoring across providers
-- **Resource Usage**: Limited visibility into actual resource utilization
-- **Performance Metrics**: No systematic performance measurement
-- **Security Auditing**: Manual security review process
-
-## Evolution of Project Decisions
-
-### Initial Design Decisions (Validated)
-- **Ansible as Core Technology**: Proven effective for infrastructure automation
-- **Multi-Provider Strategy**: Successfully abstracted provider differences
-- **Three-Tier User Model**: Provides proper security and operational separation
-- **Vault-Based Security**: Effective credential management without version control exposure
-
-### Lessons Learned
-- **Provider Abstraction Works**: Common playbooks successfully work across providers
-- **Testing is Critical**: Local testing catches provider-specific issues early
-- **Security by Default**: Upfront security design prevents later complications
-- **Modular Design**: Individual playbooks enable flexible configuration
-
-### Architectural Insights
-- **Dynamic Inventory**: Essential for cloud provider integration
-- **Symmetric Operations**: Backup/restore pairs ensure data preservation
-- **Conditional Logic**: Provider-aware tasks handle differences gracefully
-- **Early User Creation**: Immediate switch from admin user improves security
-
-## Success Metrics Achieved
-
-### Performance Targets ✅
-- **Hetzner Provisioning**: 10-15 minutes from start to configured desktop
-- **Configuration Consistency**: Zero manual intervention required
+### AWS Linux Foundation ✅
+- **Complete Implementation**: Provision → configure → destroy lifecycle working
+- **Dynamic Inventory**: Automatic host discovery with `amazon.aws.aws_ec2` plugin
 - **Cost Control**: Complete resource cleanup eliminates ongoing costs
-- **Security**: No secrets in version control, all credentials encrypted
+- **Security**: Proper credential management and user isolation
+- **Performance**: 10-15 minute provisioning meets targets
 
-### User Experience Goals ✅
-- **Simple Commands**: Single playbook execution for complete environments
-- **Consistent Interface**: Identical commands across different providers
-- **Reliable Operation**: Repeatable results across multiple deployments
-- **Clear Documentation**: Comprehensive setup and usage instructions
+### Multi-Provider Foundation ✅
+- **Hetzner Cloud**: Production-ready reference implementation
+- **AWS EC2 Linux**: Working implementation ready for Windows extension
+- **Local Testing**: Vagrant-based testing infrastructure
+- **Provider Abstraction**: Common patterns work across providers
 
-## Next Milestone: AWS MVP Integration Testing
+### Core System Automation ✅
+- **Infrastructure as Code**: Complete automation of environment lifecycle
+- **Security by Design**: Ansible Vault encryption, SSH key management
+- **Modular Architecture**: Clean separation of provisioning and configuration
+- **Documentation**: Comprehensive setup and usage instructions
 
-### All Critical Review Findings Resolved ✅
-1. ✅ **AWS Provisioning Idempotency**: Fixed using "lorien" identifier with proper ec2_instance_info checks
-2. ✅ **AWS Inventory Discovery**: Simplified configuration, fixed region mismatch (eu-north-1), removed complexity
-3. ✅ **Development Environment Packages**: python3-full and ansible-core already present in setup-desktop.yml
-4. ✅ **AWS Documentation**: Fixed markdown violations and added "Notes on Performance" section
-5. ✅ **Merge MVP Documentation**: MVP directory not found - likely already integrated or removed
-6. ✅ **Cleanup MVP Directory**: MVP directory not present - cleanup already completed
+## Current Focus: Windows Server Development
 
-### AWS MVP Testing (Ready to Begin)
-- [ ] Test AWS EC2 provisioning with actual credentials
-- [ ] Validate existing configuration playbooks work with AWS instances
-- [ ] Test complete destroy operation eliminates all AWS resources
-- [ ] Verify cost remains under $10/month for typical usage patterns
-- [ ] Validate 10-15 minute provision time target
-- [ ] Confirm cross-architecture functionality (amd64 from Apple Silicon)
+### Primary Objective
+**Goal**: Extend AWS EC2 automation to support Windows Server instances for Claude Desktop Application access.
 
-### Windows Server Foundation
-- [ ] Research Windows Server AMI options and costs
-- [ ] Plan Windows-specific configuration playbooks
-- [ ] Design Windows user management strategy
-- [ ] Evaluate Windows development tools installation approaches
+**Timeline**: Medium-term (1-3 months)
+
+**Foundation**: AWS Linux implementation provides proven patterns for Windows extension.
+
+## Windows Server Implementation Status
+
+### Phase 1: Research & Planning (Current)
+- [ ] **Windows Server AMI Selection**: Research Windows Server 2022 AMIs with desktop experience
+- [ ] **Instance Type Requirements**: Determine minimum specs for Windows Server + Claude Desktop
+- [ ] **Cost Analysis**: Calculate Windows Server licensing + instance costs vs. target budget ($15/month)
+- [ ] **RDP Configuration**: Plan secure RDP access setup and firewall rules
+
+### Phase 2: Windows Provisioning (Planned)
+- [ ] **Create Windows Provisioner**: `provisioners/aws-windows.yml` based on existing `aws-ec2.yml`
+- [ ] **Windows Inventory**: Extend AWS inventory to handle Windows instances
+- [ ] **Security Groups**: Configure RDP (3389) access with IP restrictions
+- [ ] **User Management**: Windows Administrator account setup and configuration
+
+### Phase 3: Windows Configuration (Planned)
+- [ ] **Windows Ansible Modules**: Implement `ansible.windows` collection usage
+- [ ] **Desktop Environment**: Enable Windows Server desktop experience
+- [ ] **Claude Desktop Installation**: Automate Claude Desktop Application download and install
+- [ ] **RDP Optimization**: Configure RDP for optimal desktop application performance
+
+### Phase 4: Integration & Testing (Planned)
+- [ ] **End-to-End Testing**: Complete provision → configure → access → destroy cycle
+- [ ] **Performance Validation**: Verify Claude Desktop responsiveness via RDP
+- [ ] **Cost Validation**: Confirm actual costs align with budget targets
+- [ ] **Documentation**: Create Windows Server usage guide
+
+## Technical Foundation Ready for Windows
+
+### Reusable AWS Infrastructure ✅
+- **AWS Credentials**: Environment variable-based authentication working
+- **Dynamic Inventory**: `amazon.aws.aws_ec2` plugin supports both Linux and Windows
+- **Security Groups**: Automated firewall rule management patterns established
+- **Instance Management**: `amazon.aws.ec2_instance` module works for Windows AMIs
+- **Resource Cleanup**: Complete destroy operations with proper cleanup
+
+### Proven Automation Patterns ✅
+- **Idempotent Provisioning**: Fixed instance identifiers prevent duplicates
+- **Modular Configuration**: Separate playbooks for specific functionality
+- **Credential Management**: Ansible Vault encryption for sensitive data
+- **Provider Abstraction**: Clean separation between provisioning and configuration
+
+## Windows Server Planning Details
+
+### Target Configuration
+- **OS**: Windows Server 2022 with Desktop Experience
+- **Instance Type**: t3.medium (2 vCPU, 4GB RAM minimum for GUI)
+- **Storage**: 50GB GP3 EBS (Windows Server space requirements)
+- **Network**: RDP access from user's IP address only
+- **Applications**: Claude Desktop Application + supporting software
+
+### Cost Analysis
+- **t3.medium**: ~$30/month (720 hours × $0.0416/hour)
+- **Windows License**: Included in AWS Windows AMI pricing
+- **Storage**: 50GB × $0.08/GB = $4/month
+- **Total**: ~$34/month if running continuously
+- **Target Usage**: 10-15 hours/week = ~$15/month actual cost
+
+### Technical Requirements
+- **Ansible Collections**: `ansible.windows`, `community.windows`
+- **Connection Method**: WinRM for automation, RDP for desktop access
+- **Package Management**: Chocolatey for automated software installation
+- **User Management**: Windows Administrator model with service accounts
+
+## Success Metrics for Windows Implementation
+
+### Performance Targets
+- **Provisioning Time**: ≤20 minutes (Windows startup + configuration)
+- **Claude Desktop Ready**: Immediately accessible via RDP after provisioning
+- **RDP Responsiveness**: Smooth desktop application interaction
+- **Destroy Time**: ≤5 minutes for complete resource cleanup
+
+### Cost Targets
+- **Monthly Cost**: ≤$15 for typical usage patterns (10-15 hours/week)
+- **Session Cost**: ~$0.50-0.75 per 2-3 hour usage session
+- **No Ongoing Costs**: Complete resource cleanup when not in use
+
+### User Experience Goals
+- **Simple Commands**: Same playbook patterns as Linux implementation
+- **Reliable Access**: Consistent RDP connectivity and performance
+- **Application Ready**: Claude Desktop immediately available after provisioning
+- **Clean Shutdown**: Complete environment destruction with single command
 
 ## Long-term Vision Progress
 
 ### Infrastructure as Code ✅
-- Complete automation of environment lifecycle
+- Complete automation of Linux environment lifecycle
 - Version-controlled infrastructure configuration
 - Reproducible deployments across providers
+- **Next**: Extend to Windows Server environments
+
+### Cross-Platform Support (In Progress)
+- **Linux**: Production-ready across multiple providers
+- **Windows**: Foundation established, implementation in progress
+- **Applications**: Claude Desktop as primary Windows use case
+- **Future**: Additional Windows-only applications and development tools
 
 ### Cost Optimization ✅
-- On-demand resource provisioning
-- Complete cleanup to eliminate ongoing costs
-- Efficient resource utilization
+- On-demand resource provisioning working for Linux
+- Complete cleanup eliminates ongoing costs
+- Efficient resource utilization patterns established
+- **Next**: Validate Windows Server cost targets
 
-### Security by Design ✅
-- Encrypted credential management
-- Proper user isolation and access control
-- SSH-only access with key-based authentication
+## Next Milestone: Windows Server Research Phase
 
-### Provider Flexibility ✅
-- Hetzner Cloud fully implemented and production-ready
-- AWS EC2 integration complete (Linux foundation)
-- Cross-architecture support enabling amd64 access from Apple Silicon
-- Foundation established for Windows Server and additional providers
+### Immediate Priorities
+1. **AMI Research**: Identify optimal Windows Server 2022 AMI with desktop experience
+2. **Cost Validation**: Confirm actual AWS Windows Server costs vs. budget
+3. **Technical Requirements**: Research Claude Desktop installation methods
+4. **RDP Configuration**: Plan secure remote desktop access patterns
 
-The project has successfully achieved its core objectives for the Hetzner Cloud provider and established a solid foundation for multi-provider support. The AWS MVP represents the next major milestone in achieving complete provider flexibility.
+### Success Criteria for Research Phase
+- Clear understanding of Windows Server AMI options and costs
+- Confirmed technical approach for Claude Desktop installation
+- Validated cost model aligns with $15/month target
+- Detailed implementation plan for Windows provisioning
+
+The project has successfully established a solid foundation with working AWS Linux automation. The Windows Server extension represents the next major milestone in achieving cross-platform application access goals.

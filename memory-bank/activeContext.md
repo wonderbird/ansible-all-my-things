@@ -2,194 +2,125 @@
 
 ## Current Work Focus
 
-### Review Findings Resolution
-**Primary Objective**: Fix critical findings discovered in AWS implementation:
-- ✅ **AWS Provisioning Idempotency**: Fixed - provision-aws.yml now maintains exactly one instance using "lorien" identifier
-- ✅ **AWS Inventory Discovery**: Fixed - simplified inventory configuration to match correct region and follow Hetzner pattern
-- ✅ **Development Environment Packages**: python3-full and ansible-core already present in setup-desktop.yml (benefits all environments)
-- ✅ **AWS Documentation**: Fixed - resolved markdown violations and added "Notes on Performance" section matching Hetzner pattern
-- ✅ **Merge MVP Documentation**: MVP directory not found - likely already integrated or removed
-- ✅ **Cleanup MVP Directory**: MVP directory not present - cleanup already completed
-- ✅ **AWS Host Key Cleanup**: RESOLVED - destroy-aws.yml now removes host keys from known_hosts file
+### Windows Server Development (Primary Objective)
+**Goal**: Extend AWS EC2 automation to support Windows Server instances for Claude Desktop Application access.
 
-**Status**: All 7 critical findings resolved ✅
+**Timeline**: Medium-term (1-3 months)
 
-### Recently Resolved: AWS Host Key Cleanup
-**Issue**: During AWS provisioning testing, discovered that `destroy-aws.yml` did not remove host keys from local known_hosts file, unlike `destroy.yml` (Hetzner) which properly cleans up host keys before server destruction.
+**Foundation**: AWS Linux implementation is working correctly with complete lifecycle management (provision → configure → destroy).
 
-**Impact**: Users could encounter SSH host key warnings when recreating AWS instances that receive previously used IP addresses.
+## Next Steps for Windows Server Implementation
 
-**Root Cause**: `destroy-aws.yml` jumped straight to instance termination without the host key cleanup step that exists in `destroy.yml`.
+### Phase 1: Research & Planning (Current)
+- [ ] **Windows Server AMI Selection**: Research Windows Server 2022 AMIs with desktop experience
+- [ ] **Instance Type Requirements**: Determine minimum specs for Windows Server + Claude Desktop
+- [ ] **Cost Analysis**: Calculate Windows Server licensing + instance costs vs. target budget ($15/month)
+- [ ] **RDP Configuration**: Plan secure RDP access setup and firewall rules
 
-**Solution Implemented**: Added host key removal step to `destroy-aws.yml` that:
-- ✅ Extracts IP addresses from instances before termination using `public_ip_address` attribute
-- ✅ Uses `ssh-keygen -R` to remove each IP from known_hosts via shell command
-- ✅ Handles multiple instances (unlike Hetzner's single server approach) with loop iteration
-- ✅ Maintains parity with Hetzner implementation pattern
-- ✅ Includes proper error handling with `ignore_errors: true` for missing host keys
-- ✅ Filters out undefined/empty IP addresses to prevent errors
+### Phase 2: Windows Provisioning
+- [ ] **Create Windows Provisioner**: `provisioners/aws-windows.yml` based on existing `aws-ec2.yml`
+- [ ] **Windows Inventory**: Extend AWS inventory to handle Windows instances
+- [ ] **Security Groups**: Configure RDP (3389) access with IP restrictions
+- [ ] **User Management**: Windows Administrator account setup and configuration
 
-**Approach**: Fix one finding per commit with user review between fixes
+### Phase 3: Windows Configuration
+- [ ] **Windows Ansible Modules**: Research `ansible.windows` collection requirements
+- [ ] **Desktop Environment**: Enable Windows Server desktop experience
+- [ ] **Claude Desktop Installation**: Automate Claude Desktop Application download and install
+- [ ] **RDP Optimization**: Configure RDP for optimal desktop application performance
 
-**Solutions Implemented**:
-- **Idempotency**: Used fixed instance identifier "lorien" with proper ec2_instance_info checks
-- **Inventory Discovery**: Simplified configuration, fixed region mismatch (eu-north-1), removed complexity
-- **Documentation**: Fixed markdown violations and enhanced "Notes on Performance" section with provider-specific file references
+### Phase 4: Integration & Testing
+- [ ] **End-to-End Testing**: Complete provision → configure → access → destroy cycle
+- [ ] **Performance Validation**: Verify Claude Desktop responsiveness via RDP
+- [ ] **Cost Validation**: Confirm actual costs align with budget targets
+- [ ] **Documentation**: Create Windows Server usage guide
 
-### MVP AWS Development Environment (Background Context)
-**Objective**: Create secure, isolated AWS EC2 environments that provide:
-- **Cross-Architecture Access**: Enable amd64 development from Apple Silicon (arm64) host systems
-- **Secure Testing Environment**: Isolated environment for untrusted software (LLMs with MCP support)
-- **Windows Foundation**: Linux implementation as stepping stone to Windows Server support
-- **Cost Efficiency**: 10-15 minute provisioning with complete resource cleanup
+## Technical Considerations for Windows Server
 
-**Long-term Vision**: Extend to Windows Server instances for Windows-specific development tools unavailable on macOS/Linux.
+### Key Differences from Linux Implementation
+- **Authentication**: Windows uses WinRM instead of SSH
+- **User Management**: Administrator vs. standard user accounts
+- **Package Management**: Chocolatey or direct downloads vs. APT
+- **Desktop Environment**: Windows Server desktop experience vs. Linux GUI
+- **Access Method**: RDP (port 3389) vs. SSH (port 22)
 
-### Key Requirements for AWS MVP
-- **Architecture**: amd64 (x86_64) to run tools unavailable on Apple Silicon
-- **Instance Type**: t3.micro or t3.small (cost-effective, free tier eligible)
-- **Operating System**: Ubuntu 24.04 LTS (current), Windows Server (future)
-- **Storage**: 20GB GP3 EBS volume
-- **Network**: Default VPC with SSH access from user's IP
-- **Lifecycle**: Complete provision → configure → destroy cycle
-- **Cost Target**: ~$8-10/month maximum (only when actively used)
+### Windows-Specific Requirements
+- **Ansible Collection**: `ansible.windows` for Windows module support
+- **WinRM Configuration**: Windows Remote Management setup for Ansible
+- **PowerShell**: Windows PowerShell for configuration tasks
+- **Firewall**: Windows Firewall configuration for RDP access
 
-## Recent Changes & Discoveries
+### Cost Considerations
+- **Windows Licensing**: Additional cost beyond Linux instances
+- **Instance Size**: Windows Server requires larger instances (t3.medium minimum)
+- **Storage**: Windows Server needs more disk space than Linux
+- **Target Budget**: ~$15/month for typical usage patterns
 
-### AWS Implementation Completed
-- **AWS EC2 Provisioner**: Created `provisioners/aws-ec2.yml` with security group management
-- **Dynamic Inventory**: Implemented `inventories/aws/aws_ec2.yml` for automatic host discovery
-- **Simplified Configuration**: Minimal AWS-specific variables following Hetzner pattern
-- **Complete Lifecycle**: Provision, configure, and destroy playbooks implemented
-- **Cross-Architecture Documentation**: Updated use case and project brief for amd64 access
+## Current Architecture Strengths (Reusable for Windows)
 
-### Architecture Improvements Made
-- **Configuration Minimalism**: Reduced AWS variables from 64 lines to essential 3 settings
-- **Standardized Structure**: Updated provision.yml to match provision-aws.yml format
-- **Core Architecture Drivers**: Established understandability, maintainability, extensibility
-- **Quality Conflict Resolution**: Added guidance for handling competing design priorities
-- **Provider Consistency**: Ensured identical patterns across Hetzner and AWS implementations
+### Proven Patterns from AWS Linux
+- **Dynamic Inventory**: AWS EC2 plugin for automatic host discovery
+- **Idempotent Provisioning**: Fixed instance identifiers prevent duplicates
+- **Security Groups**: Automated firewall rule management
+- **Complete Lifecycle**: Provision → configure → destroy automation
+- **Cost Control**: Automatic resource cleanup
 
-### Current Architecture Strengths
+### Multi-Provider Foundation
 - **Provider Abstraction**: Clean separation between provisioning and configuration
-- **Security Model**: Ansible Vault encryption, SSH key management, no hardcoded secrets
-- **Testing Strategy**: Multi-provider testing ensures compatibility
+- **Ansible Vault**: Encrypted credential management
 - **Modular Design**: Individual playbooks for specific functionality
-- **Configuration Simplicity**: Minimal provider-specific overrides for maintainability
 
-## Next Steps
+## Windows Server Planning Details
 
-### Primary Priorities (AWS MVP Ready for Testing)
-- **Test Integration**: Ensure existing playbooks work with AWS instances
-- **Windows Planning**: Research Windows Server AMIs and configuration requirements
-- **Performance Validation**: Verify 10-15 minute provision time target
-- **Cost Validation**: Confirm ~$8-10/month cost target for typical usage
+### Target Configuration
+- **OS**: Windows Server 2022 with Desktop Experience
+- **Instance Type**: t3.medium (2 vCPU, 4GB RAM minimum for GUI)
+- **Storage**: 50GB GP3 EBS (Windows Server space requirements)
+- **Network**: RDP access from user's IP address only
+- **Applications**: Claude Desktop Application + supporting software
 
-### Completed Review Findings (All 6 Critical Issues Resolved)
-1. ✅ **AWS Provisioning Idempotency**: Fixed using "lorien" identifier with proper ec2_instance_info checks
-2. ✅ **AWS Inventory Discovery**: Simplified configuration, fixed region mismatch (eu-north-1), removed complexity
-3. ✅ **Development Environment Packages**: python3-full and ansible-core already present in setup-desktop.yml
-4. ✅ **AWS Documentation**: Fixed markdown violations and enhanced "Notes on Performance" section
-5. ✅ **Merge MVP Documentation**: MVP directory not found - likely already integrated or removed
-6. ✅ **Cleanup MVP Directory**: MVP directory not present - cleanup already completed
+### Estimated Costs (Monthly)
+- **t3.medium**: ~$30/month (720 hours × $0.0416/hour)
+- **Windows License**: Included in AWS Windows AMI pricing
+- **Storage**: 50GB × $0.08/GB = $4/month
+- **Total**: ~$34/month if running continuously
+- **Target Usage**: 10-15 hours/week = ~$15/month actual cost
 
-### Implementation Sequence
-```mermaid
-graph TD
-    A[Create AWS Provisioner] --> B[Create AWS Inventory]
-    B --> C[Define AWS Group Variables]
-    C --> D[Test Basic Provisioning]
-    D --> E[Test Full Configuration]
-    E --> F[Test Destroy Process]
-    F --> G[Document AWS Usage]
-```
+### Security Model
+- **RDP Access**: Restricted to user's IP address
+- **Windows Firewall**: Configured for minimal exposure
+- **User Accounts**: Separate Administrator and standard user accounts
+- **Credential Management**: Windows passwords via Ansible Vault
 
-### Technical Decisions Needed
-- **AWS Region**: Default to eu-north-1 or allow configuration?
-- **Instance Naming**: Follow existing naming conventions
-- **Security Groups**: Create dedicated or use default?
-- **Key Pair Management**: Auto-generate or use existing?
+## Important Learnings from AWS Linux (Applicable to Windows)
 
-## Active Patterns & Preferences
+### Successful Patterns to Reuse
+- **Fixed Instance Naming**: Use consistent identifiers for idempotency
+- **Dynamic Inventory**: Automatic host discovery reduces configuration
+- **Security Group Management**: Automated firewall rule creation
+- **Complete Cleanup**: Host key removal and resource termination
 
-### Established Conventions
-- **File Naming**: `setup-[functionality].yml` for configuration playbooks
-- **Variable Naming**: `admin_user_on_fresh_system`, `ansible_user`, `my_desktop_user`
-- **Directory Structure**: Provider-specific under `inventories/` and `provisioners/`
-- **Testing Approach**: Local Vagrant testing before cloud deployment
-
-### Code Quality Standards
-- **Idempotency**: All tasks must be safely re-runnable
-- **Error Handling**: Clear error messages for missing credentials
-- **Documentation**: Inline comments for complex operations
-- **Security**: No secrets in playbooks, all encrypted with Vault
-
-### Integration Patterns
-- **Dynamic Inventory**: Provider plugins for automatic host discovery
-- **Group Variables**: Provider-specific configuration in `group_vars/`
-- **Conditional Logic**: Provider-aware task execution
-- **Symmetric Operations**: Backup/restore pairs for all configurations
-
-## Important Learnings & Insights
-
-### Multi-Provider Challenges
-- **Admin Users**: Each provider has different initial admin user (root, admin, vagrant)
-- **Desktop Support**: Docker containers cannot run desktop environments
-- **Network Configuration**: Provider-specific networking requirements
-- **Cost Management**: Critical to have reliable destroy operations
-
-### Ansible Best Practices Discovered
-- **Early User Creation**: Switch from admin to ansible user immediately
-- **SSH Key Management**: Automated key pair creation and distribution
-- **Vault Integration**: Seamless encryption without manual password entry
-- **Testing Strategy**: Multiple provider testing catches edge cases
-
-### Security Considerations
-- **Credential Isolation**: Environment variables for provider authentication
-- **Access Control**: Minimal privilege escalation, sudo only when needed
-- **Network Security**: SSH-only access, no password authentication
-- **Data Protection**: All sensitive data encrypted at rest
-
-## Current Challenges
-
-### AWS Integration Unknowns
-- **Collection Requirements**: Need to verify `amazon.aws` collection compatibility
-- **Authentication Flow**: AWS credentials vs. Hetzner token approach
-- **Instance Discovery**: Dynamic inventory configuration for EC2
-- **Cost Monitoring**: Ensuring complete resource cleanup
-
-### Testing Considerations
-- **AWS Costs**: Need to minimize testing costs during development
-- **Credential Management**: Secure handling of AWS credentials in testing
-- **Provider Parity**: Ensuring AWS behaves identically to Hetzner
-- **Documentation**: Clear setup instructions for AWS credentials
+### AWS-Specific Considerations
+- **Region Selection**: eu-north-1 for cost optimization
+- **AMI Selection**: Use latest Windows Server 2022 AMIs
+- **Instance Lifecycle**: Proper startup/shutdown handling for Windows
+- **Tagging Strategy**: Consistent resource tagging for management
 
 ## Context for Future Work
 
 ### Extension Opportunities
-- **Windows Server Support**: AWS EC2 Windows instances for Windows-specific development
-- **Additional Providers**: Google Cloud, DigitalOcean, Azure
-- **Enhanced Security**: Advanced hardening, monitoring, logging
-- **Application Support**: Additional development tools and applications
-- **Automation**: CI/CD integration, scheduled operations
+- **Additional Windows Applications**: Extend beyond Claude Desktop
+- **Windows Development Tools**: Visual Studio, .NET development environment
+- **Multi-Application Support**: Multiple Windows-only applications per instance
+- **Performance Optimization**: GPU instances for graphics-intensive applications
 
-### Maintenance Considerations
-- **Provider API Changes**: Monitor for breaking changes in cloud APIs
-- **Ubuntu Updates**: Track LTS releases and migration paths
-- **Ansible Evolution**: Stay current with Ansible and collection updates
-- **Security Updates**: Regular review of security practices
-
-### User Experience Goals
-- **Cross-Architecture Transparency**: Seamless amd64 access from Apple Silicon host
-- **Platform Flexibility**: Easy switching between Linux and Windows environments
-- **Simplicity**: Single command provisioning across all providers
-- **Reliability**: Consistent behavior regardless of provider choice
-- **Transparency**: Clear feedback on operations and costs
-- **Cost Awareness**: Clear understanding of architectural benefits vs. costs
+### Integration with Existing System
+- **Consistent Commands**: Same playbook patterns as Linux implementation
+- **Shared Infrastructure**: Reuse AWS credentials and networking setup
+- **Documentation Alignment**: Windows guides following Linux documentation patterns
 
 ## Memory Bank Maintenance Notes
-- **Last Updated**: All 6 critical review findings resolved (December 21, 2025)
-- **Next Review**: After AWS MVP testing phase completion
-- **Key Files to Monitor**: AWS implementation files ready for integration testing
-- **Success Metrics**: 10-15 minute provision time, zero ongoing costs, identical UX to Hetzner
-- **Recent Changes**: All critical findings resolved - AWS MVP ready for testing phase
+- **Focus**: Windows Server development for Claude Desktop Application
+- **Foundation**: AWS Linux implementation working correctly
+- **Timeline**: Medium-term (1-3 months) implementation
+- **Next Review**: After Windows Server research and planning phase completion

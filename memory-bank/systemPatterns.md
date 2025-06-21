@@ -4,290 +4,187 @@
 
 ### Layered Playbook Structure
 ```
-provision.yml → provisioners/[provider].yml → configure.yml → playbooks/setup-*.yml
+provision-aws-windows.yml → provisioners/aws-windows.yml → configure-aws-windows.yml → playbooks/setup-windows-*.yml
 ```
 
 **Separation of Concerns:**
-- **Provision Layer**: Provider-specific infrastructure creation
-- **Configuration Layer**: Provider-agnostic system setup
-- **Playbook Layer**: Specific functionality (users, desktop, apps)
+- **Provision Layer**: AWS-specific Windows Server infrastructure creation
+- **Configuration Layer**: Windows-specific system setup and application installation
+- **Playbook Layer**: Specific functionality (users, desktop, Claude Desktop)
 
-### Multi-Provider Pattern
-Each provider follows identical structure but different implementations:
+### Multi-Platform Pattern
+Each platform follows identical structure but different implementations:
 ```
-inventories/
-├── hcloud/          # Hetzner Cloud
-│   ├── hcloud.yml   # Dynamic inventory
-│   └── group_vars/dev/vars.yml
-├── aws/             # AWS EC2
-│   ├── aws_ec2.yml  # Dynamic inventory
-│   └── group_vars/aws_dev/vars.yml
-└── local/           # Vagrant testing
+Linux (Working):   provision-aws.yml → configure-aws.yml → playbooks/setup-*.yml
+Windows (Planned): provision-aws-windows.yml → configure-aws-windows.yml → playbooks/setup-windows-*.yml
 ```
-
-### AWS Implementation Pattern
-Following the established Hetzner pattern with AWS-specific adaptations:
-```
-provision-aws.yml → provisioners/aws-ec2.yml → configure-aws.yml → playbooks/setup-*.yml
-```
-
-**AWS-Specific Considerations:**
-- **Authentication**: AWS credentials via environment variables (vs. HCLOUD_TOKEN)
-- **Inventory Plugin**: `amazon.aws.aws_ec2` (vs. `hetzner.hcloud.hcloud`)
-- **Instance Module**: `amazon.aws.ec2_instance` (vs. `hetzner.hcloud.server`)
-- **Default User**: `ubuntu` (vs. `root` for Hetzner)
-- **Networking**: Security group creation required (vs. automatic for Hetzner)
-- **Tagging**: AWS tags (vs. Hetzner labels)
-
-**Proven AWS Patterns (Implemented and Working):**
-- **Idempotency Pattern**: Use fixed instance identifier ("lorien") with `ec2_instance_info` checks before creation
-- **Hostname Configuration**: Use `tag:Name` as primary hostname source with `public-ip-address` as fallback
 
 ## Key Technical Decisions
 
-### User Management Strategy
-**Three-Tier User Model:**
-1. **Admin User**: Provider-specific initial user (`root`, `admin`, `vagrant`)
-2. **Ansible User**: Consistent automation user across all providers
-3. **Desktop User**: Human user for interactive work
+### Windows Server Implementation Strategy
+**Foundation Reuse**: Extend proven AWS Linux patterns to Windows Server
+- **Same AWS Infrastructure**: Reuse security groups, networking, tagging patterns
+- **Different Configuration**: Windows-specific modules and approaches
+- **Consistent Interface**: Same command patterns for provision/configure/destroy
 
-**Implementation Pattern:**
+### Windows-Specific Architecture Decisions
+**Authentication Method**: WinRM instead of SSH
 ```yaml
-# Early in setup-users.yml
-- name: Create ansible user with sudo privileges
-  user:
-    name: "{{ ansible_user }}"
-    groups: sudo
-    shell: /bin/bash
-    create_home: yes
-
-# Switch to ansible_user for all subsequent operations
+# Windows connection configuration
+ansible_connection: winrm
+ansible_winrm_transport: basic
+ansible_winrm_server_cert_validation: ignore
+ansible_port: 5985
 ```
 
-### Credential Management Architecture
-**Ansible Vault Integration:**
-- All secrets in `/playbooks/vars-secrets.yml` (encrypted)
-- Vault password in `/ansible-vault-password.txt` (gitignored)
-- Provider credentials via environment variables
+**User Management Strategy**: Windows Administrator model
+- **Administrator**: Initial Windows admin user (equivalent to root)
+- **Service Account**: Ansible service user for automation
+- **Desktop User**: Standard user for Claude Desktop Application usage
 
-**Security Boundaries:**
-- No secrets in version control
-- Encrypted at rest (Ansible Vault)
-- Environment-based provider authentication
-- SSH key-based system access
-
-### Configuration Management Patterns
-
-#### Idempotent Operations
-All playbooks designed for multiple runs without side effects:
+**Package Management**: Chocolatey for automated software installation
 ```yaml
-- name: Install package
-  apt:
-    name: "{{ package_name }}"
+# Windows package installation pattern
+- name: Install Claude Desktop via Chocolatey
+  win_chocolatey:
+    name: claude-desktop
     state: present
-    update_cache: yes
 ```
-
-#### Conditional Provider Support
-```yaml
-# Desktop setup only where supported
-- import_playbook: playbooks/setup-desktop.yml
-  when: ansible_virtualization_type != "docker"
-```
-
-#### Backup/Restore Symmetry
-Every configuration change has corresponding backup/restore:
-- `backup-*.yml` → `restore-*.yml`
-- Stored in `configuration/home/{{ my_desktop_user }}/`
 
 ## Component Relationships
 
-### Core Playbook Dependencies
+### Windows Server Provisioning Flow
 ```mermaid
 graph TD
-    A[provision.yml] --> B[provisioners/hcloud.yml]
-    A --> C[configure.yml]
-    C --> D[setup-users.yml]
-    C --> E[setup-basics.yml]
-    C --> F[setup-homebrew.yml]
-    C --> G[setup-nodejs-typescript.yml]
-    C --> H[setup-desktop.yml]
-    C --> I[setup-keyring.yml]
-    C --> J[setup-desktop-apps.yml]
-    C --> K[restore.yml]
-    C --> L[reboot-if-required.yml]
-    
-    D --> E
-    E --> F
-    F --> G
-    G --> H
-    H --> I
-    I --> J
-    J --> K
-    K --> L
+    A[provision-aws-windows.yml] --> B[provisioners/aws-windows.yml]
+    B --> C[Windows Server 2022 AMI]
+    B --> D[t3.medium instance]
+    B --> E[RDP Security Group]
+    B --> F[configure-aws-windows.yml]
+    F --> G[setup-windows-users.yml]
+    F --> H[setup-windows-desktop.yml]
+    F --> I[setup-claude-desktop.yml]
 ```
 
-### Inventory Integration Pattern
-```yaml
-# Dynamic inventory (hcloud.yml)
-plugin: hetzner.hcloud.hcloud
-regions:
-  - eu-central
-types:
-  - cx11
+### AWS Infrastructure Reuse
+**Shared Components** (from Linux implementation):
+- AWS credentials and authentication
+- Dynamic inventory plugin (`amazon.aws.aws_ec2`)
+- Instance tagging and naming conventions
+- Resource cleanup patterns
 
-# Group variables (group_vars/dev/vars.yml)
-admin_user_on_fresh_system: root
-ansible_user: ansible
-my_desktop_user: myuser
-```
+**Windows-Specific Components**:
+- Windows Server AMI selection
+- RDP security group (port 3389)
+- Larger instance types (t3.medium minimum)
+- Windows-specific configuration playbooks
 
 ## Critical Implementation Paths
 
-### Provider Onboarding Pattern
-1. **Create Provisioner**: `provisioners/[provider].yml`
-2. **Create Inventory**: `inventories/[provider]/`
-3. **Set Group Variables**: Provider-specific admin user and configuration
-4. **Create Main Playbooks**: `provision-[provider].yml`, `configure-[provider].yml`, `destroy-[provider].yml`
-5. **Test Integration**: Vagrant-based local testing first
-
-### AWS Provider Implementation
-**Required AWS Permissions:**
-```json
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ec2:RunInstances", "ec2:TerminateInstances", "ec2:DescribeInstances",
-                "ec2:DescribeImages", "ec2:DescribeKeyPairs", "ec2:DescribeSecurityGroups",
-                "ec2:CreateSecurityGroup", "ec2:DeleteSecurityGroup",
-                "ec2:AuthorizeSecurityGroupIngress", "ec2:CreateTags", "ec2:DescribeTags"
-            ],
-            "Resource": "*"
-        }
-    ]
-}
-```
-
-**Environment Setup:**
-```bash
-export AWS_ACCESS_KEY_ID="your-access-key"
-export AWS_SECRET_ACCESS_KEY="your-secret-key"
-export AWS_DEFAULT_REGION="eu-north-1"
-```
-
-### Backup/Restore Implementation
-**Symmetric Operations:**
+### Windows Server Provisioning Pattern
 ```yaml
-# Backup pattern
-- name: Create backup directory
-  file:
-    path: "{{ backup_path }}"
-    state: directory
-
-- name: Copy configuration files
-  copy:
-    src: "{{ source_path }}"
-    dest: "{{ backup_path }}"
-    remote_src: yes
-
-# Restore pattern (reverse operation)
-- name: Restore configuration files
-  copy:
-    src: "{{ backup_path }}"
-    dest: "{{ source_path }}"
-    remote_src: yes
+# provisioners/aws-windows.yml (planned)
+- name: Create Windows Server instance
+  amazon.aws.ec2_instance:
+    name: "{{ instance_name }}-windows"
+    image_id: "{{ windows_server_ami }}"
+    instance_type: t3.medium
+    security_groups:
+      - "{{ security_group_rdp }}"
+    user_data: |
+      <powershell>
+      # Enable WinRM for Ansible
+      winrm quickconfig -q
+      winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+      </powershell>
 ```
 
-### Testing Strategy Pattern
-**Multi-Level Testing:**
-1. **Unit**: Individual playbook testing with Vagrant
-2. **Integration**: Full provision → configure → destroy cycle
-3. **Provider**: Test across all supported providers
+### Windows Configuration Pattern
+```yaml
+# playbooks/setup-claude-desktop.yml (planned)
+- name: Install Chocolatey package manager
+  win_chocolatey:
+    name: chocolatey
+    state: present
 
-**Test Environment Structure:**
-```
-test/
-├── docker/     # Minimal testing (no desktop)
-├── tart/       # macOS VM testing
-└── vagrant/    # VirtualBox testing
+- name: Install Claude Desktop Application
+  win_chocolatey:
+    name: claude-desktop
+    state: present
+
+- name: Create desktop shortcut
+  win_shortcut:
+    src: "C:\\Program Files\\Claude Desktop\\claude.exe"
+    dest: "C:\\Users\\Public\\Desktop\\Claude Desktop.lnk"
 ```
 
 ## Design Principles
 
-### Core Architecture Drivers
-- **Understandability**: Code and configuration should be self-documenting and easy to comprehend
-- **Maintainability**: Minimize complexity, reduce configuration parameters to essentials only
-- **Extensibility**: Design for easy addition of new providers, applications, and environments
+### Windows Server Adaptation Principles
+- **Consistency**: Same command patterns as Linux implementation
+- **Reuse**: Leverage existing AWS infrastructure patterns
+- **Simplicity**: Minimal Windows-specific configuration
+- **Cost Awareness**: Optimize for intermittent usage patterns
 
-### Provider Abstraction
-- Common playbooks work across all providers
-- Provider-specific code isolated to provisioners/
-- Inventory variables handle provider differences
-- Minimal provider-specific overrides (follow Hetzner pattern)
+### Security Model for Windows
+- **RDP Access**: Restricted to user's IP address only
+- **Windows Firewall**: Configured for minimal exposure
+- **User Isolation**: Separate Administrator and standard user accounts
+- **Credential Management**: Windows passwords via Ansible Vault
 
-### Fail-Fast Philosophy
-- Early user creation and SSH key setup
-- Immediate switch from admin to ansible user
-- Clear error messages for missing credentials
-
-### Cost Optimization
-- Complete resource lifecycle management
-- No persistent infrastructure by default
-- Automatic cleanup on destroy operations
-
-### Security by Default
-- All secrets encrypted
-- No root user operations after initial setup
-- SSH key-based authentication only
-- Minimal privilege escalation
-
-### Configuration Minimalism
-- Keep only essential provider-specific differences in group_vars
-- Avoid unnecessary configuration parameters
-- Default to sensible values rather than exposing every option
-- Prefer convention over configuration
-
-### Quality Criteria Conflict Resolution
-- **Identify Trade-offs**: When quality criteria conflict (e.g., extensibility vs. simplicity), explicitly identify the tension
-- **Communicate Conflicts**: Inform users about competing priorities that could lead to unclear design decisions
-- **Document Decisions**: Record which quality criterion takes precedence and why
-- **Examples of Common Conflicts**:
-  - Extensibility vs. Understandability (more options vs. simpler configuration)
-  - Maintainability vs. Performance (cleaner code vs. optimized execution)
-  - Security vs. Usability (strict controls vs. ease of use)
-  - Cost Optimization vs. Reliability (minimal resources vs. redundancy)
+### Cost Optimization Strategy
+- **On-Demand Usage**: Complete provision → use → destroy lifecycle
+- **Instance Sizing**: t3.medium minimum for Windows Server GUI
+- **Storage Optimization**: 50GB GP3 for cost-effectiveness
+- **Usage Patterns**: Target 10-15 hours/week for ~$15/month cost
 
 ## Extension Points
 
-### Adding New Providers
-1. Create `provisioners/[provider].yml`
-2. Create `inventories/[provider]/`
-3. Define `admin_user_on_fresh_system` variable
-4. Create main playbooks (`provision-[provider].yml`, `configure-[provider].yml`, `destroy-[provider].yml`)
-5. Test with existing playbooks
+### Windows Application Support
+**Pattern for Additional Applications**:
+1. Create `playbooks/setup-windows-[app].yml`
+2. Use Chocolatey for automated installation where possible
+3. Handle Windows-specific configuration requirements
+4. Test via RDP for desktop application functionality
 
-### Provider Differences Reference
-| Aspect | Hetzner Cloud | AWS EC2 |
-|--------|---------------|---------|
-| Inventory Plugin | `hetzner.hcloud.hcloud` | `amazon.aws.aws_ec2` |
-| Instance Module | `hetzner.hcloud.server` | `amazon.aws.ec2_instance` |
-| Default User | `root` | `ubuntu` |
-| SSH Key | Hetzner SSH key name | AWS key pair name |
-| Networking | Automatic | Security group required |
-| Tagging | Labels | Tags |
-| Cost Model | Hourly billing | Per-second billing (min 60s) |
-| Authentication | `HCLOUD_TOKEN` | AWS credentials |
+### Windows Development Environment
+**Future Extensions**:
+- Visual Studio installation and configuration
+- .NET development environment setup
+- Windows-specific development tools
+- Git and development workflow setup
 
-### Adding New Applications
-1. Create `playbooks/setup-[app].yml`
-2. Create corresponding `backup-[app].yml` and `restore-[app].yml`
-3. Add to `configure.yml` and `backup.yml`
-4. Test across all providers
+## Provider Differences Reference
 
-### Adding New Environments
-1. Create inventory group in `group_vars/`
-2. Define environment-specific variables
-3. Test provision → configure → destroy cycle
+| Aspect | AWS Linux (Working) | AWS Windows (Planned) |
+|--------|--------------------|-----------------------|
+| Connection | SSH (port 22) | WinRM (port 5985) + RDP (port 3389) |
+| Default User | `ubuntu` | `Administrator` |
+| Package Manager | APT | Chocolatey |
+| Instance Type | t3.micro/small | t3.medium (minimum) |
+| Storage | 20GB | 50GB |
+| Desktop Access | SSH + X11 forwarding | RDP |
+| Cost (monthly) | ~$8-10 | ~$15 |
+
+## Windows-Specific Technical Requirements
+
+### Ansible Collections
+```yaml
+# requirements.yml
+collections:
+  - name: ansible.windows
+  - name: community.windows
+  - name: amazon.aws
+```
+
+### Windows Server Configuration
+- **Desktop Experience**: Enable GUI for desktop applications
+- **WinRM Setup**: Configure Windows Remote Management for Ansible
+- **PowerShell Execution Policy**: Allow script execution for automation
+- **Windows Updates**: Configure automatic updates for security
+
+### RDP Optimization
+- **Performance Settings**: Optimize for desktop application responsiveness
+- **Display Configuration**: Configure appropriate resolution and color depth
+- **Audio Redirection**: Enable audio for applications that require it
+- **Clipboard Sharing**: Enable clipboard between host and Windows Server
