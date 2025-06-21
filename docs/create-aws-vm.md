@@ -98,7 +98,7 @@ Create or import an SSH key pair in the AWS EC2 console:
 
 1. Go to EC2 → Key Pairs in your AWS console
 2. Either create a new key pair or import your existing public key
-3. Note the key pair name for configuration (galadriel@lorien.hetzner)
+3. Note the key pair name for configuration (stefan@fangorn)
 4. Ensure you have the corresponding private key file (`.pem` format) in your `~/.ssh/` directory with permissions restricted to 600: `chmod 600 ~/.ssh/*pem`
 
 ### Configure Secrets
@@ -110,13 +110,13 @@ Follow the instructions in section [Important concepts](./important-concepts.md)
 Create the EC2 instance using the following command, specifying your AWS SSH key name:
 
 ```shell
-# Assuming that your key pair is named galadriel@lorien.hetzner
+# Assuming that your key pair is named stefan@fangorn
 ansible-playbook --vault-password-file ansible-vault-password.txt \
-  -e "aws_ssh_key_name=galadriel@lorien.hetzner" \
+  -e "aws_ssh_key_name=stefan@fangorn" \
   ./provision-aws.yml
 ```
 
-Replace `galadriel@lorien.hetzner` with the name of your AWS key pair (without the `.pem` extension).
+Replace `stefan@fangorn` with the name of your AWS key pair (without the `.pem` extension).
 
 The provisioner will:
 - Automatically detect your current public IP for security group access
@@ -136,18 +136,16 @@ Once provisioning is complete, verify the setup:
 ansible-inventory -i inventories/aws/aws_ec2.yml --graph
 
 # Check whether the server can be reached
-ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' -e "ansible_user=ubuntu aws_ssh_key_name=galadriel@lorien.hetzner"
+ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' -e "ansible_user=ubuntu aws_ssh_key_name=stefan@fangorn"
 ```
 
 You can also SSH directly to the instance:
 
 ```shell
-export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=lorien" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=lorien" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text); echo $IPV4_ADDRESS
 
-ssh -i ~/.ssh/your-key-pair-name.pem ubuntu@$IPV4_ADDRESS
+ssh -i ~/.ssh/stefan@fangorn.pem ubuntu@$IPV4_ADDRESS
 ```
-
-The instance public IP will be displayed in the provisioning output.
 
 > [!IMPORTANT]
 > The security group is configured to allow SSH access only from your current public IP address. If your IP changes, you may need to update the security group rules in the AWS console.
