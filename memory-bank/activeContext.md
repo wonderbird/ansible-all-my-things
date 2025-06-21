@@ -6,12 +6,12 @@
 **Primary Objective**: Fix 6 critical findings discovered in AWS implementation:
 - ✅ **AWS Provisioning Idempotency**: Fixed - provision-aws.yml now maintains exactly one instance using "lorien" identifier
 - ✅ **AWS Inventory Discovery**: Fixed - simplified inventory configuration to match correct region and follow Hetzner pattern
-- 🔧 **Development Environment Packages**: Add python3-full and ansible-core to setup-desktop.yml (benefits all environments)
+- ✅ **Development Environment Packages**: python3-full and ansible-core already present in setup-desktop.yml (benefits all environments)
 - 🔧 **AWS Documentation**: Fix markdown violations in docs/create-aws-vm.md and add "Notes on Performance" section
 - ✅ **Merge MVP Documentation**: MVP directory not found - likely already integrated or removed
 - ✅ **Cleanup MVP Directory**: MVP directory not present - cleanup already completed
 
-**Status**: 4 of 6 critical findings resolved, 2 remaining (packages and documentation)
+**Status**: 5 of 6 critical findings resolved, 1 remaining (documentation)
 
 **Approach**: Fix one finding per commit with user review between fixes
 
@@ -20,7 +20,6 @@
 - **Inventory Discovery**: Simplified configuration, fixed region mismatch (eu-north-1), removed complexity
 
 **Next Fixes Required**:
-- **setup-desktop.yml**: Add `python3-full` and `ansible-core` packages to general package list
 - **docs/create-aws-vm.md**: Fix markdown violations and adopt "Notes on Performance" section from create-hetzner-vm.md
 
 ### MVP AWS Development Environment (Background Context)
@@ -67,20 +66,20 @@
 ## Next Steps
 
 ### Review Findings to Fix (Sequential Order)
-1. 🔧 **Update playbooks/setup-desktop.yml**: Add `python3-full` and `ansible-core` packages to general package list
-2. 🔧 **Fix docs/create-aws-vm.md**: Resolve markdown violations and add "Notes on Performance" section from create-hetzner-vm.md
+1. 🔧 **Fix docs/create-aws-vm.md**: Resolve markdown violations and add "Notes on Performance" section from create-hetzner-vm.md
 
 ### Completed Review Findings
 1. ✅ **AWS Provisioning Idempotency**: Fixed using "lorien" identifier with proper ec2_instance_info checks
 2. ✅ **AWS Inventory Discovery**: Simplified configuration, fixed region mismatch (eu-north-1), removed complexity
-3. ✅ **Memory Bank Updates**: Cross-architecture rationale documented
-4. ✅ **Architecture Drivers**: Understandability, maintainability, extensibility established
-5. ✅ **Quality Conflict Resolution**: Guidance for competing design priorities added
-6. ✅ **Standardize provision.yml**: Structure updated to match provision-aws.yml
-7. ✅ **Simplify vars.yml**: Reduced to minimal essential configuration parameters
-8. ✅ **Clean docs/create-aws-vm.md**: Removed non-user-manual information
-9. ✅ **Merge MVP Documentation**: MVP directory not found - likely already integrated
-10. ✅ **Cleanup MVP Directory**: MVP directory not present - cleanup completed
+3. ✅ **Development Environment Packages**: python3-full and ansible-core already present in setup-desktop.yml
+4. ✅ **Memory Bank Updates**: Cross-architecture rationale documented
+5. ✅ **Architecture Drivers**: Understandability, maintainability, extensibility established
+6. ✅ **Quality Conflict Resolution**: Guidance for competing design priorities added
+7. ✅ **Standardize provision.yml**: Structure updated to match provision-aws.yml
+8. ✅ **Simplify vars.yml**: Reduced to minimal essential configuration parameters
+9. ✅ **Clean docs/create-aws-vm.md**: Removed non-user-manual information
+10. ✅ **Merge MVP Documentation**: MVP directory not found - likely already integrated
+11. ✅ **Cleanup MVP Directory**: MVP directory not present - cleanup completed
 
 ### Future Priorities (After Review Findings)
 - **Test Integration**: Ensure existing playbooks work with AWS instances
