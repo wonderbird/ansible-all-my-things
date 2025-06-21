@@ -3,15 +3,31 @@
 ## Current Work Focus
 
 ### Review Findings Resolution
-**Primary Objective**: Fix 6 critical findings discovered in AWS implementation:
+**Primary Objective**: Fix critical findings discovered in AWS implementation:
 - ✅ **AWS Provisioning Idempotency**: Fixed - provision-aws.yml now maintains exactly one instance using "lorien" identifier
 - ✅ **AWS Inventory Discovery**: Fixed - simplified inventory configuration to match correct region and follow Hetzner pattern
 - ✅ **Development Environment Packages**: python3-full and ansible-core already present in setup-desktop.yml (benefits all environments)
 - ✅ **AWS Documentation**: Fixed - resolved markdown violations and added "Notes on Performance" section matching Hetzner pattern
 - ✅ **Merge MVP Documentation**: MVP directory not found - likely already integrated or removed
 - ✅ **Cleanup MVP Directory**: MVP directory not present - cleanup already completed
+- ✅ **AWS Host Key Cleanup**: RESOLVED - destroy-aws.yml now removes host keys from known_hosts file
 
-**Status**: All 6 critical findings resolved ✅
+**Status**: All 7 critical findings resolved ✅
+
+### Recently Resolved: AWS Host Key Cleanup
+**Issue**: During AWS provisioning testing, discovered that `destroy-aws.yml` did not remove host keys from local known_hosts file, unlike `destroy.yml` (Hetzner) which properly cleans up host keys before server destruction.
+
+**Impact**: Users could encounter SSH host key warnings when recreating AWS instances that receive previously used IP addresses.
+
+**Root Cause**: `destroy-aws.yml` jumped straight to instance termination without the host key cleanup step that exists in `destroy.yml`.
+
+**Solution Implemented**: Added host key removal step to `destroy-aws.yml` that:
+- ✅ Extracts IP addresses from instances before termination using `public_ip_address` attribute
+- ✅ Uses `ssh-keygen -R` to remove each IP from known_hosts via shell command
+- ✅ Handles multiple instances (unlike Hetzner's single server approach) with loop iteration
+- ✅ Maintains parity with Hetzner implementation pattern
+- ✅ Includes proper error handling with `ignore_errors: true` for missing host keys
+- ✅ Filters out undefined/empty IP addresses to prevent errors
 
 **Approach**: Fix one finding per commit with user review between fixes
 

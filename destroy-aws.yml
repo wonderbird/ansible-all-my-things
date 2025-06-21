@@ -26,6 +26,16 @@
           - "{{ ansible_instances.instances | map(attribute='instance_id') | list }}"
       when: ansible_instances.instances | length > 0
 
+    - name: Remove instance IP addresses from known_hosts
+      ansible.builtin.shell:
+        cmd: ssh-keygen -R "{{ item }}"
+      loop: "{{ ansible_instances.instances | map(attribute='public_ip_address') | select('defined') | list }}"
+      when: 
+        - ansible_instances.instances | length > 0
+        - item is defined
+        - item != ""
+      ignore_errors: true  # Don't fail if host key doesn't exist
+
     - name: Terminate all ansible-created EC2 instances
       amazon.aws.ec2_instance:
         instance_ids: "{{ ansible_instances.instances | map(attribute='instance_id') | list }}"
