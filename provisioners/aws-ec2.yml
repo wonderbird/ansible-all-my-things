@@ -12,7 +12,7 @@
     aws_ami_id: "{{ aws_default_ami_id | default('ami-0989fb15ce71ba39e') }}"  # Ubuntu 24.04 LTS in eu-north-1
     aws_key_name: "{{ aws_ssh_key_name }}"
     aws_security_group_name: "ansible-dev-sg"
-    aws_instance_name: "ansible-dev-{{ ansible_date_time.epoch }}"
+    aws_instance_name: "lorien"
 
   tasks:
     - name: Ensure required variables are defined
@@ -49,7 +49,7 @@
           CreatedBy: "ansible"
       register: security_group
 
-    - name: Launch EC2 instance
+    - name: Launch EC2 instance (idempotent)
       amazon.aws.ec2_instance:
         name: "{{ aws_instance_name }}"
         image_id: "{{ aws_ami_id }}"
@@ -59,6 +59,9 @@
           - "{{ aws_security_group_name }}"
         region: "{{ aws_region }}"
         state: present
+        exact_count: 1
+        count_tag:
+          Name: "{{ aws_instance_name }}"
         wait: true
         wait_timeout: 300
         volumes:
