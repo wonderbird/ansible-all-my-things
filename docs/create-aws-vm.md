@@ -130,9 +130,6 @@ ansible-inventory -i inventories/aws/aws_ec2.yml --graph
 
 # Check whether the server can be reached
 ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami'
-
-# Test with your desktop user
-ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' --extra-vars "ansible_user=gandalf"
 ```
 
 You can also SSH directly to the instance:
@@ -145,15 +142,6 @@ The instance public IP will be displayed in the provisioning output.
 
 >[!IMPORTANT]
 > The security group is configured to allow SSH access only from your current public IP address. If your IP changes, you may need to update the security group rules in the AWS console.
-
-## Architecture Benefits
-
-This AWS EC2 environment provides:
-
-- **Cross-Architecture Access**: Run amd64 (x86_64) tools unavailable on Apple Silicon
-- **Secure Isolation**: Test untrusted software safely away from your local machine
-- **Cost Efficiency**: t3.micro instances are free tier eligible, with complete resource cleanup
-- **Development Foundation**: Stepping stone for future Windows Server support
 
 ## Delete the VM
 
@@ -174,14 +162,3 @@ The destroy playbook will:
 - Ensure zero ongoing AWS costs
 
 You can verify that all resources are deleted in your [AWS EC2 console](https://console.aws.amazon.com/ec2/).
-
-## Cost Information
-
-**Estimated monthly costs (when actively used):**
-- t3.micro instance: ~$6.50/month (free tier: first 750 hours/month for 12 months)
-- 20GB GP3 storage: ~$1.60/month (only when instance is running)
-- Data transfer: Minimal for development use
-
-**Total: ~$8-10/month maximum, $0 when not in use**
-
-The complete destroy process ensures no ongoing costs when the environment is not needed.
