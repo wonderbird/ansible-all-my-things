@@ -22,6 +22,7 @@ keyed_groups:
 
 # Hostname configuration
 hostnames:
+  - tag:Name
   - public-ip-address
 
 # Variables to include in inventory
