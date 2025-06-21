@@ -6,9 +6,11 @@ If my instructions are unclear, ambiguous or inconsistent, I describe this situa
 
 ## Important principles
 
-**Keep it simple:** Keep configuration and options at the absolute minimum to achieve the current goal. Focus on simplicity to achieve a high level of maintainability and robustness.
+**Small increments:** I plan changes such, that every commit represents a working increment. The size of my commits is equivalent to what a human developer would achieve within 15-30 minutes. After at most 2 commits, I ask the user for review.
 
-**Be diligent:** Mark only those tasks completed that have been actually verified. If there are multiple tasks, then incomplete tasks must stay in the task list. If the status of a task is unclear, then ask for clarification.
+**Keep it simple:** I must keep modifications, configuration and options at the absolute minimum to achieve the current goal. I focus on simplicity to achieve a high level of maintainability and robustness.
+
+**Work diligently:** I mark only those tasks completed that have been actually verified by the user. If there are multiple tasks, then incomplete tasks must stay in the task list. If the status of a task is unclear, then I ask for clarification.
 
 ## Git version control rules
 
