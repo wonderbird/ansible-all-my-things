@@ -11,7 +11,6 @@ in parentheses at the end of the heading.
 - [x] Change `setup-users.yml` so that it considers the new `desktop_users` array
 - [x] Update all code tailored for the old `my_desktop_user` and `my_desktop_user_password` to use the new `desktop_users` array from `vars-secrets.yml`
 - [x] Verify for all desktop users, that the restored backups work (especially, because the owner and group were changed after extracting)
-- [x] Fix: Visual Studio Code Installation is broken. It seems as if the microsoft package repository has been integrated into the standard apt sources. Verify that assumption. Then fix the issue.
 - [x] Update the template `vars-secrets-template.yml`
 - [x] Update the documentation
 - [x] Keep `vars-usernames.yml` only when required in the changed backup/restore files
@@ -21,10 +20,11 @@ in parentheses at the end of the heading.
 
 ## Prioritized next (1-2)
 
+- [ ] Fix: Installing VS Code results an error that prevents all further `apt update` commands: "E:Conflicting values set for option Signed-By regarding source https://packages.microsoft.com/repos/code/ stable: /etc/apt/keyrings/packages.microsoft.gpg != /usr/share/keyrings/microsoft.gpg, E:The list of sources could not be read." (workaround: 'ansible lorien -bm file -a "path=/etc/apt/sources.list.d/vscode.sources state=absent" --extra-vars "ansible_user=gandalf"')
+
 ## Planned
 
 - [ ] Rename the folder `configuration/home/my_desktop_user` to `.../backup_user`
-- [ ] Fix: Installing VS Code results an error that prevents all further `apt update` commands: "E:Conflicting values set for option Signed-By regarding source https://packages.microsoft.com/repos/code/ stable: /etc/apt/keyrings/packages.microsoft.gpg != /usr/share/keyrings/microsoft.gpg, E:The list of sources could not be read." (workaround: 'ansible lorien -bm file -a "path=/etc/apt/sources.list.d/vscode.sources state=absent" --extra-vars "ansible_user=gandalf"')
 
 ## Backlog of ideas
 
