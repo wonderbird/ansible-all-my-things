@@ -12,9 +12,12 @@
 - **Hetzner Cloud**: Primary production environment provider
   - API: Hetzner Cloud API via `hetzner.hcloud` collection
   - Authentication: `HCLOUD_TOKEN` environment variable
-- **AWS EC2**: Secure development environment (MVP in progress)
+- **AWS EC2**: Cross-architecture development environment
   - API: AWS EC2 API via `amazon.aws` collection
   - Authentication: AWS credentials via environment variables
+  - Instance Types: t3.micro, t3.small (cost-optimized, free tier eligible)
+  - Regions: Configurable, default eu-north-1
+  - Storage: GP3 EBS volumes (cost-effective)
 - **Local Testing**: Vagrant with multiple providers
 
 ### Operating Systems
@@ -40,6 +43,10 @@ aws CLI (for AWS)
 # Testing tools
 docker (for container testing)
 virtualbox (for VM testing)
+
+# AWS development environment specific
+python3-full (for AWS instances)
+ansible-core (for AWS instances)
 ```
 
 ### Environment Configuration
@@ -48,6 +55,7 @@ virtualbox (for VM testing)
 export HCLOUD_TOKEN="your-hetzner-token"
 export AWS_ACCESS_KEY_ID="your-aws-key"
 export AWS_SECRET_ACCESS_KEY="your-aws-secret"
+export AWS_DEFAULT_REGION="eu-north-1"  # or preferred region
 
 # Ansible configuration
 export ANSIBLE_VAULT_PASSWORD_FILE="./ansible-vault-password.txt"
@@ -65,7 +73,7 @@ ansible-all-my-things/
 ├── destroy.yml                # Resource cleanup
 ├── inventories/               # Provider-specific inventories
 │   ├── hcloud/               # Hetzner Cloud
-│   ├── aws/                  # AWS EC2 (planned)
+│   ├── aws/                  # AWS EC2
 │   └── local/                # Local testing
 ├── playbooks/                # Functional playbooks
 ├── provisioners/             # Provider-specific provisioning
@@ -151,6 +159,20 @@ keyed_groups:
     prefix: type
   - key: hcloud_datacenter
     prefix: datacenter
+
+# inventories/aws/aws_ec2.yml
+plugin: amazon.aws.aws_ec2
+regions:
+  - eu-north-1
+filters:
+  tag:ansible_group: aws_dev
+keyed_groups:
+  - key: instance_type
+    prefix: type
+  - key: placement.availability_zone
+    prefix: az
+hostnames:
+  - public-ip-address
 ```
 
 ### Vault Management

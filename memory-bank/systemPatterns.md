@@ -19,9 +19,25 @@ inventories/
 ├── hcloud/          # Hetzner Cloud
 │   ├── hcloud.yml   # Dynamic inventory
 │   └── group_vars/dev/vars.yml
-├── aws/             # AWS EC2 (planned)
+├── aws/             # AWS EC2
+│   ├── aws_ec2.yml  # Dynamic inventory
+│   └── group_vars/aws_dev/vars.yml
 └── local/           # Vagrant testing
 ```
+
+### AWS Implementation Pattern
+Following the established Hetzner pattern with AWS-specific adaptations:
+```
+provision-aws.yml → provisioners/aws-ec2.yml → configure-aws.yml → playbooks/setup-*.yml
+```
+
+**AWS-Specific Considerations:**
+- **Authentication**: AWS credentials via environment variables (vs. HCLOUD_TOKEN)
+- **Inventory Plugin**: `amazon.aws.aws_ec2` (vs. `hetzner.hcloud.hcloud`)
+- **Instance Module**: `amazon.aws.ec2_instance` (vs. `hetzner.hcloud.server`)
+- **Default User**: `ubuntu` (vs. `root` for Hetzner)
+- **Networking**: Security group creation required (vs. automatic for Hetzner)
+- **Tagging**: AWS tags (vs. Hetzner labels)
 
 ## Key Technical Decisions
 
@@ -127,8 +143,36 @@ my_desktop_user: myuser
 ### Provider Onboarding Pattern
 1. **Create Provisioner**: `provisioners/[provider].yml`
 2. **Create Inventory**: `inventories/[provider]/`
-3. **Set Group Variables**: Provider-specific admin user
-4. **Test Integration**: Vagrant-based local testing first
+3. **Set Group Variables**: Provider-specific admin user and configuration
+4. **Create Main Playbooks**: `provision-[provider].yml`, `configure-[provider].yml`, `destroy-[provider].yml`
+5. **Test Integration**: Vagrant-based local testing first
+
+### AWS Provider Implementation
+**Required AWS Permissions:**
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:RunInstances", "ec2:TerminateInstances", "ec2:DescribeInstances",
+                "ec2:DescribeImages", "ec2:DescribeKeyPairs", "ec2:DescribeSecurityGroups",
+                "ec2:CreateSecurityGroup", "ec2:DeleteSecurityGroup",
+                "ec2:AuthorizeSecurityGroupIngress", "ec2:CreateTags", "ec2:DescribeTags"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+**Environment Setup:**
+```bash
+export AWS_ACCESS_KEY_ID="your-access-key"
+export AWS_SECRET_ACCESS_KEY="your-secret-key"
+export AWS_DEFAULT_REGION="eu-north-1"
+```
 
 ### Backup/Restore Implementation
 **Symmetric Operations:**
@@ -218,7 +262,20 @@ test/
 1. Create `provisioners/[provider].yml`
 2. Create `inventories/[provider]/`
 3. Define `admin_user_on_fresh_system` variable
-4. Test with existing playbooks
+4. Create main playbooks (`provision-[provider].yml`, `configure-[provider].yml`, `destroy-[provider].yml`)
+5. Test with existing playbooks
+
+### Provider Differences Reference
+| Aspect | Hetzner Cloud | AWS EC2 |
+|--------|---------------|---------|
+| Inventory Plugin | `hetzner.hcloud.hcloud` | `amazon.aws.aws_ec2` |
+| Instance Module | `hetzner.hcloud.server` | `amazon.aws.ec2_instance` |
+| Default User | `root` | `ubuntu` |
+| SSH Key | Hetzner SSH key name | AWS key pair name |
+| Networking | Automatic | Security group required |
+| Tagging | Labels | Tags |
+| Cost Model | Hourly billing | Per-second billing (min 60s) |
+| Authentication | `HCLOUD_TOKEN` | AWS credentials |
 
 ### Adding New Applications
 1. Create `playbooks/setup-[app].yml`

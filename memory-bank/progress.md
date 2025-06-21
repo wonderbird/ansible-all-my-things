@@ -42,26 +42,30 @@
 
 ## What's Left to Build
 
-### AWS EC2 Integration ✅
-- **Provisioning**: Complete infrastructure creation via `provisioners/aws-ec2.yml`
-- **Dynamic Inventory**: Automatic host discovery with `amazon.aws.aws_ec2` plugin
-- **Configuration**: Reuses existing playbooks with AWS-specific variables
-- **Destruction**: Complete resource cleanup via `destroy-aws.yml`
+### AWS EC2 Integration 🔧 (Issues Identified)
+- **Provisioning**: Infrastructure creation implemented but has issues
+- **Dynamic Inventory**: Automatic host discovery implemented but needs simplification
+- **Configuration**: Reuses existing playbooks but missing required packages
+- **Destruction**: Complete resource cleanup implemented
 - **Cross-Architecture Support**: Enables amd64 development from Apple Silicon hosts
 
 **Implemented Components**:
-- ✅ `provisioners/aws-ec2.yml` - AWS EC2 instance provisioning with security groups
-- ✅ `inventories/aws/aws_ec2.yml` - AWS dynamic inventory configuration
+- 🔧 `provisioners/aws-ec2.yml` - Has undefined variable and invalid AMI ID issues
+- 🔧 `inventories/aws/aws_ec2.yml` - Needs simplification following Hetzner pattern
 - ✅ `inventories/aws/group_vars/aws_dev/vars.yml` - Minimal AWS-specific variables
 - ✅ `provision-aws.yml`, `configure-aws.yml`, `destroy-aws.yml` - Main playbooks
 - ✅ Cross-architecture documentation and use case clarification
-- ✅ `docs/create-aws-vm.md` - Comprehensive setup documentation with account creation
+- 🔧 `docs/create-aws-vm.md` - Has markdown violations and missing performance section
 
 **Architecture Improvements Made**:
-- Simplified configuration following Hetzner pattern (minimal overrides)
-- Established core architecture drivers (understandability, maintainability, extensibility)
-- Added quality criteria conflict resolution guidance
-- Standardized playbook structure across providers
+- ✅ Simplified configuration following Hetzner pattern (minimal overrides)
+- ✅ Established core architecture drivers (understandability, maintainability, extensibility)
+- ✅ Added quality criteria conflict resolution guidance
+- ✅ Standardized playbook structure across providers
+
+**Review Findings Status**:
+- ✅ 6 of 12 findings completed (memory bank updates, architecture improvements)
+- 🔧 6 findings remaining to fix sequentially with user review after each
 
 ### Enhanced Cost Management 📋 (Planned)
 - [ ] Cost estimation tools
@@ -90,8 +94,12 @@
 - **Security**: Proper credential management and user isolation
 
 ### In Development 🚧
-- **AWS Testing**: Integration testing with actual AWS credentials
-- **Windows Planning**: Research Windows Server AMIs and configuration requirements
+- **AWS Review Findings**: Fixing identified issues in AWS implementation
+- **Memory Bank Integration**: Merging MVP documentation into memory bank
+
+### Blocked 🚫
+- **AWS Testing**: Cannot test until code issues are resolved
+- **Windows Planning**: Waiting for AWS implementation to be stable
 
 ### Planned 📋
 - **Multi-Cloud**: Additional provider support
@@ -152,9 +160,17 @@
 - **Reliable Operation**: Repeatable results across multiple deployments
 - **Clear Documentation**: Comprehensive setup and usage instructions
 
-## Next Milestone: AWS Testing & Windows Planning
+## Next Milestone: Review Findings Resolution
 
-### AWS MVP Testing
+### Immediate Priorities (Sequential)
+1. 🔧 **Fix provisioners/aws-ec2.yml**: Resolve undefined `ansible_date_time` variable and invalid AMI ID
+2. 🔧 **Simplify inventories/aws/aws_ec2.yml**: Reduce complexity following Hetzner pattern
+3. 🔧 **Update playbooks/setup-desktop.yml**: Add required packages for AWS development environment
+4. 🔧 **Fix docs/create-aws-vm.md**: Resolve markdown violations and add performance notes
+5. 🔧 **Merge MVP Documentation**: Integrate implementation-plan.md and use-case-description.md
+6. 🔧 **Cleanup MVP Directory**: Remove mvp-aws-dev-env/ after successful merge
+
+### AWS MVP Testing (After Fixes)
 - [ ] Test AWS EC2 provisioning with actual credentials
 - [ ] Validate existing configuration playbooks work with AWS instances
 - [ ] Test complete destroy operation eliminates all AWS resources

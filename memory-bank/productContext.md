@@ -10,6 +10,11 @@ Managing personal development environments across multiple cloud providers and l
 - Vendor lock-in to specific cloud providers
 - Ongoing costs from forgotten cloud resources
 
+### Cross-Architecture Challenge
+**Apple Silicon Limitation**: Development on Apple Silicon (arm64) systems lacks access to amd64 (x86_64) architecture tools and software. Many development tools, legacy applications, and testing environments are only available for x86_64, creating a significant gap in development capabilities.
+
+**Security Isolation Need**: Testing untrusted software (such as LLMs with MCP support) requires secure, isolated environments that don't risk the local machine's security. Cloud-based environments provide complete isolation with the ability to destroy compromised systems entirely.
+
 ### The Solution Vision
 A unified, automated system that treats infrastructure as code, enabling:
 - **Reproducible Environments**: Identical setups across any supported provider
@@ -45,6 +50,12 @@ Whether using Hetzner Cloud for production work or AWS for secure testing, the u
 
 ### Target Workflows
 
+#### Cross-Architecture Development
+1. **Provision**: `ansible-playbook provision-aws.yml` → amd64 environment ready in 10-15 minutes
+2. **Develop**: Access to x86_64 tools unavailable on Apple Silicon
+3. **Test**: Secure isolation for untrusted software testing
+4. **Destroy**: `ansible-playbook destroy-aws.yml` → Zero ongoing costs
+
 #### Daily Development Work
 1. **Morning**: `ansible-playbook provision.yml` → Ready to work in 10-15 minutes
 2. **Work**: Full development environment with all tools and settings
@@ -64,6 +75,8 @@ Whether using Hetzner Cloud for production work or AWS for secure testing, the u
 ## Problems This Solves
 
 ### For Individual Users
+- **Cross-Architecture Access**: Run amd64 tools from Apple Silicon host systems
+- **Secure Testing**: Isolated environments for untrusted software without local risk
 - **Time Recovery**: Eliminate hours of manual environment setup
 - **Cost Control**: Never pay for forgotten cloud resources
 - **Consistency**: Identical environments reduce configuration debugging

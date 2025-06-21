@@ -2,14 +2,23 @@
 
 ## Current Work Focus
 
-### MVP AWS Development Environment
-**Primary Objective**: Create secure, isolated AWS EC2 environments that provide:
+### Review Findings Resolution
+**Primary Objective**: Fix identified issues in AWS implementation to make it production-ready:
+- **Code Issues**: Resolve undefined variables and invalid AMI references
+- **Configuration Simplification**: Streamline inventory and configuration files
+- **Documentation Compliance**: Fix markdown violations and add missing sections
+- **Integration Completion**: Merge MVP documentation into memory bank
+
+**Status**: 6 of 12 findings completed, 6 remaining to fix sequentially with user review after each
+
+**Approach**: Fix one finding per commit, request user review before proceeding to next finding
+
+### MVP AWS Development Environment (Background Context)
+**Objective**: Create secure, isolated AWS EC2 environments that provide:
 - **Cross-Architecture Access**: Enable amd64 development from Apple Silicon (arm64) host systems
 - **Secure Testing Environment**: Isolated environment for untrusted software (LLMs with MCP support)
 - **Windows Foundation**: Linux implementation as stepping stone to Windows Server support
 - **Cost Efficiency**: 10-15 minute provisioning with complete resource cleanup
-
-**Status**: Implementation complete and refined - AWS EC2 provisioner, inventory, and playbooks created with architecture improvements
 
 **Long-term Vision**: Extend to Windows Server instances for Windows-specific development tools unavailable on macOS/Linux.
 
@@ -47,14 +56,25 @@
 
 ## Next Steps
 
-### Immediate Priorities
-1. ✅ **Create AWS Provisioner**: `provisioners/aws-ec2.yml` following Hetzner pattern
-2. ✅ **Create AWS Inventory**: `inventories/aws/aws_ec2.yml` with dynamic EC2 inventory
-3. ✅ **Define AWS Variables**: Simplified group variables for AWS-specific configuration
-4. ✅ **Standardize Structure**: Updated provision.yml to match provision-aws.yml format
-5. ✅ **Architecture Refinement**: Established core drivers and conflict resolution guidance
-6. **Test Integration**: Ensure existing playbooks work with AWS instances
-7. **Windows Planning**: Research Windows Server AMIs and configuration requirements
+### Review Findings to Fix (Sequential Order)
+1. 🔧 **Fix provisioners/aws-ec2.yml**: Resolve undefined `ansible_date_time` variable and invalid AMI ID
+2. 🔧 **Simplify inventories/aws/aws_ec2.yml**: Reduce complexity following Hetzner pattern
+3. 🔧 **Update playbooks/setup-desktop.yml**: Add required packages for AWS development environment
+4. 🔧 **Fix docs/create-aws-vm.md**: Resolve markdown violations and add performance notes
+5. 🔧 **Merge MVP Documentation**: Integrate implementation-plan.md and use-case-description.md
+6. 🔧 **Cleanup MVP Directory**: Remove mvp-aws-dev-env/ after successful merge
+
+### Completed Review Findings
+1. ✅ **Memory Bank Updates**: Cross-architecture rationale documented
+2. ✅ **Architecture Drivers**: Understandability, maintainability, extensibility established
+3. ✅ **Quality Conflict Resolution**: Guidance for competing design priorities added
+4. ✅ **Standardize provision.yml**: Structure updated to match provision-aws.yml
+5. ✅ **Simplify vars.yml**: Reduced to minimal essential configuration parameters
+6. ✅ **Clean docs/create-aws-vm.md**: Removed non-user-manual information
+
+### Future Priorities (After Review Findings)
+- **Test Integration**: Ensure existing playbooks work with AWS instances
+- **Windows Planning**: Research Windows Server AMIs and configuration requirements
 
 ### Implementation Sequence
 ```mermaid
