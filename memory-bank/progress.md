@@ -49,11 +49,13 @@
 - ✅ **Destruction**: Complete resource cleanup implemented
 - ✅ **Cross-Architecture Support**: Enables amd64 development from Apple Silicon hosts
 
-**Critical Findings Status (2 of 4 resolved)**:
+**Critical Findings Status (2 of 6 resolved)**:
 - ✅ **AWS Provisioning Idempotency**: Fixed using "lorien" identifier with proper ec2_instance_info checks
 - ✅ **AWS Inventory Discovery**: Fixed by simplifying config and correcting region to eu-north-1
 - 🔧 **Development Environment Packages**: Need to add python3-full and ansible-core to setup-desktop.yml
 - 🔧 **AWS Documentation**: Fix markdown violations and add "Notes on Performance" section
+- 🔧 **Merge MVP Documentation**: Integrate implementation-plan.md and use-case-description.md
+- 🔧 **Cleanup MVP Directory**: Remove mvp-aws-dev-env/ after successful merge
 
 **Implemented Components**:
 - ✅ `provisioners/aws-ec2.yml` - Working with proper idempotency
@@ -73,6 +75,8 @@
 **Remaining Work**:
 - 🔧 Add python3-full and ansible-core packages to setup-desktop.yml (benefits all environments)
 - 🔧 Fix markdown violations in docs/create-aws-vm.md and add "Notes on Performance" section
+- 🔧 Integrate implementation-plan.md and use-case-description.md with memory bank
+- 🔧 Remove mvp-aws-dev-env/ after successful merge with memory bank
 
 ### Enhanced Cost Management 📋 (Planned)
 - [ ] Cost estimation tools
@@ -172,6 +176,8 @@
 ### Immediate Priorities (Sequential)
 1. 🔧 **Update playbooks/setup-desktop.yml**: Add `python3-full` and `ansible-core` packages to general package list (benefits all environments)
 2. 🔧 **Fix docs/create-aws-vm.md**: Resolve markdown violations and add "Notes on Performance" section from create-hetzner-vm.md
+3. 🔧 **Merge MVP Documentation**: Integrate implementation-plan.md and use-case-description.md
+4. 🔧 **Cleanup MVP Directory**: Remove mvp-aws-dev-env/ after successful merge
 
 ### Recently Completed
 1. ✅ **AWS Provisioning Idempotency**: Fixed using "lorien" identifier with proper ec2_instance_info checks
