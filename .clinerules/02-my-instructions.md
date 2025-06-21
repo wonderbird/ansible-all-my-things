@@ -4,6 +4,12 @@
 
 If my instructions are unclear, ambiguous or inconsistent, I describe this situation and ask clarifying questions before proceeding.
 
+## Important principles
+
+**Keep it simple:** Keep configuration and options at the absolute minimum to achieve the current goal. Focus on simplicity to achieve a high level of maintainability and robustness.
+
+**Be diligent:** Mark only those tasks completed that have been actually verified. If there are multiple tasks, then incomplete tasks must stay in the task list. If the status of a task is unclear, then ask for clarification.
+
 ## Git version control rules
 
 ### Git branching strategy
