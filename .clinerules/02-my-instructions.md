@@ -29,6 +29,10 @@ The headline of a `fix:` commit describes the most important symptom of the prob
 
 The brief description of a commit body shall not exceed 50 words.
 
+### Git command line tool usage
+
+Use the `--no-pager` flag before git commands to ensure that no pager is never to display git history information. This ensures that your git commands don't block forever.
+
 ## Code style
 
 **Markdown** must comply with the rules specified by the Visual Studio Code **markdownlint** plugin. These rules are maintained here: https://raw.githubusercontent.com/DavidAnson/markdownlint/refs/heads/main/doc/Rules.md
