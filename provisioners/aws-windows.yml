@@ -1,0 +1,192 @@
+---
+# AWS Windows Server Provisioner
+# Creates Windows Server 2022 instance for Claude Desktop Application access
+
+- name: Create AWS Windows Server Development Environment
+  hosts: localhost
+  gather_facts: true
+  vars:
+    # Windows-specific configuration
+    aws_region: "{{ aws_default_region | default('eu-north-1') }}"
+    aws_instance_type: "{{ aws_windows_instance_type | default('t3.large') }}"  # Larger for Windows GUI
+    aws_ami_id: "{{ aws_windows_ami_id | default('ami-0c02fb55956c7d316') }}"  # Windows Server 2022 Base in eu-north-1
+    aws_key_name: "{{ aws_ssh_key_name }}"
+    aws_security_group_name: "ansible-windows-sg"
+    aws_instance_name: "lorien-windows"
+    # Windows Administrator password (stored in centralized Ansible Vault)
+    windows_admin_password: "{{ windows_admin_password }}"
+
+  tasks:
+    - name: Ensure required variables are defined
+      ansible.builtin.assert:
+        that:
+          - aws_ssh_key_name is defined
+          - aws_ssh_key_name | length > 0
+          - windows_admin_password is defined
+          - windows_admin_password | length > 0
+        fail_msg: "aws_ssh_key_name and windows_admin_password must be defined"
+
+    - name: Get current public IP for security group
+      ansible.builtin.uri:
+        url: https://ipinfo.io/ip
+        return_content: true
+      register: current_ip_result
+
+    - name: Set current IP fact
+      ansible.builtin.set_fact:
+        current_public_ip: "{{ current_ip_result.content | trim }}"
+
+    - name: Create security group for Windows Server access
+      amazon.aws.ec2_security_group:
+        name: "{{ aws_security_group_name }}"
+        description: "Security group for Windows Server development environment"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp
+            ports:
+              - 3389  # RDP
+            cidr_ip: "{{ current_public_ip }}/32"
+            rule_desc: "RDP access from current IP"
+          - proto: tcp
+            ports:
+              - 5985  # WinRM HTTP
+            cidr_ip: "{{ current_public_ip }}/32"
+            rule_desc: "WinRM HTTP for Ansible"
+          - proto: tcp
+            ports:
+              - 5986  # WinRM HTTPS
+            cidr_ip: "{{ current_public_ip }}/32"
+            rule_desc: "WinRM HTTPS for Ansible"
+        tags:
+          Name: "{{ aws_security_group_name }}"
+          Purpose: "ansible-windows-env"
+          CreatedBy: "ansible"
+      register: security_group
+
+    - name: Check if Windows instance already exists
+      amazon.aws.ec2_instance_info:
+        region: "{{ aws_region }}"
+        filters:
+          "tag:Name": "{{ aws_instance_name }}"
+          instance-state-name: ["running", "pending", "stopping", "stopped"]
+      register: existing_instances
+
+    - name: Generate Windows user data script
+      ansible.builtin.set_fact:
+        windows_user_data: |
+          <powershell>
+          # Set Administrator password
+          $Password = ConvertTo-SecureString "{{ windows_admin_password }}" -AsPlainText -Force
+          $UserAccount = Get-LocalUser -Name "Administrator"
+          $UserAccount | Set-LocalUser -Password $Password
+
+          # Enable RDP
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+          # Configure WinRM for Ansible
+          winrm quickconfig -q
+          winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="512"}'
+          winrm set winrm/config '@{MaxTimeoutms="1800000"}'
+          winrm set winrm/config/service '@{AllowUnencrypted="true"}'
+          winrm set winrm/config/service/auth '@{Basic="true"}'
+
+          # Configure Windows Firewall for WinRM
+          netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in localport=5985 protocol=TCP action=allow
+          netsh advfirewall firewall add rule name="WinRM-HTTPS" dir=in localport=5986 protocol=TCP action=allow
+
+          # Restart WinRM service
+          Restart-Service winrm
+
+          # Create signal file to indicate setup completion
+          New-Item -Path "C:\ansible-setup-complete.txt" -ItemType File -Force
+          </powershell>
+
+    - name: Launch Windows Server EC2 instance (idempotent)
+      amazon.aws.ec2_instance:
+        name: "{{ aws_instance_name }}"
+        image_id: "{{ aws_ami_id }}"
+        instance_type: "{{ aws_instance_type }}"
+        key_name: "{{ aws_key_name }}"
+        security_groups:
+          - "{{ aws_security_group_name }}"
+        region: "{{ aws_region }}"
+        state: present
+        wait: true
+        wait_timeout: 600  # Windows takes longer to boot
+        user_data: "{{ windows_user_data }}"
+        volumes:
+          - device_name: /dev/sda1
+            ebs:
+              volume_type: gp3
+              volume_size: 50  # Windows Server needs more space
+              delete_on_termination: true
+        tags:
+          Name: "{{ aws_instance_name }}"
+          ansible_group: "aws_windows"
+          Purpose: "ansible-windows-env"
+          CreatedBy: "ansible"
+          Environment: "development"
+          OS: "windows"
+      register: ec2_instance
+      when: existing_instances.instances | length == 0
+
+    - name: Get existing instance info if not created
+      amazon.aws.ec2_instance_info:
+        region: "{{ aws_region }}"
+        filters:
+          "tag:Name": "{{ aws_instance_name }}"
+          instance-state-name: ["running", "pending", "stopping", "stopped"]
+      register: ec2_instance_info
+      when: existing_instances.instances | length > 0
+
+    - name: Set instance facts for existing instance
+      ansible.builtin.set_fact:
+        ec2_instance:
+          instances: "{{ ec2_instance_info.instances }}"
+      when: existing_instances.instances | length > 0
+
+    - name: Wait for Windows to become available (RDP port)
+      ansible.builtin.wait_for:
+        host: "{{ ec2_instance.instances[0].public_ip_address }}"
+        port: 3389
+        delay: 60  # Windows takes longer to start
+        timeout: 900  # 15 minutes for Windows boot + configuration
+        state: started
+      when: ec2_instance.instances | length > 0
+
+    - name: Wait for WinRM to become available
+      ansible.builtin.wait_for:
+        host: "{{ ec2_instance.instances[0].public_ip_address }}"
+        port: 5985
+        delay: 30
+        timeout: 600
+        state: started
+      when: ec2_instance.instances | length > 0
+
+    - name: Display Windows Server instance information
+      ansible.builtin.debug:
+        msg:
+          - "Windows Server EC2 Instance created successfully!"
+          - "Instance ID: {{ ec2_instance.instances[0].instance_id }}"
+          - "Public IP: {{ ec2_instance.instances[0].public_ip_address }}"
+          - "Instance Type: {{ ec2_instance.instances[0].instance_type }}"
+          - "RDP Connection: {{ ec2_instance.instances[0].public_ip_address }}:3389"
+          - "Username: Administrator"
+          - "Password: {{ windows_admin_password }}"
+          - ""
+          - "To configure this instance, run:"
+          - "ansible-playbook -i inventories/aws/aws_ec2.yml configure-aws-windows.yml"
+          - ""
+          - "To connect via RDP:"
+          - "  - Use any RDP client (Windows Remote Desktop, Remmina, etc.)"
+          - "  - Server: {{ ec2_instance.instances[0].public_ip_address }}"
+          - "  - Username: Administrator"
+          - "  - Password: [from vault]"
+      when: ec2_instance.instances | length > 0
+
+    - name: Save Windows instance information for inventory
+      ansible.builtin.set_fact:
+        aws_windows_instance_id: "{{ ec2_instance.instances[0].instance_id }}"
+        aws_windows_instance_ip: "{{ ec2_instance.instances[0].public_ip_address }}"
+      when: ec2_instance.instances | length > 0

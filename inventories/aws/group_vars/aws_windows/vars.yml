@@ -1,0 +1,37 @@
+---
+# AWS Windows Server Environment Variables
+# Configuration specific to AWS EC2 Windows instances in the aws_windows group
+
+# User Configuration (Windows-specific)
+admin_user_on_fresh_system: "Administrator"
+ansible_user: "Administrator"
+desktop_user: "claude-user"
+
+# Windows Connection Configuration
+ansible_connection: winrm
+ansible_winrm_transport: basic
+ansible_winrm_server_cert_validation: ignore
+ansible_port: 5985
+
+# Windows Authentication
+# Note: windows_admin_password must be set in /playbooks/vars-secrets.yml
+# Example: ansible-vault edit --vault-password-file ./ansible-vault-password.txt ./playbooks/vars-secrets.yml
+ansible_password: "{{ windows_admin_password }}"
+
+# Windows-specific Configuration
+windows_features_to_enable:
+  - "Desktop-Experience"
+  - "Server-Gui-Mgmt-Infra"
+  - "Server-Gui-Shell"
+
+# Claude Desktop Application Configuration
+claude_desktop_download_url: "https://claude.ai/download/windows"
+claude_desktop_install_path: "C:\\Program Files\\Claude Desktop"
+
+# RDP Configuration
+rdp_port: 3389
+rdp_enabled: true
+
+# Windows Server Configuration
+windows_server_edition: "2022"
+windows_server_experience: "Desktop"

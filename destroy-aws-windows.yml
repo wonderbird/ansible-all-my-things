@@ -1,0 +1,75 @@
+---
+# Destroy AWS Windows Server Environment
+# Completely removes Windows Server instance and associated resources
+
+- name: Destroy AWS Windows Server Environment
+  hosts: localhost
+  gather_facts: true
+  vars:
+    aws_region: "{{ aws_default_region | default('eu-north-1') }}"
+    aws_instance_name: "lorien-windows"
+    aws_security_group_name: "ansible-windows-sg"
+
+  tasks:
+    - name: Get Windows Server instance information
+      amazon.aws.ec2_instance_info:
+        region: "{{ aws_region }}"
+        filters:
+          "tag:Name": "{{ aws_instance_name }}"
+          instance-state-name: ["running", "pending", "stopping", "stopped"]
+      register: windows_instances
+
+    - name: Display instances to be terminated
+      ansible.builtin.debug:
+        msg:
+          - "Found {{ windows_instances.instances | length }} Windows Server instance(s) to terminate"
+          - "Instance Name: {{ aws_instance_name }}"
+          - "Security Group: {{ aws_security_group_name }}"
+      when: windows_instances.instances | length > 0
+
+    - name: Terminate Windows Server EC2 instance
+      amazon.aws.ec2_instance:
+        instance_ids: "{{ item.instance_id }}"
+        region: "{{ aws_region }}"
+        state: absent
+        wait: true
+        wait_timeout: 300
+      loop: "{{ windows_instances.instances }}"
+      when: windows_instances.instances | length > 0
+
+    - name: Remove Windows Server security group
+      amazon.aws.ec2_security_group:
+        name: "{{ aws_security_group_name }}"
+        region: "{{ aws_region }}"
+        state: absent
+      ignore_errors: true  # May fail if instances still terminating
+
+    - name: Remove Windows Server host keys from known_hosts
+      ansible.builtin.known_hosts:
+        name: "{{ item.public_ip_address }}"
+        state: absent
+      loop: "{{ windows_instances.instances }}"
+      when: 
+        - windows_instances.instances | length > 0
+        - item.public_ip_address is defined
+      ignore_errors: true
+
+    - name: Display destruction results
+      ansible.builtin.debug:
+        msg:
+          - "Windows Server environment destruction complete!"
+          - "Terminated instances: {{ windows_instances.instances | length }}"
+          - "Security group removed: {{ aws_security_group_name }}"
+          - "Host keys cleaned up"
+          - ""
+          - "All AWS resources have been removed."
+          - "No ongoing costs will be incurred."
+      when: windows_instances.instances | length > 0
+
+    - name: Display message when no instances found
+      ansible.builtin.debug:
+        msg:
+          - "No Windows Server instances found to destroy."
+          - "Instance name searched: {{ aws_instance_name }}"
+          - "Region: {{ aws_region }}"
+      when: windows_instances.instances | length == 0

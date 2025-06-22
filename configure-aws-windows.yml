@@ -1,0 +1,139 @@
+---
+# Configure AWS Windows Server for Claude Desktop Application
+# Main configuration playbook for Windows Server instances
+
+- name: Load secrets for Windows Server configuration
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - playbooks/vars-secrets.yml
+  tasks:
+    - name: Verify Windows admin password is configured
+      ansible.builtin.assert:
+        that:
+          - windows_admin_password is defined
+          - windows_admin_password | length > 0
+        fail_msg: "windows_admin_password must be set in playbooks/vars-secrets.yml"
+
+- name: Configure Windows Server Basic Setup
+  hosts: aws_windows
+  gather_facts: true
+  vars_files:
+    - playbooks/vars-secrets.yml
+  tasks:
+    - name: Test Windows connection
+      ansible.windows.win_ping:
+
+    - name: Get Windows system information
+      ansible.windows.win_shell: |
+        Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, TotalPhysicalMemory
+      register: system_info
+
+    - name: Display system information
+      ansible.builtin.debug:
+        msg:
+          - "Windows Server connection successful!"
+          - "System Info: {{ system_info.stdout }}"
+
+- name: Install Claude Desktop Application
+  hosts: aws_windows
+  gather_facts: false
+  vars_files:
+    - playbooks/vars-secrets.yml
+  tasks:
+    - name: Install Chocolatey package manager
+      ansible.windows.win_chocolatey:
+        name: chocolatey
+        state: present
+      register: chocolatey_install
+
+    - name: Create temporary download directory
+      ansible.windows.win_file:
+        path: C:\temp
+        state: directory
+
+    - name: Download Claude Desktop installer (manual approach for MVP)
+      ansible.windows.win_shell: |
+        # For MVP, we'll provide manual installation instructions
+        # Claude Desktop doesn't have a direct download URL for automation
+        Write-Host "Claude Desktop installation requires manual download"
+        Write-Host "Please visit https://claude.ai/download and download the Windows installer"
+        Write-Host "Then run the installer via RDP"
+      register: claude_download_info
+
+    - name: Create desktop shortcut placeholder
+      ansible.windows.win_file:
+        path: C:\Users\Public\Desktop\Claude Desktop - Manual Install Required.txt
+        state: touch
+
+    - name: Add installation instructions to desktop
+      ansible.windows.win_copy:
+        content: |
+          Claude Desktop Installation Instructions
+          =====================================
+          
+          1. Open a web browser (Edge is pre-installed)
+          2. Navigate to: https://claude.ai/download
+          3. Download the Windows installer
+          4. Run the installer
+          5. Claude Desktop will be available in Start Menu
+          
+          This file can be deleted after Claude Desktop is installed.
+        dest: C:\Users\Public\Desktop\Claude Desktop - Manual Install Required.txt
+
+- name: Configure Windows Server for optimal RDP experience
+  hosts: aws_windows
+  gather_facts: false
+  tasks:
+    - name: Enable Windows features for desktop experience
+      ansible.windows.win_optional_feature:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - "Internet-Explorer-Optional-amd64"
+      ignore_errors: true
+
+    - name: Configure RDP settings for better performance
+      ansible.windows.win_regedit:
+        path: HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp
+        name: "{{ item.name }}"
+        data: "{{ item.value }}"
+        type: dword
+      loop:
+        - { name: "ColorDepth", value: 4 }  # 32-bit color
+        - { name: "fDisableClip", value: 0 }  # Enable clipboard
+      ignore_errors: true
+
+    - name: Set Windows power plan to High Performance
+      ansible.windows.win_shell: |
+        powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
+      ignore_errors: true
+
+- name: Display completion information
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Show Windows Server ready message
+      ansible.builtin.debug:
+        msg:
+          - "Windows Server configuration complete!"
+          - ""
+          - "System Status:"
+          - "✓ Windows Server 2022 running"
+          - "✓ RDP access configured"
+          - "✓ Chocolatey package manager installed"
+          - "✓ Desktop optimized for RDP"
+          - ""
+          - "Manual Steps Required:"
+          - "1. Connect via RDP to complete Claude Desktop installation"
+          - "2. Follow instructions in desktop file: 'Claude Desktop - Manual Install Required.txt'"
+          - ""
+          - "RDP Connection:"
+          - "  Use your RDP client to connect"
+          - "  Username: Administrator"
+          - "  Password: [from playbooks/vars-secrets.yml]"
+          - ""
+          - "After Claude Desktop installation:"
+          - "  - Claude Desktop will be available in Start Menu"
+          - "  - Desktop shortcut can be created manually"
+          - "  - Application ready for immediate use"

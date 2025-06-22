@@ -1,0 +1,41 @@
+---
+# Provision AWS Windows Server for Claude Desktop Application
+# Main playbook that provisions Windows Server 2022 instance on AWS EC2
+
+- name: Load secrets for Windows Server provisioning
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - playbooks/vars-secrets.yml
+  tasks:
+    - name: Verify Windows admin password is configured
+      ansible.builtin.assert:
+        that:
+          - windows_admin_password is defined
+          - windows_admin_password | length > 0
+        fail_msg: "windows_admin_password must be set in playbooks/vars-secrets.yml"
+
+- name: Provision AWS Windows Server
+  import_playbook: provisioners/aws-windows.yml
+  vars:
+    # Load secrets from centralized location
+    windows_admin_password: "{{ windows_admin_password }}"
+
+- name: Display next steps
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Show configuration instructions
+      ansible.builtin.debug:
+        msg:
+          - "Windows Server provisioning complete!"
+          - ""
+          - "Next steps:"
+          - "1. Wait 2-3 minutes for Windows to fully boot"
+          - "2. Test RDP connection to verify access"
+          - "3. Run configuration: ansible-playbook -i inventories/aws/aws_ec2.yml configure-aws-windows.yml"
+          - ""
+          - "RDP Connection Details:"
+          - "  Server: {{ aws_windows_instance_ip | default('Check AWS Console') }}"
+          - "  Username: Administrator"
+          - "  Password: [from vault - playbooks/vars-secrets.yml]"
