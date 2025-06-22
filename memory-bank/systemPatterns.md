@@ -57,7 +57,7 @@ ansible_port: 5985
 - **AMI**: Windows Server 2022 with Desktop Experience (latest)
 - **Instance Type**: t3.large (4 vCPU, 8GB RAM)
 - **Storage**: 50GB GP3 EBS
-- **Region**: eu-north-1 (cost optimization)
+- **Region**: eu-north-1 (carbon footprint and latency optimization)
 
 #### Network Configuration
 - **Security Group**: Custom Windows security group

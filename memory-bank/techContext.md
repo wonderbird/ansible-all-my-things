@@ -13,7 +13,7 @@
   - **Linux**: Working implementation (Ubuntu 24.04 LTS)
   - **Windows**: Target implementation (Windows Server 2022)
   - **Authentication**: AWS credentials via environment variables
-  - **Regions**: eu-north-1 (cost-optimized)
+  - **Regions**: eu-north-1 (carbon footprint and latency optimization)
 
 ### Target Applications
 - **Primary**: Claude Desktop Application (Windows-only)

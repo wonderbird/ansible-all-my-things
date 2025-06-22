@@ -121,7 +121,7 @@
 ## Technical Specifications
 
 ### AWS Configuration
-- **Region**: eu-north-1 (cost optimization)
+- **Region**: eu-north-1 (carbon footprint and latency optimization)
 - **AMI**: Windows Server 2022 with Desktop Experience (latest)
 - **Instance Type**: t3.large (4 vCPU, 8GB RAM)
 - **Storage**: 50GB GP3 EBS

@@ -224,7 +224,7 @@
 - **Complete Cleanup**: Host key removal and resource termination
 
 ### AWS-Specific Considerations
-- **Region Selection**: eu-north-1 for cost optimization
+- **Region Selection**: eu-north-1 for carbon footprint and latency optimization
 - **AMI Selection**: Use latest Windows Server 2022 AMIs
 - **Instance Lifecycle**: Proper startup/shutdown handling for Windows
 - **Tagging Strategy**: Consistent resource tagging for management
