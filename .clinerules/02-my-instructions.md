@@ -16,20 +16,23 @@ If my instructions are unclear, ambiguous or inconsistent, I describe this situa
 
 ### Git branching strategy
 
-- Only the first commit is allowed on the `main` branch.
-- All commits after the first require a feature branch.
-- Feature branches are named `feat/feature-name`. The feature name MUST NOT contain suffixes like "-docs".
-- The commit resulting from merging a feature branch into `main` is tagged. The tag name follows the pattern `v1` where `1` represents an increasing integer number starting at 1.
+Before modifying any file, I ensure that I am on an appropriate branch. I ask the user if I am unsure.
 
-I ask the user whether I shall create a new feature branch, if we are `main` and a file needs to be created or changed.
+Only the first commit is allowed on the `main` branch.
+
+All commits after the first require a feature branch.
+
+Feature branches are named `feat/feature-name`. The feature name MUST NOT contain suffixes like "-docs".
+
+The commit resulting from merging a feature branch into `main` is tagged. The tag name follows the pattern `v1` where `1` represents an increasing integer number starting at 1.
 
 ### Commit conventions
 
-All commits must use one of the following conventional commit prefixes: `feat:`, `fix:`, `refactor:`, `docs:`. If the correct prefix is unclear, I ask the user.
+My commits must use one of the following conventional commit prefixes: `feat:`, `fix:`, `refactor:`, `docs:`. If the correct prefix is unclear, I ask the user.
 
 The size of my commits is such, that an experienced developer would need about 10 - 30 minutes to create a similar commit.
 
-Every commit is a small coherent and working increment.
+All my commits represent a small, coherent and working increment.
 
 The headline of a `feat:` commit explains the new capability of the project in short. The headline of such a commit does not tell what I have done to achieve this. Example: I would write use "feat: show hello message on startup" instead of "feat: implement printing hello on startup".
 
@@ -39,7 +42,7 @@ The brief description of a commit body shall not exceed 50 words.
 
 ### Git command line tool usage
 
-Use the `--no-pager` flag before git commands to ensure that no pager is never to display git history information. This ensures that your git commands don't block forever.
+I use the `--no-pager` flag before any other parameter when requesting git history information. This ensures that your git commands don't block forever.
 
 ## Code style
 
