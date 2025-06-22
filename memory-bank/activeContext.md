@@ -2,38 +2,54 @@
 
 ## Current Work Focus
 
-### Windows Server Development (Primary Objective)
-**Goal**: Extend AWS EC2 automation to support Windows Server instances for Claude Desktop Application access.
+### Windows Server MVP (URGENT - Primary Objective)
+**Goal**: Deliver minimal viable Windows Server with Claude Desktop access for immediate work needs.
 
-**Timeline**: Medium-term (1-3 months)
+**Timeline**: URGENT (2-3 days delivery)
+
+**Business Context**: User needs Claude Desktop access for current work projects - immediate delivery required.
 
 **Foundation**: AWS Linux implementation is working correctly with complete lifecycle management (provision → configure → destroy).
 
-## Next Steps for Windows Server Implementation
+**Cost Acceptance**: Higher costs (~$60/month) acceptable initially, optimize later.
 
-### Phase 1: Research & Planning (Current)
-- [ ] **Windows Server AMI Selection**: Research Windows Server 2022 AMIs with desktop experience
-- [ ] **Instance Type Requirements**: Determine minimum specs for Windows Server + Claude Desktop
-- [ ] **Cost Analysis**: Calculate Windows Server licensing + instance costs vs. target budget ($15/month)
-- [ ] **RDP Configuration**: Plan secure RDP access setup and firewall rules
+## Next Steps for Windows Server MVP
 
-### Phase 2: Windows Provisioning
-- [ ] **Create Windows Provisioner**: `provisioners/aws-windows.yml` based on existing `aws-ec2.yml`
+### Day 1: Windows Server Provisioning (Current)
+- [ ] **Create Windows Provisioner**: Copy `provisioners/aws-ec2.yml` → `provisioners/aws-windows.yml`
+- [ ] **Windows Server AMI**: Use Windows Server 2022 with Desktop Experience (latest AMI)
+- [ ] **Instance Configuration**: t3.large (4 vCPU, 8GB RAM) for reliability over cost
+- [ ] **Security Group**: RDP (port 3389) access from user's IP address
+- [ ] **Administrator Setup**: Simple password-based authentication
+
+### Day 2: Windows Configuration & Claude Desktop
+- [ ] **Install ansible.windows**: Add Windows Ansible collection support
 - [ ] **Windows Inventory**: Extend AWS inventory to handle Windows instances
-- [ ] **Security Groups**: Configure RDP (3389) access with IP restrictions
-- [ ] **User Management**: Windows Administrator account setup and configuration
+- [ ] **RDP Configuration**: Enable RDP and configure Windows Firewall
+- [ ] **Claude Desktop**: Manual installation via PowerShell (automated later)
+- [ ] **Basic User Setup**: Administrator account configuration
 
-### Phase 3: Windows Configuration
-- [ ] **Windows Ansible Modules**: Research `ansible.windows` collection requirements
-- [ ] **Desktop Environment**: Enable Windows Server desktop experience
-- [ ] **Claude Desktop Installation**: Automate Claude Desktop Application download and install
-- [ ] **RDP Optimization**: Configure RDP for optimal desktop application performance
+### Day 2-3: Integration & Testing
+- [ ] **Playbook Integration**: Create `provision-aws-windows.yml` and `destroy-aws-windows.yml`
+- [ ] **End-to-End Testing**: Complete provision → RDP access → Claude Desktop → destroy cycle
+- [ ] **Access Validation**: Verify Claude Desktop works for actual work tasks
+- [ ] **Basic Documentation**: Quick usage guide for Windows Server access
 
-### Phase 4: Integration & Testing
-- [ ] **End-to-End Testing**: Complete provision → configure → access → destroy cycle
-- [ ] **Performance Validation**: Verify Claude Desktop responsiveness via RDP
-- [ ] **Cost Validation**: Confirm actual costs align with budget targets
-- [ ] **Documentation**: Create Windows Server usage guide
+## MVP vs Long-term Approach
+
+### MVP Scope (Urgent - Next 2-3 Days)
+- **Goal**: Working Windows Server with Claude Desktop access
+- **Quality**: "Good enough" - reliable but not optimized
+- **Cost**: ~$60/month acceptable initially
+- **Features**: Basic RDP access, Claude Desktop working
+- **Documentation**: Minimal usage instructions
+
+### Future Optimization Track (After MVP)
+- **Cost Optimization**: Target $15/month through smaller instances and usage patterns
+- **Automated Installation**: Full Claude Desktop automation
+- **Advanced Security**: Comprehensive security configurations
+- **Performance Tuning**: RDP and application optimization
+- **Comprehensive Documentation**: Complete usage and troubleshooting guides
 
 ## Technical Considerations for Windows Server
 
@@ -79,12 +95,18 @@
 - **Network**: RDP access from user's IP address only
 - **Applications**: Claude Desktop Application + supporting software
 
-### Estimated Costs (Monthly)
-- **t3.medium**: ~$30/month (720 hours × $0.0416/hour)
+### MVP Cost Estimates (Monthly)
+- **t3.large**: ~$60/month (720 hours × $0.0832/hour)
 - **Windows License**: Included in AWS Windows AMI pricing
 - **Storage**: 50GB × $0.08/GB = $4/month
-- **Total**: ~$34/month if running continuously
+- **Total**: ~$64/month if running continuously
+- **Actual Usage**: On-demand usage for work sessions
+- **Cost Acceptance**: Higher costs acceptable for urgent delivery
+
+### Future Optimization Targets
+- **t3.medium**: ~$30/month (after optimization)
 - **Target Usage**: 10-15 hours/week = ~$15/month actual cost
+- **Timeline**: Optimize after MVP is working and immediate needs are met
 
 ### Security Model
 - **RDP Access**: Restricted to user's IP address

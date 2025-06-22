@@ -21,40 +21,52 @@
 - **Modular Architecture**: Clean separation of provisioning and configuration
 - **Documentation**: Comprehensive setup and usage instructions
 
-## Current Focus: Windows Server Development
+## Current Focus: Windows Server MVP (URGENT)
 
 ### Primary Objective
-**Goal**: Extend AWS EC2 automation to support Windows Server instances for Claude Desktop Application access.
+**Goal**: Deliver minimal viable Windows Server with Claude Desktop access for immediate work needs.
 
-**Timeline**: Medium-term (1-3 months)
+**Timeline**: URGENT (2-3 days delivery)
+
+**Business Driver**: User needs Claude Desktop access for current work projects - immediate delivery required.
 
 **Foundation**: AWS Linux implementation provides proven patterns for Windows extension.
 
-## Windows Server Implementation Status
+## Windows Server MVP Implementation Status
 
-### Phase 1: Research & Planning (Current)
-- [ ] **Windows Server AMI Selection**: Research Windows Server 2022 AMIs with desktop experience
-- [ ] **Instance Type Requirements**: Determine minimum specs for Windows Server + Claude Desktop
-- [ ] **Cost Analysis**: Calculate Windows Server licensing + instance costs vs. target budget ($15/month)
-- [ ] **RDP Configuration**: Plan secure RDP access setup and firewall rules
+### Day 1: Windows Server Provisioning (In Progress)
+- [ ] **Create Windows Provisioner**: Copy `provisioners/aws-ec2.yml` → `provisioners/aws-windows.yml`
+- [ ] **Windows Server AMI**: Use Windows Server 2022 with Desktop Experience (latest AMI)
+- [ ] **Instance Configuration**: t3.large (4 vCPU, 8GB RAM) for reliability over cost
+- [ ] **Security Group**: RDP (port 3389) access from user's IP address
+- [ ] **Administrator Setup**: Simple password-based authentication
 
-### Phase 2: Windows Provisioning (Planned)
-- [ ] **Create Windows Provisioner**: `provisioners/aws-windows.yml` based on existing `aws-ec2.yml`
+### Day 2: Windows Configuration & Claude Desktop
+- [ ] **Install ansible.windows**: Add Windows Ansible collection support
 - [ ] **Windows Inventory**: Extend AWS inventory to handle Windows instances
-- [ ] **Security Groups**: Configure RDP (3389) access with IP restrictions
-- [ ] **User Management**: Windows Administrator account setup and configuration
+- [ ] **RDP Configuration**: Enable RDP and configure Windows Firewall
+- [ ] **Claude Desktop**: Manual installation via PowerShell (automated later)
+- [ ] **Basic User Setup**: Administrator account configuration
 
-### Phase 3: Windows Configuration (Planned)
-- [ ] **Windows Ansible Modules**: Implement `ansible.windows` collection usage
-- [ ] **Desktop Environment**: Enable Windows Server desktop experience
-- [ ] **Claude Desktop Installation**: Automate Claude Desktop Application download and install
-- [ ] **RDP Optimization**: Configure RDP for optimal desktop application performance
+### Day 2-3: Integration & Testing
+- [ ] **Playbook Integration**: Create `provision-aws-windows.yml` and `destroy-aws-windows.yml`
+- [ ] **End-to-End Testing**: Complete provision → RDP access → Claude Desktop → destroy cycle
+- [ ] **Access Validation**: Verify Claude Desktop works for actual work tasks
+- [ ] **Basic Documentation**: Quick usage guide for Windows Server access
 
-### Phase 4: Integration & Testing (Planned)
-- [ ] **End-to-End Testing**: Complete provision → configure → access → destroy cycle
-- [ ] **Performance Validation**: Verify Claude Desktop responsiveness via RDP
-- [ ] **Cost Validation**: Confirm actual costs align with budget targets
-- [ ] **Documentation**: Create Windows Server usage guide
+## Dual-Track Approach
+
+### Track 1: MVP (Urgent - Next 2-3 Days)
+**Status**: In Progress
+**Goal**: Working Windows Server with Claude Desktop access
+**Quality**: "Good enough" - reliable but not optimized
+**Cost**: ~$60/month acceptable initially
+
+### Track 2: Long-term Optimization (After MVP)
+**Status**: Planned for future
+**Goal**: Cost-optimized, fully automated Windows Server solution
+**Quality**: Production-ready with comprehensive automation
+**Cost**: Target $15/month through optimization
 
 ## Technical Foundation Ready for Windows
 
@@ -132,18 +144,28 @@
 - Efficient resource utilization patterns established
 - **Next**: Validate Windows Server cost targets
 
-## Next Milestone: Windows Server Research Phase
+## Next Milestone: Windows Server MVP Delivery
 
-### Immediate Priorities
-1. **AMI Research**: Identify optimal Windows Server 2022 AMI with desktop experience
-2. **Cost Validation**: Confirm actual AWS Windows Server costs vs. budget
-3. **Technical Requirements**: Research Claude Desktop installation methods
-4. **RDP Configuration**: Plan secure remote desktop access patterns
+### Immediate Priorities (Next 2-3 Days)
+1. **Windows Provisioner**: Create working Windows Server provisioning automation
+2. **RDP Access**: Establish reliable remote desktop connectivity
+3. **Claude Desktop**: Get Claude Desktop application working via RDP
+4. **Basic Integration**: Integrate with existing playbook structure
 
-### Success Criteria for Research Phase
-- Clear understanding of Windows Server AMI options and costs
-- Confirmed technical approach for Claude Desktop installation
-- Validated cost model aligns with $15/month target
-- Detailed implementation plan for Windows provisioning
+### Success Criteria for MVP
+- Single command provisions Windows Server with Claude Desktop
+- Reliable RDP access for work sessions
+- Claude Desktop functional for actual work tasks
+- Complete destroy cycle works correctly
+- Basic usage documentation available
 
-The project has successfully established a solid foundation with working AWS Linux automation. The Windows Server extension represents the next major milestone in achieving cross-platform application access goals.
+### Future Optimization Milestone (After MVP)
+**Timeline**: 1-2 months after MVP delivery
+**Goal**: Cost-optimized, fully automated solution
+**Success Criteria**:
+- Costs reduced to ~$15/month target
+- Fully automated Claude Desktop installation
+- Advanced security configurations
+- Comprehensive documentation and troubleshooting guides
+
+The project has successfully established a solid foundation with working AWS Linux automation. The urgent Windows Server MVP represents the immediate milestone, followed by long-term optimization to achieve the original cross-platform application access goals.

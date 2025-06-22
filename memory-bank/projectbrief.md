@@ -13,12 +13,23 @@ Automate complete lifecycle of development environments across cloud providers, 
 
 ## Key Requirements
 
-### Windows Server Development (Primary Focus)
+### Windows Server Development (Dual-Track Approach)
+
+#### Track 1: MVP (URGENT - Primary Focus)
 - **Target Application**: Claude Desktop Application (Windows-only)
-- **Platform**: AWS EC2 Windows Server instances
+- **Platform**: AWS EC2 Windows Server instances (t3.large)
 - **Access Method**: RDP for desktop environment interaction
 - **Foundation**: Extend existing AWS Linux implementation
-- **Timeline**: Medium-term (1-3 months)
+- **Timeline**: URGENT (2-3 days delivery)
+- **Business Driver**: Immediate Claude Desktop access for current work projects
+- **Cost Acceptance**: ~$60/month initially acceptable
+
+#### Track 2: Long-term Optimization (Future)
+- **Goal**: Cost-optimized, fully automated Windows Server solution
+- **Timeline**: 1-2 months after MVP delivery
+- **Target Cost**: $15/month for typical usage patterns
+- **Quality**: Production-ready with comprehensive automation
+- **Features**: Advanced security, performance tuning, full automation
 
 ### Multi-Provider Foundation (Established)
 - **AWS EC2**: Working Linux implementation, target for Windows Server
