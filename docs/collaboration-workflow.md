@@ -53,13 +53,13 @@ Then start mobbing.
 export REPO=ansible-all-my-things
 
 # Set up a git user
-git config --global user.name "Stefan Boos + Claude 4-20250514 Sonnet"; \
+git config --global user.name "Stefan Boos + Claude 4-20250514 Sonnet"
 git config --global user.email "kontakt@boos.systems"
 
 # Clone the bare repository into a working repository
 # and use the same name for the remote as on the local computer ("lorien").
 # This allows using the same .mob configuration on both computers
-mkdir ~/Documents/Cline
+mkdir -p ~/Documents/Cline
 cd ~/Documents/Cline
 git clone --origin lorien ~/Documents/$REPO.git
 ```
