@@ -51,6 +51,25 @@ ansible_port: 5985
     state: present
 ```
 
+### Technical Specifications for Windows Server MVP
+
+#### Instance Configuration
+- **AMI**: Windows Server 2022 with Desktop Experience (latest)
+- **Instance Type**: t3.large (4 vCPU, 8GB RAM)
+- **Storage**: 50GB GP3 EBS
+- **Region**: eu-north-1 (cost optimization)
+
+#### Network Configuration
+- **Security Group**: Custom Windows security group
+- **RDP Access**: Port 3389 from user's IP only
+- **WinRM Access**: Ports 5985/5986 for Ansible
+- **Outbound**: Full internet access for downloads
+
+#### Authentication
+- **Method**: Administrator password (stored in Ansible Vault)
+- **RDP**: Standard Windows RDP client
+- **Ansible**: WinRM with password authentication
+
 ## Component Relationships
 
 ### Windows Server Provisioning Flow

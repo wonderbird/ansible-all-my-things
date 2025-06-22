@@ -13,27 +13,128 @@
 
 **Cost Acceptance**: Higher costs (~$60/month) acceptable initially, optimize later.
 
-## Next Steps for Windows Server MVP
+## Detailed Development Tasks for Windows Server MVP
 
-### Day 1: Windows Server Provisioning (Current)
-- [ ] **Create Windows Provisioner**: Copy `provisioners/aws-ec2.yml` → `provisioners/aws-windows.yml`
-- [ ] **Windows Server AMI**: Use Windows Server 2022 with Desktop Experience (latest AMI)
-- [ ] **Instance Configuration**: t3.large (4 vCPU, 8GB RAM) for reliability over cost
-- [ ] **Security Group**: RDP (port 3389) access from user's IP address
-- [ ] **Administrator Setup**: Simple password-based authentication
+### Day 1: Windows Server Provisioning
+
+#### Task 1.1: Create Windows Provisioner
+- **File**: `provisioners/aws-windows.yml`
+- **Approach**: Copy existing `provisioners/aws-ec2.yml` and modify for Windows
+- **Key Changes**:
+  - Windows Server 2022 AMI with Desktop Experience
+  - t3.large instance type (4 vCPU, 8GB RAM)
+  - Windows-specific security group with RDP (port 3389)
+  - Administrator password setup
+- **Acceptance Criteria**: 
+  - Provisioner creates Windows Server instance
+  - Instance boots successfully with desktop experience
+  - RDP port accessible from user's IP
+- **Estimated Effort**: 2-3 hours
+
+#### Task 1.2: Windows Security Group Configuration
+- **File**: Update security group configuration in provisioner
+- **Requirements**:
+  - RDP (port 3389) access from user's IP address only
+  - Windows Remote Management (WinRM) for Ansible (ports 5985/5986)
+  - Outbound internet access for downloads
+- **Acceptance Criteria**:
+  - RDP connection possible from user's machine
+  - Security group restricts access appropriately
+- **Estimated Effort**: 1 hour
+
+#### Task 1.3: Administrator Account Setup
+- **Approach**: Simple password-based authentication for MVP
+- **Requirements**:
+  - Set Administrator password via user data script
+  - Enable RDP for Administrator account
+  - Configure Windows for remote access
+- **Acceptance Criteria**:
+  - Can connect via RDP using Administrator credentials
+  - Desktop environment accessible
+- **Estimated Effort**: 1-2 hours
 
 ### Day 2: Windows Configuration & Claude Desktop
-- [ ] **Install ansible.windows**: Add Windows Ansible collection support
-- [ ] **Windows Inventory**: Extend AWS inventory to handle Windows instances
-- [ ] **RDP Configuration**: Enable RDP and configure Windows Firewall
-- [ ] **Claude Desktop**: Manual installation via PowerShell (automated later)
-- [ ] **Basic User Setup**: Administrator account configuration
+
+#### Task 2.1: Install ansible.windows Collection
+- **Command**: `ansible-galaxy collection install ansible.windows`
+- **Purpose**: Enable Windows-specific Ansible modules
+- **Acceptance Criteria**:
+  - Collection installed successfully
+  - Windows modules available for use
+- **Estimated Effort**: 30 minutes
+
+#### Task 2.2: Extend AWS Inventory for Windows
+- **File**: Update `inventories/aws/aws_ec2.yml`
+- **Requirements**:
+  - Include Windows instances in inventory
+  - Configure WinRM connection settings
+  - Set appropriate connection variables
+- **Acceptance Criteria**:
+  - Windows instances appear in Ansible inventory
+  - Ansible can connect to Windows instances via WinRM
+- **Estimated Effort**: 1-2 hours
+
+#### Task 2.3: Basic Windows Configuration Playbook
+- **File**: Create `playbooks/setup-windows-basics.yml`
+- **Requirements**:
+  - Configure Windows Firewall for RDP
+  - Enable necessary Windows features
+  - Basic system configuration
+- **Acceptance Criteria**:
+  - RDP access reliable and stable
+  - Windows configured for desktop application use
+- **Estimated Effort**: 2-3 hours
+
+#### Task 2.4: Claude Desktop Installation (Manual)
+- **Approach**: PowerShell script for manual installation
+- **Requirements**:
+  - Download Claude Desktop installer
+  - Install application silently
+  - Configure for immediate use
+- **Acceptance Criteria**:
+  - Claude Desktop launches successfully
+  - Application functional for work tasks
+- **Estimated Effort**: 1-2 hours
 
 ### Day 2-3: Integration & Testing
-- [ ] **Playbook Integration**: Create `provision-aws-windows.yml` and `destroy-aws-windows.yml`
-- [ ] **End-to-End Testing**: Complete provision → RDP access → Claude Desktop → destroy cycle
-- [ ] **Access Validation**: Verify Claude Desktop works for actual work tasks
-- [ ] **Basic Documentation**: Quick usage guide for Windows Server access
+
+#### Task 3.1: Create Main Playbooks
+- **Files**: 
+  - `provision-aws-windows.yml`
+  - `destroy-aws-windows.yml`
+- **Requirements**:
+  - Follow same patterns as Linux playbooks
+  - Include Windows-specific provisioning and configuration
+  - Complete lifecycle management
+- **Acceptance Criteria**:
+  - Single command provisions complete Windows environment
+  - Single command destroys all resources
+- **Estimated Effort**: 2-3 hours
+
+#### Task 3.2: End-to-End Testing
+- **Process**:
+  1. Run provision playbook
+  2. Connect via RDP
+  3. Launch Claude Desktop
+  4. Perform actual work tasks
+  5. Run destroy playbook
+- **Acceptance Criteria**:
+  - Complete cycle works reliably
+  - Claude Desktop suitable for real work
+  - All resources cleaned up properly
+- **Estimated Effort**: 2-3 hours
+
+#### Task 3.3: Basic Documentation
+- **File**: `docs/windows-server-mvp-usage.md`
+- **Content**:
+  - Quick start guide
+  - RDP connection instructions
+  - Basic troubleshooting
+  - Cost warnings and management
+- **Acceptance Criteria**:
+  - User can follow documentation to use Windows Server
+  - Common issues addressed
+- **Estimated Effort**: 1-2 hours
 
 ## MVP vs Long-term Approach
 

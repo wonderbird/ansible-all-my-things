@@ -35,24 +35,40 @@
 ## Windows Server MVP Implementation Status
 
 ### Day 1: Windows Server Provisioning (In Progress)
-- [ ] **Create Windows Provisioner**: Copy `provisioners/aws-ec2.yml` → `provisioners/aws-windows.yml`
-- [ ] **Windows Server AMI**: Use Windows Server 2022 with Desktop Experience (latest AMI)
-- [ ] **Instance Configuration**: t3.large (4 vCPU, 8GB RAM) for reliability over cost
-- [ ] **Security Group**: RDP (port 3389) access from user's IP address
-- [ ] **Administrator Setup**: Simple password-based authentication
+- [ ] **Task 1.1**: Create Windows Provisioner (`provisioners/aws-windows.yml`)
+- [ ] **Task 1.2**: Windows Security Group Configuration (RDP + WinRM)
+- [ ] **Task 1.3**: Administrator Account Setup
 
 ### Day 2: Windows Configuration & Claude Desktop
-- [ ] **Install ansible.windows**: Add Windows Ansible collection support
-- [ ] **Windows Inventory**: Extend AWS inventory to handle Windows instances
-- [ ] **RDP Configuration**: Enable RDP and configure Windows Firewall
-- [ ] **Claude Desktop**: Manual installation via PowerShell (automated later)
-- [ ] **Basic User Setup**: Administrator account configuration
+- [ ] **Task 2.1**: Install ansible.windows Collection
+- [ ] **Task 2.2**: Extend AWS Inventory for Windows
+- [ ] **Task 2.3**: Basic Windows Configuration Playbook
+- [ ] **Task 2.4**: Claude Desktop Installation (Manual)
 
 ### Day 2-3: Integration & Testing
-- [ ] **Playbook Integration**: Create `provision-aws-windows.yml` and `destroy-aws-windows.yml`
-- [ ] **End-to-End Testing**: Complete provision → RDP access → Claude Desktop → destroy cycle
-- [ ] **Access Validation**: Verify Claude Desktop works for actual work tasks
-- [ ] **Basic Documentation**: Quick usage guide for Windows Server access
+- [ ] **Task 3.1**: Create Main Playbooks (`provision-aws-windows.yml`, `destroy-aws-windows.yml`)
+- [ ] **Task 3.2**: End-to-End Testing
+- [ ] **Task 3.3**: Basic Documentation (`docs/windows-server-mvp-usage.md`)
+
+## Daily Progress Tracking
+
+### Day 1 Progress
+- [ ] Windows provisioner created
+- [ ] Security group configured
+- [ ] Administrator account working
+- [ ] RDP access established
+
+### Day 2 Progress
+- [ ] ansible.windows collection installed
+- [ ] Windows inventory configured
+- [ ] Basic Windows configuration complete
+- [ ] Claude Desktop installed and working
+
+### Day 3 Progress
+- [ ] Main playbooks created
+- [ ] End-to-end testing complete
+- [ ] Basic documentation written
+- [ ] MVP ready for production use
 
 ## Dual-Track Approach
 

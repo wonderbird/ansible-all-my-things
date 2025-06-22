@@ -88,9 +88,10 @@ ansible_port: 5985
 ```
 
 ### Cost Constraints
-- **Target Budget**: ~$15/month for typical usage
+- **MVP Budget**: ~$60/month acceptable initially (t3.large for reliability)
+- **Target Budget**: ~$15/month for typical usage (after optimization)
 - **Usage Pattern**: 10-15 hours/week (not continuous)
-- **Instance Costs**: t3.medium ~$0.0416/hour
+- **Instance Costs**: t3.large ~$0.0832/hour (MVP), t3.medium ~$0.0416/hour (optimized)
 - **Storage Costs**: 50GB GP3 ~$4/month
 
 ## Tool Usage Patterns
