@@ -15,6 +15,8 @@ Next, execute the following commands to copy the working repository to the
 remote server:
 
 ```shell
+export IPV4_ADDRESS=$(tart ip lorien); echo $IPV4_ADDRESS
+
 # Clone the working repository into a bare repository
 export REPO=ansible-all-my-things
 git clone --bare . ~/source/$REPO.git
@@ -28,6 +30,7 @@ rsync -avz --stats --progress --delete --delete-during ~/source/$REPO.git galadr
 rm -rf ~/source/$REPO.git
 
 # In my working repository, set the bare remote repository as "remote"
+git remote remove lorien
 git remote add lorien galadriel@$IPV4_ADDRESS:Documents/$REPO.git
 
 # Get the tracking branch for the remote repository
