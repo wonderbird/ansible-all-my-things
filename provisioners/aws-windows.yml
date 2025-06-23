@@ -1,6 +1,6 @@
 ---
 # AWS Windows Server Provisioner
-# Creates Windows Server 2022 instance for Claude Desktop Application access
+# Creates Windows Server 2025 instance for Claude Desktop Application access
 
 - name: Create AWS Windows Server Development Environment
   hosts: localhost
@@ -9,7 +9,7 @@
     # Windows-specific configuration
     aws_region: "{{ aws_default_region | default('eu-north-1') }}"
     aws_instance_type: "{{ aws_windows_instance_type | default('t3.large') }}"  # Larger for Windows GUI
-    aws_ami_id: "{{ aws_windows_ami_id | default('ami-0c02fb55956c7d316') }}"  # Windows Server 2022 Base in eu-north-1
+    aws_ami_id: "{{ aws_windows_ami_id | default('ami-01998fe5b868df6e3') }}"  # Windows Server 2025 Base in eu-north-1
     aws_key_name: "{{ aws_ssh_key_name }}"
     aws_security_group_name: "ansible-windows-sg"
     aws_instance_name: "lorien-windows"
@@ -42,6 +42,11 @@
         description: "Security group for Windows Server development environment"
         region: "{{ aws_region }}"
         rules:
+          - proto: tcp
+            ports:
+              - 22    # SSH
+            cidr_ip: "{{ current_public_ip }}/32"
+            rule_desc: "SSH access from current IP"
           - proto: tcp
             ports:
               - 3389  # RDP
@@ -97,6 +102,18 @@
 
           # Restart WinRM service
           Restart-Service winrm
+
+          # Configure OpenSSH Server (pre-installed in Windows Server 2025)
+          # Enable and start OpenSSH Server service
+          Set-Service -Name sshd -StartupType 'Automatic'
+          Start-Service sshd
+
+          # Configure Windows Firewall for SSH
+          netsh advfirewall firewall add rule name="OpenSSH-Server-In-TCP" dir=in localport=22 protocol=TCP action=allow
+
+          # Configure SSH for Administrator access
+          # Set default shell to PowerShell for SSH sessions
+          New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force
 
           # Create signal file to indicate setup completion
           New-Item -Path "C:\ansible-setup-complete.txt" -ItemType File -Force
@@ -164,6 +181,15 @@
         state: started
       when: ec2_instance.instances | length > 0
 
+    - name: Wait for SSH to become available
+      ansible.builtin.wait_for:
+        host: "{{ ec2_instance.instances[0].public_ip_address }}"
+        port: 22
+        delay: 30
+        timeout: 600
+        state: started
+      when: ec2_instance.instances | length > 0
+
     - name: Display Windows Server instance information
       ansible.builtin.debug:
         msg:
@@ -172,6 +198,7 @@
           - "Public IP: {{ ec2_instance.instances[0].public_ip_address }}"
           - "Instance Type: {{ ec2_instance.instances[0].instance_type }}"
           - "RDP Connection: {{ ec2_instance.instances[0].public_ip_address }}:3389"
+          - "SSH Connection: {{ ec2_instance.instances[0].public_ip_address }}:22"
           - "Username: Administrator"
           - "Password: {{ windows_admin_password }}"
           - ""
@@ -183,6 +210,11 @@
           - "  - Server: {{ ec2_instance.instances[0].public_ip_address }}"
           - "  - Username: Administrator"
           - "  - Password: [from vault]"
+          - ""
+          - "To connect via SSH:"
+          - "  - ssh Administrator@{{ ec2_instance.instances[0].public_ip_address }}"
+          - "  - Password: [from vault]"
+          - "  - Default shell: PowerShell"
       when: ec2_instance.instances | length > 0
 
     - name: Save Windows instance information for inventory
