@@ -5,6 +5,10 @@
 - name: Create AWS Windows Server Development Environment
   hosts: localhost
   gather_facts: true
+
+  vars_files:
+    - ../playbooks/vars-secrets.yml
+
   vars:
     # Windows-specific configuration
     aws_region: "{{ aws_default_region | default('eu-north-1') }}"
@@ -13,8 +17,6 @@
     aws_key_name: "{{ aws_ssh_key_name }}"
     aws_security_group_name: "ansible-windows-sg"
     aws_instance_name: "lorien-windows"
-    # Windows Administrator password (stored in centralized Ansible Vault)
-    windows_admin_password: "{{ windows_admin_password }}"
 
   tasks:
     - name: Ensure required variables are defined
