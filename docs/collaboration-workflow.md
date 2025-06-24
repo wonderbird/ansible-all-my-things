@@ -17,25 +17,17 @@ remote server:
 ```shell
 export IPV4_ADDRESS=$(tart ip lorien); echo $IPV4_ADDRESS
 
-# Clone the working repository into a bare repository
-export REPO=ansible-all-my-things
-git clone --bare . ~/source/$REPO.git
+# Transfer a repository to the remote
+export LOCAL_REPO=$HOME/source/ansible-all-my-things
+export REMOTE_USER=galadriel
+export REMOTE_BARE_REPO_PARENT=/home/$REMOTE_USER/Documents
+export REMOTE_CHECKOUT_PARENT=$REMOTE_BARE_REPO_PARENT/Cline
+export REMOTE_NAME=lorien
 
-# Use ansible with rsync to copy the bare repository to the server
-# NOTE: If nothing happens for some 10 seconds then probably the IPV4_ADDRESS
-#       variable is empty. Check the ./obtain-remote-ip-address.md again.
-rsync -avz --stats --progress --delete --delete-during ~/source/$REPO.git galadriel@$IPV4_ADDRESS:Documents/
-
-# Delete the bare repository on the desktop computer
-rm -rf ~/source/$REPO.git
-
-# In my working repository, set the bare remote repository as "remote"
-git remote remove lorien
-git remote add lorien galadriel@$IPV4_ADDRESS:Documents/$REPO.git
-
-# Get the tracking branch for the remote repository
-git pull lorien main
+./scripts/create-remote-repository.sh "$LOCAL_REPO" $REMOTE_USER $IPV4_ADDRESS "$REMOTE_BARE_REPO_PARENT" "$REMOTE_CHECKOUT_PARENT" $REMOTE_NAME
 ```
+
+## Initialize mob.sh
 
 If the `.mob` configuration does not exist, then run the following setup:
 
@@ -52,37 +44,30 @@ Then start mobbing.
 
 ## On the remote computer: Make changes to the repository
 
-```shell
-export REPO=ansible-all-my-things
-
-# Set up a git user
-git config --global user.name "Stefan Boos + Claude 4-20250514 Sonnet"
-git config --global user.email "kontakt@boos.systems"
-
-# Clone the bare repository into a working repository
-# and use the same name for the remote as on the local computer ("lorien").
-# This allows using the same .mob configuration on both computers
-mkdir -p ~/Documents/Cline
-cd ~/Documents/Cline
-git clone --origin lorien ~/Documents/$REPO.git
-```
-
-Now open the cloned folder in Visual Studio Code.
-
-If you want to pair with the coding assistant, then you can use the `mob` command:
+Depending on which persona is driving the development, I set my git user name
+and email as follows:
 
 ```shell
-# Checkout the mob branch
-mob start
+export SELF="Stefan Boos" \
+export MODEL="Claude 4-20250514 Sonnet" \
+export EMAIL=<Email address registered with my GitHub account>
 
-# Alternative: use a git checkout for the mob branch
-git switch mob/main
+git config --global user.email "$EMAIL"
+
+# If I am driving the development, e.g. using the model's code completion
+# or having a conversation with the model to craft code
+git config --global user.name "$SELF + $MODEL"
+
+# If the Model is following an implementation plan
+git config --global user.name "$MODEL (+ $SELF)"
+
+# Reset: Usually I am coding alone
+git config --global user.name "$SELF"
 ```
 
-Now make some changes.
-
-Then use the [mob tool](https://mob.sh) or commit and push to the bare
-repository.
+The script used in the previous section has already created a clone of the
+repository in the given working directory. Open the cloned folder in Visual
+Studio Code and make some changes.
 
 ## On your desktop computer: Bring the changes from the remote server back
 
@@ -90,23 +75,25 @@ In your working directory, use the [mob tool](https://mob.sh) or pull the
 changes from the remote bare repository `lorien`.
 
 ```shell
+# On the remote
 git push lorien
 
+# Locally
 git pull lorien main
 ```
 
 ## Cleanup
 
-```shell
-# Remove the "remote" from the local repository
-git remote remove lorien
+Make sure that the environment variables are set as described above.
 
-# Delete repositories on the remote server
-rm -rf ~/Documents/$REPO.git
-rm -rf ~/Documents/$REPO
+Remove the remote repositories and the remote name from the local repository:
+
+```shell
+./scripts/delete-remote-repository.sh "$LOCAL_REPO" $REMOTE_USER $IPV4_ADDRESS "$REMOTE_BARE_REPO_PARENT" "$REMOTE_CHECKOUT_PARENT" $REMOTE_NAME
 ```
 
-As an alternative to cleaning up on the remote you could simply destroy it.
+As an alternative to cleaning up on the remote you could simply destroy the
+entire virtual machine.
 
 ```shell
 # Backup your configuration
