@@ -111,14 +111,13 @@ Create the EC2 instance using the following command, specifying your AWS SSH key
 
 ```shell
 # Assuming that your key pair is named stefan@fangorn
-ansible-playbook --vault-password-file ansible-vault-password.txt \
-  -e "aws_ssh_key_name=stefan@fangorn" \
-  ./provision-aws.yml
+ansible-playbook --vault-password-file ansible-vault-password.txt --extra-vars "aws_ssh_key_name=stefan@fangorn" ./provision-aws.yml
 ```
 
 Replace `stefan@fangorn` with the name of your AWS key pair (without the `.pem` extension).
 
 The provisioner will:
+
 - Automatically detect your current public IP for security group access
 - Create a security group allowing SSH access from your IP only
 - Launch a t3.micro Ubuntu 24.04 LTS instance (free tier eligible)
@@ -136,7 +135,7 @@ Once provisioning is complete, verify the setup:
 ansible-inventory -i inventories/aws/aws_ec2.yml --graph
 
 # Check whether the server can be reached
-ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' -e "ansible_user=ubuntu aws_ssh_key_name=stefan@fangorn"
+ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' --extra-vars "ansible_user=ubuntu aws_ssh_key_name=stefan@fangorn"
 ```
 
 You can also SSH directly to the instance:

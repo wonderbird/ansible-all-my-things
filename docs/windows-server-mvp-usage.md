@@ -41,7 +41,30 @@ ansible-playbook provision-aws-windows.yml -e "aws_ssh_key_name=stefan@fangorn" 
 
 **Expected time**: 15-20 minutes (Windows takes longer to boot than Linux)
 
-### 2. Configure Windows Server
+### 2. Verify the Setup
+
+Once provisioning is complete, verify the setup:
+
+```shell
+# Show the inventory
+ansible-inventory -i inventories/aws/aws_ec2.yml --graph
+
+# Check whether the server can be reached
+ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' --extra-vars "ansible_user=ubuntu aws_ssh_key_name=stefan@fangorn"
+```
+
+You can also SSH directly to the instance:
+
+```shell
+export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=lorien" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text); echo $IPV4_ADDRESS
+
+ssh -i ~/.ssh/stefan@fangorn.pem ubuntu@$IPV4_ADDRESS
+```
+
+> [!IMPORTANT]
+> The security group is configured to allow SSH access only from your current public IP address. If your IP changes, you may need to update the security group rules in the AWS console.
+
+### 3. Configure Windows Server
 
 ```bash
 # Configure Windows Server and prepare for Claude Desktop
@@ -50,7 +73,7 @@ ansible-playbook -i inventories/aws/aws_ec2.yml configure-aws-windows.yml
 
 **Expected time**: 5-10 minutes
 
-### 3. Connect via RDP
+### 4. Connect via RDP
 
 Use any RDP client to connect:
 
@@ -62,6 +85,7 @@ Use any RDP client to connect:
 #### RDP Client Options
 
 **Linux (Remmina)**:
+
 ```bash
 # Install if not available
 sudo apt install remmina remmina-plugin-rdp
@@ -72,17 +96,19 @@ remmina
 ```
 
 **macOS (Microsoft Remote Desktop)**:
+
 - Download from Mac App Store
 - Add PC with server IP
 - Username: Administrator, password from vault
 
 **Windows (Built-in)**:
+
 ```cmd
 mstsc
 # Enter server IP, username: Administrator, password from vault
 ```
 
-### 4. Install Claude Desktop (Manual Step)
+### 5. Install Claude Desktop (Manual Step)
 
 Once connected via RDP:
 
@@ -92,13 +118,13 @@ Once connected via RDP:
 4. Run the installer
 5. Claude Desktop will be available in Start Menu
 
-### 5. Use Claude Desktop
+### 6. Use Claude Desktop
 
 - Launch Claude Desktop from Start Menu
 - Sign in with your Claude account
 - Application is ready for use
 
-### 6. Destroy Environment (Important!)
+### 7. Destroy Environment (Important!)
 
 When finished, destroy the environment to stop costs:
 
@@ -111,11 +137,13 @@ ansible-playbook destroy-aws-windows.yml
 ## Cost Information
 
 ### MVP Costs (t3.large)
+
 - **Instance**: ~$0.0832/hour
 - **Storage**: ~$4/month (50GB)
 - **Total if running 24/7**: ~$64/month
 
 ### Typical Usage Costs
+
 - **2-3 hour session**: ~$0.25
 - **10-15 hours/week**: ~$15/month
 - **Always destroy when not in use**
