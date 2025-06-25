@@ -29,7 +29,7 @@ ansible-playbook destroy-aws-windows.yml
 ```
 
 ### Primary Workflow: Claude Desktop Access
-1. **Provision**: Windows Server 2022 instance with desktop environment (15-20 minutes)
+1. **Provision**: Windows Server 2025 instance with desktop environment (15-20 minutes)
 2. **Configure**: Automatic Claude Desktop Application installation and setup
 3. **Access**: RDP connection to Windows desktop environment
 4. **Use**: Claude Desktop Application available for immediate use

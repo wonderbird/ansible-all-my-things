@@ -11,7 +11,7 @@
 ### Cloud Provider & Platform
 - **AWS EC2**: Primary cloud provider for both Linux and Windows
   - **Linux**: Working implementation (Ubuntu 24.04 LTS)
-  - **Windows**: Target implementation (Windows Server 2022)
+  - **Windows**: Target implementation (Windows Server 2025)
   - **Authentication**: AWS credentials via environment variables
   - **Regions**: eu-north-1 (carbon footprint and latency optimization)
 
@@ -71,7 +71,7 @@ ansible-all-my-things/
 - **Minimum Instance**: t3.medium (2 vCPU, 4GB RAM for GUI)
 - **Storage**: 50GB GP3 EBS (Windows Server space requirements)
 - **Network**: RDP (3389) access with IP restrictions
-- **AMI**: Windows Server 2022 with Desktop Experience
+- **AMI**: Windows Server 2025 with Desktop Experience
 
 ### Ansible Windows Support
 ```yaml
@@ -197,7 +197,7 @@ Monthly cost: ~$15 (vs $34 continuous)
 ## Windows Server Implementation Plan
 
 ### Phase 1: Infrastructure (Current Priority)
-- Research Windows Server 2022 AMI options
+- Research Windows Server 2025 AMI options
 - Determine optimal instance type and storage configuration
 - Plan RDP security group and access patterns
 - Calculate actual costs vs. budget targets

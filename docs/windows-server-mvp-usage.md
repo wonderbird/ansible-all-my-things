@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide covers the Windows Server MVP implementation for accessing Claude Desktop Application via AWS EC2 Windows Server 2022 instances.
+This guide covers the Windows Server MVP implementation for accessing Claude Desktop Application via AWS EC2 Windows Server 2025 instances.
 
 ## Prerequisites
 
@@ -35,7 +35,7 @@ ansible-vault edit --vault-password-file ./ansible-vault-password.txt ./playbook
 ### 1. Provision Windows Server
 
 ```bash
-# Provision Windows Server 2022 with t3.large instance
+# Provision Windows Server 2025 with t3.large instance
 ansible-playbook provision-aws-windows.yml -e "aws_ssh_key_name=stefan@fangorn" --vault-password-file ansible-vault-password.txt -vvv
 ```
 

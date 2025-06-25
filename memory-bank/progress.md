@@ -102,7 +102,7 @@
 ## Windows Server Planning Details
 
 ### Target Configuration
-- **OS**: Windows Server 2022 with Desktop Experience
+- **OS**: Windows Server 2025 with Desktop Experience
 - **Instance Type**: t3.medium (2 vCPU, 4GB RAM minimum for GUI)
 - **Storage**: 50GB GP3 EBS (Windows Server space requirements)
 - **Network**: RDP access from user's IP address only

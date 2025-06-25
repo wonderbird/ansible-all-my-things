@@ -11,7 +11,7 @@
 
 **Foundation**: Successfully extended AWS Linux implementation to Windows Server with complete lifecycle management.
 
-**Implementation**: Complete Windows Server 2022 automation with RDP access and Claude Desktop workflow.
+**Implementation**: Complete Windows Server 2025 automation with RDP access and Claude Desktop workflow.
 
 ## Detailed Development Tasks for Windows Server MVP
 
@@ -21,7 +21,7 @@
 - **File**: `provisioners/aws-windows.yml`
 - **Approach**: Copy existing `provisioners/aws-ec2.yml` and modify for Windows
 - **Key Changes**:
-  - Windows Server 2022 AMI with Desktop Experience
+  - Windows Server 2025 AMI with Desktop Experience
   - t3.large instance type (4 vCPU, 8GB RAM)
   - Windows-specific security group with RDP (port 3389)
   - Administrator password setup
@@ -190,7 +190,7 @@
 ## Windows Server Planning Details
 
 ### Target Configuration
-- **OS**: Windows Server 2022 with Desktop Experience
+- **OS**: Windows Server 2025 with Desktop Experience
 - **Instance Type**: t3.medium (2 vCPU, 4GB RAM minimum for GUI)
 - **Storage**: 50GB GP3 EBS (Windows Server space requirements)
 - **Network**: RDP access from user's IP address only
@@ -225,7 +225,7 @@
 
 ### AWS-Specific Considerations
 - **Region Selection**: eu-north-1 for carbon footprint and latency optimization
-- **AMI Selection**: Use latest Windows Server 2022 AMIs
+- **AMI Selection**: Use latest Windows Server 2025 AMIs
 - **Instance Lifecycle**: Proper startup/shutdown handling for Windows
 - **Tagging Strategy**: Consistent resource tagging for management
 

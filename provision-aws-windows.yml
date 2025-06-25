@@ -1,6 +1,6 @@
 ---
 # Provision AWS Windows Server for Claude Desktop Application
-# Main playbook that provisions Windows Server 2022 instance on AWS EC2
+# Main playbook that provisions Windows Server 2025 instance on AWS EC2
 
 - name: Load secrets for Windows Server provisioning
   hosts: localhost

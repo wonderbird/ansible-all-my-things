@@ -119,7 +119,7 @@
           - "Windows Server configuration complete!"
           - ""
           - "System Status:"
-          - "✓ Windows Server 2022 running"
+          - "✓ Windows Server 2025 running"
           - "✓ RDP access configured"
           - "✓ Chocolatey package manager installed"
           - "✓ Desktop optimized for RDP"

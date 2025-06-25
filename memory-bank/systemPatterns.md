@@ -54,7 +54,7 @@ ansible_port: 5985
 ### Technical Specifications for Windows Server MVP
 
 #### Instance Configuration
-- **AMI**: Windows Server 2022 with Desktop Experience (latest)
+- **AMI**: Windows Server 2025 with Desktop Experience (latest)
 - **Instance Type**: t3.large (4 vCPU, 8GB RAM)
 - **Storage**: 50GB GP3 EBS
 - **Region**: eu-north-1 (carbon footprint and latency optimization)
@@ -76,7 +76,7 @@ ansible_port: 5985
 ```mermaid
 graph TD
     A[provision-aws-windows.yml] --> B[provisioners/aws-windows.yml]
-    B --> C[Windows Server 2022 AMI]
+    B --> C[Windows Server 2025 AMI]
     B --> D[t3.medium instance]
     B --> E[RDP Security Group]
     B --> F[configure-aws-windows.yml]

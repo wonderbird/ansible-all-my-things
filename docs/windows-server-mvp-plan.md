@@ -13,7 +13,7 @@
 ## Product Increment Definition
 
 ### What We're Building
-- Windows Server 2022 with Desktop Experience on AWS EC2
+- Windows Server 2025 with Desktop Experience on AWS EC2
 - RDP access for desktop environment interaction
 - Claude Desktop Application installed and functional
 - Complete provision → access → destroy lifecycle
@@ -34,7 +34,7 @@
 #### Morning (2-3 hours)
 1. **Create Windows Provisioner** (`provisioners/aws-windows.yml`)
    - Copy existing `provisioners/aws-ec2.yml`
-   - Modify for Windows Server 2022 AMI with Desktop Experience
+   - Modify for Windows Server 2025 AMI with Desktop Experience
    - Configure t3.large instance type (4 vCPU, 8GB RAM)
    - Set up Windows-specific security group
 
@@ -122,7 +122,7 @@
 
 ### AWS Configuration
 - **Region**: eu-north-1 (carbon footprint and latency optimization)
-- **AMI**: Windows Server 2022 with Desktop Experience (latest)
+- **AMI**: Windows Server 2025 with Desktop Experience (latest)
 - **Instance Type**: t3.large (4 vCPU, 8GB RAM)
 - **Storage**: 50GB GP3 EBS
 - **Security Group**: Custom with RDP (3389) and WinRM (5985/5986)
@@ -156,7 +156,7 @@
 ## Risk Mitigation
 
 ### Technical Risks & Mitigation
-- **Windows AMI Compatibility**: Use latest Windows Server 2022 with Desktop Experience
+- **Windows AMI Compatibility**: Use latest Windows Server 2025 with Desktop Experience
 - **RDP Performance**: Use t3.large for adequate performance, test thoroughly
 - **Ansible Windows Learning Curve**: Start with simple approaches, iterate
 - **Claude Desktop Compatibility**: Test in Windows Server environment early
