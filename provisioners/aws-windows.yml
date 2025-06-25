@@ -48,22 +48,12 @@
             ports:
               - 22    # SSH
             cidr_ip: "{{ current_public_ip }}/32"
-            rule_desc: "SSH access from current IP"
+            rule_desc: "SSH access from current IP (for Ansible and manual access)"
           - proto: tcp
             ports:
               - 3389  # RDP
             cidr_ip: "{{ current_public_ip }}/32"
-            rule_desc: "RDP access from current IP"
-          - proto: tcp
-            ports:
-              - 5985  # WinRM HTTP
-            cidr_ip: "{{ current_public_ip }}/32"
-            rule_desc: "WinRM HTTP for Ansible"
-          - proto: tcp
-            ports:
-              - 5986  # WinRM HTTPS
-            cidr_ip: "{{ current_public_ip }}/32"
-            rule_desc: "WinRM HTTPS for Ansible"
+            rule_desc: "RDP access from current IP (for desktop applications)"
         tags:
           Name: "{{ aws_security_group_name }}"
           Purpose: "ansible-windows-env"
@@ -91,19 +81,6 @@
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-          # Configure WinRM for Ansible
-          winrm quickconfig -q
-          winrm set winrm/config/winrs '@{MaxMemoryPerShellMB="512"}'
-          winrm set winrm/config '@{MaxTimeoutms="1800000"}'
-          winrm set winrm/config/service '@{AllowUnencrypted="true"}'
-          winrm set winrm/config/service/auth '@{Basic="true"}'
-
-          # Configure Windows Firewall for WinRM
-          netsh advfirewall firewall add rule name="WinRM-HTTP" dir=in localport=5985 protocol=TCP action=allow
-          netsh advfirewall firewall add rule name="WinRM-HTTPS" dir=in localport=5986 protocol=TCP action=allow
-
-          # Restart WinRM service
-          Restart-Service winrm
 
           # Configure OpenSSH Server (pre-installed in Windows Server 2025)
           # Enable and start OpenSSH Server service
@@ -174,14 +151,6 @@
         state: started
       when: ec2_instance.instances | length > 0
 
-    - name: Wait for WinRM to become available
-      ansible.builtin.wait_for:
-        host: "{{ ec2_instance.instances[0].public_ip_address }}"
-        port: 5985
-        delay: 30
-        timeout: 600
-        state: started
-      when: ec2_instance.instances | length > 0
 
     - name: Wait for SSH to become available
       ansible.builtin.wait_for:

@@ -21,18 +21,18 @@
   vars_files:
     - playbooks/vars-secrets.yml
   tasks:
-    - name: Test Windows connection
-      ansible.windows.win_ping:
+    - name: Test Windows connection via SSH
+      ansible.builtin.ping:
 
     - name: Get Windows system information
-      ansible.windows.win_shell: |
-        Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, TotalPhysicalMemory
+      ansible.builtin.shell: |
+        Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, TotalPhysicalMemory | Format-Table -AutoSize
       register: system_info
 
     - name: Display system information
       ansible.builtin.debug:
         msg:
-          - "Windows Server connection successful!"
+          - "Windows Server SSH connection successful!"
           - "System Info: {{ system_info.stdout }}"
 
 - name: Install Claude Desktop Application
@@ -42,18 +42,20 @@
     - playbooks/vars-secrets.yml
   tasks:
     - name: Install Chocolatey package manager
-      ansible.windows.win_chocolatey:
-        name: chocolatey
-        state: present
+      ansible.builtin.shell: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
       register: chocolatey_install
+      ignore_errors: true
 
     - name: Create temporary download directory
-      ansible.windows.win_file:
-        path: C:\temp
-        state: directory
+      ansible.builtin.shell: |
+        New-Item -Path "C:\temp" -ItemType Directory -Force
+      register: temp_dir_result
 
     - name: Download Claude Desktop installer (manual approach for MVP)
-      ansible.windows.win_shell: |
+      ansible.builtin.shell: |
         # For MVP, we'll provide manual installation instructions
         # Claude Desktop doesn't have a direct download URL for automation
         Write-Host "Claude Desktop installation requires manual download"
@@ -62,12 +64,11 @@
       register: claude_download_info
 
     - name: Create desktop shortcut placeholder
-      ansible.windows.win_file:
-        path: C:\Users\Public\Desktop\Claude Desktop - Manual Install Required.txt
-        state: touch
+      ansible.builtin.shell: |
+        New-Item -Path "C:\Users\Public\Desktop\Claude Desktop - Manual Install Required.txt" -ItemType File -Force
 
     - name: Add installation instructions to desktop
-      ansible.windows.win_copy:
+      ansible.builtin.copy:
         content: |
           Claude Desktop Installation Instructions
           =====================================
@@ -86,26 +87,20 @@
   gather_facts: false
   tasks:
     - name: Enable Windows features for desktop experience
-      ansible.windows.win_optional_feature:
-        name: "{{ item }}"
-        state: present
-      loop:
-        - "Internet-Explorer-Optional-amd64"
+      ansible.builtin.shell: |
+        Enable-WindowsOptionalFeature -Online -FeatureName "Internet-Explorer-Optional-amd64" -All -NoRestart
       ignore_errors: true
 
     - name: Configure RDP settings for better performance
-      ansible.windows.win_regedit:
-        path: HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp
-        name: "{{ item.name }}"
-        data: "{{ item.value }}"
-        type: dword
-      loop:
-        - { name: "ColorDepth", value: 4 }  # 32-bit color
-        - { name: "fDisableClip", value: 0 }  # Enable clipboard
+      ansible.builtin.shell: |
+        # Configure RDP for 32-bit color depth
+        Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "ColorDepth" -Value 4 -Type DWord
+        # Enable clipboard sharing
+        Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "fDisableClip" -Value 0 -Type DWord
       ignore_errors: true
 
     - name: Set Windows power plan to High Performance
-      ansible.windows.win_shell: |
+      ansible.builtin.shell: |
         powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
       ignore_errors: true
 
