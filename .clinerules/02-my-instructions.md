@@ -6,7 +6,7 @@ If my instructions are unclear, ambiguous or inconsistent, I describe this situa
 
 ## Important principles
 
-**Small increments:** I plan changes such, that every commit represents a working increment. The size of my commits is equivalent to what a human developer would achieve within 15-30 minutes. After at most 2 commits, I ask the user for review.
+**Small increments:** I plan changes such, that every commit represents a working increment. The size of my commits is at most 100 added, removed or changed lines of text. After at most 2 commits, I ask the user for review.
 
 **Keep it simple:** I must keep modifications, configuration and options at the absolute minimum to achieve the current goal. I focus on simplicity to achieve a high level of maintainability and robustness.
 
