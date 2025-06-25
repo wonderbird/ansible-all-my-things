@@ -2,11 +2,11 @@
 
 ## Done
 
-- [ ] windows_admin_password was undefined in provisioners/aws-windows.yml
+- [x] windows_admin_password was undefined in provisioners/aws-windows.yml
+- [x] Enable OpenSSH and allow SSH access as Administrator
 
 ## Ongoing: Findings that are currently fixed
 
-- [ ] Enable OpenSSH and allow SSH access as Administrator
 - [ ] The image id '[ami-0c02fb55956c7d316]' does not exist. It seems we have to use '[ami-01998fe5b868df6e3]' instead. Update all occurrences of Windows Server 2022 with Windows Server 2025.
 
 ## Backlog
@@ -14,6 +14,10 @@
 ### Todos in context with the review
 
 - [x] Try the workflow described in mvp usage guide (starting, RDP connection and stopping windows works. Test configuration. Is the immage the right one?)
+- [ ] Why is the message "Display Windows Server instance information" not printed after provisioning?
+- [ ] Document how to read the IPV4_ADDRESS of the server
+- [ ] Can we use SSH for ansible automation instead of WinRM?
+- [ ] Update all documentation to reflect that SSH is enabled on the server
 - [ ] Set up a basic version of configure-aws-windows.yml with the following configuration: claude desktop
 - [ ] Check whether structures can be simplified, merged and re-used; identify duplication, fix duplication
 

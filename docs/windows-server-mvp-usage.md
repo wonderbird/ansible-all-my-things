@@ -36,7 +36,7 @@ ansible-vault edit --vault-password-file ./ansible-vault-password.txt ./playbook
 
 ```bash
 # Provision Windows Server 2022 with t3.large instance
-ansible-playbook provision-aws-windows.yml -e "aws_ssh_key_name=your-key-name"
+ansible-playbook provision-aws-windows.yml -e "aws_ssh_key_name=stefan@fangorn" --vault-password-file ansible-vault-password.txt -vvv
 ```
 
 **Expected time**: 15-20 minutes (Windows takes longer to boot than Linux)
