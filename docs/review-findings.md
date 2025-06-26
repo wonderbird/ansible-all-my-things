@@ -57,3 +57,7 @@
 #### inventories/aws/group_vars/aws_windows/vars.yml
 
 - [ ] Remove unused variables
+
+#### scripts/create-remote-repository.sh and scripts/delete-remote-repository.sh
+
+- [ ] The shell scripts in the scripts folder should be python scripts, so that they are more compatible with other platforms and so that they can be integrated into a real application later
