@@ -53,12 +53,13 @@ ansible-inventory -i inventories/aws/aws_ec2.yml --graph
 ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' --extra-vars "ansible_user=ubuntu aws_ssh_key_name=stefan@fangorn"
 ```
 
-You can also SSH directly to the instance:
+You can get the instance IP address:
 
 ```shell
-export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=lorien" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text); echo $IPV4_ADDRESS
-
-ssh -i ~/.ssh/stefan@fangorn.pem ubuntu@$IPV4_ADDRESS
+# Get Windows Server IP address
+export AWS_INSTANCE=lorien-windows
+export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$AWS_INSTANCE" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+echo "IP of AWS instance $AWS_INSTANCE: $IPV4_ADDRESS"
 ```
 
 > [!IMPORTANT]
