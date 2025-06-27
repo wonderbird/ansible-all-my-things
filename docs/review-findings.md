@@ -6,9 +6,15 @@
 - [x] Enable OpenSSH and allow SSH access as Administrator
 - [x] The image id '[ami-0c02fb55956c7d316]' does not exist. It seems we have to use '[ami-01998fe5b868df6e3]' instead. Update all occurrences of Windows Server 2022 with Windows Server 2025.
 - [x] Why is the message "Display Windows Server instance information" not printed after provisioning? This is because the configure-aws-windows.yml playbook must be executed manually after provisioning.
+- [x] In memory-bank/progress.md tasks are only checked in the top section. Lower section tasks are still unticked.
+- [x] After fixing these issues, the Windows Server is available, Claude Desktop can be installed manually and works.
+- [x] Document how to read the IPV4_ADDRESS of the server. I like to use the following command: `export AWS_INSTANCE=lorien-windows; export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$AWS_INSTANCE" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text); echo "IP of AWS instance $AWS_INSTANCE: $IPV4_ADDRESS"`
 
 ## Ongoing: Findings that are currently fixed
 
+Identifiziere das nächste Finding.
+
+Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
 ## Backlog
 
@@ -26,8 +32,6 @@
 #### Test Findings
 
 - [ ] AWS does not allow ED25519 key pairs for Windows AMIs. Update the documentation
-- [ ] After fixing these issues, the Windows Server is available, Claude Desktop can be installed manually and works.
-- [ ] Document how to read the IPV4_ADDRESS of the server
 
 #### Duplication
 
@@ -49,10 +53,6 @@
 #### provision-aws-windows.yml
 
 - [ ] Simplify configuration parameteres to the bare minimum. Remove options, if they are not needed for this iteration.
-
-#### memory-bank/progress.md
-
-- [ ] Tasks are only checked in the top section. Lower section tasks are still unticked.
 
 #### inventories/aws/group_vars/aws_windows/vars.yml
 
