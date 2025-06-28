@@ -8,7 +8,10 @@ This guide covers the Windows Server MVP implementation for accessing Claude Des
 
 1. **AWS Credentials**: Set up AWS credentials in environment variables
 2. **Ansible Vault**: Configure secrets in `playbooks/vars-secrets.yml`
-3. **SSH Key**: AWS SSH key pair configured
+3. **SSH Key**: AWS SSH key pair configured (RSA or ECDSA - ED25519 not supported for Windows AMIs)
+
+> [!IMPORTANT]
+> **SSH Key Requirement**: AWS does not support ED25519 key pairs for Windows AMIs. You must use RSA (minimum 2048-bit) or ECDSA key pairs. If you have an ED25519 key, create a new RSA key pair in the AWS EC2 console for Windows Server usage.
 
 ### Setup Secrets
 
@@ -175,6 +178,7 @@ ansible-playbook destroy-aws-windows.yml
 2. **Wait for boot**: Windows takes 10-15 minutes to fully boot and enable SSH
 3. **Authentication**: Use Administrator username and password from vault
 4. **Test connectivity**: `ssh Administrator@$IPV4_ADDRESS 'whoami'`
+5. **Key pair type**: Ensure you're using RSA or ECDSA key pairs (ED25519 not supported for Windows AMIs)
 
 ### RDP Connection Issues
 

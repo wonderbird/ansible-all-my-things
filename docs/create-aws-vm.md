@@ -101,6 +101,9 @@ Create or import an SSH key pair in the AWS EC2 console:
 3. Note the key pair name for configuration (stefan@fangorn)
 4. Ensure you have the corresponding private key file (`.pem` format) in your `~/.ssh/` directory with permissions restricted to 600: `chmod 600 ~/.ssh/*pem`
 
+> [!IMPORTANT]
+> **Windows AMI Limitation**: AWS does not support ED25519 key pairs for Windows AMIs. If you plan to use Windows Server instances, you must use RSA (minimum 2048-bit) or ECDSA key pairs. For Linux AMIs, all key types including ED25519 are supported.
+
 ### Configure Secrets
 
 Follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in [./ansible-vault-password.txt](./ansible-vault-password.txt) and in [./playbooks/vars-secrets.yml](./playbooks/vars-secrets.yml).

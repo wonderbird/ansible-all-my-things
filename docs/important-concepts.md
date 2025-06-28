@@ -7,6 +7,20 @@ The playbooks create user accounts and register SSH keys for passwordless login.
 The required secrets are expected in `/playbooks/vars-secrets.yml`. This file
 shall be encrypted with ansible vault.
 
+## SSH Key Compatibility
+
+Different cloud providers and operating systems have varying SSH key type support:
+
+### AWS EC2 Key Requirements
+- **Linux AMIs**: Support all key types (RSA, ECDSA, ED25519)
+- **Windows AMIs**: Only support RSA (minimum 2048-bit) and ECDSA keys
+- **Important**: ED25519 keys are **not supported** for Windows AMIs
+
+### Key Type Recommendations
+- **For mixed environments**: Use RSA 2048-bit or higher for maximum compatibility
+- **For Linux-only**: ED25519 keys are recommended for security and performance
+- **For Windows Server**: Must use RSA or ECDSA keys
+
 The ansible vault password is expected in `/ansible-vault-password.txt`. This
 way, the Vagrant provisioners in the [/test](../test/) folders can access it.
 
