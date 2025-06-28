@@ -70,7 +70,7 @@ ansible-all-my-things/
 ### Windows Server Requirements
 - **Minimum Instance**: t3.medium (2 vCPU, 4GB RAM for GUI)
 - **Storage**: 50GB GP3 EBS (Windows Server space requirements)
-- **Network**: RDP (3389) access with IP restrictions
+- **Network**: SSH (22) and RDP (3389) access with IP restrictions
 - **AMI**: Windows Server 2025 with Desktop Experience
 
 ### Ansible Windows Support
@@ -81,10 +81,15 @@ collections:
   - name: community.windows
   - name: amazon.aws
 
-# Windows connection requirements
-ansible_connection: winrm
-ansible_winrm_transport: basic
-ansible_port: 5985
+# Windows connection requirements (SSH preferred)
+ansible_connection: ssh
+ansible_user: Administrator
+ansible_port: 22
+
+# Alternative WinRM connection
+# ansible_connection: winrm
+# ansible_winrm_transport: basic
+# ansible_port: 5985
 ```
 
 ### Cost Constraints
@@ -98,14 +103,18 @@ ansible_port: 5985
 
 ### Windows Server Configuration
 ```yaml
-# Windows inventory configuration (planned)
+# Windows inventory configuration (current)
 # inventories/aws/group_vars/aws_windows/vars.yml
 admin_user_on_fresh_system: Administrator
-ansible_user: ansible-service
+ansible_user: Administrator
 desktop_user: claude-user
-ansible_connection: winrm
-ansible_winrm_transport: basic
-ansible_port: 5985
+ansible_connection: ssh
+ansible_port: 22
+
+# Alternative WinRM configuration
+# ansible_connection: winrm
+# ansible_winrm_transport: basic
+# ansible_port: 5985
 ```
 
 ### Windows Package Management
@@ -122,14 +131,19 @@ ansible_port: 5985
     state: present
 ```
 
-### RDP Access Configuration
+### Windows Access Configuration
 ```yaml
-# Security group for RDP access
-- name: Create RDP security group
+# Security group for SSH and RDP access
+- name: Create Windows security group
   amazon.aws.ec2_group:
-    name: "{{ security_group_rdp }}"
-    description: "RDP access for Windows Server"
+    name: "{{ security_group_windows }}"
+    description: "SSH and RDP access for Windows Server"
     rules:
+      - proto: tcp
+        ports:
+          - 22
+        cidr_ip: "{{ user_ip }}/32"
+        rule_desc: "SSH from user IP"
       - proto: tcp
         ports:
           - 3389
@@ -149,9 +163,10 @@ ansible_port: 5985
 ```yaml
 # Windows Server configuration dependencies
 1. setup-windows-users.yml      # Windows user management
-2. setup-windows-desktop.yml    # Desktop experience configuration
-3. setup-claude-desktop.yml     # Claude Desktop installation
-4. setup-windows-rdp.yml        # RDP optimization
+2. setup-windows-ssh.yml        # OpenSSH Server configuration
+3. setup-windows-desktop.yml    # Desktop experience configuration
+4. setup-claude-desktop.yml     # Claude Desktop installation
+5. setup-windows-rdp.yml        # RDP optimization
 ```
 
 ### Application Dependencies
@@ -180,19 +195,19 @@ Monthly cost: ~$15 (vs $34 continuous)
 ## Security Architecture
 
 ### Windows Security Model
-- **RDP Access**: Restricted to user's IP address only
+- **SSH Access**: Restricted to user's IP address only (port 22)
+- **RDP Access**: Restricted to user's IP address only (port 3389)
 - **Windows Firewall**: Configured for minimal exposure
 - **User Accounts**: 
-  - Administrator (initial setup)
-  - ansible-service (automation)
+  - Administrator (initial setup and automation)
   - claude-user (desktop application usage)
 - **Credential Management**: Windows passwords via Ansible Vault
 
 ### Network Security
 - **Security Groups**: AWS-managed firewall rules
-- **Port Access**: Only RDP (3389) and WinRM (5985) as needed
+- **Port Access**: SSH (22), RDP (3389), and WinRM (5985) as needed
 - **IP Restrictions**: User's IP address only
-- **Encryption**: RDP with TLS encryption
+- **Encryption**: SSH with OpenSSH and RDP with TLS encryption
 
 ## Windows Server Implementation Plan
 

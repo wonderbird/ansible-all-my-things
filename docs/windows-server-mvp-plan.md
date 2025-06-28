@@ -14,7 +14,7 @@
 
 ### What We're Building
 - Windows Server 2025 with Desktop Experience on AWS EC2
-- RDP access for desktop environment interaction
+- SSH and RDP access for command-line and desktop environment interaction
 - Claude Desktop Application installed and functional
 - Complete provision → access → destroy lifecycle
 - Integration with existing Ansible automation patterns
@@ -22,7 +22,7 @@
 ### What We're NOT Building (MVP Scope)
 - Cost optimization (accept higher costs initially)
 - Fully automated Claude Desktop installation (manual PowerShell acceptable)
-- Advanced security configurations beyond basic RDP access
+- Advanced security configurations beyond basic SSH and RDP access
 - Performance tuning and optimization
 - Comprehensive documentation (basic usage guide only)
 
@@ -39,8 +39,9 @@
    - Set up Windows-specific security group
 
 2. **Configure Security Group**
+   - SSH access (port 22) from user's IP only
    - RDP access (port 3389) from user's IP only
-   - WinRM access (ports 5985/5986) for Ansible
+   - WinRM access (ports 5985/5986) for Ansible compatibility
    - Outbound internet access for downloads
 
 #### Afternoon (2-3 hours)
@@ -51,7 +52,7 @@
 
 **Day 1 Success Criteria**:
 - [ ] Windows Server instance provisions successfully
-- [ ] RDP connection works from user's machine
+- [ ] SSH and RDP connections work from user's machine
 - [ ] Desktop environment accessible and functional
 
 ### Day 2: Windows Configuration & Claude Desktop (6-8 hours)
@@ -64,12 +65,12 @@
 
 2. **Extend AWS Inventory for Windows**
    - Update `inventories/aws/aws_ec2.yml`
-   - Configure WinRM connection settings
-   - Test Ansible connectivity to Windows instance
+   - Configure SSH and WinRM connection settings
+   - Test Ansible connectivity to Windows instance via SSH
 
 3. **Basic Windows Configuration Playbook**
    - Create `playbooks/setup-windows-basics.yml`
-   - Configure Windows Firewall for RDP
+   - Configure Windows Firewall for SSH and RDP
    - Enable necessary Windows features
    - Basic system configuration for desktop use
 
@@ -81,8 +82,8 @@
    - Verify Claude Desktop functionality
 
 **Day 2 Success Criteria**:
-- [ ] Ansible can connect to Windows instance via WinRM
-- [ ] Windows configured for reliable RDP access
+- [ ] Ansible can connect to Windows instance via SSH
+- [ ] Windows configured for reliable SSH and RDP access
 - [ ] Claude Desktop installed and launches successfully
 - [ ] Application functional for basic work tasks
 
@@ -125,12 +126,12 @@
 - **AMI**: Windows Server 2025 with Desktop Experience (latest)
 - **Instance Type**: t3.large (4 vCPU, 8GB RAM)
 - **Storage**: 50GB GP3 EBS
-- **Security Group**: Custom with RDP (3389) and WinRM (5985/5986)
+- **Security Group**: Custom with SSH (22), RDP (3389) and WinRM (5985/5986)
 
 ### Authentication & Access
 - **Method**: Administrator password (stored in Ansible Vault)
 - **RDP Client**: Standard Windows RDP client or equivalent
-- **Ansible Connection**: WinRM with password authentication
+- **Ansible Connection**: SSH preferred, WinRM available for compatibility
 
 ### Cost Estimates
 - **Instance Cost**: ~$60/month if running continuously
@@ -142,7 +143,7 @@
 
 ### Functional Requirements
 - Windows Server provisions in ≤20 minutes
-- RDP connection establishes reliably
+- SSH and RDP connections establish reliably
 - Claude Desktop launches and functions normally
 - Can perform actual work tasks via RDP
 - Complete environment destroys in ≤5 minutes
@@ -157,7 +158,7 @@
 
 ### Technical Risks & Mitigation
 - **Windows AMI Compatibility**: Use latest Windows Server 2025 with Desktop Experience
-- **RDP Performance**: Use t3.large for adequate performance, test thoroughly
+- **SSH/RDP Performance**: Use t3.large for adequate performance, test thoroughly
 - **Ansible Windows Learning Curve**: Start with simple approaches, iterate
 - **Claude Desktop Compatibility**: Test in Windows Server environment early
 

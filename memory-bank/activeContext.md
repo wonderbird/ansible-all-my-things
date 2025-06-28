@@ -11,7 +11,7 @@
 
 **Foundation**: Successfully extended AWS Linux implementation to Windows Server with complete lifecycle management.
 
-**Implementation**: Complete Windows Server 2025 automation with RDP access and Claude Desktop workflow ready for validation.
+**Implementation**: Complete Windows Server 2025 automation with SSH and RDP access and Claude Desktop workflow ready for validation.
 
 ## Detailed Development Tasks for Windows Server MVP
 
@@ -23,22 +23,22 @@
 - **Key Changes**:
   - Windows Server 2025 AMI with Desktop Experience
   - t3.large instance type (4 vCPU, 8GB RAM)
-  - Windows-specific security group with RDP (port 3389)
+  - Windows-specific security group with SSH (port 22) and RDP (port 3389)
   - Administrator password setup
 - **Acceptance Criteria**: 
   - Provisioner creates Windows Server instance
   - Instance boots successfully with desktop experience
-  - RDP port accessible from user's IP
+  - SSH and RDP ports accessible from user's IP
 - **Estimated Effort**: 2-3 hours
 
 #### Task 1.2: Windows Security Group Configuration
 - **File**: Update security group configuration in provisioner
 - **Requirements**:
-  - RDP (port 3389) access from user's IP address only
+  - SSH (port 22) and RDP (port 3389) access from user's IP address only
   - Windows Remote Management (WinRM) for Ansible (ports 5985/5986)
   - Outbound internet access for downloads
 - **Acceptance Criteria**:
-  - RDP connection possible from user's machine
+  - SSH and RDP connections possible from user's machine
   - Security group restricts access appropriately
 - **Estimated Effort**: 1 hour
 
@@ -49,7 +49,7 @@
   - Enable RDP for Administrator account
   - Configure Windows for remote access
 - **Acceptance Criteria**:
-  - Can connect via RDP using Administrator credentials
+  - Can connect via SSH and RDP using Administrator credentials
   - Desktop environment accessible
 - **Estimated Effort**: 1-2 hours
 
@@ -67,21 +67,21 @@
 - **File**: Update `inventories/aws/aws_ec2.yml`
 - **Requirements**:
   - Include Windows instances in inventory
-  - Configure WinRM connection settings
+  - Configure SSH connection settings (assumption: WinRM not required)
   - Set appropriate connection variables
 - **Acceptance Criteria**:
   - Windows instances appear in Ansible inventory
-  - Ansible can connect to Windows instances via WinRM
+  - Ansible can connect to Windows instances via SSH or WinRM
 - **Estimated Effort**: 1-2 hours
 
 #### Task 2.3: Basic Windows Configuration Playbook
 - **File**: Create `playbooks/setup-windows-basics.yml`
 - **Requirements**:
-  - Configure Windows Firewall for RDP
+  - Configure Windows Firewall for SSH and RDP
   - Enable necessary Windows features
   - Basic system configuration
 - **Acceptance Criteria**:
-  - RDP access reliable and stable
+  - SSH and RDP access reliable and stable
   - Windows configured for desktop application use
 - **Estimated Effort**: 2-3 hours
 
@@ -114,7 +114,7 @@
 #### Task 3.2: End-to-End Testing
 - **Process**:
   1. Run provision playbook
-  2. Connect via RDP
+  2. Connect via SSH or RDP
   3. Launch Claude Desktop
   4. Perform actual work tasks
   5. Run destroy playbook
@@ -128,7 +128,7 @@
 - **File**: `docs/windows-server-mvp-usage.md`
 - **Content**:
   - Quick start guide
-  - RDP connection instructions
+  - SSH and RDP connection instructions
   - Basic troubleshooting
   - Cost warnings and management
 - **Acceptance Criteria**:
@@ -142,7 +142,7 @@
 - **Goal**: Working Windows Server with Claude Desktop access
 - **Quality**: "Good enough" - reliable but not optimized
 - **Cost**: ~$60/month acceptable initially
-- **Features**: Basic RDP access, Claude Desktop working
+- **Features**: SSH and RDP access, Claude Desktop working
 - **Documentation**: Minimal usage instructions
 
 ### Future Optimization Track (After MVP)
@@ -155,17 +155,18 @@
 ## Technical Considerations for Windows Server
 
 ### Key Differences from Linux Implementation
-- **Authentication**: Windows uses WinRM instead of SSH
+- **Authentication**: Windows supports SSH, WinRM, and RDP
 - **User Management**: Administrator vs. standard user accounts
 - **Package Management**: Chocolatey or direct downloads vs. APT
 - **Desktop Environment**: Windows Server desktop experience vs. Linux GUI
-- **Access Method**: RDP (port 3389) vs. SSH (port 22)
+- **Access Method**: SSH (port 22) and RDP (port 3389) vs. SSH only (port 22) on Linux
 
 ### Windows-Specific Requirements
 - **Ansible Collection**: `ansible.windows` for Windows module support
-- **WinRM Configuration**: Windows Remote Management setup for Ansible
+- **SSH Configuration**: OpenSSH Server enabled for command-line access
+- **WinRM Configuration**: Windows Remote Management setup for Ansible compatibility
 - **PowerShell**: Windows PowerShell for configuration tasks
-- **Firewall**: Windows Firewall configuration for RDP access
+- **Firewall**: Windows Firewall configuration for SSH and RDP access
 
 ### Cost Considerations
 - **Windows Licensing**: Additional cost beyond Linux instances
@@ -193,7 +194,7 @@
 - **OS**: Windows Server 2025 with Desktop Experience
 - **Instance Type**: t3.medium (2 vCPU, 4GB RAM minimum for GUI)
 - **Storage**: 50GB GP3 EBS (Windows Server space requirements)
-- **Network**: RDP access from user's IP address only
+- **Network**: SSH and RDP access from user's IP address only
 - **Applications**: Claude Desktop Application + supporting software
 
 ### MVP Cost Estimates (Monthly)

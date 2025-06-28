@@ -63,7 +63,7 @@ echo "IP of AWS instance $AWS_INSTANCE: $IPV4_ADDRESS"
 ```
 
 > [!IMPORTANT]
-> The security group is configured to allow SSH access only from your current public IP address. If your IP changes, you may need to update the security group rules in the AWS console.
+> The security group is configured to allow both SSH (port 22) and RDP (port 3389) access only from your current public IP address. If your IP changes, you may need to update the security group rules in the AWS console.
 
 ### 3. Configure Windows Server
 
@@ -74,14 +74,32 @@ ansible-playbook -i inventories/aws/aws_ec2.yml configure-aws-windows.yml
 
 **Expected time**: 5-10 minutes
 
-### 4. Connect via RDP
+### 4. Connect to Windows Server
+
+You can connect using either SSH or RDP:
+
+#### Option A: SSH Connection (Command Line Access)
+
+```bash
+# Connect via SSH
+ssh Administrator@$IPV4_ADDRESS
+# Or using the AWS instance name directly from inventory
+ssh Administrator@$(aws ec2 describe-instances --filters "Name=tag:Name,Values=lorien-windows" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
+```
+
+- **Server**: IP address shown in provision output
+- **Username**: `Administrator`
+- **Password**: From your `playbooks/vars-secrets.yml` file
+- **Port**: `22` (SSH, enabled by default)
+
+#### Option B: RDP Connection (Desktop Access)
 
 Use any RDP client to connect:
 
 - **Server**: IP address shown in provision output
 - **Username**: `Administrator`
 - **Password**: From your `playbooks/vars-secrets.yml` file
-- **Port**: `3389` (default RDP port)
+- **Port**: `3389` (RDP)
 
 #### RDP Client Options
 
@@ -111,7 +129,7 @@ mstsc
 
 ### 5. Install Claude Desktop (Manual Step)
 
-Once connected via RDP:
+Once connected via RDP (SSH cannot be used for GUI applications):
 
 1. Open Microsoft Edge browser
 2. Navigate to: `https://claude.ai/download`
@@ -151,17 +169,25 @@ ansible-playbook destroy-aws-windows.yml
 
 ## Troubleshooting
 
+### SSH Connection Issues
+
+1. **Check security group**: Ensure your IP is allowed for port 22
+2. **Wait for boot**: Windows takes 10-15 minutes to fully boot and enable SSH
+3. **Authentication**: Use Administrator username and password from vault
+4. **Test connectivity**: `ssh Administrator@$IPV4_ADDRESS 'whoami'`
+
 ### RDP Connection Issues
 
-1. **Check security group**: Ensure your IP is allowed
+1. **Check security group**: Ensure your IP is allowed for port 3389
 2. **Wait for boot**: Windows takes 10-15 minutes to fully boot
 3. **Check instance status**: Verify instance is running in AWS Console
 
 ### Ansible Connection Issues
 
-1. **WinRM not ready**: Wait additional 5 minutes after RDP is available
+1. **SSH/WinRM not ready**: Wait additional 5 minutes after SSH is available
 2. **Password issues**: Verify `windows_admin_password` in vault
 3. **Inventory issues**: Check `ansible-inventory -i inventories/aws/aws_ec2.yml --list`
+4. **Connection method**: Ansible can use both SSH and WinRM for Windows management
 
 ### Performance Issues
 
@@ -171,10 +197,12 @@ ansible-playbook destroy-aws-windows.yml
 
 ## Security Notes
 
-- **IP Restriction**: RDP access limited to your current IP
+- **IP Restriction**: Both SSH (port 22) and RDP (port 3389) access limited to your current IP
 - **Strong Password**: Use complex password in vault
 - **Temporary Access**: Destroy instances when not needed
-- **No SSH**: Windows Server uses RDP, not SSH
+- **Dual Access**: Windows Server supports both SSH (command line) and RDP (desktop)
+- **SSH Benefits**: SSH provides secure command-line access and works with Ansible
+- **RDP Benefits**: RDP provides full desktop environment for GUI applications like Claude Desktop
 
 ## Next Steps After MVP
 

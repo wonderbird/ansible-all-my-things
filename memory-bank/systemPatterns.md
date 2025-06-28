@@ -28,13 +28,18 @@ Windows (Planned): provision-aws-windows.yml → configure-aws-windows.yml → p
 - **Consistent Interface**: Same command patterns for provision/configure/destroy
 
 ### Windows-Specific Architecture Decisions
-**Authentication Method**: WinRM instead of SSH
+**Authentication Method**: SSH support (assumption: WinRM not required)
 ```yaml
-# Windows connection configuration
-ansible_connection: winrm
-ansible_winrm_transport: basic
-ansible_winrm_server_cert_validation: ignore
-ansible_port: 5985
+# Windows connection configuration (SSH preferred)
+ansible_connection: ssh
+ansible_user: Administrator
+ansible_port: 22
+
+# Alternative WinRM configuration
+# ansible_connection: winrm
+# ansible_winrm_transport: basic
+# ansible_winrm_server_cert_validation: ignore
+# ansible_port: 5985
 ```
 
 **User Management Strategy**: Windows Administrator model
@@ -61,14 +66,16 @@ ansible_port: 5985
 
 #### Network Configuration
 - **Security Group**: Custom Windows security group
+- **SSH Access**: Port 22 from user's IP only
 - **RDP Access**: Port 3389 from user's IP only
-- **WinRM Access**: Ports 5985/5986 for Ansible
+- **WinRM Access**: Ports 5985/5986 for Ansible (assumption: WinRM not required)
 - **Outbound**: Full internet access for downloads
 
 #### Authentication
 - **Method**: Administrator password (stored in Ansible Vault)
-- **RDP**: Standard Windows RDP client
-- **Ansible**: WinRM with password authentication
+- **SSH**: OpenSSH Server for command-line access
+- **RDP**: Standard Windows RDP client for desktop access
+- **Ansible**: SSH preferred, WinRM available for compatibility
 
 ## Component Relationships
 
@@ -78,7 +85,7 @@ graph TD
     A[provision-aws-windows.yml] --> B[provisioners/aws-windows.yml]
     B --> C[Windows Server 2025 AMI]
     B --> D[t3.medium instance]
-    B --> E[RDP Security Group]
+    B --> E[SSH+RDP Security Group]
     B --> F[configure-aws-windows.yml]
     F --> G[setup-windows-users.yml]
     F --> H[setup-windows-desktop.yml]
@@ -94,7 +101,8 @@ graph TD
 
 **Windows-Specific Components**:
 - Windows Server AMI selection
-- RDP security group (port 3389)
+- SSH and RDP security group (ports 22 and 3389)
+- OpenSSH Server configuration
 - Larger instance types (t3.medium minimum)
 - Windows-specific configuration playbooks
 
@@ -112,7 +120,12 @@ graph TD
       - "{{ security_group_rdp }}"
     user_data: |
       <powershell>
-      # Enable WinRM for Ansible
+      # Enable OpenSSH Server
+      Add-WindowsCapability -Online -Name OpenSSH.Server~~~~0.0.1.0
+      Start-Service sshd
+      Set-Service -Name sshd -StartupType 'Automatic'
+      
+      # Enable WinRM for Ansible compatibility
       winrm quickconfig -q
       winrm set winrm/config/service '@{AllowUnencrypted="true"}'
       </powershell>
@@ -146,7 +159,8 @@ graph TD
 - **Cost Awareness**: Optimize for intermittent usage patterns
 
 ### Security Model for Windows
-- **RDP Access**: Restricted to user's IP address only
+- **SSH Access**: Restricted to user's IP address only (port 22)
+- **RDP Access**: Restricted to user's IP address only (port 3389)
 - **Windows Firewall**: Configured for minimal exposure
 - **User Isolation**: Separate Administrator and standard user accounts
 - **Credential Management**: Windows passwords via Ansible Vault
@@ -164,7 +178,7 @@ graph TD
 1. Create `playbooks/setup-windows-[app].yml`
 2. Use Chocolatey for automated installation where possible
 3. Handle Windows-specific configuration requirements
-4. Test via RDP for desktop application functionality
+4. Test via SSH for command-line functionality and RDP for desktop application functionality
 
 ### Windows Development Environment
 **Future Extensions**:
@@ -177,12 +191,12 @@ graph TD
 
 | Aspect | AWS Linux (Working) | AWS Windows (Planned) |
 |--------|--------------------|-----------------------|
-| Connection | SSH (port 22) | WinRM (port 5985) + RDP (port 3389) |
+| Connection | SSH (port 22) | SSH (port 22) + RDP (port 3389) |
 | Default User | `ubuntu` | `Administrator` |
 | Package Manager | APT | Chocolatey |
 | Instance Type | t3.micro/small | t3.medium (minimum) |
 | Storage | 20GB | 50GB |
-| Desktop Access | SSH + X11 forwarding | RDP |
+| Desktop Access | SSH + X11 forwarding | SSH (command) + RDP (desktop) |
 | Cost (monthly) | ~$8-10 | ~$15 |
 
 ## Windows-Specific Technical Requirements
@@ -197,8 +211,9 @@ collections:
 ```
 
 ### Windows Server Configuration
+- **OpenSSH Server**: Enable SSH for secure command-line access
 - **Desktop Experience**: Enable GUI for desktop applications
-- **WinRM Setup**: Configure Windows Remote Management for Ansible
+- **WinRM Setup**: Configure Windows Remote Management for Ansible compatibility
 - **PowerShell Execution Policy**: Allow script execution for automation
 - **Windows Updates**: Configure automatic updates for security
 

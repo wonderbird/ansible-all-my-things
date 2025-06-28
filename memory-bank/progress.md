@@ -36,7 +36,7 @@
 
 ### Day 1: Windows Server Provisioning ✅ COMPLETED
 - [x] **Task 1.1**: Create Windows Provisioner (`provisioners/aws-windows.yml`)
-- [x] **Task 1.2**: Windows Security Group Configuration (RDP + WinRM)
+- [x] **Task 1.2**: Windows Security Group Configuration (SSH + RDP + WinRM)
 - [x] **Task 1.3**: Administrator Account Setup
 
 ### Day 2: Windows Configuration & Claude Desktop ✅ COMPLETED
@@ -56,7 +56,7 @@
 - [x] Windows provisioner created
 - [x] Security group configured
 - [x] Administrator account working
-- [x] RDP access established
+- [x] SSH and RDP access established
 
 ### Day 2 Progress
 - [x] ansible.windows collection installed
@@ -105,7 +105,7 @@
 - **OS**: Windows Server 2025 with Desktop Experience
 - **Instance Type**: t3.medium (2 vCPU, 4GB RAM minimum for GUI)
 - **Storage**: 50GB GP3 EBS (Windows Server space requirements)
-- **Network**: RDP access from user's IP address only
+- **Network**: SSH and RDP access from user's IP address only
 - **Applications**: Claude Desktop Application + supporting software
 
 ### Cost Analysis
@@ -117,7 +117,7 @@
 
 ### Technical Requirements
 - **Ansible Collections**: `ansible.windows`, `community.windows`
-- **Connection Method**: WinRM for automation, RDP for desktop access
+- **Connection Method**: SSH for automation and command-line, RDP for desktop access
 - **Package Management**: Chocolatey for automated software installation
 - **User Management**: Windows Administrator model with service accounts
 
