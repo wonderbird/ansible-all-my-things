@@ -6,6 +6,8 @@ If my instructions are unclear, ambiguous or inconsistent, I describe this situa
 
 ## Important principles
 
+**Avoid duplication:** I avoid duplication in documentation and in implementation code so that code and documentation is easy to maintain. In tests duplication may be allowed. If in doubt, I ask the user.
+
 **Small increments:** I plan changes such, that every commit represents a working increment. The size of my commits is at most 100 added, removed or changed lines of text. After at most 2 commits, I ask the user for review.
 
 **Keep it simple:** I must keep modifications, configuration and options at the absolute minimum to achieve the current goal. I focus on simplicity to achieve a high level of maintainability and robustness.
