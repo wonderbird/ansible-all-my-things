@@ -125,7 +125,7 @@
 - **Estimated Effort**: 2-3 hours
 
 #### Task 3.3: Basic Documentation
-- **File**: `docs/windows-server-mvp-usage.md`
+- **File**: `docs/aws/windows/windows-server-usage.md`
 - **Content**:
   - Quick start guide
   - SSH and RDP connection instructions

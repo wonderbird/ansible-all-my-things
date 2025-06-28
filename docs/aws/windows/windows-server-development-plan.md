@@ -109,7 +109,7 @@
    - Test multiple provision/destroy cycles for reliability
 
 4. **Basic Documentation**
-   - Create `docs/windows-server-mvp-usage.md`
+   - Create `docs/aws/windows/windows-server-usage.md`
    - Quick start guide and RDP connection instructions
    - Basic troubleshooting and cost management notes
 

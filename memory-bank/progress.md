@@ -48,7 +48,7 @@
 ### Day 2-3: Integration & Testing (IN PROGRESS)
 - [x] **Task 3.1**: Create Main Playbooks (`provision-aws-windows.yml`, `destroy-aws-windows.yml`)
 - [ ] **Task 3.2**: End-to-End Testing (user testing in progress)
-- [x] **Task 3.3**: Basic Documentation (`docs/windows-server-mvp-usage.md`)
+- [x] **Task 3.3**: Basic Documentation (`docs/aws/windows/windows-server-usage.md`)
 
 ## Daily Progress Tracking
 
