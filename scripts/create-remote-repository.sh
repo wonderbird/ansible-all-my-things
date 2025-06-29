@@ -49,7 +49,7 @@ echo "Copying bare repository to $REMOTE_USER@$REMOTE_HOST:$REMOTE_BARE_REPO_PAR
 rsync -avz --stats --progress --delete --delete-during "$TEMP_BARE_REPO" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_BARE_REPO_PARENT"
 
 echo "Cloning remote repository from remote bare repository ..."
-ssh "$REMOTE_USER@$REMOTE_HOST" "cd $REMOTE_CHECKOUT_PARENT && git clone $REMOTE_BARE_REPO_PARENT/$REPOSITORY_NAME.git $REPOSITORY_NAME"
+ssh "$REMOTE_USER@$REMOTE_HOST" "mkdir -p $REMOTE_CHECKOUT_PARENT && cd $REMOTE_CHECKOUT_PARENT && git clone $REMOTE_BARE_REPO_PARENT/$REPOSITORY_NAME.git $REPOSITORY_NAME"
 
 echo "Cleaning up temporary bare repository ..."
 rm -rf "$TEMP_BARE_REPO"
