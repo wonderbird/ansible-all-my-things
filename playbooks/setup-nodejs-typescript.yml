@@ -16,7 +16,10 @@
           - npm
         state: present
 
-    - name: Install TypeScript globally
+    - name: Install global NPM packages
       npm:
-        name: typescript
+        name: "{{ item }}"
         global: true
+      loop:
+        - typescript
+        - "@anthropic-ai/claude-code"
