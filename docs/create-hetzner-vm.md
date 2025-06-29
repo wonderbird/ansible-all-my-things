@@ -1,12 +1,5 @@
 # Create a developer VM with Hetzner
 
-## Notes on Performance
-
-If you experience poor performance, then consider the following tuning parameters:
-
-- select a different location in [./provisioners/hcloud.yml](../provisioners/hcloud.yml)
-- select a larger server type in [./provisioners/hcloud.yml](../provisioners/hcloud.yml)
-
 ## Prerequisites
 
 You need a cloud project with [Hetzner](https://www.hetzner.com/).
@@ -44,7 +37,7 @@ You will be asked to add the SSH key of the new server to your local
 
 After that, the setup will take some 10 - 15 minutes.
 
-Verify the setup:
+## Verify the setup
 
 ```shell
 # Show the inventory

@@ -1,25 +1,42 @@
 # Important concepts
 
-## Secrets are encrypted with Ansible Vault
+<!-- Execute the following command to update the table of contents: -->
+<!-- doctoc --maxlevel 2 ../docs/important-concepts.md -->
 
-The playbooks create user accounts and register SSH keys for passwordless login.
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-The required secrets are expected in `/playbooks/vars-secrets.yml`. This file
-shall be encrypted with ansible vault.
+- [SSH Key Compatibility](#ssh-key-compatibility)
+- [Secrets are encrypted with Ansible Vault](#secrets-are-encrypted-with-ansible-vault)
+- [Admin user on fresh system differs per provider](#admin-user-on-fresh-system-differs-per-provider)
+- [Same ansible user is set up for each provider](#same-ansible-user-is-set-up-for-each-provider)
+- [Desktop user accounts are used to log in](#desktop-user-accounts-are-used-to-log-in)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
 ## SSH Key Compatibility
 
 Different cloud providers and operating systems have varying SSH key type support:
 
 ### AWS EC2 Key Requirements
+
 - **Linux AMIs**: Support all key types (RSA, ECDSA, ED25519)
 - **Windows AMIs**: Only support RSA (minimum 2048-bit) and ECDSA keys
 - **Important**: ED25519 keys are **not supported** for Windows AMIs
 
 ### Key Type Recommendations
+
 - **For mixed environments**: Use RSA 2048-bit or higher for maximum compatibility
 - **For Linux-only**: ED25519 keys are recommended for security and performance
 - **For Windows Server**: Must use RSA or ECDSA keys
+
+## Secrets are encrypted with Ansible Vault
+
+The playbooks create user accounts and register SSH keys for passwordless login.
+
+The required secrets are expected in `/playbooks/vars-secrets.yml`. This file
+shall be encrypted with ansible vault.
 
 The ansible vault password is expected in `/ansible-vault-password.txt`. This
 way, the Vagrant provisioners in the [/test](../test/) folders can access it.

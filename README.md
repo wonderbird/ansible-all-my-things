@@ -14,6 +14,13 @@ Automated setup and updates for my IT system.
 
 The [/docs](./docs/) folder contains documentation for some aspects of the system.
 
+## Notes on Performance
+
+If you experience poor performance, then consider the following tuning parameters:
+
+- select a different region to host the instance(s)
+- select a larger instance type
+
 ## Acknowledgements
 
 My first contact with Ansible was at the 36c3. Many thanks to Heiko Borchers for the inspiring talk [Ansible all the Things](https://media.ccc.de/v/36c3-90-ansible-all-the-things) (13 min) [borchers2019].

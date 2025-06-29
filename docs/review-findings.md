@@ -6,6 +6,7 @@
 - [x] Enable OpenSSH and allow SSH access as Administrator
 - [x] The image id '[ami-0c02fb55956c7d316]' does not exist. It seems we have to use '[ami-01998fe5b868df6e3]' instead. Update all occurrences of Windows Server 2022 with Windows Server 2025.
 - [x] Why is the message "Display Windows Server instance information" not printed after provisioning? This is because the configure-aws-windows.yml playbook must be executed manually after provisioning.
+- [x] Try the workflow described in mvp usage guide (starting, RDP connection and stopping windows works. Test configuration. Is the immage the right one?)
 - [x] In memory-bank/progress.md tasks are only checked in the top section. Lower section tasks are still unticked.
 - [x] After fixing these issues, the Windows Server is available, Claude Desktop can be installed manually and works.
 - [x] Document how to read the IPV4_ADDRESS of the server. I like to use the following command: `export AWS_INSTANCE=lorien-windows; export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$AWS_INSTANCE" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text); echo "IP of AWS instance $AWS_INSTANCE: $IPV4_ADDRESS"`
@@ -13,6 +14,8 @@
 - [x] AWS does not allow ED25519 key pairs for Windows AMIs. Update the documentation
 - [x] All AWS related documentation files should be placed into a separate folder docs/aws. Create a docs/aws.md that acts as an entry point to the detailed AWS documentation. Update top level README accordingly.
 - [x] ansible commands are missing the --vault-password-file ansible-vault-password.txt parameter; see docs/create-hetzner-vm.md for example.
+- [x] Secrets set up is described in important concepts. Remove the redundant information and replace it with a link to the important concepts. If necessary, update important concepts with new information.
+- [x] Extract the section about performance, prerequisites, setting up the AWS account and environment variables into separate file. Re-use the file in docs/windows-server-mvp-usage.md and in docs/create-aws-vm.md
 
 ## Ongoing: Findings that are currently fixed
 
@@ -20,17 +23,10 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
-
 ## Backlog
-
-#### docs/windows-server-mvp-usage.md
-
-- [ ] Secrets set up is described in important concepts. Remove the redundant information and replace it with a link to the important concepts. If necessary, update important concepts with new information.
-- [ ] Extract the section about performance, prerequisites, setting up the AWS account and environment variables into separate file. Re-use the file in docs/windows-server-mvp-usage.md and in docs/create-aws-vm.md
 
 ### Todos in context with the review
 
-- [x] Try the workflow described in mvp usage guide (starting, RDP connection and stopping windows works. Test configuration. Is the immage the right one?)
 - [ ] Run the configure-aws-windows.yml file and check the results
 - [ ] Can we use SSH for ansible automation instead of WinRM?
 - [ ] Set up a basic version of configure-aws-windows.yml with the following configuration: claude desktop

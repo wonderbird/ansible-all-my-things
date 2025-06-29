@@ -1,234 +1,57 @@
-# Windows Server MVP Usage Guide
-
-## Overview
-
-This guide covers the Windows Server MVP implementation for accessing Claude Desktop Application via AWS EC2 Windows Server 2025 instances.
+# Windows Server Usage Guide
 
 ## Prerequisites
 
-1. **AWS Credentials**: Set up AWS credentials in environment variables
-2. **Ansible Vault**: Configure secrets in `playbooks/vars-secrets.yml`
-3. **SSH Key**: AWS SSH key pair configured (RSA or ECDSA - ED25519 not supported for Windows AMIs)
+The section **Prerequisites** in the parent [AWS Documentation](../../aws.md) file explains how to setup the prerequisites.
 
-> [!IMPORTANT]
-> **SSH Key Requirement**: AWS does not support ED25519 key pairs for Windows AMIs. You must use RSA (minimum 2048-bit) or ECDSA key pairs. If you have an ED25519 key, create a new RSA key pair in the AWS EC2 console for Windows Server usage.
-
-### Setup Secrets
-
-If you haven't already set up the secrets file:
+## Create the VM
 
 ```bash
-# Create ansible vault password file (if not exists)
-echo -n "New ansible vault password: " \
-  && read -s ANSIBLE_VAULT_PASSWORD \
-  && echo "$ANSIBLE_VAULT_PASSWORD" > ./ansible-vault-password.txt
-
-# Create secrets file from template (if not exists)
-cp -v ./playbooks/vars-secrets-template.yml ./playbooks/vars-secrets.yml \
-  && ansible-vault encrypt --vault-password-file ./ansible-vault-password.txt ./playbooks/vars-secrets.yml
-
-# Edit secrets file to add Windows password
-ansible-vault edit --vault-password-file ./ansible-vault-password.txt ./playbooks/vars-secrets.yml
+ansible-playbook provision-aws-windows.yml -e "aws_ssh_key_name=user@host" --vault-password-file ansible-vault-password.txt -vvv
 ```
 
-**Important**: Set a strong password for `windows_admin_password` in the secrets file.
-
-## Usage Workflow
-
-### 1. Provision Windows Server
-
-```bash
-# Provision Windows Server 2025 with t3.large instance
-ansible-playbook provision-aws-windows.yml -e "aws_ssh_key_name=stefan@fangorn" --vault-password-file ansible-vault-password.txt -vvv
-```
+Replace `user@host` with the name of your AWS key pair (without the `.pem` extension).
 
 **Expected time**: 15-20 minutes (Windows takes longer to boot than Linux)
 
-### 2. Verify the Setup
-
-Once provisioning is complete, verify the setup:
+## Verify the Setup
 
 ```shell
 # Show the inventory
 ansible-inventory -i inventories/aws/aws_ec2.yml --graph
 
 # Check whether the server can be reached
-ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' --extra-vars "ansible_user=ubuntu aws_ssh_key_name=stefan@fangorn"
+ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' --extra-vars "ansible_user=ubuntu aws_ssh_key_name=user@host"
 ```
 
-You can get the instance IP address:
+You can also SSH directly to the instance. The value of `IPV4_ADDRESS` is described in [Obtain Remote IP Adress](../../obtain-remote-ip-address.md).
 
 ```shell
-# Get Windows Server IP address
-export AWS_INSTANCE=lorien-windows
-export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$AWS_INSTANCE" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
-echo "IP of AWS instance $AWS_INSTANCE: $IPV4_ADDRESS"
+ssh Administrator@$IPV4_ADDRESS
 ```
 
 > [!IMPORTANT]
 > The security group is configured to allow both SSH (port 22) and RDP (port 3389) access only from your current public IP address. If your IP changes, you may need to update the security group rules in the AWS console.
 
-### 3. Configure Windows Server
+## Configure Windows Server
 
-```bash
+```shell
 # Configure Windows Server and prepare for Claude Desktop
 ansible-playbook -i inventories/aws/aws_ec2.yml  --vault-password-file ansible-vault-password.txt configure-aws-windows.yml
 ```
 
 **Expected time**: 5-10 minutes
 
-### 4. Connect to Windows Server
+## Connect to the Windows Desktop using RDP
 
-You can connect using either SSH or RDP:
+Use the `Administrator` account to connect via an RDP compatible client.
 
-#### Option A: SSH Connection (Command Line Access)
+## Delete teh VM
 
-```bash
-# Connect via SSH
-ssh Administrator@$IPV4_ADDRESS
-# Or using the AWS instance name directly from inventory
-ssh Administrator@$(aws ec2 describe-instances --filters "Name=tag:Name,Values=lorien-windows" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
-```
+To delete the VM, use the following command:
 
-- **Server**: IP address shown in provision output
-- **Username**: `Administrator`
-- **Password**: From your `playbooks/vars-secrets.yml` file
-- **Port**: `22` (SSH, enabled by default)
-
-#### Option B: RDP Connection (Desktop Access)
-
-Use any RDP client to connect:
-
-- **Server**: IP address shown in provision output
-- **Username**: `Administrator`
-- **Password**: From your `playbooks/vars-secrets.yml` file
-- **Port**: `3389` (RDP)
-
-#### RDP Client Options
-
-**Linux (Remmina)**:
-
-```bash
-# Install if not available
-sudo apt install remmina remmina-plugin-rdp
-
-# Connect
-remmina
-# Enter server IP, username: Administrator, password from vault
-```
-
-**macOS (Microsoft Remote Desktop)**:
-
-- Download from Mac App Store
-- Add PC with server IP
-- Username: Administrator, password from vault
-
-**Windows (Built-in)**:
-
-```cmd
-mstsc
-# Enter server IP, username: Administrator, password from vault
-```
-
-### 5. Install Claude Desktop (Manual Step)
-
-Once connected via RDP (SSH cannot be used for GUI applications):
-
-1. Open Microsoft Edge browser
-2. Navigate to: `https://claude.ai/download`
-3. Download the Windows installer
-4. Run the installer
-5. Claude Desktop will be available in Start Menu
-
-### 6. Use Claude Desktop
-
-- Launch Claude Desktop from Start Menu
-- Sign in with your Claude account
-- Application is ready for use
-
-### 7. Destroy Environment (Important!)
-
-When finished, destroy the environment to stop costs:
-
-```bash
+```shell
 ansible-playbook destroy-aws-windows.yml
 ```
 
-**Expected time**: 2-5 minutes
-
-## Cost Information
-
-### MVP Costs (t3.large)
-
-- **Instance**: ~$0.0832/hour
-- **Storage**: ~$4/month (50GB)
-- **Total if running 24/7**: ~$64/month
-
-### Typical Usage Costs
-
-- **2-3 hour session**: ~$0.25
-- **10-15 hours/week**: ~$15/month
-- **Always destroy when not in use**
-
-## Troubleshooting
-
-### SSH Connection Issues
-
-1. **Check security group**: Ensure your IP is allowed for port 22
-2. **Wait for boot**: Windows takes 10-15 minutes to fully boot and enable SSH
-3. **Authentication**: Use Administrator username and password from vault
-4. **Test connectivity**: `ssh Administrator@$IPV4_ADDRESS 'whoami'`
-5. **Key pair type**: Ensure you're using RSA or ECDSA key pairs (ED25519 not supported for Windows AMIs)
-
-### RDP Connection Issues
-
-1. **Check security group**: Ensure your IP is allowed for port 3389
-2. **Wait for boot**: Windows takes 10-15 minutes to fully boot
-3. **Check instance status**: Verify instance is running in AWS Console
-
-### Ansible Connection Issues
-
-1. **SSH/WinRM not ready**: Wait additional 5 minutes after SSH is available
-2. **Password issues**: Verify `windows_admin_password` in vault
-3. **Inventory issues**: Check `ansible-inventory -i inventories/aws/aws_ec2.yml --list`
-4. **Connection method**: Ansible can use both SSH and WinRM for Windows management
-
-### Performance Issues
-
-1. **Instance size**: MVP uses t3.large for reliability
-2. **RDP settings**: Configured for optimal performance
-3. **Network**: Ensure good internet connection for RDP
-
-## Security Notes
-
-- **IP Restriction**: Both SSH (port 22) and RDP (port 3389) access limited to your current IP
-- **Strong Password**: Use complex password in vault
-- **Temporary Access**: Destroy instances when not needed
-- **Dual Access**: Windows Server supports both SSH (command line) and RDP (desktop)
-- **SSH Benefits**: SSH provides secure command-line access and works with Ansible
-- **RDP Benefits**: RDP provides full desktop environment for GUI applications like Claude Desktop
-
-## Next Steps After MVP
-
-The MVP provides basic Claude Desktop access. Future optimizations will include:
-
-1. **Cost Optimization**: Smaller instances and usage patterns
-2. **Automated Installation**: Full Claude Desktop automation
-3. **Advanced Security**: Enhanced security configurations
-4. **Performance Tuning**: RDP and application optimization
-
-## Files Created
-
-This MVP implementation creates:
-
-- `provision-aws-windows.yml` - Main provisioning playbook
-- `configure-aws-windows.yml` - Configuration playbook
-- `destroy-aws-windows.yml` - Cleanup playbook
-- `provisioners/aws-windows.yml` - Windows Server provisioner
-- `inventories/aws/group_vars/aws_windows/vars.yml` - Windows variables
-- Updated `inventories/aws/aws_ec2.yml` - Multi-OS inventory
-- Updated `playbooks/vars-secrets-template.yml` - Windows password template
-
-## Support
-
-For issues or improvements, refer to the project documentation or create an issue in the repository.
+You can verify that all resources are deleted in your [AWS EC2 console](https://console.aws.amazon.com/ec2/).
