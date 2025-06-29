@@ -12,6 +12,8 @@
 - [x] We have a working OpenSSH server on the windows machine. Update all documentation to reflect that SSH is enabled on the server.
 - [x] AWS does not allow ED25519 key pairs for Windows AMIs. Update the documentation
 - [x] All AWS related documentation files should be placed into a separate folder docs/aws. Create a docs/aws.md that acts as an entry point to the detailed AWS documentation. Update top level README accordingly.
+- [x] ansible commands are missing the --vault-password-file ansible-vault-password.txt parameter; see docs/create-hetzner-vm.md for example.
+
 ## Ongoing: Findings that are currently fixed
 
 Identifiziere das nächste Finding.
@@ -23,7 +25,6 @@ Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederz
 
 #### docs/windows-server-mvp-usage.md
 
-- [ ] ansible commands are missing the --vault-password-file ansible-vault-password.txt parameter; see docs/create-hetzner-vm.md for example.
 - [ ] Secrets set up is described in important concepts. Remove the redundant information and replace it with a link to the important concepts. If necessary, update important concepts with new information.
 - [ ] Extract the section about performance, prerequisites, setting up the AWS account and environment variables into separate file. Re-use the file in docs/windows-server-mvp-usage.md and in docs/create-aws-vm.md
 

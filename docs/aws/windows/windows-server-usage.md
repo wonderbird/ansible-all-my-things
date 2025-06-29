@@ -72,7 +72,7 @@ echo "IP of AWS instance $AWS_INSTANCE: $IPV4_ADDRESS"
 
 ```bash
 # Configure Windows Server and prepare for Claude Desktop
-ansible-playbook -i inventories/aws/aws_ec2.yml configure-aws-windows.yml
+ansible-playbook -i inventories/aws/aws_ec2.yml  --vault-password-file ansible-vault-password.txt configure-aws-windows.yml
 ```
 
 **Expected time**: 5-10 minutes
