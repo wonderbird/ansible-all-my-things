@@ -13,12 +13,6 @@ ansible_port: 22
 ansible_shell_type: powershell
 ansible_shell_executable: powershell
 
-# Windows Authentication
-# Note: windows_admin_password must be set in /playbooks/vars-secrets.yml
-# Example: ansible-vault edit --vault-password-file ./ansible-vault-password.txt ./playbooks/vars-secrets.yml
-ansible_password: "{{ windows_admin_password }}"
-ansible_ssh_pass: "{{ windows_admin_password }}"
-
 # Windows-specific Configuration
 windows_features_to_enable:
   - "Desktop-Experience"

@@ -7,12 +7,9 @@
   vars_files:
     - playbooks/vars-secrets.yml
 
-  vars:
-    windows_admin_password: "{{ windows_admin_password }}"
-
   tasks:
     - name: Install Chocolatey package manager
-      shell: |
+      win_shell: |
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
         iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
@@ -24,7 +21,7 @@
   gather_facts: false
   tasks:
     - name: Configure RDP settings for better performance
-      shell: |
+      win_shell: |
         # Configure RDP for 32-bit color depth
         Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "ColorDepth" -Value 4 -Type DWord
         # Enable clipboard sharing

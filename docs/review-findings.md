@@ -16,6 +16,9 @@
 - [x] ansible commands are missing the --vault-password-file ansible-vault-password.txt parameter; see docs/create-hetzner-vm.md for example.
 - [x] Secrets set up is described in important concepts. Remove the redundant information and replace it with a link to the important concepts. If necessary, update important concepts with new information.
 - [x] Extract the section about performance, prerequisites, setting up the AWS account and environment variables into separate file. Re-use the file in docs/windows-server-mvp-usage.md and in docs/create-aws-vm.md
+- [x] Run the configure-aws-windows.yml file and check the results
+- [x] Required by parent: Can we use SSH for ansible automation instead of WinRM? -> Yes.
+- [x] Required by parent: Set up key based SSH login
 
 ## Ongoing: Findings that are currently fixed
 
@@ -23,14 +26,14 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
-- [ ] Run the configure-aws-windows.yml file and check the results
-  - [ ] Required by parent: Can we use SSH for ansible automation instead of WinRM? -> If SSH key can be used to log in probably
-    - [ ] Required by parent: Set up key based SSH login
 
 ## Backlog
 
 ### Todos in context with the review
 
+- [ ] Doku: win_shell und win_command statt der shell und command Module verwenden. Sonst gibt's nen Fehler
+- [ ] Windows Admin Passwort wird nicht in den Secrets benötigt, wenn der SSH Key geladen ist!
+- [ ] Sollte das Ansible Vault statt in playbooks/vars-secrets.yml woanders liegen? z.B. unter dem jeweiligen Inventory? Bsp: inventories/aws/group_vars/aws_windows
 - [ ] Set up a basic version of configure-aws-windows.yml with the following configuration: claude desktop
 - [ ] Check whether structures can be simplified, merged and re-used; identify duplication, fix duplication
 
