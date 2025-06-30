@@ -21,13 +21,13 @@ Replace `user@host` with the name of your AWS key pair (without the `.pem` exten
 ansible-inventory -i inventories/aws/aws_ec2.yml --graph
 
 # Check whether the server can be reached
-ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' --extra-vars "ansible_user=ubuntu aws_ssh_key_name=user@host"
+ansible aws_windows -i ./inventories/aws/aws_ec2.yml -m shell -a 'whoami' --extra-vars "ansible_user=Administrator windows_admin_password=$WINDOWS_ADMIN_PASSWORD aws_ssh_key_name=user@host" --user Administrator --ask-pass -vvv
 ```
 
 You can also SSH directly to the instance. The value of `IPV4_ADDRESS` is described in [Obtain Remote IP Adress](../../obtain-remote-ip-address.md).
 
 ```shell
-ssh Administrator@$IPV4_ADDRESS
+ssh -i ~/.ssh/user@host.pem Administrator@$IPV4_ADDRESS
 ```
 
 > [!IMPORTANT]
@@ -36,8 +36,7 @@ ssh Administrator@$IPV4_ADDRESS
 ## Configure Windows Server
 
 ```shell
-# Configure Windows Server and prepare for Claude Desktop
-ansible-playbook -i inventories/aws/aws_ec2.yml  --vault-password-file ansible-vault-password.txt configure-aws-windows.yml
+ansible-playbook -i inventories/aws/aws_ec2.yml  --vault-password-file ansible-vault-password.txt --extra-vars "ansible_user=Administrator aws_ssh_key_name=user@host" configure-aws-windows.yml
 ```
 
 **Expected time**: 5-10 minutes
