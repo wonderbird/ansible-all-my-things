@@ -1,24 +1,7 @@
 ---
 - name: Install Chocolatey
-  hosts: aws_windows
+  hosts: os_windows
 
-  gather_facts: false
-
-  vars_files:
-    - playbooks/vars-secrets.yml
-
-  tasks:
-    - name: Install Chocolatey package manager
-      win_shell: |
-        Set-ExecutionPolicy Bypass -Scope Process -Force
-        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
-        iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-      args:
-        creates: C:\ProgramData\chocolatey\bin\choco.exe
-
-- name: Configure RDP experience
-  hosts: aws_windows
-  gather_facts: false
   tasks:
     - name: Configure RDP settings for better performance
       win_shell: |
@@ -26,3 +9,11 @@
         Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "ColorDepth" -Value 4 -Type DWord
         # Enable clipboard sharing
         Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "fDisableClip" -Value 0 -Type DWord
+
+    - name: Install Chocolatey package manager
+      win_shell: |
+        Set-ExecutionPolicy Bypass -Scope Process -Force
+        [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+        iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+      args:
+        creates: C:\ProgramData\chocolatey\bin\choco.exe

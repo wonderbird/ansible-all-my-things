@@ -14,7 +14,7 @@
     aws_region: "{{ aws_default_region | default('eu-north-1') }}"
     aws_instance_type: "{{ aws_windows_instance_type | default('t3.large') }}"  # Larger for Windows GUI
     aws_ami_id: "{{ aws_windows_ami_id | default('ami-01998fe5b868df6e3') }}"  # Windows Server 2025 Base in eu-north-1
-    aws_key_name: "{{ aws_ssh_key_name }}"
+    aws_ssh_key_name: "stefan@fangorn"
     aws_security_group_name: "ansible-windows-sg"
     aws_instance_name: "lorien-windows"
 
@@ -22,11 +22,9 @@
     - name: Ensure required variables are defined
       ansible.builtin.assert:
         that:
-          - aws_ssh_key_name is defined
-          - aws_ssh_key_name | length > 0
           - windows_admin_password is defined
           - windows_admin_password | length > 0
-        fail_msg: "aws_ssh_key_name and windows_admin_password must be defined"
+        fail_msg: "windows_admin_password must be defined"
 
     - name: Get current public IP for security group
       ansible.builtin.uri:
@@ -60,14 +58,6 @@
           CreatedBy: "ansible"
       register: security_group
 
-    - name: Check if Windows instance already exists
-      amazon.aws.ec2_instance_info:
-        region: "{{ aws_region }}"
-        filters:
-          "tag:Name": "{{ aws_instance_name }}"
-          instance-state-name: ["running", "pending", "stopping", "stopped"]
-      register: existing_instances
-
     - name: Generate Windows user data script
       ansible.builtin.set_fact:
         windows_user_data: |
@@ -98,24 +88,24 @@
           New-Item -Path "C:\ansible-setup-complete.txt" -ItemType File -Force
           </powershell>
 
-    - name: Launch Windows Server EC2 instance (idempotent)
+    - name: Launch Windows Server EC2 instance
       amazon.aws.ec2_instance:
         name: "{{ aws_instance_name }}"
         image_id: "{{ aws_ami_id }}"
         instance_type: "{{ aws_instance_type }}"
-        key_name: "{{ aws_key_name }}"
+        key_name: "{{ aws_ssh_key_name }}"
         security_groups:
           - "{{ aws_security_group_name }}"
         region: "{{ aws_region }}"
         state: present
         wait: true
-        wait_timeout: 600  # Windows takes longer to boot
+        wait_timeout: 600
         user_data: "{{ windows_user_data }}"
         volumes:
           - device_name: /dev/sda1
             ebs:
               volume_type: gp3
-              volume_size: 50  # Windows Server needs more space
+              volume_size: 50
               delete_on_termination: true
         tags:
           Name: "{{ aws_instance_name }}"
@@ -125,32 +115,6 @@
           Environment: "development"
           OS: "windows"
       register: ec2_instance
-      when: existing_instances.instances | length == 0
-
-    - name: Get existing instance info if not created
-      amazon.aws.ec2_instance_info:
-        region: "{{ aws_region }}"
-        filters:
-          "tag:Name": "{{ aws_instance_name }}"
-          instance-state-name: ["running", "pending", "stopping", "stopped"]
-      register: ec2_instance_info
-      when: existing_instances.instances | length > 0
-
-    - name: Set instance facts for existing instance
-      ansible.builtin.set_fact:
-        ec2_instance:
-          instances: "{{ ec2_instance_info.instances }}"
-      when: existing_instances.instances | length > 0
-
-    - name: Wait for Windows to become available (RDP port)
-      ansible.builtin.wait_for:
-        host: "{{ ec2_instance.instances[0].public_ip_address }}"
-        port: 3389
-        delay: 60  # Windows takes longer to start
-        timeout: 900  # 15 minutes for Windows boot + configuration
-        state: started
-      when: ec2_instance.instances | length > 0
-
 
     - name: Wait for SSH to become available
       ansible.builtin.wait_for:
@@ -159,37 +123,3 @@
         delay: 30
         timeout: 600
         state: started
-      when: ec2_instance.instances | length > 0
-
-    - name: Display Windows Server instance information
-      ansible.builtin.debug:
-        msg:
-          - "Windows Server EC2 Instance created successfully!"
-          - "Instance ID: {{ ec2_instance.instances[0].instance_id }}"
-          - "Public IP: {{ ec2_instance.instances[0].public_ip_address }}"
-          - "Instance Type: {{ ec2_instance.instances[0].instance_type }}"
-          - "RDP Connection: {{ ec2_instance.instances[0].public_ip_address }}:3389"
-          - "SSH Connection: {{ ec2_instance.instances[0].public_ip_address }}:22"
-          - "Username: Administrator"
-          - "Password: {{ windows_admin_password }}"
-          - ""
-          - "To configure this instance, run:"
-          - "ansible-playbook -i inventories/aws/aws_ec2.yml configure-aws-windows.yml"
-          - ""
-          - "To connect via RDP:"
-          - "  - Use any RDP client (Windows Remote Desktop, Remmina, etc.)"
-          - "  - Server: {{ ec2_instance.instances[0].public_ip_address }}"
-          - "  - Username: Administrator"
-          - "  - Password: [from vault]"
-          - ""
-          - "To connect via SSH:"
-          - "  - ssh Administrator@{{ ec2_instance.instances[0].public_ip_address }}"
-          - "  - Password: [from vault]"
-          - "  - Default shell: PowerShell"
-      when: ec2_instance.instances | length > 0
-
-    - name: Save Windows instance information for inventory
-      ansible.builtin.set_fact:
-        aws_windows_instance_id: "{{ ec2_instance.instances[0].instance_id }}"
-        aws_windows_instance_ip: "{{ ec2_instance.instances[0].public_ip_address }}"
-      when: ec2_instance.instances | length > 0

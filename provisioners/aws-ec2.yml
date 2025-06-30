@@ -10,18 +10,11 @@
     aws_region: "{{ aws_default_region | default('eu-north-1') }}"
     aws_instance_type: "{{ aws_default_instance_type | default('t3.micro') }}"
     aws_ami_id: "{{ aws_default_ami_id | default('ami-0989fb15ce71ba39e') }}"  # Ubuntu 24.04 LTS in eu-north-1
-    aws_key_name: "{{ aws_ssh_key_name }}"
+    aws_ssh_key_name: "stefan@fangorn"
     aws_security_group_name: "ansible-dev-sg"
     aws_instance_name: "lorien"
 
   tasks:
-    - name: Ensure required variables are defined
-      ansible.builtin.assert:
-        that:
-          - aws_ssh_key_name is defined
-          - aws_ssh_key_name | length > 0
-        fail_msg: "aws_ssh_key_name must be defined in group_vars or extra_vars"
-
     - name: Get current public IP for security group
       ansible.builtin.uri:
         url: https://ipinfo.io/ip
@@ -62,7 +55,7 @@
         name: "{{ aws_instance_name }}"
         image_id: "{{ aws_ami_id }}"
         instance_type: "{{ aws_instance_type }}"
-        key_name: "{{ aws_key_name }}"
+        key_name: "{{ aws_ssh_key_name }}"
         security_groups:
           - "{{ aws_security_group_name }}"
         region: "{{ aws_region }}"
@@ -115,7 +108,7 @@
           - "Instance ID: {{ ec2_instance.instances[0].instance_id }}"
           - "Public IP: {{ ec2_instance.instances[0].public_ip_address }}"
           - "Instance Type: {{ ec2_instance.instances[0].instance_type }}"
-          - "SSH Command: ssh -i ~/.ssh/{{ aws_key_name }}.pem ubuntu@{{ ec2_instance.instances[0].public_ip_address }}"
+          - "SSH Command: ssh -i ~/.ssh/{{ aws_ssh_key_name }}.pem ubuntu@{{ ec2_instance.instances[0].public_ip_address }}"
           - ""
           - "To configure this instance, run:"
           - "ansible-playbook -i inventories/aws/aws_ec2.yml configure.yml"

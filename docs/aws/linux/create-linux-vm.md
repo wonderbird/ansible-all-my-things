@@ -7,10 +7,10 @@ The section **Prerequisites** in the parent [AWS Documentation](../../aws.md) fi
 ## Create the VM
 
 ```shell
-ansible-playbook --vault-password-file ansible-vault-password.txt --extra-vars "aws_ssh_key_name=user@host" ./provision-aws.yml
+ansible-playbook --vault-password-file ansible-vault-password.txt ./provision-aws.yml
 ```
 
-Replace `user@host` with the name of your AWS key pair (without the `.pem` extension).
+Replace `stefan@fangorn` with the name of your AWS key pair (without the `.pem` extension).
 
 After provisioning, the setup will take approximately 10-15 minutes to complete the full configuration.
 
@@ -21,13 +21,13 @@ After provisioning, the setup will take approximately 10-15 minutes to complete 
 ansible-inventory -i inventories/aws/aws_ec2.yml --graph
 
 # Check whether the server can be reached
-ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' --extra-vars "ansible_user=ubuntu aws_ssh_key_name=user@host"
+ansible aws_dev -i inventories/aws/aws_ec2.yml -m shell -a 'whoami' --extra-vars "ansible_user=ubuntu aws_ssh_key_name=stefan@fangorn"
 ```
 
 You can also SSH directly to the instance. The value of `IPV4_ADDRESS` is described in [Obtain Remote IP Adress](../../obtain-remote-ip-address.md).
 
 ```shell
-ssh -i ~/.ssh/user@host.pem ubuntu@$IPV4_ADDRESS
+ssh -i ~/.ssh/stefan@fangorn.pem ubuntu@$IPV4_ADDRESS
 ```
 
 > [!IMPORTANT]

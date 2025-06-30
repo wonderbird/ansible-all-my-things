@@ -19,6 +19,7 @@
 - [x] Run the configure-aws-windows.yml file and check the results
 - [x] Required by parent: Can we use SSH for ansible automation instead of WinRM? -> Yes.
 - [x] Required by parent: Set up key based SSH login
+- [x] Windows Admin Passwort wird nicht in den Secrets benötigt, wenn der SSH Key geladen ist! - Falsch: Das Passwort wird für den Remote Desktop Nutzer benötigt.
 
 ## Ongoing: Findings that are currently fixed
 
@@ -31,11 +32,10 @@ Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederz
 
 ### Todos in context with the review
 
-- [ ] Doku: win_shell und win_command statt der shell und command Module verwenden. Sonst gibt's nen Fehler
-- [ ] Windows Admin Passwort wird nicht in den Secrets benötigt, wenn der SSH Key geladen ist!
 - [ ] Sollte das Ansible Vault statt in playbooks/vars-secrets.yml woanders liegen? z.B. unter dem jeweiligen Inventory? Bsp: inventories/aws/group_vars/aws_windows
-- [ ] Set up a basic version of configure-aws-windows.yml with the following configuration: claude desktop
 - [ ] Check whether structures can be simplified, merged and re-used; identify duplication, fix duplication
+
+- [ ] Sicherstellen, dass die AWS Security Group für beide Playbooks dieselbe ist.
 
 #### Duplication
 

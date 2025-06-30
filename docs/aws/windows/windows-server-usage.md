@@ -7,10 +7,10 @@ The section **Prerequisites** in the parent [AWS Documentation](../../aws.md) fi
 ## Create the VM
 
 ```bash
-ansible-playbook provision-aws-windows.yml -e "aws_ssh_key_name=user@host" --vault-password-file ansible-vault-password.txt -vvv
+ansible-playbook provision-aws-windows.yml --vault-password-file ansible-vault-password.txt
 ```
 
-Replace `user@host` with the name of your AWS key pair (without the `.pem` extension).
+Replace `stefan@fangorn` with the name of your AWS key pair (without the `.pem` extension).
 
 **Expected time**: 15-20 minutes (Windows takes longer to boot than Linux)
 
@@ -24,7 +24,7 @@ ansible-inventory -i inventories/aws/aws_ec2.yml --graph
 Before executing the other commands in this section, load your AWS key into your SSH agent:
 
 ```shell
-ssh-add ~/.ssh/user@host.pem
+ssh-add ~/.ssh/stefan@fangorn.pem
 ```
 
 Then run the following commands to verify the setup:

@@ -119,7 +119,7 @@ Create or import an SSH key pair in the AWS EC2 console:
 
 1. Go to EC2 → Key Pairs in your AWS console
 2. Either create a new key pair or import your existing public key
-3. Note the key pair name for configuration (user@host)
+3. Configure the key pair name in [/inventories/aws/aws_ec2.yml](../inventories/aws/aws_ec2.yml) (In this documentation, "stefan@fangorn" is used as key pair name)
 4. Ensure you have the corresponding private key file (`.pem` format) in your `~/.ssh/` directory with permissions restricted to 600: `chmod 600 ~/.ssh/*pem`
 
 > [!IMPORTANT]
