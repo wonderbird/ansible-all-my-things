@@ -15,7 +15,7 @@
 
     all_users: "{{ console_users + desktop_users }}"
 
-    ssh_public_key: "{{ my_ssh_public_key | default('secrets must be specified in vars-secrets.yml') }}"
+    ssh_public_key: "{{ my_ssh_public_key_linux | default('secrets must be specified in vars-secrets.yml') }}"
 
   handlers:
     - name: Restart SSH

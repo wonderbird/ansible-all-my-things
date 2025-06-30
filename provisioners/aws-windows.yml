@@ -24,7 +24,9 @@
         that:
           - windows_admin_password is defined
           - windows_admin_password | length > 0
-        fail_msg: "windows_admin_password must be defined"
+          - my_ssh_public_key_windows is defined
+          - my_ssh_public_key_windows | length > 0
+        fail_msg: "windows_admin_password and my_ssh_public_key_windows must be defined"
 
     - name: Get current public IP for security group
       ansible.builtin.uri:
@@ -83,6 +85,24 @@
           # Configure SSH for Administrator access
           # Set default shell to PowerShell for SSH sessions
           New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force
+
+          # Configure SSH key authentication for Administrator
+          $AdminSSHDir = "C:\Users\Administrator\.ssh"
+          if (-not (Test-Path $AdminSSHDir)) {
+              New-Item -ItemType Directory -Path $AdminSSHDir -Force
+          }
+
+          # Set up authorized_keys file with your public key
+          $PublicKey = "{{ my_ssh_public_key_windows }}"
+          Set-Content -Path "$AdminSSHDir\authorized_keys" -Value $PublicKey
+
+          # Set correct permissions on SSH directory and authorized_keys
+          icacls $AdminSSHDir /inheritance:r
+          icacls $AdminSSHDir /grant:r "Administrator:(OI)(CI)F"
+          icacls $AdminSSHDir /grant:r "SYSTEM:(OI)(CI)F"
+          icacls "$AdminSSHDir\authorized_keys" /inheritance:r
+          icacls "$AdminSSHDir\authorized_keys" /grant:r "Administrator:F"
+          icacls "$AdminSSHDir\authorized_keys" /grant:r "SYSTEM:F"
 
           # Create signal file to indicate setup completion
           New-Item -Path "C:\ansible-setup-complete.txt" -ItemType File -Force
