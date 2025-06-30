@@ -1,134 +1,31 @@
 ---
-# Configure AWS Windows Server for Claude Desktop Application
-# Main configuration playbook for Windows Server instances
-
-- name: Load secrets for Windows Server configuration
-  hosts: localhost
-  gather_facts: false
-  vars_files:
-    - playbooks/vars-secrets.yml
-  tasks:
-    - name: Verify Windows admin password is configured
-      ansible.builtin.assert:
-        that:
-          - windows_admin_password is defined
-          - windows_admin_password | length > 0
-        fail_msg: "windows_admin_password must be set in playbooks/vars-secrets.yml"
-
-- name: Configure Windows Server Basic Setup
+- name: Install Chocolatey
   hosts: aws_windows
-  gather_facts: true
-  vars_files:
-    - playbooks/vars-secrets.yml
-  tasks:
-    - name: Test Windows connection via SSH
-      ansible.builtin.ping:
 
-    - name: Get Windows system information
-      ansible.builtin.shell: |
-        Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, TotalPhysicalMemory | Format-Table -AutoSize
-      register: system_info
-
-    - name: Display system information
-      ansible.builtin.debug:
-        msg:
-          - "Windows Server SSH connection successful!"
-          - "System Info: {{ system_info.stdout }}"
-
-- name: Install Claude Desktop Application
-  hosts: aws_windows
   gather_facts: false
+
   vars_files:
     - playbooks/vars-secrets.yml
+
+  vars:
+    windows_admin_password: "{{ windows_admin_password }}"
+
   tasks:
     - name: Install Chocolatey package manager
-      ansible.builtin.shell: |
+      shell: |
         Set-ExecutionPolicy Bypass -Scope Process -Force
         [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
         iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
-      register: chocolatey_install
-      ignore_errors: true
+      args:
+        creates: C:\ProgramData\chocolatey\bin\choco.exe
 
-    - name: Create temporary download directory
-      ansible.builtin.shell: |
-        New-Item -Path "C:\temp" -ItemType Directory -Force
-      register: temp_dir_result
-
-    - name: Download Claude Desktop installer (manual approach for MVP)
-      ansible.builtin.shell: |
-        # For MVP, we'll provide manual installation instructions
-        # Claude Desktop doesn't have a direct download URL for automation
-        Write-Host "Claude Desktop installation requires manual download"
-        Write-Host "Please visit https://claude.ai/download and download the Windows installer"
-        Write-Host "Then run the installer via RDP"
-      register: claude_download_info
-
-    - name: Create desktop shortcut placeholder
-      ansible.builtin.shell: |
-        New-Item -Path "C:\Users\Public\Desktop\Claude Desktop - Manual Install Required.txt" -ItemType File -Force
-
-    - name: Add installation instructions to desktop
-      ansible.builtin.copy:
-        content: |
-          Claude Desktop Installation Instructions
-          =====================================
-          
-          1. Open a web browser (Edge is pre-installed)
-          2. Navigate to: https://claude.ai/download
-          3. Download the Windows installer
-          4. Run the installer
-          5. Claude Desktop will be available in Start Menu
-          
-          This file can be deleted after Claude Desktop is installed.
-        dest: C:\Users\Public\Desktop\Claude Desktop - Manual Install Required.txt
-
-- name: Configure Windows Server for optimal RDP experience
+- name: Configure RDP experience
   hosts: aws_windows
   gather_facts: false
   tasks:
-    - name: Enable Windows features for desktop experience
-      ansible.builtin.shell: |
-        Enable-WindowsOptionalFeature -Online -FeatureName "Internet-Explorer-Optional-amd64" -All -NoRestart
-      ignore_errors: true
-
     - name: Configure RDP settings for better performance
-      ansible.builtin.shell: |
+      shell: |
         # Configure RDP for 32-bit color depth
         Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "ColorDepth" -Value 4 -Type DWord
         # Enable clipboard sharing
         Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp" -Name "fDisableClip" -Value 0 -Type DWord
-      ignore_errors: true
-
-    - name: Set Windows power plan to High Performance
-      ansible.builtin.shell: |
-        powercfg /setactive 8c5e7fda-e8bf-4a96-9a85-a6e23a8c635c
-      ignore_errors: true
-
-- name: Display completion information
-  hosts: localhost
-  gather_facts: false
-  tasks:
-    - name: Show Windows Server ready message
-      ansible.builtin.debug:
-        msg:
-          - "Windows Server configuration complete!"
-          - ""
-          - "System Status:"
-          - "✓ Windows Server 2025 running"
-          - "✓ RDP access configured"
-          - "✓ Chocolatey package manager installed"
-          - "✓ Desktop optimized for RDP"
-          - ""
-          - "Manual Steps Required:"
-          - "1. Connect via RDP to complete Claude Desktop installation"
-          - "2. Follow instructions in desktop file: 'Claude Desktop - Manual Install Required.txt'"
-          - ""
-          - "RDP Connection:"
-          - "  Use your RDP client to connect"
-          - "  Username: Administrator"
-          - "  Password: [from playbooks/vars-secrets.yml]"
-          - ""
-          - "After Claude Desktop installation:"
-          - "  - Claude Desktop will be available in Start Menu"
-          - "  - Desktop shortcut can be created manually"
-          - "  - Application ready for immediate use"

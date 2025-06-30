@@ -34,7 +34,6 @@ hostnames:
 # Variables to include in inventory
 compose:
   ansible_host: public_ip_address
-  # Set connection variables based on OS
   ansible_user: "{{ 'Administrator' if (tags.OS | default('linux')) == 'windows' else 'ubuntu' }}"
   ansible_connection: "{{ 'winrm' if (tags.OS | default('linux')) == 'windows' else 'ssh' }}"
   ansible_winrm_transport: "{{ 'basic' if (tags.OS | default('linux')) == 'windows' else omit }}"

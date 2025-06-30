@@ -12,11 +12,7 @@ export IPV4_ADDRESS=$(hcloud server list -o json | jq '.[0].public_net.ipv4.ip' 
 export AWS_INSTANCE=lorien
 
 # the Windows VM name is lorien-windows
-export AWS_INSTANCE=lorien-windows
-
-export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$AWS_INSTANCE" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
-
-echo "IP of AWS instance $AWS_INSTANCE: $IPV4_ADDRESS"
+export AWS_INSTANCE=lorien-windows; export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=$AWS_INSTANCE" "Name=instance-state-name,Values=running" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text); echo "IP of AWS instance $AWS_INSTANCE: $IPV4_ADDRESS"
 
 # Tart provider for Vagrant
 export IPV4_ADDRESS=$(tart ip lorien); echo "IPv4 address: \"$IPV4_ADDRESS\""
