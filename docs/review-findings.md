@@ -23,12 +23,14 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
+- [ ] Run the configure-aws-windows.yml file and check the results
+  - [ ] Required by parent: Can we use SSH for ansible automation instead of WinRM? -> If SSH key can be used to log in probably
+    - [ ] Required by parent: Set up key based SSH login
+
 ## Backlog
 
 ### Todos in context with the review
 
-- [ ] Run the configure-aws-windows.yml file and check the results
-- [ ] Can we use SSH for ansible automation instead of WinRM?
 - [ ] Set up a basic version of configure-aws-windows.yml with the following configuration: claude desktop
 - [ ] Check whether structures can be simplified, merged and re-used; identify duplication, fix duplication
 
@@ -42,6 +44,7 @@ Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederz
 
 #### provision-aws-windows.yml
 
+- [ ] Remove unneccesary parts
 - [ ] Simplify configuration parameteres to the bare minimum. Remove options, if they are not needed for this iteration.
 - [ ] provision playbook should invoke the configure playbook. Implementation should be similar to the Hetzner pattern in provision.yml.
 
