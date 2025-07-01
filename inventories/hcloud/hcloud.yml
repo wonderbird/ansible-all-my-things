@@ -26,9 +26,6 @@
 plugin: hetzner.hcloud.hcloud
 
 keyed_groups:
-
-  # Suppress the prefix and the separator so that the group names are not
-  # prefixed with "_".
   - key: labels.ansible_group
     prefix: ""
     separator: ""

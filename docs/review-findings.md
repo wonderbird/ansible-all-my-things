@@ -25,6 +25,7 @@
 - [x] provision-aws-windows.yml: Remove unneccesary parts
 - [x] provision-aws-windows.yml: Simplify configuration parameteres to the bare minimum. Remove options, if they are not needed for this iteration.
 - [x] provision-aws-windows.yml: provision playbook should invoke the configure playbook. Implementation should be similar to the Hetzner pattern in provision.yml.
+- [x] Remove unused variables in inventories/aws/group_vars/aws_windows/vars.yml
 
 ## Ongoing: Findings that are currently fixed
 
@@ -32,13 +33,18 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
-- [ ] Remove unused variables in inventories/aws/group_vars/aws_windows/vars.yml
-
 ## Backlog
 
 ### Todos in context with the review
 
+- [ ] AWS Linux Computer soll genauso (fertig-)konfiguriert werden wie die Hetzner VM. Versuche, die Provider spezifische Konfiguration komplett über das entsprechende Provisioner Skript abzubilden. Falls das nicht möglich ist: Helfen Provider spezifische Inventory Gruppen, z.B. "hcloud_linux", "aws_linux", "aws_windows"?
+
+- [ ] Vereinfache "admin_user_on_fresh_system" Konzept - Der admin_user_on_fresh_system kann im Inventory in der jeweiligen vars.yml definiert werden. Will ich den gandalf beibehalten?
+
 - [ ] Sollte das Ansible Vault statt in playbooks/vars-secrets.yml woanders liegen? z.B. unter dem jeweiligen Inventory? Bsp: inventories/aws/group_vars/aws_windows
+
+- [ ] Vereinfache inventories/aws/aws_ec2.yml - Lösche nicht benötigte Variablen
+
 - [ ] Check whether structures can be simplified, merged and re-used; identify duplication, fix duplication
 
 - [ ] Sicherstellen, dass die AWS Security Group für beide Playbooks dieselbe ist.
@@ -46,3 +52,11 @@ Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederz
 #### scripts/create-remote-repository.sh and scripts/delete-remote-repository.sh
 
 - [ ] The shell scripts in the scripts folder should be python scripts, so that they are more compatible with other platforms and so that they can be integrated into a real application later
+
+## Nächste Schritte
+
+- [ ] Dokumentation aus inventories/hcloud/hcloud.yml in ein Dok-Verzeichnis verschieben, welches die gesamte technische Infra beschreibt. Ggf. ist es an der Zeit, Konzepte in tech Dok festzuhalten.
+- [ ] Struktur vereinheitlichen: linux (hetzner, aws); windows; setup scripte ggf. in Rollen umwandeln; aws_dev sollte ggf. aws_linux heißen; aws_ec2 sollte in teilen ebenfalls aws_linux heißen; "linux" als Gruppe einführen analog zu "windows"; Playbooks auf owindows / linux einschränken - insbesondere die hcloud Playbooks enthalten "dev" oder "all" als Einschränkung
+- [ ] Updates auf der AWS Windows Instanz installieren und System Reboot durchführen, falls nötig
+- [ ] Ermögliche es, Instanzen bei Bedarf hinzuzufügen - die Anzahl der Instanzen soll irgendwie einfach zu ändern sein.
+  - [ ] Ist es sinnvoll, die Instanzen anhand Ihrer festen Namen unterscheidbar zu machen? Benenne lorien-windows um in moria; Benenne lorien (aws, linux) um in ...

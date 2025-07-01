@@ -11,20 +11,20 @@ ansible-playbook provision-aws-windows.yml --vault-password-file ansible-vault-p
 ```
 
 > [!IMPORTANT]
-> Only after some minutes, SSH will ask you to confirm the host key.
+> Only after some 3 minutes, SSH will ask you to confirm the host key.
 >
 > The delay is caused by the long time a Windows instance requires to boot.
 
-**Expected time**: 15-20 minutes (Windows takes longer to boot than Linux)
+**Expected time**: 5 minutes
 
 ## Verify the Setup
 
 ```shell
 # Show the inventory
-ansible-inventory -i inventories/aws/aws_ec2.yml --graph
+ansible-inventory --graph
 ```
 
-Before executing the other commands in this section, load your AWS key into your SSH agent:
+Before executing the other commands in this section, load the configured key into your SSH agent:
 
 ```shell
 ssh-add ~/.ssh/stefan@fangorn.pem
@@ -34,7 +34,7 @@ Then run the following commands to verify the setup:
 
 ```shell
 # Check whether the server can be reached
-ansible aws_windows -i ./inventories/aws/aws_ec2.yml -m win_command -a 'whoami'
+ansible windows -m win_command -a 'whoami'
 ```
 
 You can also SSH directly to the instance. The value of `IPV4_ADDRESS` is described in [Obtain Remote IP Adress](../../obtain-remote-ip-address.md).

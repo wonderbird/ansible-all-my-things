@@ -1,41 +1,13 @@
 ---
-# AWS EC2 Dynamic Inventory Configuration
-# Simplified configuration following Hetzner pattern
-
 plugin: amazon.aws.aws_ec2
 
-# AWS connection settings
-regions:
-  - eu-north-1
-
-# Instance filters - include running instances with ansible_group tag
-filters:
-  instance-state-name: running
-  "tag:ansible_group": 
-    - aws_dev
-    - aws_windows
-
-# Grouping configuration
 keyed_groups:
-  # Group by ansible_group tag
   - key: tags.ansible_group
     prefix: ""
     separator: ""
-  # Group by OS type
-  - key: tags.OS
-    prefix: "os_"
-    separator: ""
 
-# Hostname configuration
 hostnames:
   - tag:Name
-  - public-ip-address
 
-# Variables to include in inventory
 compose:
   ansible_host: public_ip_address
-  ansible_user: "{{ 'Administrator' if (tags.OS | default('linux')) == 'windows' else 'ubuntu' }}"
-  ansible_connection: "{{ 'winrm' if (tags.OS | default('linux')) == 'windows' else 'ssh' }}"
-  ansible_winrm_transport: "{{ 'basic' if (tags.OS | default('linux')) == 'windows' else omit }}"
-  ansible_winrm_server_cert_validation: "{{ 'ignore' if (tags.OS | default('linux')) == 'windows' else omit }}"
-  ansible_port: "{{ 5985 if (tags.OS | default('linux')) == 'windows' else 22 }}"

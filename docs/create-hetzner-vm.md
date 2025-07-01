@@ -36,7 +36,11 @@ After that, the setup will take some 10 - 15 minutes.
 ```shell
 # Show the inventory
 ansible-inventory --graph
+```
 
+Before executing the other commands in this section, load the configured key into your SSH agent:
+
+```shell
 # Check whether the server can be reached
 ansible dev -m shell -a 'whoami' --extra-vars "ansible_user=gandalf"
 
