@@ -10,7 +10,10 @@ The section **Prerequisites** in the parent [AWS Documentation](../../aws.md) fi
 ansible-playbook provision-aws-windows.yml --vault-password-file ansible-vault-password.txt
 ```
 
-Replace `stefan@fangorn` with the name of your AWS key pair (without the `.pem` extension).
+> [!IMPORTANT]
+> Only after some minutes, SSH will ask you to confirm the host key.
+>
+> The delay is caused by the long time a Windows instance requires to boot.
 
 **Expected time**: 15-20 minutes (Windows takes longer to boot than Linux)
 
@@ -43,15 +46,7 @@ ssh Administrator@$IPV4_ADDRESS
 > [!IMPORTANT]
 > The security group is configured to allow both SSH (port 22) and RDP (port 3389) access only from your current public IP address. If your IP changes, you may need to update the security group rules in the AWS console.
 
-## Configure Windows Server
-
-```shell
-ansible-playbook -i inventories/aws/aws_ec2.yml  --vault-password-file ansible-vault-password.txt configure-aws-windows.yml
-```
-
-**Expected time**: 5-10 minutes
-
-## Connect to the Windows Desktop using RDP
+## Connect using RDP
 
 Use the `Administrator` account to connect via an RDP compatible client.
 

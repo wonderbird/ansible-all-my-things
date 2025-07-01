@@ -20,6 +20,7 @@ All AWS environments require:
 1. AWS account with programmatic access configured
 2. SSH key pairs
 3. Ansible Vault setup for encrypted secrets
+4. Default Inventory
 
 ### 1. AWS Credentials Setup
 
@@ -128,6 +129,16 @@ Create or import an SSH key pair in the AWS EC2 console:
 ### 3. Ansible Vault Setup for Encrypted Secrets
 
 Follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in [./ansible-vault-password.txt](./ansible-vault-password.txt) and in [./playbooks/vars-secrets.yml](./playbooks/vars-secrets.yml).
+
+### 4. Default Inventory
+
+Configure aws as the default inventory in [/ansible.cfg](../ansible.cfg):
+
+```ini
+[default]
+inventory = ./inventories/aws
+...
+```
 
 ## Integration
 

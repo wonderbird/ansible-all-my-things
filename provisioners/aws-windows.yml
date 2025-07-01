@@ -136,3 +136,6 @@
         delay: 30
         timeout: 600
         state: started
+
+    - name: Refresh inventory to ensure new host is available
+      meta: refresh_inventory
