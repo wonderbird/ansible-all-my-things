@@ -10,10 +10,10 @@
     - ../playbooks/vars-secrets.yml
 
   vars:
-    # Windows-specific configuration
+    # Set up a Windows Server 2025 in the default region (eu-north-1)
     aws_region: "{{ aws_default_region | default('eu-north-1') }}"
-    aws_instance_type: "{{ aws_windows_instance_type | default('t3.large') }}"  # Larger for Windows GUI
-    aws_ami_id: "{{ aws_windows_ami_id | default('ami-01998fe5b868df6e3') }}"  # Windows Server 2025 Base in eu-north-1
+    aws_instance_type: "{{ aws_windows_instance_type | default('t3.large') }}"
+    aws_ami_id: "{{ aws_windows_ami_id | default('ami-01998fe5b868df6e3') }}"
     aws_ssh_key_name: "stefan@fangorn"
     aws_security_group_name: "ansible-windows-sg"
     aws_instance_name: "lorien-windows"
@@ -73,8 +73,6 @@
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-
-          # Configure OpenSSH Server (pre-installed in Windows Server 2025)
           # Enable and start OpenSSH Server service
           Set-Service -Name sshd -StartupType 'Automatic'
           Start-Service sshd
@@ -87,25 +85,20 @@
           New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force
 
           # Configure SSH key authentication for Administrator
-          $AdminSSHDir = "C:\Users\Administrator\.ssh"
-          if (-not (Test-Path $AdminSSHDir)) {
-              New-Item -ItemType Directory -Path $AdminSSHDir -Force
-          }
+          $AdminSSHDir = "C:\ProgramData\ssh"
+          $AdminAuthorizedKeysFile = "$AdminSSHDir\administrators_authorized_keys"
 
           # Set up authorized_keys file with your public key
           $PublicKey = "{{ my_ssh_public_key_windows }}"
-          Set-Content -Path "$AdminSSHDir\authorized_keys" -Value $PublicKey
+          Set-Content -Path "$AdminAuthorizedKeysFile" -Value $PublicKey
 
           # Set correct permissions on SSH directory and authorized_keys
           icacls $AdminSSHDir /inheritance:r
           icacls $AdminSSHDir /grant:r "Administrator:(OI)(CI)F"
           icacls $AdminSSHDir /grant:r "SYSTEM:(OI)(CI)F"
-          icacls "$AdminSSHDir\authorized_keys" /inheritance:r
-          icacls "$AdminSSHDir\authorized_keys" /grant:r "Administrator:F"
-          icacls "$AdminSSHDir\authorized_keys" /grant:r "SYSTEM:F"
-
-          # Create signal file to indicate setup completion
-          New-Item -Path "C:\ansible-setup-complete.txt" -ItemType File -Force
+          icacls "$AdminAuthorizedKeysFile" /inheritance:r
+          icacls "$AdminAuthorizedKeysFile" /grant:r "Administrator:F"
+          icacls "$AdminAuthorizedKeysFile" /grant:r "SYSTEM:F"
           </powershell>
 
     - name: Launch Windows Server EC2 instance
