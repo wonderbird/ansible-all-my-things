@@ -20,6 +20,11 @@
 - [x] Required by parent: Can we use SSH for ansible automation instead of WinRM? -> Yes.
 - [x] Required by parent: Set up key based SSH login
 - [x] Windows Admin Passwort wird nicht in den Secrets benötigt, wenn der SSH Key geladen ist! - Falsch: Das Passwort wird für den Remote Desktop Nutzer benötigt.
+- [x] Plausi-Checks (asserts) are redundant in provisioners/aws-windows.yml, provision-aws-windows.yml, configure-aws-windows.yml
+- [x] executing the configure-aws-windows playbook results in this error: ERROR! couldn't resolve module/action 'ansible.windows.win_chocolatey'. This often indicates a misspelling, missing collection, or incorrect module path.
+- [x] provision-aws-windows.yml: Remove unneccesary parts
+- [x] provision-aws-windows.yml: Simplify configuration parameteres to the bare minimum. Remove options, if they are not needed for this iteration.
+- [x] provision-aws-windows.yml: provision playbook should invoke the configure playbook. Implementation should be similar to the Hetzner pattern in provision.yml.
 
 ## Ongoing: Findings that are currently fixed
 
@@ -27,6 +32,7 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
+- [ ] Remove unused variables in inventories/aws/group_vars/aws_windows/vars.yml
 
 ## Backlog
 
@@ -36,24 +42,6 @@ Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederz
 - [ ] Check whether structures can be simplified, merged and re-used; identify duplication, fix duplication
 
 - [ ] Sicherstellen, dass die AWS Security Group für beide Playbooks dieselbe ist.
-
-#### Duplication
-
-- [ ] Plausi-Checks (asserts) are redundant in provisioners/aws-windows.yml, provision-aws-windows.yml, configure-aws-windows.yml
-
-#### configure-aws-windows.yml
-
-- [ ] executing the configure-aws-windows playbook results in this error: ERROR! couldn't resolve module/action 'ansible.windows.win_chocolatey'. This often indicates a misspelling, missing collection, or incorrect module path.
-
-#### provision-aws-windows.yml
-
-- [ ] Remove unneccesary parts
-- [ ] Simplify configuration parameteres to the bare minimum. Remove options, if they are not needed for this iteration.
-- [ ] provision playbook should invoke the configure playbook. Implementation should be similar to the Hetzner pattern in provision.yml.
-
-#### inventories/aws/group_vars/aws_windows/vars.yml
-
-- [ ] Remove unused variables
 
 #### scripts/create-remote-repository.sh and scripts/delete-remote-repository.sh
 
