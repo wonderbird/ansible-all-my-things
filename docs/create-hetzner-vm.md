@@ -64,5 +64,8 @@ ansible-playbook --vault-password-file ansible-vault-password.txt ./backup.yml
 ansible-playbook ./destroy.yml
 ```
 
-You can verify that the server is deleted in your
-[Hetzner console project](https://console.hetzner.cloud/projects/10607445/servers).
+You can verify that the server is deleted in your [Hetzner console project](https://console.hetzner.cloud/projects/10607445/servers) or using the `hcloud` CLI:
+
+```shell
+hcloud server list
+```

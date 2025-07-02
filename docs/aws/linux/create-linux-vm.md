@@ -45,4 +45,6 @@ ansible-playbook --vault-password-file ansible-vault-password.txt ./backup.yml
 ansible-playbook ./destroy-aws.yml
 ```
 
-You can verify that all resources are deleted in your [AWS EC2 console](https://console.aws.amazon.com/ec2/).
+---
+
+Up: [AWS](../../aws.md)

@@ -50,7 +50,7 @@ ssh Administrator@$IPV4_ADDRESS
 
 Use the `Administrator` account to connect via an RDP compatible client.
 
-## Delete teh VM
+## Delete the VM
 
 To delete the VM, use the following command:
 
@@ -58,4 +58,6 @@ To delete the VM, use the following command:
 ansible-playbook destroy-aws-windows.yml
 ```
 
-You can verify that all resources are deleted in your [AWS EC2 console](https://console.aws.amazon.com/ec2/).
+---
+
+Up: [AWS](../../aws.md)

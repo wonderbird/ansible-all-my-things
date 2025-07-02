@@ -33,13 +33,15 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
+- [ ] Dokumentation aus inventories/hcloud/hcloud.yml in ein Dok-Verzeichnis verschieben, welches die gesamte technische Infra beschreibt. Ggf. ist es an der Zeit, Konzepte in tech Dok festzuhalten.
+
 ## Backlog
 
 ### Todos in context with the review
 
-- [ ] AWS Linux Computer soll genauso (fertig-)konfiguriert werden wie die Hetzner VM. Versuche, die Provider spezifische Konfiguration komplett über das entsprechende Provisioner Skript abzubilden. Falls das nicht möglich ist: Helfen Provider spezifische Inventory Gruppen, z.B. "hcloud_linux", "aws_linux", "aws_windows"?
-
 - [ ] Vereinfache "admin_user_on_fresh_system" Konzept - Der admin_user_on_fresh_system kann im Inventory in der jeweiligen vars.yml definiert werden. Will ich den gandalf beibehalten?
+
+- [ ] AWS Linux Computer soll genauso (fertig-)konfiguriert werden wie die Hetzner VM. Versuche, die Provider spezifische Konfiguration komplett über das entsprechende Provisioner Skript abzubilden. Falls das nicht möglich ist: Helfen Provider spezifische Inventory Gruppen, z.B. "hcloud_linux", "aws_linux", "aws_windows"?
 
 - [ ] Sollte das Ansible Vault statt in playbooks/vars-secrets.yml woanders liegen? z.B. unter dem jeweiligen Inventory? Bsp: inventories/aws/group_vars/aws_windows
 
@@ -55,8 +57,9 @@ Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederz
 
 ## Nächste Schritte
 
-- [ ] Dokumentation aus inventories/hcloud/hcloud.yml in ein Dok-Verzeichnis verschieben, welches die gesamte technische Infra beschreibt. Ggf. ist es an der Zeit, Konzepte in tech Dok festzuhalten.
 - [ ] Struktur vereinheitlichen: linux (hetzner, aws); windows; setup scripte ggf. in Rollen umwandeln; aws_dev sollte ggf. aws_linux heißen; aws_ec2 sollte in teilen ebenfalls aws_linux heißen; "linux" als Gruppe einführen analog zu "windows"; Playbooks auf owindows / linux einschränken - insbesondere die hcloud Playbooks enthalten "dev" oder "all" als Einschränkung
+
 - [ ] Updates auf der AWS Windows Instanz installieren und System Reboot durchführen, falls nötig
+
 - [ ] Ermögliche es, Instanzen bei Bedarf hinzuzufügen - die Anzahl der Instanzen soll irgendwie einfach zu ändern sein.
   - [ ] Ist es sinnvoll, die Instanzen anhand Ihrer festen Namen unterscheidbar zu machen? Benenne lorien-windows um in moria; Benenne lorien (aws, linux) um in ...

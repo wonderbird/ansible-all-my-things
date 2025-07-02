@@ -140,6 +140,10 @@ inventory = ./inventories/aws
 ...
 ```
 
-## Integration
+## Status of Running VMs
 
-These AWS implementations integrate with the broader multi-provider automation system alongside Hetzner Cloud and local testing environments.
+You can check for running VMs either in the [AWS EC2 Console](https://console.aws.amazon.com/ec2/) or via the `aws` CLI:
+
+```shell
+aws ec2 describe-instances --filters "Name=instance-state-name,Values=running
+```
