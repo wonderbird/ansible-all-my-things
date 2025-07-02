@@ -4,7 +4,8 @@
 
 - name: Create AWS Windows Server Development Environment
   hosts: localhost
-  gather_facts: true
+  connection: local
+  gather_facts: False
 
   vars_files:
     - ../playbooks/vars-secrets.yml
