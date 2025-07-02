@@ -1,8 +1,4 @@
 ---
-# Prerequisite:
-#
-# - Hetzner hcloud API token set in environment variable HCLOUD_TOKEN
-#
 - name: Setup developer server
   hosts: localhost
   connection: local
@@ -31,12 +27,21 @@
     # For a list of available locations, check `hcloud location list`.
     hcloud_server_location: "hel1"
 
-    hcloud_ssh_key_name: "stefan@fangorn.fritz.box"
+    hcloud_ssh_key_name: "stefan@Fangorn.fritz.box"
 
     # Check `hcloud image list | grep ubuntu` for a list of available images.
     image: "ubuntu-24.04"
 
+    hcloud_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
+
   tasks:
+    - name: Ensure required variables are defined
+      assert:
+        that:
+          - hcloud_token is defined
+          - hcloud_token | length > 0
+        fail_msg: "The environment variable HCLOUD_TOKEN must be defined"
+
     - name: Create developer server
       hetzner.hcloud.server:
         state: present

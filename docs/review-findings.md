@@ -26,6 +26,7 @@
 - [x] provision-aws-windows.yml: Simplify configuration parameteres to the bare minimum. Remove options, if they are not needed for this iteration.
 - [x] provision-aws-windows.yml: provision playbook should invoke the configure playbook. Implementation should be similar to the Hetzner pattern in provision.yml.
 - [x] Remove unused variables in inventories/aws/group_vars/aws_windows/vars.yml
+- [x] Dokumentation aus inventories/hcloud/hcloud.yml in ein Dok-Verzeichnis verschieben, welches die gesamte technische Infra beschreibt. Ggf. ist es an der Zeit, Konzepte in tech Dok festzuhalten.
 
 ## Ongoing: Findings that are currently fixed
 
@@ -33,11 +34,16 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
-- [ ] Dokumentation aus inventories/hcloud/hcloud.yml in ein Dok-Verzeichnis verschieben, welches die gesamte technische Infra beschreibt. Ggf. ist es an der Zeit, Konzepte in tech Dok festzuhalten.
 
 ## Backlog
 
 ### Todos in context with the review
+
+- [ ] hcloud_ssh_key_name gehört eigenlich in die secrets, oder? auch für AWS; selben key name benutzen ... Am besten erzeugt man den Key auf AWS und benutzt dan denselben für beide Provider ...
+
+- [ ] Will ich die Security Groups in AWS wirklich beibehalten? Sind sie nicht entgegen meines Use Case?
+
+- [ ] Lösche unnötige Konfigurations-Optionen aus aws-windows.yml und aus der Doku; z.B. `aws_default_region` und die zugehörige Umgebungsvariable
 
 - [ ] Vereinfache "admin_user_on_fresh_system" Konzept - Der admin_user_on_fresh_system kann im Inventory in der jeweiligen vars.yml definiert werden. Will ich den gandalf beibehalten?
 

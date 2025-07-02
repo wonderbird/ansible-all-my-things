@@ -1,18 +1,10 @@
 # Generate dynamic inventory for Hetzner Cloud
 #
-# To show a graph of the inventory, run:
-#
-#   ansible-inventory -i ./hcloud.yml --graph
-#
-# To show all properties of the inventory, run:
-#
-#   ansible-inventory -i ./hcloud.yml --list
-#
 # Note: This file must be named `hcloud.yml` to be recognized by the
 #       Ansible module `hetzner.hcloud.hcloud` (1).
 #
 # The Hetzner documentation (2) shows more examples of how to use the hcloud
-# inventory plugin. The playbook `launch-hcloud-server.yml` uses the label
+# inventory plugin. The playbook `provisioners/hcloud.yml` uses the label
 # (3) (4) (5) "ansible_group" to group the servers.
 #
 # See also:
