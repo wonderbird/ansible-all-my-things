@@ -65,6 +65,12 @@ git config --global user.name "$MODEL (+ $SELF)"
 git config --global user.name "$SELF"
 ```
 
+```shell
+# Show configuration
+git config --get user.name
+git config --get user.email
+```
+
 The script used in the previous section has already created a clone of the
 repository in the given working directory. Open the cloned folder in Visual
 Studio Code and make some changes.
