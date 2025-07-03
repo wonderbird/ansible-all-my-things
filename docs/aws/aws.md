@@ -4,14 +4,8 @@ This section covers using Amazon Web Services (AWS) EC2 for development environm
 
 ## Available Environments
 
-### Linux Development Environment
-
-- [Create Linux VM](./aws/linux/create-linux-vm.md) - Complete setup guide for Ubuntu 24.04 LTS on AWS EC2
-
-### Windows Server Environment  
-
-- [Windows Server Usage Guide](./aws/windows/windows-server-usage.md) - Provisioning and usage instructions for Windows Server 2025
-- [Windows Server Development Plan](./aws/windows/windows-server-development-plan.md) - Technical implementation details and timeline
+- [Create Linux VM](./create-linux-vm.md) - Complete setup guide for Ubuntu 24.04 LTS on AWS EC2
+- [Create Windows VM](./create-windows-vm.md) - Provisioning and usage instructions for Windows Server 2025 on AWS EC2
 
 ## Prerequisites
 
@@ -120,7 +114,7 @@ Create or import an SSH key pair in the AWS EC2 console:
 
 1. Go to EC2 → Key Pairs in your AWS console
 2. Either create a new key pair or import your existing public key
-3. Configure the key pair name in [/inventories/aws/aws_ec2.yml](../inventories/aws/aws_ec2.yml) (In this documentation, "stefan@fangorn" is used as key pair name)
+3. Configure the key pair name in [/playbooks/vars-secrets.yml](../../playbooks/vars-secrets.yml) (see section on Ansible Vault Setup below)
 4. Ensure you have the corresponding private key file (`.pem` format) in your `~/.ssh/` directory with permissions restricted to 600: `chmod 600 ~/.ssh/*pem`
 
 > [!IMPORTANT]
@@ -147,3 +141,8 @@ You can check for running VMs either in the [AWS EC2 Console](https://console.aw
 ```shell
 aws ec2 describe-instances --filters "Name=instance-state-name,Values=running
 ```
+
+---
+
+Next: [Work with a Virtual Machine](../work-with-vm.md)
+Up: [Create a Virtual Machine](../create-vm.md)

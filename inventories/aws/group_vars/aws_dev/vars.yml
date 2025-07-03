@@ -1,13 +1,2 @@
 ---
-# AWS Development Environment Variables
-# Configuration specific to AWS EC2 instances in the aws_dev group
-
-# User Configuration (Ubuntu-specific)
-# Ubuntu AMI uses 'ubuntu' as the default user, not 'root' like Hetzner
 admin_user_on_fresh_system: "ubuntu"
-
-# SSH Configuration
-# Note: aws_ssh_key_name must be set via environment variable or extra_vars
-# Example: ansible-playbook -e "aws_ssh_key_name=my-aws-key" provision-aws.yml
-ansible_ssh_private_key_file: "~/.ssh/{{ aws_ssh_key_name }}.pem"
-ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"

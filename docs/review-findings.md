@@ -34,12 +34,14 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
+- [ ] hcloud_ssh_key_name gehört eigenlich in die secrets, oder? auch für AWS; selben key name benutzen
+  - [ ] Verifiziere nochmal, dass das destroy-aws.yml Playbook funktioniert, wenn es eine Linux und eine Windows Instanz gibt.
 
 ## Backlog
 
 ### Todos in context with the review
 
-- [ ] hcloud_ssh_key_name gehört eigenlich in die secrets, oder? auch für AWS; selben key name benutzen ... Am besten erzeugt man den Key auf AWS und benutzt dan denselben für beide Provider ...
+- [ ] Können die Inventories für die beiden Provider in einer einzigen Datei zusammengeführt werden?
 
 - [ ] Will ich die Security Groups in AWS wirklich beibehalten? Sind sie nicht entgegen meines Use Case?
 
@@ -63,7 +65,7 @@ Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederz
 
 ## Nächste Schritte
 
-- [ ] Struktur vereinheitlichen: linux (hetzner, aws); windows; setup scripte ggf. in Rollen umwandeln; aws_dev sollte ggf. aws_linux heißen; aws_ec2 sollte in teilen ebenfalls aws_linux heißen; "linux" als Gruppe einführen analog zu "windows"; Playbooks auf owindows / linux einschränken - insbesondere die hcloud Playbooks enthalten "dev" oder "all" als Einschränkung
+- [ ] Struktur vereinheitlichen: linux (hetzner, aws); windows; setup scripte ggf. in Rollen umwandeln; linux sollte ggf. aws_linux heißen; aws_ec2 sollte in teilen ebenfalls aws_linux heißen; "linux" als Gruppe einführen analog zu "windows"; Playbooks auf owindows / linux einschränken - insbesondere die hcloud Playbooks enthalten "dev" oder "all" als Einschränkung
 
 - [ ] Updates auf der AWS Windows Instanz installieren und System Reboot durchführen, falls nötig
 

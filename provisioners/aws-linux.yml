@@ -1,17 +1,19 @@
 ---
-# AWS EC2 Provisioner
-# Creates EC2 instance for development environment following Hetzner Cloud pattern
-
-- name: Create AWS EC2 Development Environment
+- name: Create AWS Linux Development Environment
   hosts: localhost
+  connection: local
   gather_facts: true
+
+  vars_files:
+    - ../playbooks/vars-secrets.yml
+
   vars:
     # Default values - can be overridden in group_vars
     aws_region: "{{ aws_default_region | default('eu-north-1') }}"
     aws_instance_type: "{{ aws_default_instance_type | default('t3.micro') }}"
     aws_ami_id: "{{ aws_default_ami_id | default('ami-0989fb15ce71ba39e') }}"  # Ubuntu 24.04 LTS in eu-north-1
-    aws_ssh_key_name: "stefan@fangorn"
-    aws_security_group_name: "ansible-dev-sg"
+    aws_ssh_key_name: "{{ my_ssh_key_name | default('SSH key name must be configured in vars-secrets.yml') }}"
+    aws_security_group_name: "ansible-sg"
     aws_instance_name: "lorien"
 
   tasks:
@@ -50,7 +52,7 @@
           instance-state-name: ["running", "pending", "stopping", "stopped"]
       register: existing_instances
 
-    - name: Launch EC2 instance (idempotent)
+    - name: Launch Linux EC2 instance
       amazon.aws.ec2_instance:
         name: "{{ aws_instance_name }}"
         image_id: "{{ aws_ami_id }}"
@@ -70,10 +72,7 @@
               delete_on_termination: true
         tags:
           Name: "{{ aws_instance_name }}"
-          ansible_group: "aws_dev"
-          Purpose: "ansible-dev-env"
-          CreatedBy: "ansible"
-          Environment: "development"
+          ansible_group: "linux"
       register: ec2_instance
       when: existing_instances.instances | length == 0
 

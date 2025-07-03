@@ -5,10 +5,9 @@ Automated setup and updates for my IT system.
 ## Instructions
 
 - [Important Concepts](./docs/important-concepts.md)
-- [Create AWS VMs](./docs/aws.md)
-- [Create Hetzner VM](./docs/create-hetzner-vm.md)
+- [Create Virtual Machines](./docs/create-vm.md)
 - [Work with a VM](./docs/work-with-vm.md)
-- [A collaboration workflow](./docs/collaboration-workflow.md)
+- [Synchronize Git Repositories with a VM](./docs/synchronize-repos-with-vm.md)
 
 ## Documentation
 

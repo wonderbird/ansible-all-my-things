@@ -1,8 +1,8 @@
-# Windows Server Usage Guide
+# AWS Windows Server Usage Guide
 
 ## Prerequisites
 
-The section **Prerequisites** in the parent [AWS Documentation](../../aws.md) file explains how to setup the prerequisites.
+The section **Prerequisites** in the parent [AWS Documentation](./aws.md) file explains how to setup the prerequisites.
 
 ## Create the VM
 
@@ -27,7 +27,7 @@ ansible-inventory --graph
 Before executing the other commands in this section, load the configured key into your SSH agent:
 
 ```shell
-ssh-add ~/.ssh/stefan@fangorn.pem
+ssh-add ~/.ssh/user@host.pem
 ```
 
 Then run the following commands to verify the setup:
@@ -55,9 +55,10 @@ Use the `Administrator` account to connect via an RDP compatible client.
 To delete the VM, use the following command:
 
 ```shell
-ansible-playbook destroy-aws-windows.yml
+ansible-playbook destroy-aws.yml
 ```
 
 ---
 
-Up: [AWS](../../aws.md)
+Next: [Work with a Virtual Machine](../work-with-vm.md)
+Up: [AWS](./aws.md)

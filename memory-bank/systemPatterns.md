@@ -15,7 +15,7 @@ provision-aws-windows.yml → provisioners/aws-windows.yml → configure-aws-win
 ### Multi-Platform Pattern
 Each platform follows identical structure but different implementations:
 ```
-Linux (Working):   provision-aws.yml → configure-aws.yml → playbooks/setup-*.yml
+Linux (Working):   provision-aws-linux.yml → configure-aws.yml → playbooks/setup-*.yml
 Windows (Planned): provision-aws-windows.yml → configure-aws-windows.yml → playbooks/setup-windows-*.yml
 ```
 

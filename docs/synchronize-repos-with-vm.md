@@ -1,4 +1,4 @@
-# Collaborate on private repository with remote user
+# Synchronize Git Repositories with a VM
 
 This workflow describes how you can set up a remote repository from a local
 private repository.
@@ -102,3 +102,7 @@ ansible-playbook --vault-password-file ansible-vault-password.txt ./backup.yml
 # Destroy
 ansible-playbook ./destroy.yml
 ```
+
+---
+
+Previous: [Work with a Virtual Machine](./work-with-vm.md)

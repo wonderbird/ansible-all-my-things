@@ -7,5 +7,5 @@
   vars:
     # Use AWS-specific inventory
     ansible_inventory: inventories/aws/aws_ec2.yml
-    # Target the aws_dev group created by dynamic inventory
-    target_hosts: aws_dev
+    # Target the linux group created by dynamic inventory
+    target_hosts: linux

@@ -1,10 +1,10 @@
-# Create a developer VM with Hetzner
+# Hetzner Linux Server Usage Guide
 
 ## Prerequisites
 
 1. **Create cloud project:** You need a cloud project with [Hetzner](https://www.hetzner.com/).
 
-2. **Register SSH key:** Your SSH key must be registered in the cloud project, so that new servers can use it. This will allow `root` login via SSH.
+2. **Register SSH key:** Your SSH key must be registered in the cloud project, so that new servers can use it. This will allow `root` login via SSH. It is recommended to set up an AWS account and use it to generate an SSH key pair. See [AWS](../aws/aws.md) documentation.
 
 3. **Configure server properties:** Now configure the `hcloud_` properties for **server size** and the **SSH key ID** in [/provisioners/hcloud.yml](../provisioners/hcloud.yml).
 
@@ -16,6 +16,16 @@
 
 ```shell
 echo -n "hcloud API token: "; read -s HCLOUD_TOKEN; export HCLOUD_TOKEN
+```
+
+## Default Inventory
+
+Configure Hetzner Cloud as the default inventory in [/ansible.cfg](../ansible.cfg):
+
+```ini
+[default]
+inventory = ./inventories/hcloud
+...
 ```
 
 ## Create the VM
@@ -69,3 +79,8 @@ You can verify that the server is deleted in your [Hetzner console project](http
 ```shell
 hcloud server list
 ```
+
+---
+
+Next: [Work with a Virtual Machine](../work-with-vm.md)
+Up: [Create a Virtual Machine](../create-vm.md)

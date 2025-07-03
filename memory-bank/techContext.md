@@ -57,7 +57,7 @@ ansible-all-my-things/
 ├── destroy-aws-windows.yml       # Windows Server cleanup
 ├── inventories/aws/              # Shared AWS inventory
 ├── provisioners/
-│   ├── aws-ec2.yml              # Linux provisioning (working)
+│   ├── aws-linux.yml              # Linux provisioning (working)
 │   └── aws-windows.yml          # Windows provisioning (planned)
 ├── playbooks/
 │   ├── setup-*.yml              # Linux playbooks (working)

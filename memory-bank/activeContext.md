@@ -19,7 +19,7 @@
 
 #### Task 1.1: Create Windows Provisioner
 - **File**: `provisioners/aws-windows.yml`
-- **Approach**: Copy existing `provisioners/aws-ec2.yml` and modify for Windows
+- **Approach**: Copy existing `provisioners/aws-linux.yml` and modify for Windows
 - **Key Changes**:
   - Windows Server 2025 AMI with Desktop Experience
   - t3.large instance type (4 vCPU, 8GB RAM)

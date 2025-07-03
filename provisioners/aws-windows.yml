@@ -1,7 +1,4 @@
 ---
-# AWS Windows Server Provisioner
-# Creates Windows Server 2025 instance for Claude Desktop Application access
-
 - name: Create AWS Windows Server Development Environment
   hosts: localhost
   connection: local
@@ -15,8 +12,8 @@
     aws_region: "{{ aws_default_region | default('eu-north-1') }}"
     aws_instance_type: "{{ aws_windows_instance_type | default('t3.large') }}"
     aws_ami_id: "{{ aws_windows_ami_id | default('ami-01998fe5b868df6e3') }}"
-    aws_ssh_key_name: "stefan@fangorn"
-    aws_security_group_name: "ansible-windows-sg"
+    aws_ssh_key_name: "{{ my_ssh_key_name | default('my_ssh_key_name must be configured in vars-secrets.yml') }}"
+    aws_security_group_name: "ansible-sg"
     aws_instance_name: "lorien-windows"
 
   tasks:
@@ -25,9 +22,9 @@
         that:
           - windows_admin_password is defined
           - windows_admin_password | length > 0
-          - my_ssh_public_key_windows is defined
-          - my_ssh_public_key_windows | length > 0
-        fail_msg: "windows_admin_password and my_ssh_public_key_windows must be defined"
+          - my_ssh_public_key is defined
+          - my_ssh_public_key | length > 0
+        fail_msg: "windows_admin_password and my_ssh_public_key must be defined"
 
     - name: Get current public IP for security group
       ansible.builtin.uri:
@@ -90,7 +87,7 @@
           $AdminAuthorizedKeysFile = "$AdminSSHDir\administrators_authorized_keys"
 
           # Set up authorized_keys file with your public key
-          $PublicKey = "{{ my_ssh_public_key_windows }}"
+          $PublicKey = "{{ my_ssh_public_key }}"
           Set-Content -Path "$AdminAuthorizedKeysFile" -Value $PublicKey
 
           # Set correct permissions on SSH directory and authorized_keys

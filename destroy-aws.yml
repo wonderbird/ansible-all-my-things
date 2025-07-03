@@ -4,19 +4,20 @@
 
 - name: Destroy AWS EC2 Development Environment
   hosts: localhost
+  connection: local
   gather_facts: false
+
   vars:
     aws_region: "{{ aws_default_region | default('eu-north-1') }}"
-    aws_security_group_name: "ansible-dev-sg"
+    aws_security_group_name: "ansible-sg"
+    aws_instance_states_to_terminate: ["running", "pending", "stopping", "stopped"]
 
   tasks:
     - name: Get all EC2 instances created by ansible
       amazon.aws.ec2_instance_info:
         region: "{{ aws_region }}"
         filters:
-          "tag:CreatedBy": "ansible"
-          "tag:Purpose": "ansible-dev-env"
-          instance-state-name: ["running", "stopped", "stopping"]
+          instance-state-name: "{{ aws_instance_states_to_terminate }}"
       register: ansible_instances
 
     - name: Display instances to be terminated
@@ -24,17 +25,8 @@
         msg:
           - "Found {{ ansible_instances.instances | length }} instance(s) to terminate:"
           - "{{ ansible_instances.instances | map(attribute='instance_id') | list }}"
+          - "Security Group: {{ aws_security_group_name }}"
       when: ansible_instances.instances | length > 0
-
-    - name: Remove instance IP addresses from known_hosts
-      ansible.builtin.shell:
-        cmd: ssh-keygen -R "{{ item }}"
-      loop: "{{ ansible_instances.instances | map(attribute='public_ip_address') | select('defined') | list }}"
-      when: 
-        - ansible_instances.instances | length > 0
-        - item is defined
-        - item != ""
-      ignore_errors: true  # Don't fail if host key doesn't exist
 
     - name: Terminate all ansible-created EC2 instances
       amazon.aws.ec2_instance:
@@ -62,36 +54,35 @@
         region: "{{ aws_region }}"
         state: absent
       register: sg_deletion
-      ignore_errors: true  # May fail if instances are still terminating
-
-    - name: Retry security group deletion if needed
-      amazon.aws.ec2_security_group:
-        name: "{{ aws_security_group_name }}"
-        region: "{{ aws_region }}"
-        state: absent
-      when: sg_deletion is failed
-      retries: 5
-      delay: 30
+      until: sg_deletion is succeeded
+      retries: 30
+      delay: 10
 
     - name: Verify all resources are cleaned up
       amazon.aws.ec2_instance_info:
         region: "{{ aws_region }}"
         filters:
           "tag:CreatedBy": "ansible"
-          "tag:Purpose": "ansible-dev-env"
-          instance-state-name: ["running", "stopped", "stopping", "pending"]
+          instance-state-name: "{{ aws_instance_states_to_terminate }}"
       register: remaining_instances
+
+    - name: Remove host keys from known_hosts
+      ansible.builtin.known_hosts:
+        name: "{{ item.public_ip_address }}"
+        state: absent
+      when: 
+        - ansible_instances.instances | length > 0
+        - item.public_ip_address is defined
+      loop: "{{ ansible_instances.instances }}"
 
     - name: Display cleanup results
       ansible.builtin.debug:
         msg:
           - "AWS Environment Cleanup Complete!"
-          - "Terminated instances: {{ terminated_instances.instance_ids | default([]) | length }}"
-          - "Remaining instances: {{ remaining_instances.instances | length }}"
-          - "Security group deleted: {{ 'Yes' if sg_deletion is not failed else 'Failed - may need manual cleanup' }}"
           - ""
-          - "All AWS resources have been destroyed."
-          - "No ongoing costs should be incurred."
+          - "- Terminated: {{ terminated_instances.instance_ids | default([]) | length }}"
+          - "- Remaining: {{ remaining_instances.instances | length }}"
+          - "- Security group deleted: {{ 'Yes' if sg_deletion is not failed else 'Failed - may need manual cleanup' }}"
 
     - name: Warn about remaining resources
       ansible.builtin.fail:
