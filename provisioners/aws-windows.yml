@@ -36,10 +36,10 @@
       ansible.builtin.set_fact:
         current_public_ip: "{{ current_ip_result.content | trim }}"
 
-    - name: Create security group for Windows Server access
+    - name: Create security group
       amazon.aws.ec2_security_group:
         name: "{{ aws_security_group_name }}"
-        description: "Security group for Windows Server development environment"
+        description: "Security group for Ansible development environment"
         region: "{{ aws_region }}"
         rules:
           - proto: tcp
@@ -54,7 +54,7 @@
             rule_desc: "RDP access from current IP (for desktop applications)"
         tags:
           Name: "{{ aws_security_group_name }}"
-          Purpose: "ansible-windows-env"
+          Purpose: "ansible-dev-env"
           CreatedBy: "ansible"
       register: security_group
 

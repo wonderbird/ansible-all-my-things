@@ -27,7 +27,7 @@
       ansible.builtin.set_fact:
         current_public_ip: "{{ current_ip_result.content | trim }}"
 
-    - name: Create security group for SSH access
+    - name: Create security group
       amazon.aws.ec2_security_group:
         name: "{{ aws_security_group_name }}"
         description: "Security group for Ansible development environment"
@@ -35,9 +35,14 @@
         rules:
           - proto: tcp
             ports:
-              - 22
+              - 22    # SSH
             cidr_ip: "{{ current_public_ip }}/32"
-            rule_desc: "SSH access from current IP"
+            rule_desc: "SSH access from current IP (for Ansible and manual access)"
+          - proto: tcp
+            ports:
+              - 3389  # RDP
+            cidr_ip: "{{ current_public_ip }}/32"
+            rule_desc: "RDP access from current IP (for desktop applications)"
         tags:
           Name: "{{ aws_security_group_name }}"
           Purpose: "ansible-dev-env"

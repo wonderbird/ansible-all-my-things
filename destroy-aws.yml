@@ -80,7 +80,7 @@
         msg:
           - "AWS Environment Cleanup Complete!"
           - ""
-          - "- Terminated: {{ terminated_instances.instance_ids | default([]) | length }}"
+          - "- Terminated: {{ terminated_instances.instances | default([]) | length }}"
           - "- Remaining: {{ remaining_instances.instances | length }}"
           - "- Security group deleted: {{ 'Yes' if sg_deletion is not failed else 'Failed - may need manual cleanup' }}"
 

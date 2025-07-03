@@ -27,6 +27,10 @@
 - [x] provision-aws-windows.yml: provision playbook should invoke the configure playbook. Implementation should be similar to the Hetzner pattern in provision.yml.
 - [x] Remove unused variables in inventories/aws/group_vars/aws_windows/vars.yml
 - [x] Dokumentation aus inventories/hcloud/hcloud.yml in ein Dok-Verzeichnis verschieben, welches die gesamte technische Infra beschreibt. Ggf. ist es an der Zeit, Konzepte in tech Dok festzuhalten.
+- [x] hcloud_ssh_key_name gehört eigenlich in die secrets, oder? auch für AWS; selben key name benutzen
+  - [x] Verifiziere nochmal, dass das destroy-aws.yml Playbook funktioniert, wenn es eine Linux und eine Windows Instanz gibt.
+- [x] Vereinfache inventories/aws/aws_ec2.yml - Lösche nicht benötigte Variablen
+- [x] Sicherstellen, dass die AWS Security Group für beide Playbooks dieselbe ist.
 
 ## Ongoing: Findings that are currently fixed
 
@@ -34,14 +38,13 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
-- [ ] hcloud_ssh_key_name gehört eigenlich in die secrets, oder? auch für AWS; selben key name benutzen
-  - [ ] Verifiziere nochmal, dass das destroy-aws.yml Playbook funktioniert, wenn es eine Linux und eine Windows Instanz gibt.
-
 ## Backlog
 
 ### Todos in context with the review
 
 - [ ] Können die Inventories für die beiden Provider in einer einzigen Datei zusammengeführt werden?
+
+- [ ] Sollte das Ansible Vault statt in playbooks/vars-secrets.yml woanders liegen? z.B. unter dem jeweiligen Inventory? Bsp: inventories/aws/group_vars/aws_windows
 
 - [ ] Will ich die Security Groups in AWS wirklich beibehalten? Sind sie nicht entgegen meines Use Case?
 
@@ -51,13 +54,8 @@ Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederz
 
 - [ ] AWS Linux Computer soll genauso (fertig-)konfiguriert werden wie die Hetzner VM. Versuche, die Provider spezifische Konfiguration komplett über das entsprechende Provisioner Skript abzubilden. Falls das nicht möglich ist: Helfen Provider spezifische Inventory Gruppen, z.B. "hcloud_linux", "aws_linux", "aws_windows"?
 
-- [ ] Sollte das Ansible Vault statt in playbooks/vars-secrets.yml woanders liegen? z.B. unter dem jeweiligen Inventory? Bsp: inventories/aws/group_vars/aws_windows
-
-- [ ] Vereinfache inventories/aws/aws_ec2.yml - Lösche nicht benötigte Variablen
-
 - [ ] Check whether structures can be simplified, merged and re-used; identify duplication, fix duplication
 
-- [ ] Sicherstellen, dass die AWS Security Group für beide Playbooks dieselbe ist.
 
 #### scripts/create-remote-repository.sh and scripts/delete-remote-repository.sh
 
