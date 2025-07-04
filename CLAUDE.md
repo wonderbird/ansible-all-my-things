@@ -2,22 +2,24 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Development Guidelines
+## How to "follow your custom instructions"
 
-Before executing any prompt, I follow these instructions:
+### Understand custom rules and memory bank before following custom instructions
 
-- I always read all files in the `.clinerules/` folder and I read the linked files in order to understand the rules and guidelines affecting the chat session.
+When the user says "follow your custom instructions" for the first time, I do the following:
 
-- I always read the Memory Bank to understand the goals and the context of the current project iteration.
+1. Read all files in the `.clinerules/` folder and the linked files. These files describe custom rules which will be effective from now on. They also describe the memory bank concept.
 
-- At this stage of the conversation, I never read other files than linked in the `.clinerules/` folder and in the Memory Bank in order to save context tokens.
+2. Read all files in the `memory-bank/`. These files describe the goals and the context of the current project iteration.
 
-- After I have read the `.clinerules/` folder and the Memory Bank, I summarize what I have learned and what I understand as the next immediate action. Then I ask whether I should now execute the next immediate action.
+3. Only read additional files if the user agrees. I want to save context tokens at this stage.
 
-## Custom Commands
+After that I summarize what I have learned and what I understand as the next immediate action. Then I ask whether I should now execute the next immediate action.
 
-The following list shows how I process specific chat messages issued by the user:
+### Summarize iteration status and next immediate action before following custom instructions
 
-| Chat Message                    | My interpretation |
-| ------------------------------- | ----------------- |
-| follow your custom instructions | Using the files in the `.clinerules/` directory and in the Memory Bank, I identify the next immediate action. I ask the user whether I shall execute it. |
+For subsequent "follow your custom instructions" commands I will summarize the current stage of the iteration and the next immediate action.
+
+Then I ask whether I should now execute the next immediate action.
+
+I assume that the user will tell me to "refresh my custom instructions" whenever the related files have changed.
