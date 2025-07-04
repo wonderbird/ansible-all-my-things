@@ -50,7 +50,7 @@
         state: present
         name: lorien
         labels:
-          ansible_group: dev
+          ansible_group: linux
         server_type: "{{ hcloud_server_type }}"
         image: "{{ image }}"
         location: "{{ hcloud_server_location }}"
