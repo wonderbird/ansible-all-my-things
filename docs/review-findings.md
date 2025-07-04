@@ -42,8 +42,6 @@ Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederz
 
 ### Todos in context with the review
 
-- [ ] Die Gruppe aws_dev sollte in linux umbenannt werden.
-
 - [ ] Können die Inventories für die beiden Provider in einer einzigen Datei zusammengeführt werden?
 
 - [ ] Sollte das Ansible Vault statt in playbooks/vars-secrets.yml woanders liegen? z.B. unter dem jeweiligen Inventory? Bsp: inventories/aws/group_vars/aws_windows
