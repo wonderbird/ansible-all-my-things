@@ -38,6 +38,8 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
+- [ ] Im Inventories Ordner wird zwischen den Gruppen aws_dev, windows und dev unterschieden. Ich möchte die folgenden Umbenennungen durchführen: "aws_dev" und "dev" sollen beide "linux" heißen VMs mit Linux Betriebssystem zusammenfassen. "windows" soll bleiben.
+
 ## Backlog
 
 ### Todos in context with the review
