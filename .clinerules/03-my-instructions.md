@@ -8,7 +8,13 @@ If my instructions are unclear, ambiguous or inconsistent, I describe this situa
 
 **Avoid duplication:** I avoid duplication in documentation and in implementation code so that code and documentation is easy to maintain. In tests duplication may be allowed. If in doubt, I ask the user.
 
-**Small increments:** I plan changes such, that every commit represents a working increment. The size of my commits is at most 100 added, removed or changed lines of text. After at most 2 commits, I ask the user for review.
+**Small increments:** When planning tasks I consider the following constraints:
+
+- every task will be associated with a git commit,
+- every commit shall represent a complete working increment,
+- the size of a commit shall be limited to at most 100 added, removed or changed lines of text
+
+After at most 2 commits, I ask the user for review. I wait for the user's answer before proceeding.
 
 **Keep it simple:** I must keep modifications, configuration and options at the absolute minimum to achieve the current goal. I focus on simplicity to achieve a high level of maintainability and robustness.
 
@@ -27,6 +33,15 @@ All commits after the first require a feature branch.
 Feature branches are named `feat/feature-name`. The feature name MUST NOT contain suffixes like "-docs".
 
 The commit resulting from merging a feature branch into `main` is tagged. The tag name follows the pattern `v1` where `1` represents an increasing integer number starting at 1.
+
+### One commit per task
+
+Whenever I intend to mark a task as done, I create a git commit to document the finished work. I keep memory bank updates separate from this commit.
+
+If files outside the memory bank were modified by the task, my immediate next actions are:
+
+  1. update the memory bank to show the status after completing the task,
+  2. amend the git commit to include the updated memory bank.
 
 ### Commit conventions
 
