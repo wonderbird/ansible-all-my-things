@@ -39,6 +39,7 @@
   - (aws, windows): moria
   - (vagrant+tart, linux): lorien
   - (vagrant+docker, linux): dagorlad
+- [x] The Ansible group "dev" should be renamed to"linux" group, i.e. merge "dev" with the existing group "linux". The group is used by the provisioners below the ./test/ directory.
 
 ## Ongoing: Findings that are currently fixed
 
@@ -46,7 +47,7 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
-- [ ] Ansible group "dev" should be merged into the "linux" group. The group is used by the provisioners below the ./test/ directory.
+- [ ] Verify that the Vagrant groups have been completely renamed to linux
 
 ## Backlog
 
