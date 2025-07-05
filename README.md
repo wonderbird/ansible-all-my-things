@@ -2,6 +2,18 @@
 
 Automated setup and updates for my IT system.
 
+## Overview
+
+This repository defines virtual machine configurations for software developers. The following infrastructure is defined:
+
+| Provider | Operating System | Host name |
+| --- | --- | --- |
+| AWS EC2 | Windows Server 2025 | moria |
+| AWS EC2 | Ubuntu Linux | rivendell |
+| Hetzner Cloud | Ubuntu Linux | hobbiton |
+| Vagrant, Tart | Ubuntu Linux | lorien |
+| Vagrant, Docker | Ubuntu Linux | dagorlad |
+
 ## Instructions
 
 - [Important Concepts](./docs/important-concepts.md)
