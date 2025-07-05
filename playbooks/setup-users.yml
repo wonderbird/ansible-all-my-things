@@ -46,7 +46,7 @@
         state: present
 
     - name: Add SSH public key to "{{ all_users | map(attribute='name') | join(', ') }}"
-      no_log: false # Prevent logging the passwords
+      no_log: true # Prevent logging the passwords
       authorized_key:
         user: "{{ item.name }}"
         key: "{{ ssh_public_key }}"
