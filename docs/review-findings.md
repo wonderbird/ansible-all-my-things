@@ -40,6 +40,7 @@
   - (vagrant+tart, linux): lorien
   - (vagrant+docker, linux): dagorlad
 - [x] The Ansible group "dev" should be renamed to"linux" group, i.e. merge "dev" with the existing group "linux". The group is used by the provisioners below the ./test/ directory.
+- [x] Verify that the Vagrant groups have been completely renamed to linux
 
 ## Ongoing: Findings that are currently fixed
 
@@ -47,13 +48,11 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
-- [ ] Verify that the Vagrant groups have been completely renamed to linux
+- [ ] Können die Inventories für alle Provider in einer einzigen Datei zusammengeführt werden - nimm auch Vagrant+Docker und Tart+Docker in diese konsolidierte Ansible Konfiguration
 
 ## Backlog
 
 ### Todos in context with the review
-
-- [ ] Können die Inventories für alle Provider in einer einzigen Datei zusammengeführt werden - nimm auch Vagrant+Docker und Tart+Docker in diese konsolidierte Ansible Konfiguration
 
 - [ ] Sollte das Ansible Vault statt in playbooks/vars-secrets.yml woanders liegen? z.B. unter dem jeweiligen Inventory? Bsp: inventories/aws/group_vars/aws_windows
 
@@ -61,22 +60,10 @@ Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederz
 
 - [ ] Lösche unnötige Konfigurations-Optionen aus aws-windows.yml und aus der Doku; z.B. `aws_default_region` und die zugehörige Umgebungsvariable
 
-- [ ] Vereinfache "admin_user_on_fresh_system" Konzept - Der admin_user_on_fresh_system kann im Inventory in der jeweiligen vars.yml definiert werden. Will ich den gandalf beibehalten?
-
 - [ ] AWS Linux Computer soll genauso (fertig-)konfiguriert werden wie die Hetzner VM. Versuche, die Provider spezifische Konfiguration komplett über das entsprechende Provisioner Skript abzubilden. Falls das nicht möglich ist: Helfen Provider spezifische Inventory Gruppen, z.B. "hcloud_linux", "aws_linux", "aws_windows"?
 
 - [ ] Check whether structures can be simplified, merged and re-used; identify duplication, fix duplication
 
-
-#### scripts/create-remote-repository.sh and scripts/delete-remote-repository.sh
-
-- [ ] The shell scripts in the scripts folder should be python scripts, so that they are more compatible with other platforms and so that they can be integrated into a real application later
-
 ## Nächste Schritte
 
 - [ ] Struktur vereinheitlichen: linux (hetzner, aws); windows; setup scripte ggf. in Rollen umwandeln; linux sollte ggf. aws_linux heißen; aws_ec2 sollte in teilen ebenfalls aws_linux heißen; "linux" als Gruppe einführen analog zu "windows"; Playbooks auf owindows / linux einschränken - insbesondere die hcloud Playbooks enthalten "dev" oder "all" als Einschränkung
-
-- [ ] Updates auf der AWS Windows Instanz installieren und System Reboot durchführen, falls nötig
-
-- [ ] Ermögliche es, Instanzen bei Bedarf hinzuzufügen - die Anzahl der Instanzen soll irgendwie einfach zu ändern sein.
-  - [ ] Ist es sinnvoll, die Instanzen anhand Ihrer festen Namen unterscheidbar zu machen? Benenne lorien-windows um in moria; Benenne lorien (aws, linux) um in ...
