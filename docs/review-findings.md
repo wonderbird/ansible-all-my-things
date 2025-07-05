@@ -46,13 +46,13 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
+- [ ] Ansible group "dev" should be merged into the "linux" group. The group is used by the provisioners below the ./test/ directory.
+
 ## Backlog
 
 ### Todos in context with the review
 
-- [ ] Ansible group "dev" should be merged into the "linux" group. The group is used by the provisioners below the ./test/ directory.
-
-- [ ] Können die Inventories für die beiden Provider in einer einzigen Datei zusammengeführt werden?
+- [ ] Können die Inventories für alle Provider in einer einzigen Datei zusammengeführt werden - nimm auch Vagrant+Docker und Tart+Docker in diese konsolidierte Ansible Konfiguration
 
 - [ ] Sollte das Ansible Vault statt in playbooks/vars-secrets.yml woanders liegen? z.B. unter dem jeweiligen Inventory? Bsp: inventories/aws/group_vars/aws_windows
 
