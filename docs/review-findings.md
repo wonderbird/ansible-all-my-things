@@ -32,6 +32,13 @@
 - [x] Vereinfache inventories/aws/aws_ec2.yml - Lösche nicht benötigte Variablen
 - [x] Sicherstellen, dass die AWS Security Group für beide Playbooks dieselbe ist.
 - [x] Below the inventories folder the groups aws_dev, windows and dev are present. Please rename the groups as follows: "aws_dev" and "dev" shall be named "linux" and address all virtual machines with a Linux operating system. The "windows" group shall stay as it is.
+- [x] The host names for each combination shall be unique:
+
+  - (hcloud, linux): hobbiton
+  - (aws, linux): rivendell
+  - (aws, windows): moria
+  - (vagrant+tart, linux): lorien
+  - (vagrant+docker, linux): dagorlad
 
 ## Ongoing: Findings that are currently fixed
 
@@ -39,16 +46,11 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
-- [ ] The host names for each combination shall be unique:
-
-  - (hcloud, linux): hobbiton
-  - (aws, linux): rivendell
-  - (aws, windows): moria
-
-
 ## Backlog
 
 ### Todos in context with the review
+
+- [ ] Ansible group "dev" should be merged into the "linux" group. The group is used by the provisioners below the ./test/ directory.
 
 - [ ] Können die Inventories für die beiden Provider in einer einzigen Datei zusammengeführt werden?
 
