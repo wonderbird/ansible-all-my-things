@@ -14,7 +14,7 @@
     aws_ami_id: "{{ aws_default_ami_id | default('ami-0989fb15ce71ba39e') }}"  # Ubuntu 24.04 LTS in eu-north-1
     aws_ssh_key_name: "{{ my_ssh_key_name | default('SSH key name must be configured in vars-secrets.yml') }}"
     aws_security_group_name: "ansible-sg"
-    aws_instance_name: "lorien"
+    aws_instance_name: "rivendell"
 
   tasks:
     - name: Get current public IP for security group

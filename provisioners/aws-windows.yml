@@ -14,7 +14,7 @@
     aws_ami_id: "{{ aws_windows_ami_id | default('ami-01998fe5b868df6e3') }}"
     aws_ssh_key_name: "{{ my_ssh_key_name | default('my_ssh_key_name must be configured in vars-secrets.yml') }}"
     aws_security_group_name: "ansible-sg"
-    aws_instance_name: "lorien-windows"
+    aws_instance_name: "moria"
 
   tasks:
     - name: Ensure required variables are defined

@@ -8,9 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 When the user says "follow your custom instructions" for the first time, I do the following:
 
-1. Read all files in the `.clinerules/` folder and the linked files. These files describe custom rules which will be effective from now on. They also describe the memory bank concept.
+1. Read all files in the directory `.clinerules/` and the linked files. These files describe custom rules which will be effective from now on. They also describe the memory bank concept.
 
-2. Read all files in the `memory-bank/`. These files describe the goals and the context of the current project iteration.
+2. Read all files in the directory `memory-bank/`. These files describe the goals and the context of the current project iteration.
 
 3. Only read additional files if the user agrees. I want to save context tokens at this stage.
 

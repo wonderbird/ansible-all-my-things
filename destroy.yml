@@ -7,7 +7,7 @@
   tasks:
     - name: Get IP address of developer server
       hetzner.hcloud.server_info:
-        name: lorien
+        name: hobbiton
       register: server
 
     - name: Remove server from authorized SSH keys
@@ -17,4 +17,4 @@
     - name: Destroy developer server
       hetzner.hcloud.server:
         state: absent
-        name: lorien
+        name: hobbiton

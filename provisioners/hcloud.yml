@@ -48,7 +48,7 @@
     - name: Create developer server
       hetzner.hcloud.server:
         state: present
-        name: lorien
+        name: hobbiton
         labels:
           ansible_group: linux
         server_type: "{{ hcloud_server_type }}"
