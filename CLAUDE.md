@@ -12,9 +12,9 @@ When I want to check whether a hidden file or directory exists, then I must use 
 
 When the user says "follow your custom instructions" for the first time, I do the following:
 
-1. Read all files in the directory `.clinerules/` and the linked files. These files describe custom rules which will be effective from now on. They also describe the memory bank concept.
+1. Find and read all files in the hidden directory `./.clinerules`. Also read linked files. These files describe custom rules which will be effective from now on. They also describe the memory bank concept.
 
-2. Read all files in the directory `memory-bank/`. These files describe the goals and the context of the current project iteration.
+2. Find and read all files in the directory `./memory-bank`. These files describe the goals and the context of the current project iteration.
 
 3. Only read additional files if the user agrees. I want to save context tokens at this stage.
 
