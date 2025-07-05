@@ -2,16 +2,18 @@
 
 ## Current Work Focus
 
-### Unified Inventory System 🔄 IN PROGRESS
+### Unified Inventory System 🔄 IN PROGRESS - DEVELOPMENT PLAN READY
 **Goal**: Restructure inventory to provide unified visibility of all running instances across providers with single `ansible-inventory --graph` command.
 
-**Status**: 🔄 DESIGN COMPLETED - Implementation pending
+**Status**: 🔄 SPRINT PLANNED - Ready for implementation
 
-**Business Context**: Need consolidated view of instances across AWS and Hetzner Cloud providers for better infrastructure management.
+**Business Context**: Operational efficiency - single command visibility of all instances across AWS and Hetzner Cloud providers.
 
 **Foundation**: Building on three production-ready implementations across providers and platforms.
 
 **Target**: Single inventory command showing instances hobbiton, moria, and rivendell grouped by platform (linux/windows) only.
+
+**Sprint Scope**: Single Sprint deliverable with direct migration approach and full playbook updates.
 
 ## Production-Ready Infrastructure ✅ COMPLETED
 
@@ -87,8 +89,13 @@
 
 ## Next Major Enhancement: Unified Inventory System
 
-### Unified Inventory Design 🔄 NEXT PRIORITY
+### Unified Inventory Development Plan 🔄 SPRINT READY
 **Goal**: Single-command visibility of all infrastructure across providers and platforms
+
+**Sprint Milestones:**
+- **Milestone 1**: Core Unified Inventory Structure (7 hours)
+- **Milestone 2**: Playbook Migration & Testing  
+- **Milestone 3**: Validation & Documentation
 
 **Target Structure:**
 ```
@@ -98,7 +105,9 @@ inventories/
 └── group_vars/
     ├── all/vars.yml           # Global variables (merged common vars)
     ├── linux/vars.yml         # Linux-specific variables (hobbiton + rivendell)
-    └── windows/vars.yml       # Windows-specific variables (moria)
+    ├── windows/vars.yml       # Windows-specific variables (moria)
+    ├── aws/vars.yml           # AWS-specific overrides (ubuntu admin user)
+    └── hcloud/vars.yml        # Hetzner-specific overrides (root admin user)
 ```
 
 **Expected Output:**
@@ -119,14 +128,14 @@ THEN I see the output
 **Key Design Decisions:**
 - Single inventory directory with multiple provider files
 - Platform-based grouping only (linux/windows)
-- No provider-specific groups (aws/hcloud)
-- Consolidated group_vars with merged common variables
-- Maximally simplified design for unified instance visibility
+- Provider-aware group_vars for handling admin user differences
+- Variable precedence: all → platform → provider
+- Direct migration approach with full playbook updates
 
 **Implementation Readiness:**
 - All three instances use compatible dynamic inventory patterns
 - Platform-based grouping already implemented in each provider
-- Group variables already organized by platform structure
+- Provider-aware variable structure addresses admin user differences
 - Cross-provider SSH key management proven to work
 
 ### Multi-Provider Success ✅ COMPLETED

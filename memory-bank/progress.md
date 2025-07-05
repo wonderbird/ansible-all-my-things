@@ -41,13 +41,14 @@
 
 ## What's Next (In Progress)
 
-### Unified Inventory System 🔄 DESIGN COMPLETED - NEXT IMMEDIATE PRIORITY
+### Unified Inventory System 🔄 SPRINT PLANNED - DEVELOPMENT PLAN READY
 - **Goal**: Single `ansible-inventory --graph` command for all providers and platforms
-- **Status**: Design finalized, implementation ready to begin
+- **Status**: Sprint planned with 3 milestones and detailed task breakdown
 - **Foundation**: Three production-ready implementations with compatible inventory patterns
 - **Target**: Show instances hobbiton, moria, rivendell grouped by platform only
-- **Structure**: Simplified inventory directory with aws.yml and hcloud.yml
-- **Benefits**: Unified infrastructure visibility across AWS and Hetzner Cloud
+- **Structure**: Provider-aware group_vars with variable precedence handling
+- **Benefits**: Operational efficiency through unified infrastructure visibility
+- **Sprint Scope**: Direct migration with full playbook updates included
 
 ## Cross-Provider Implementation Status ✅ ALL COMPLETED & TESTED
 
@@ -87,12 +88,24 @@
 **Quality**: Proven provider abstraction with consistent patterns
 **Foundation**: Ready for unified inventory implementation
 
-### Unified Inventory System 🔄 NEXT IMMEDIATE PRIORITY
-**Status**: Design completed, implementation ready to begin
+### Unified Inventory System 🔄 SPRINT IMPLEMENTATION READY
+**Status**: Sprint planned with detailed task breakdown and acceptance criteria
 **Goal**: Single command visibility of all instances across providers and platforms
-**Quality**: Maximally simplified design for unified infrastructure management
-**Timeline**: Next immediate implementation target
+**Quality**: Provider-aware variable structure with operational efficiency focus
+**Timeline**: Single Sprint deliverable with direct migration approach
 **Foundation**: All three instances using compatible dynamic inventory patterns
+
+**Sprint Milestones:**
+- **Milestone 1**: Core Unified Inventory Structure (7 hours)
+- **Milestone 2**: Playbook Migration & Testing  
+- **Milestone 3**: Validation & Documentation
+
+**Key Tasks for Milestone 1:**
+1. Create unified inventory structure (aws.yml, hcloud.yml)
+2. Implement provider-aware group_vars with variable precedence
+3. Update ansible.cfg configuration
+4. Test unified inventory functionality
+5. Remove legacy inventory structure
 
 ### Future Enhancement Opportunities
 **Status**: Available for future implementation based on needs

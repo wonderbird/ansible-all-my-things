@@ -19,7 +19,7 @@ Multi-Provider Infrastructure:
 - **SSH Key Management**: Single SSH key pair working across AWS and Hetzner Cloud
 - **Credential Management**: Unified Ansible Vault patterns for all implementations
 
-### Unified Inventory System (Next Implementation)
+### Unified Inventory System (Sprint Implementation)
 **Target Structure:**
 ```
 inventories/
@@ -28,14 +28,16 @@ inventories/
 └── group_vars/
     ├── all/vars.yml           # Global variables (merged common vars)
     ├── linux/vars.yml         # Linux-specific variables (hobbiton + rivendell)
-    └── windows/vars.yml       # Windows-specific variables (moria)
+    ├── windows/vars.yml       # Windows-specific variables (moria)
+    ├── aws/vars.yml           # AWS-specific overrides (ubuntu admin user)
+    └── hcloud/vars.yml        # Hetzner-specific overrides (root admin user)
 ```
 
-**Unified Inventory Pattern (Ready for Implementation):**
+**Unified Inventory Pattern (Sprint Implementation):**
 - **Single Command**: `ansible-inventory --graph` shows all instances across providers
 - **Platform Grouping**: Instances grouped by linux/windows only
-- **Simplified Structure**: No provider-specific groups or directories
-- **Consolidated Variables**: Common variables merged into group_vars/all/
+- **Provider-Aware Variables**: Variable precedence handles admin user differences
+- **Direct Migration**: Full playbook updates included in sprint scope
 
 ### Implemented Cross-Provider Playbook Structure
 ```
@@ -253,12 +255,18 @@ graph TD
 
 ## Extension Points
 
-### Unified Inventory System (Next Priority)
-**Planned Implementation Pattern**:
-1. Replace current separate inventory directories with unified structure
-2. Consolidate group_vars from multiple providers into single structure
-3. Implement platform-only grouping (linux/windows) without provider groups
-4. Enable single-command visibility across all infrastructure providers
+### Unified Inventory System (Sprint Implementation)
+**Development Plan - Milestone 1 (7 hours):**
+1. **Task 1**: Create unified inventory structure (aws.yml, hcloud.yml) - 2 hours
+2. **Task 2**: Implement provider-aware group_vars structure - 3 hours
+3. **Task 3**: Update ansible.cfg to point to ./inventories - 30 minutes
+4. **Task 4**: Test unified inventory functionality - 1 hour
+5. **Task 5**: Remove legacy inventory structure - 30 minutes
+
+**Variable Precedence Strategy:**
+- `all` → `platform` (linux/windows) → `provider` (aws/hcloud)
+- Handles admin user differences: AWS Linux (ubuntu), Hetzner Linux (root), AWS Windows (Administrator)
+- Minimizes redundancy while maintaining provider-specific overrides
 
 ### Windows Application Support (Framework Ready)
 **Established Pattern for Additional Applications**:
