@@ -30,7 +30,10 @@ ansible-playbook provision.yml --vault-password-file ansible-vault-password.txt
 # Access via SSH for development work
 ssh gandalf@$HOBBITON_IP
 
-# Destroy when done (with automatic backup)
+# Backup
+ansible-playbook backup.yml
+
+# Destroy when done
 ansible-playbook destroy.yml
 ```
 
@@ -42,7 +45,7 @@ ansible-playbook provision-aws-linux.yml --vault-password-file ansible-vault-pas
 # Access via SSH for development tasks
 ssh gandalf@$RIVENDELL_IP
 
-# Destroy when done (unified cleanup)
+# Destroy when done (unified cleanup for aws)
 ansible-playbook destroy-aws.yml
 ```
 
@@ -55,7 +58,7 @@ ansible-playbook provision-aws-windows.yml --vault-password-file ansible-vault-p
 ssh Administrator@$MORIA_IP
 # RDP connection available after ~5 minutes
 
-# Destroy when done (unified cleanup)
+# Destroy when done (unified cleanup for aws)
 ansible-playbook destroy-aws.yml
 ```
 
@@ -64,7 +67,7 @@ ansible-playbook destroy-aws.yml
 **Persistent Development Environment (Hetzner Cloud)**:
 1. **Provision**: Complete GNOME desktop environment (~10-15 minutes) ✅ WORKING
 2. **Configure**: Automatic application installation and user setup ✅ WORKING  
-3. **Access**: SSH with full desktop environment via X11 forwarding ✅ WORKING
+3. **Access**: SSH with full desktop environment via RDP forwarding ✅ WORKING
 4. **Backup/Restore**: Automatic data persistence across reprovisioning ✅ WORKING
 5. **Destroy**: Complete cleanup with data backup ✅ WORKING
 
