@@ -2,6 +2,24 @@
 
 ## Architecture Overview
 
+### Unified Inventory System (Next Implementation)
+**Target Structure:**
+```
+inventories/
+├── aws.yml                    # AWS dynamic inventory
+├── hcloud.yml                 # Hetzner Cloud dynamic inventory  
+└── group_vars/
+    ├── all/vars.yml           # Global variables (merged common vars)
+    ├── linux/vars.yml         # Linux-specific variables (merged)
+    └── windows/vars.yml       # Windows-specific variables (merged)
+```
+
+**Unified Inventory Pattern (Planned):**
+- **Single Command**: `ansible-inventory --graph` shows all instances across providers
+- **Platform Grouping**: Instances grouped by linux/windows only
+- **Simplified Structure**: No provider-specific groups or directories
+- **Consolidated Variables**: Common variables merged into group_vars/all/
+
 ### Implemented Layered Playbook Structure
 ```
 provision-aws-windows.yml → provisioners/aws-windows.yml → configure-aws-windows.yml
@@ -190,6 +208,13 @@ graph TD
 - **Usage Patterns**: On-demand sessions significantly reduce costs ✅ ACHIEVED
 
 ## Extension Points
+
+### Unified Inventory System (Next Priority)
+**Planned Implementation Pattern**:
+1. Replace current separate inventory directories with unified structure
+2. Consolidate group_vars from multiple providers into single structure
+3. Implement platform-only grouping (linux/windows) without provider groups
+4. Enable single-command visibility across all infrastructure providers
 
 ### Windows Application Support (Framework Ready)
 **Established Pattern for Additional Applications**:

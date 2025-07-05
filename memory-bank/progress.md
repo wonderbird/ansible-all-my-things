@@ -22,7 +22,6 @@
 - **Hetzner Cloud**: Production-ready reference implementation
 - **AWS EC2 Linux**: Working implementation serving as foundation for Windows
 - **AWS EC2 Windows**: Production-ready Windows Server implementation
-- **Local Testing**: Vagrant-based testing infrastructure
 - **Provider Abstraction**: Common patterns work across providers
 
 ### Core System Automation ✅
@@ -30,6 +29,15 @@
 - **Security by Design**: Ansible Vault encryption, SSH key management
 - **Modular Architecture**: Clean separation of provisioning and configuration
 - **Documentation**: Comprehensive setup and usage instructions
+
+## What's Next (In Progress)
+
+### Unified Inventory System 🔄 DESIGN COMPLETED
+- **Goal**: Single `ansible-inventory --graph` command for all providers
+- **Status**: Design finalized, implementation pending
+- **Target**: Show instances hobbiton, moria, rivendell grouped by platform only
+- **Structure**: Simplified inventory directory with aws.yml and hcloud.yml
+- **Benefits**: Unified infrastructure visibility across AWS and Hetzner Cloud
 
 ## Windows Server MVP Implementation Status ✅ COMPLETED & TESTED
 
@@ -51,6 +59,12 @@
 - **User Experience**: Single command provision-to-ready workflow achieved
 
 ## Current Implementation Status
+
+### Unified Inventory System 🔄 NEXT PRIORITY
+**Status**: Design completed, implementation ready to begin
+**Goal**: Single command visibility of all instances across providers
+**Quality**: Maximally simplified design for unified infrastructure management
+**Timeline**: Next immediate implementation target
 
 ### Windows Server MVP ✅ COMPLETED
 **Status**: Successfully implemented and tested
@@ -147,3 +161,5 @@
 - **Enhanced Monitoring**: Comprehensive usage and performance tracking
 
 The project has successfully achieved its primary objectives of cross-platform application access through automated Windows Server provisioning. The Windows Server MVP has been delivered, tested, and validated as a production-ready solution.
+
+**Next Phase**: Unified inventory system implementation to provide consolidated infrastructure visibility across all providers with a single command interface.

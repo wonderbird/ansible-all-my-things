@@ -2,6 +2,17 @@
 
 ## Current Work Focus
 
+### Unified Inventory System 🔄 IN PROGRESS
+**Goal**: Restructure inventory to provide unified visibility of all running instances across providers with single `ansible-inventory --graph` command.
+
+**Status**: 🔄 DESIGN COMPLETED - Implementation pending
+
+**Business Context**: Need consolidated view of instances across AWS and Hetzner Cloud providers for better infrastructure management.
+
+**Foundation**: Building on existing AWS and Hetzner Cloud dynamic inventory implementations.
+
+**Target**: Single inventory command showing instances hobbiton, moria, and rivendell grouped by platform (linux/windows) only.
+
 ### Windows Server MVP ✅ COMPLETED & PRODUCTION-READY
 **Goal**: Deliver minimal viable Windows Server with Claude Desktop access for immediate work needs.
 
@@ -57,7 +68,44 @@
   - Proper cleanup procedures
 - **Achievement**: Comprehensive documentation enabling independent Windows Server usage
 
-## Current Status: Post-MVP Success
+## Next Major Enhancement: Unified Inventory System
+
+### Unified Inventory Design 🔄 NEXT PRIORITY
+**Target Structure:**
+```
+inventories/
+├── aws.yml                    # AWS dynamic inventory
+├── hcloud.yml                 # Hetzner Cloud dynamic inventory  
+└── group_vars/
+    ├── all/
+    │   └── vars.yml           # Global variables (merged common vars)
+    ├── linux/
+    │   └── vars.yml           # Linux-specific variables (merged)
+    └── windows/
+        └── vars.yml           # Windows-specific variables (merged)
+```
+
+**Expected Output:**
+GIVEN hobbiton is a Linux instance hosted in the Hetzner Cloud
+AND rivendell is a Linux instance hosted in the AWS EC2 cloud
+AND moria is a Windows instance hosted in the AWS EC2 cloud
+WHEN I execute the command `ansible-inventory --graph`
+THEN I see the output
+```
+@all:
+  |--@linux:
+  |  |--hobbiton
+  |  |--rivendell
+  |--@windows:
+  |  |--moria
+```
+
+**Key Design Decisions:**
+- Single inventory directory with multiple provider files
+- Platform-based grouping only (linux/windows)
+- No provider-specific groups (aws/hcloud)
+- Consolidated group_vars with merged common variables
+- Maximally simplified design for unified instance visibility
 
 ### MVP Achievement ✅ COMPLETED
 - **Goal**: Working Windows Server with Claude Desktop access ✅ ACHIEVED
@@ -160,7 +208,7 @@
 - **Documentation Alignment**: Windows guides following established Linux patterns
 
 ## Memory Bank Maintenance Notes
-- **Focus**: Windows Server MVP successfully completed and tested
+- **Focus**: Unified inventory system design completed, implementation next
 - **Foundation**: AWS Linux and Windows implementations both production-ready
-- **Timeline**: Primary objectives achieved - future enhancements available as needed
-- **Next Review**: Consider future enhancements based on usage patterns and requirements
+- **Current Priority**: Single-command visibility of all instances across providers
+- **Next Review**: After unified inventory implementation and testing
