@@ -31,6 +31,7 @@
   - [x] Verifiziere nochmal, dass das destroy-aws.yml Playbook funktioniert, wenn es eine Linux und eine Windows Instanz gibt.
 - [x] Vereinfache inventories/aws/aws_ec2.yml - Lösche nicht benötigte Variablen
 - [x] Sicherstellen, dass die AWS Security Group für beide Playbooks dieselbe ist.
+- [x] Below the inventories folder the groups aws_dev, windows and dev are present. Please rename the groups as follows: "aws_dev" and "dev" shall be named "linux" and address all virtual machines with a Linux operating system. The "windows" group shall stay as it is.
 
 ## Ongoing: Findings that are currently fixed
 
@@ -38,7 +39,12 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
-- [ ] Im Inventories Ordner wird zwischen den Gruppen aws_dev, windows und dev unterschieden. Ich möchte die folgenden Umbenennungen durchführen: "aws_dev" und "dev" sollen beide "linux" heißen VMs mit Linux Betriebssystem zusammenfassen. "windows" soll bleiben.
+- [ ] The host names for each combination shall be unique:
+
+  - (hcloud, linux): hobbiton
+  - (aws, linux): rivendell
+  - (aws, windows): moria
+
 
 ## Backlog
 
