@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## LS tool does not show hidden files
+
+When I want to check whether a hidden file or directory exists, then I must use a tool native to the operating system I am running on. The LS tool does not handle hidden files.
+
 ## How to "follow your custom instructions"
 
 ### Understand custom rules and memory bank before following custom instructions
