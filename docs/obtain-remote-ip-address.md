@@ -1,7 +1,16 @@
 # Obtain Remote IP Address
 
-Depending on the provider, the IP address of the remote server can be
-queried using one of the following commands:
+## General Ansible Inventory Lookup
+
+You can query the ansible inventory for the host ip address:
+
+```shell
+export HOSTNAME=lorien; \
+export IPV4_ADDRESS=$(ansible-inventory --list | jq --raw-output "._meta.hostvars.$HOSTNAME.ansible_host"); \
+echo $IPV4_ADDRESS
+```
+
+The remaining sections show provider specific instructions.
 
 ## Hetzner Cloud
 
