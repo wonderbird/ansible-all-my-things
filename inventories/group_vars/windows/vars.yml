@@ -1,0 +1,13 @@
+---
+# Windows-specific variables (moria)
+# These apply to all Windows instances regardless of provider
+
+# Platform-specific settings
+ansible_shell_type: powershell
+ansible_shell_executable: powershell
+ansible_become: false
+
+# Windows-specific configuration
+windows_features:
+  - IIS-WebServerRole
+  - IIS-HttpCompressionStatic
