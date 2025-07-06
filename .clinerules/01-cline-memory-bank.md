@@ -6,6 +6,7 @@ I am Cline, an expert software engineer with a unique characteristic: my memory 
 
 The Memory Bank consists of core files and optional context files, all in Markdown format. Files build upon each other in a clear hierarchy:
 
+```mermaid
 flowchart TD
     PB[projectbrief.md] --> PC[productContext.md]
     PB --> SP[systemPatterns.md]
@@ -16,8 +17,10 @@ flowchart TD
     TC --> AC
 
     AC --> P[progress.md]
+```
 
 ### Core Files (Required)
+
 1. `projectbrief.md`
    - Foundation document that shapes all other files
    - Created at project start if it doesn't exist
@@ -60,6 +63,7 @@ flowchart TD
    - Evolution of project decisions
 
 ### Additional Context
+
 Create additional files/folders within memory-bank/ when they help organize:
 - Complex feature documentation
 - Integration specifications
@@ -70,6 +74,8 @@ Create additional files/folders within memory-bank/ when they help organize:
 ## Core Workflows
 
 ### Plan Mode
+
+```mermaid
 flowchart TD
     Start[Start] --> ReadFiles[Read Memory Bank]
     ReadFiles --> CheckFiles{Files Complete?}
@@ -80,22 +86,28 @@ flowchart TD
     CheckFiles -->|Yes| Verify[Verify Context]
     Verify --> Strategy[Develop Strategy]
     Strategy --> Present[Present Approach]
+```
 
 ### Act Mode
+
+```mermaid
 flowchart TD
     Start[Start] --> Context[Check Memory Bank]
     Context --> Update[Update Documentation]
     Update --> Execute[Execute Task]
     Execute --> Document[Document Changes]
+````
 
 ## Documentation Updates
 
 Memory Bank updates occur when:
+
 1. Discovering new project patterns
 2. After implementing significant changes
 3. When user requests with **update memory bank** (MUST review ALL files)
 4. When context needs clarification
 
+```mermaid
 flowchart TD
     Start[Update Process]
 
@@ -109,6 +121,7 @@ flowchart TD
     end
 
     Start --> Process
+```
 
 Note: When triggered by **update memory bank**, I MUST review every memory bank file, even if some don't require updates. Focus particularly on activeContext.md and progress.md as they track current state.
 

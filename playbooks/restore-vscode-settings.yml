@@ -1,5 +1,5 @@
 ---
-- hosts: dev
+- hosts: linux
   tags: not-supported-on-vagrant-docker
   become: true
 

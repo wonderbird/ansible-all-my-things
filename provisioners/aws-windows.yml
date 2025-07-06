@@ -1,0 +1,135 @@
+---
+- name: Create AWS Windows Server Development Environment
+  hosts: localhost
+  connection: local
+  gather_facts: False
+
+  vars_files:
+    - ../playbooks/vars-secrets.yml
+
+  vars:
+    # Set up a Windows Server 2025 in the default region (eu-north-1)
+    aws_region: "{{ aws_default_region | default('eu-north-1') }}"
+    aws_instance_type: "{{ aws_windows_instance_type | default('t3.large') }}"
+    aws_ami_id: "{{ aws_windows_ami_id | default('ami-01998fe5b868df6e3') }}"
+    aws_ssh_key_name: "{{ my_ssh_key_name | default('my_ssh_key_name must be configured in vars-secrets.yml') }}"
+    aws_security_group_name: "ansible-sg"
+    aws_instance_name: "moria"
+
+  tasks:
+    - name: Ensure required variables are defined
+      ansible.builtin.assert:
+        that:
+          - windows_admin_password is defined
+          - windows_admin_password | length > 0
+          - my_ssh_public_key is defined
+          - my_ssh_public_key | length > 0
+        fail_msg: "windows_admin_password and my_ssh_public_key must be defined"
+
+    - name: Get current public IP for security group
+      ansible.builtin.uri:
+        url: https://ipinfo.io/ip
+        return_content: true
+      register: current_ip_result
+
+    - name: Set current IP fact
+      ansible.builtin.set_fact:
+        current_public_ip: "{{ current_ip_result.content | trim }}"
+
+    - name: Create security group
+      amazon.aws.ec2_security_group:
+        name: "{{ aws_security_group_name }}"
+        description: "Security group for Ansible development environment"
+        region: "{{ aws_region }}"
+        rules:
+          - proto: tcp
+            ports:
+              - 22    # SSH
+            cidr_ip: "{{ current_public_ip }}/32"
+            rule_desc: "SSH access from current IP (for Ansible and manual access)"
+          - proto: tcp
+            ports:
+              - 3389  # RDP
+            cidr_ip: "{{ current_public_ip }}/32"
+            rule_desc: "RDP access from current IP (for desktop applications)"
+        tags:
+          Name: "{{ aws_security_group_name }}"
+          Purpose: "ansible-dev-env"
+          CreatedBy: "ansible"
+      register: security_group
+
+    - name: Generate Windows user data script
+      ansible.builtin.set_fact:
+        windows_user_data: |
+          <powershell>
+          # Set Administrator password
+          $Password = ConvertTo-SecureString "{{ windows_admin_password }}" -AsPlainText -Force
+          $UserAccount = Get-LocalUser -Name "Administrator"
+          $UserAccount | Set-LocalUser -Password $Password
+
+          # Enable RDP
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+          # Enable and start OpenSSH Server service
+          Set-Service -Name sshd -StartupType 'Automatic'
+          Start-Service sshd
+
+          # Configure Windows Firewall for SSH
+          netsh advfirewall firewall add rule name="OpenSSH-Server-In-TCP" dir=in localport=22 protocol=TCP action=allow
+
+          # Configure SSH for Administrator access
+          # Set default shell to PowerShell for SSH sessions
+          New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force
+
+          # Configure SSH key authentication for Administrator
+          $AdminSSHDir = "C:\ProgramData\ssh"
+          $AdminAuthorizedKeysFile = "$AdminSSHDir\administrators_authorized_keys"
+
+          # Set up authorized_keys file with your public key
+          $PublicKey = "{{ my_ssh_public_key }}"
+          Set-Content -Path "$AdminAuthorizedKeysFile" -Value $PublicKey
+
+          # Set correct permissions on SSH directory and authorized_keys
+          icacls $AdminSSHDir /inheritance:r
+          icacls $AdminSSHDir /grant:r "Administrator:(OI)(CI)F"
+          icacls $AdminSSHDir /grant:r "SYSTEM:(OI)(CI)F"
+          icacls "$AdminAuthorizedKeysFile" /inheritance:r
+          icacls "$AdminAuthorizedKeysFile" /grant:r "Administrator:F"
+          icacls "$AdminAuthorizedKeysFile" /grant:r "SYSTEM:F"
+          </powershell>
+
+    - name: Launch Windows Server EC2 instance
+      amazon.aws.ec2_instance:
+        name: "{{ aws_instance_name }}"
+        image_id: "{{ aws_ami_id }}"
+        instance_type: "{{ aws_instance_type }}"
+        key_name: "{{ aws_ssh_key_name }}"
+        security_groups:
+          - "{{ aws_security_group_name }}"
+        region: "{{ aws_region }}"
+        state: present
+        wait: true
+        wait_timeout: 600
+        user_data: "{{ windows_user_data }}"
+        volumes:
+          - device_name: /dev/sda1
+            ebs:
+              volume_type: gp3
+              volume_size: 50
+              delete_on_termination: true
+        tags:
+          Name: "{{ aws_instance_name }}"
+          ansible_group: "windows"
+      register: ec2_instance
+
+    - name: Wait for SSH to become available
+      ansible.builtin.wait_for:
+        host: "{{ ec2_instance.instances[0].public_ip_address }}"
+        port: 22
+        delay: 30
+        timeout: 600
+        state: started
+
+    - name: Refresh inventory to ensure new host is available
+      meta: refresh_inventory

@@ -2,16 +2,35 @@
 
 Automated setup and updates for my IT system.
 
+## Overview
+
+This repository defines virtual machine configurations for software developers. The following infrastructure is defined:
+
+| Provider | Operating System | Host name |
+| --- | --- | --- |
+| AWS EC2 | Windows Server 2025 | moria |
+| AWS EC2 | Ubuntu Linux | rivendell |
+| Hetzner Cloud | Ubuntu Linux | hobbiton |
+| Vagrant, Tart | Ubuntu Linux | lorien |
+| Vagrant, Docker | Ubuntu Linux | dagorlad |
+
 ## Instructions
 
 - [Important Concepts](./docs/important-concepts.md)
-- [Create Hetzner VM](./docs/create-hetzner-vm.md)
+- [Create Virtual Machines](./docs/create-vm.md)
 - [Work with a VM](./docs/work-with-vm.md)
-- [A collaboration workflow](./docs/collaboration-workflow.md)
+- [Synchronize Git Repositories with a VM](./docs/synchronize-repos-with-vm.md)
 
 ## Documentation
 
 The [/docs](./docs/) folder contains documentation for some aspects of the system.
+
+## Notes on Performance
+
+If you experience poor performance, then consider the following tuning parameters:
+
+- select a different region to host the instance(s)
+- select a larger instance type
 
 ## Acknowledgements
 
