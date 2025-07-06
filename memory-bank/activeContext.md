@@ -118,6 +118,11 @@ WHEN I execute the command `ansible-inventory --graph`
 THEN I see the output
 ```
 @all:
+  |--@aws:
+  |  |--rivendell
+  |  |--moria
+  |--@hcloud:
+  |  |--hobbiton
   |--@linux:
   |  |--hobbiton
   |  |--rivendell
