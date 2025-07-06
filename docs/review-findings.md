@@ -49,6 +49,8 @@ Identifiziere das nächste Finding.
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
 - [ ] Können die Inventories für alle Provider in einer einzigen Datei zusammengeführt werden - nimm auch Vagrant+Docker und Tart+Docker in diese konsolidierte Ansible Konfiguration
+  - [ ] Installiere die notwendigen Tools auf der VM: aws cli, hcloud cli. Problem: hcloud CLI gibt es nicht für arm64 (tart) als binary
+  - [ ] Konfiguriere die Zugriffsrechte auf die Cloud Inventories.
 
 ## Backlog
 
