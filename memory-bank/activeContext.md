@@ -89,13 +89,15 @@
 
 ## Next Major Enhancement: Unified Inventory System
 
-### Unified Inventory Development Plan 🔄 SPRINT READY
+### Unified Inventory Development Plan 🔄 REFINED SPRINT READY
 **Goal**: Single-command visibility of all infrastructure across providers and platforms
 
-**Sprint Milestones:**
-- **Milestone 1**: Core Unified Inventory Structure (7 hours)
-- **Milestone 2**: Playbook Migration & Testing  
-- **Milestone 3**: Validation & Documentation
+**Business Driver**: Cost control - reliable `ansible-inventory --graph` showing all instances across providers to eliminate manual console checking
+
+**Sprint Scope (Updated after team analysis):**
+- **Milestone 1**: Core Unified Inventory Structure with Playbook Updates (8 hours)
+- **Milestone 2**: Acceptance Testing & Validation
+- **Milestone 3**: Documentation Updates
 
 **Target Structure:**
 ```
@@ -142,6 +144,22 @@ THEN I see the output
 - Platform-based grouping already implemented in each provider
 - Provider-aware variable structure addresses admin user differences
 - Cross-provider SSH key management proven to work
+- **Scope Updated**: 3 playbooks require updates (configure-aws.yml, provision.yml, provision-aws-windows.yml)
+
+**Acceptance Test Plan:**
+1. Provision instances on both providers (existing playbooks)
+2. Verify instances appear in unified `ansible-inventory --graph`
+3. Destroy instances (existing playbooks)
+4. Verify AWS shows "terminated" state and Hetzner shows empty list
+5. Verify unified inventory shows no instances
+
+**Milestone 1 Tasks (8 hours):**
+1. Create unified inventory structure (aws.yml, hcloud.yml) - 2 hours
+2. Implement provider-aware group_vars structure - 3 hours
+3. Update ansible.cfg to point to ./inventories - 30 minutes
+4. Update 3 playbooks with hardcoded inventory paths - 1.5 hours
+5. Test unified inventory functionality - 1 hour
+6. Remove legacy inventory structure - 30 minutes
 
 ### Multi-Provider Success ✅ COMPLETED
 - **Goal**: Cross-provider infrastructure automation ✅ ACHIEVED

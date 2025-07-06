@@ -255,18 +255,28 @@ graph TD
 
 ## Extension Points
 
-### Unified Inventory System (Sprint Implementation)
-**Development Plan - Milestone 1 (7 hours):**
+### Unified Inventory System (Sprint Implementation - Updated Plan)
+**Development Plan - Milestone 1 (8 hours):**
 1. **Task 1**: Create unified inventory structure (aws.yml, hcloud.yml) - 2 hours
 2. **Task 2**: Implement provider-aware group_vars structure - 3 hours
 3. **Task 3**: Update ansible.cfg to point to ./inventories - 30 minutes
-4. **Task 4**: Test unified inventory functionality - 1 hour
-5. **Task 5**: Remove legacy inventory structure - 30 minutes
+4. **Task 4**: Update 3 playbooks with hardcoded inventory paths - 1.5 hours
+5. **Task 5**: Test unified inventory functionality - 1 hour
+6. **Task 6**: Remove legacy inventory structure - 30 minutes
+
+**Required Playbook Updates (discovered during team analysis):**
+- `configure-aws.yml` line 9: `ansible_inventory: inventories/aws/aws_ec2.yml`
+- `provision.yml` line 11: `target_inventory: inventories/hcloud/hcloud.yml`
+- `provision-aws-windows.yml` line 8: `target_inventory: inventories/aws/aws_ec2.yml`
 
 **Variable Precedence Strategy:**
 - `all` → `platform` (linux/windows) → `provider` (aws/hcloud)
 - Handles admin user differences: AWS Linux (ubuntu), Hetzner Linux (root), AWS Windows (Administrator)
 - Minimizes redundancy while maintaining provider-specific overrides
+
+**Acceptance Test Plan:**
+- Provision instances on both providers → verify unified inventory shows them
+- Destroy instances → verify AWS "terminated" + Hetzner empty → verify unified inventory clean
 
 ### Windows Application Support (Framework Ready)
 **Established Pattern for Additional Applications**:

@@ -41,14 +41,16 @@
 
 ## What's Next (In Progress)
 
-### Unified Inventory System 🔄 SPRINT PLANNED - DEVELOPMENT PLAN READY
+### Unified Inventory System 🔄 SPRINT REFINED - READY FOR IMPLEMENTATION
 - **Goal**: Single `ansible-inventory --graph` command for all providers and platforms
-- **Status**: Sprint planned with 3 milestones and detailed task breakdown
+- **Business Driver**: Cost control - eliminate manual cloud console checking for running instances
+- **Status**: Sprint refined after team analysis, scope updated with playbook modifications
 - **Foundation**: Three production-ready implementations with compatible inventory patterns
 - **Target**: Show instances hobbiton, moria, rivendell grouped by platform only
 - **Structure**: Provider-aware group_vars with variable precedence handling
 - **Benefits**: Operational efficiency through unified infrastructure visibility
-- **Sprint Scope**: Direct migration with full playbook updates included
+- **Sprint Scope**: Direct migration with full playbook updates (3 playbooks identified for updates)
+- **Acceptance Test**: Full provision → verify → destroy → verify cycle on both providers
 
 ## Cross-Provider Implementation Status ✅ ALL COMPLETED & TESTED
 
@@ -88,24 +90,33 @@
 **Quality**: Proven provider abstraction with consistent patterns
 **Foundation**: Ready for unified inventory implementation
 
-### Unified Inventory System 🔄 SPRINT IMPLEMENTATION READY
-**Status**: Sprint planned with detailed task breakdown and acceptance criteria
+### Unified Inventory System 🔄 SPRINT REFINED - IMPLEMENTATION READY
+**Status**: Sprint refined after cross-functional team analysis, scope updated with playbook modifications
 **Goal**: Single command visibility of all instances across providers and platforms
+**Business Driver**: Cost control - eliminate manual cloud console checking for running instances
 **Quality**: Provider-aware variable structure with operational efficiency focus
 **Timeline**: Single Sprint deliverable with direct migration approach
 **Foundation**: All three instances using compatible dynamic inventory patterns
 
 **Sprint Milestones:**
-- **Milestone 1**: Core Unified Inventory Structure (7 hours)
-- **Milestone 2**: Playbook Migration & Testing  
-- **Milestone 3**: Validation & Documentation
+- **Milestone 1**: Core Unified Inventory Structure with Playbook Updates (8 hours)
+- **Milestone 2**: Acceptance Testing & Validation
+- **Milestone 3**: Documentation Updates
 
 **Key Tasks for Milestone 1:**
 1. Create unified inventory structure (aws.yml, hcloud.yml)
 2. Implement provider-aware group_vars with variable precedence
 3. Update ansible.cfg configuration
-4. Test unified inventory functionality
-5. Remove legacy inventory structure
+4. Update 3 playbooks with hardcoded inventory paths (configure-aws.yml, provision.yml, provision-aws-windows.yml)
+5. Test unified inventory functionality
+6. Remove legacy inventory structure
+
+**Acceptance Test Plan:**
+1. Provision instances on both providers (existing playbooks)
+2. Verify instances appear in unified `ansible-inventory --graph`
+3. Destroy instances (existing playbooks)
+4. Verify AWS shows "terminated" state and Hetzner shows empty list
+5. Verify unified inventory shows no instances
 
 ### Future Enhancement Opportunities
 **Status**: Available for future implementation based on needs
