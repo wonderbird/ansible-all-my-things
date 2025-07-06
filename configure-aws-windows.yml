@@ -1,5 +1,5 @@
 ---
-- name: Install Chocolatey
+- name: Configure RDP, install Chocolatey
   hosts: windows
 
   vars_files:
