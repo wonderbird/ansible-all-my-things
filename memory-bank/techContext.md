@@ -28,18 +28,28 @@
 ## Development Setup
 
 ### Required Tools
+**Automated Installation:**
+```bash
+# Install Python dependencies
+pip3 install -r requirements.txt
+
+# Install Ansible collections
+ansible-galaxy collection install -r requirements.yml
+```
+
+**Manual Requirements (if needed):**
 ```bash
 # Core requirements
 ansible >= 4.0
 python >= 3.8
 
-# Multi-provider support
-boto3 >= 1.0              # AWS support
-botocore >= 1.0           # AWS support
-hcloud                    # Hetzner Cloud CLI (optional)
+# Multi-provider support (installed via requirements.txt)
+boto3 >= 1.26.0            # AWS support
+botocore >= 1.29.0         # AWS support
+hcloud >= 1.16.0           # Hetzner Cloud CLI (optional)
 
 # Provider CLIs (for credential management)
-aws CLI                   # AWS credential management
+aws CLI                    # AWS credential management
 ```
 
 ### Multi-Provider Environment Configuration
@@ -80,16 +90,20 @@ ansible-all-my-things/
 ├── Cleanup:
 │   ├── destroy.yml               # Hetzner Cloud cleanup ✅ WORKING
 │   └── destroy-aws.yml           # AWS unified cleanup ✅ WORKING
-├── Cross-Provider Inventory:
-│   ├── inventories/aws/          # AWS inventory (rivendell, moria) ✅ WORKING
-│   └── inventories/hcloud/       # Hetzner inventory (hobbiton) ✅ WORKING
+├── Unified Inventory:
+│   ├── inventories/aws_ec2.yml   # AWS inventory (rivendell, moria) ✅ WORKING
+│   ├── inventories/hcloud.yml    # Hetzner inventory (hobbiton) ✅ WORKING
+│   └── inventories/group_vars/   # Provider-aware variables ✅ WORKING
 ├── Provider Provisioners:
 │   ├── provisioners/hcloud.yml   # Hetzner provisioning ✅ WORKING
 │   ├── provisioners/aws-linux.yml  # AWS Linux provisioning ✅ WORKING
 │   └── provisioners/aws-windows.yml # AWS Windows provisioning ✅ WORKING
+├── Dependencies:
+│   ├── requirements.txt          # Python dependencies ✅ NEW
+│   └── requirements.yml          # Ansible collections ✅ NEW
 ├── Documentation:
-│   ├── docs/aws/ & docs/hcloud/  # Provider-specific guides ✅ COMPLETE
-│   └── docs/create-vm.md         # Unified entry point ✅ COMPLETE
+│   ├── docs/aws/ & docs/hcloud/  # Provider-specific guides ✅ UPDATED
+│   └── docs/create-vm.md         # Unified entry point ✅ UPDATED
 └── memory-bank/                  # Cross-provider documentation ✅ CURRENT
 ```
 
