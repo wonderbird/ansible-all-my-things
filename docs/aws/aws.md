@@ -9,13 +9,11 @@ This section covers using Amazon Web Services (AWS) EC2 for development environm
 
 ## Prerequisites
 
-All AWS environments require:
+In addition to the common prerequisites listed in [Create a Virtual Machine](../create-vm.md), all AWS environments require
 
-1. **Python dependencies:** Install required packages with `pip3 install -r requirements.txt`
-2. **Ansible collections:** Install required collections with `ansible-galaxy collection install -r requirements.yml`
-3. AWS account with programmatic access configured
-4. SSH key pairs
-5. Ansible Vault setup for encrypted secrets
+1. AWS account with programmatic access configured
+2. SSH key pairs
+3. Ansible Vault setup for encrypted secrets
 
 ### AWS Credentials Setup
 
@@ -114,7 +112,7 @@ Create or import an SSH key pair in the AWS EC2 console:
 > [!IMPORTANT]
 > **Windows AMI Limitation**: AWS does not support ED25519 key pairs for Windows AMIs. If you plan to use Windows Server instances, you must use RSA (minimum 2048-bit) or ECDSA key pairs. For Linux AMIs, all key types including ED25519 are supported.
 
-### Ansible Vault Setup for Encrypted Secrets
+### 3. Ansible Vault Setup for Encrypted Secrets
 
 Follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in [./ansible-vault-password.txt](./ansible-vault-password.txt) and in [./playbooks/vars-secrets.yml](./playbooks/vars-secrets.yml).
 
@@ -123,16 +121,20 @@ Follow the instructions in section [Important concepts](./important-concepts.md)
 You can check for running VMs in several ways:
 
 ### Unified Inventory (Recommended)
+
 View all instances across all providers with:
-```bash
+
+```shell
 ansible-inventory --graph
 ```
 
 ### AWS Console
+
 Check the [AWS EC2 Console](https://console.aws.amazon.com/ec2/)
 
 ### AWS CLI
-```bash
+
+```shell
 aws ec2 describe-instances --filters "Name=instance-state-name,Values=running"
 ```
 

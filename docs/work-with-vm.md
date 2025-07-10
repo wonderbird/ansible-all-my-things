@@ -44,5 +44,4 @@ ansible-playbook --vault-password-file ansible-vault-password.txt ./restore.yml
 
 --
 
-Previous: [Create a Virtual Machine](../create-vm.md)
-Next: [Synchronize Git Repositories with a VM](./synchronize-repos-with-vm.md)
+Previous: [Create a Virtual Machine](./create-vm.md)

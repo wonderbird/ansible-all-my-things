@@ -43,4 +43,4 @@ The following provisioners create virtual machines on your localhost:
 
 --
 
-Next: [Work with a Virtual Machine](../work-with-vm.md)
+Next: [Work with a Virtual Machine](./work-with-vm.md)

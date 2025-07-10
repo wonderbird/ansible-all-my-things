@@ -16,21 +16,12 @@ This repository defines virtual machine configurations for software developers. 
 
 ## Quick Start
 
-1. **Install dependencies:**
-   ```bash
-   pip3 install -r requirements.txt
-   ```
+Follow setup instructions in
 
-2. **Install Ansible collections:**
-   ```bash
-   ansible-galaxy collection install -r requirements.yml
-   ```
-
-3. **Follow setup instructions:**
-   - [Important Concepts](./docs/important-concepts.md)
-   - [Create Virtual Machines](./docs/create-vm.md)
-   - [Work with a VM](./docs/work-with-vm.md)
-   - [Synchronize Git Repositories with a VM](./docs/synchronize-repos-with-vm.md)
+- [Create Virtual Machines](./docs/create-vm.md)
+- [Important Concepts](./docs/important-concepts.md)
+- [Work with a VM](./docs/work-with-vm.md)
+- [Synchronize Git Repositories with a VM](./docs/synchronize-repos-with-vm.md)
 
 ## Documentation
 
