@@ -46,7 +46,7 @@ inventories/
 ```
 Cross-Provider Patterns:
 ├── Hetzner Cloud Linux:  provision.yml → provisioners/hcloud.yml → configure.yml
-├── AWS Linux:            provision-aws-linux.yml → provisioners/aws-linux.yml → configure-aws.yml  
+├── AWS Linux:            provision-aws-linux.yml → provisioners/aws-linux.yml
 ├── AWS Windows:          provision-aws-windows.yml → provisioners/aws-windows.yml → configure-aws-windows.yml
 └── Unified Cleanup:      destroy.yml (Hetzner) / destroy-aws.yml (AWS)
 ```
@@ -60,7 +60,7 @@ Cross-Provider Patterns:
 All implementations follow consistent structure with provider and platform-specific implementations:
 ```
 Hetzner Cloud Linux:  provision.yml → configure.yml → destroy.yml
-AWS Linux:            provision-aws-linux.yml → configure-aws.yml → destroy-aws.yml
+AWS Linux:            provision-aws-linux.yml → destroy-aws.yml
 AWS Windows:          provision-aws-windows.yml → configure-aws-windows.yml → destroy-aws.yml
 ```
 
@@ -263,12 +263,11 @@ graph TD
 1. **Task 1**: Create unified inventory structure (aws.yml, hcloud.yml) - 2 hours
 2. **Task 2**: Implement provider-aware group_vars structure - 3 hours
 3. **Task 3**: Update ansible.cfg to point to ./inventories - 30 minutes
-4. **Task 4**: Update 3 playbooks with hardcoded inventory paths - 1.5 hours
+4. **Task 4**: Update 2 playbooks with hardcoded inventory paths - 1 hour
 5. **Task 5**: Test unified inventory functionality - 1 hour
 6. **Task 6**: Remove legacy inventory structure - 30 minutes
 
 **Required Playbook Updates (discovered during team analysis):**
-- `configure-aws.yml` line 9: `ansible_inventory: inventories/aws/aws_ec2.yml`
 - `provision.yml` line 11: `target_inventory: inventories/hcloud/hcloud.yml`
 - `provision-aws-windows.yml` line 8: `target_inventory: inventories/aws/aws_ec2.yml`
 

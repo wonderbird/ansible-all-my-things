@@ -1,14 +1,3 @@
 ---
-# Linux-specific variables (hobbiton + rivendell)
+# Linux-specific variables
 # These apply to all Linux instances regardless of provider
-
-# Platform-specific settings
-ansible_python_interpreter: /usr/bin/python3
-ansible_become: true
-ansible_become_method: sudo
-
-# Common Linux packages
-linux_packages:
-  - htop
-  - tree
-  - unzip

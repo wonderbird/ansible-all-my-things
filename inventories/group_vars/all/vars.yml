@@ -1,13 +1,3 @@
 ---
 # Global variables for all instances across providers
 # These are base values that can be overridden by platform and provider-specific vars
-
-# Base configuration that applies to all instances
-common_packages:
-  - curl
-  - wget
-  - git
-  - vim
-
-# SSH configuration
-ansible_ssh_common_args: '-o StrictHostKeyChecking=no'

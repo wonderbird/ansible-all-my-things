@@ -41,6 +41,8 @@
   - (vagrant+docker, linux): dagorlad
 - [x] The Ansible group "dev" should be renamed to"linux" group, i.e. merge "dev" with the existing group "linux". The group is used by the provisioners below the ./test/ directory.
 - [x] Verify that the Vagrant groups have been completely renamed to linux
+- [x] Run the test documented in the memory bank and verify that the unified inventory works
+- [x] Können die Inventories für alle Provider in einer einzigen Datei zusammengeführt werden - nimm auch Vagrant+Docker und Tart+Docker in diese konsolidierte Ansible Konfiguration
 
 ## Ongoing: Findings that are currently fixed
 
@@ -48,15 +50,20 @@ Identifiziere das nächste Finding.
 
 Dokumentations-Findings haben oberste Prio, damit ich meinen Projektfokus jederzeit wechseln kann und mich später wieder schnell zurecht finde.
 
-- [ ] Können die Inventories für alle Provider in einer einzigen Datei zusammengeführt werden - nimm auch Vagrant+Docker und Tart+Docker in diese konsolidierte Ansible Konfiguration
-  - [ ] Installiere die notwendigen Tools auf der VM: aws cli, hcloud cli. Problem: hcloud CLI gibt es nicht für arm64 (tart) als binary
-  - [ ] Konfiguriere die Zugriffsrechte auf die Cloud Inventories.
 
 ## Backlog
 
 ### Todos in context with the review
 
+- [ ] Verschiebe die Nicht-Geheimniss aus den secrets in die vars.yml Dateien
+
 - [ ] Sollte das Ansible Vault statt in playbooks/vars-secrets.yml woanders liegen? z.B. unter dem jeweiligen Inventory? Bsp: inventories/aws/group_vars/aws_windows
+
+- [ ] Document an overview of the group_vars design in inventories/README.md file. Keep it short and simple. Include the hierarchy as a mermaid diagram. Describe that hierarchy in a paragraph below the diagram.
+
+- [ ] Installiere die notwendigen Tools auf der VM: aws cli, hcloud cli. Problem: hcloud CLI gibt es nicht für arm64 (tart) als binary; Man kann auf tart/linux hcloud cli auch nicht bauen. Folgt man der Bauanleitung in CONTRIBUTING.md, dann steigt eine Logging / Unit Testing Dependency mit dem Fehler aus, dass es keine Unterstützung für arm64/Linux gibt.
+
+- [ ] Konfiguriere die Zugriffsrechte auf die Cloud Inventories.
 
 - [ ] Will ich die Security Groups in AWS wirklich beibehalten? Sind sie nicht entgegen meines Use Case?
 

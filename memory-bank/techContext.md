@@ -85,7 +85,6 @@ ansible-all-my-things/
 │   └── provision-aws-windows.yml # AWS Windows provisioning ✅ WORKING
 ├── Configuration:
 │   ├── configure.yml             # Hetzner Cloud configuration ✅ WORKING
-│   ├── configure-aws.yml         # AWS Linux configuration ✅ WORKING
 │   └── configure-aws-windows.yml # AWS Windows configuration ✅ WORKING
 ├── Cleanup:
 │   ├── destroy.yml               # Hetzner Cloud cleanup ✅ WORKING

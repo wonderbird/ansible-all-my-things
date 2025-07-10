@@ -150,7 +150,7 @@ THEN I see the output ✅ VERIFIED
 - Platform-based grouping already implemented in each provider
 - Provider-aware variable structure addresses admin user differences
 - Cross-provider SSH key management proven to work
-- **Scope Updated**: 3 playbooks require updates (configure-aws.yml, provision.yml, provision-aws-windows.yml)
+- **Scope Updated**: 2 playbooks require updates (provision.yml, provision-aws-windows.yml)
 
 **Acceptance Test Plan:**
 1. Provision instances on both providers (existing playbooks)
@@ -163,14 +163,14 @@ THEN I see the output ✅ VERIFIED
 1. Create unified inventory structure (aws_ec2.yml, hcloud.yml) ✅ COMPLETED
 2. Implement provider-aware group_vars structure ✅ COMPLETED
 3. Update ansible.cfg to point to ./inventories ✅ COMPLETED
-4. Update 3 playbooks with hardcoded inventory paths ✅ COMPLETED
+4. Update 2 playbooks with hardcoded inventory paths ✅ COMPLETED
 5. Test unified inventory functionality ✅ COMPLETED & VERIFIED
 6. Remove legacy inventory structure ✅ COMPLETED
 
 **Implementation Details:**
 - **Unified Structure**: Created inventories/aws_ec2.yml and inventories/hcloud.yml
 - **Provider-Aware Group Vars**: Implemented variable precedence (all → platform → provider)
-- **Playbook Updates**: Updated configure-aws.yml, provision.yml, provision-aws-windows.yml
+- **Playbook Updates**: Updated provision.yml, provision-aws-windows.yml
 - **Legacy Cleanup**: Removed inventories/aws/ and inventories/hcloud/ directories
 - **Configuration**: Updated ansible.cfg to use unified ./inventories directory
 - **Dependency Management**: Created requirements.txt and requirements.yml for streamlined setup

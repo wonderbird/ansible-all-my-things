@@ -55,7 +55,7 @@
 **Implementation Summary:**
 - Created unified inventories/aws_ec2.yml and inventories/hcloud.yml
 - Implemented provider-aware group_vars (all → platform → provider precedence)
-- Updated ansible.cfg and 3 playbooks to use unified inventory
+- Updated ansible.cfg and 2 playbooks to use unified inventory
 - Removed legacy inventory structure
 - Created requirements.txt and requirements.yml for dependency management
 - Resolved boto3 dependency and AWS plugin recognition issues
@@ -116,7 +116,7 @@
 1. Create unified inventory structure (aws_ec2.yml, hcloud.yml) ✅ COMPLETED
 2. Implement provider-aware group_vars with variable precedence ✅ COMPLETED
 3. Update ansible.cfg configuration ✅ COMPLETED
-4. Update 3 playbooks with hardcoded inventory paths (configure-aws.yml, provision.yml, provision-aws-windows.yml) ✅ COMPLETED
+4. Update 2 playbooks with hardcoded inventory paths (provision.yml, provision-aws-windows.yml) ✅ COMPLETED
 5. Test unified inventory functionality ✅ COMPLETED & VERIFIED
 6. Remove legacy inventory structure ✅ COMPLETED
 

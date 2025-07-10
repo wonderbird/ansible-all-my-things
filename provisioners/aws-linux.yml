@@ -2,17 +2,20 @@
 - name: Create AWS Linux Development Environment
   hosts: localhost
   connection: local
-  gather_facts: true
+  gather_facts: False
 
   vars_files:
     - ../playbooks/vars-secrets.yml
+    - ../inventories/group_vars/all/vars.yml
+    - ../inventories/group_vars/aws/vars.yml
+    - ../inventories/group_vars/linux/vars.yml
 
   vars:
     # Default values - can be overridden in group_vars
-    aws_region: "{{ aws_default_region | default('eu-north-1') }}"
-    aws_instance_type: "{{ aws_default_instance_type | default('t3.micro') }}"
-    aws_ami_id: "{{ aws_default_ami_id | default('ami-0989fb15ce71ba39e') }}"  # Ubuntu 24.04 LTS in eu-north-1
-    aws_ssh_key_name: "{{ my_ssh_key_name | default('SSH key name must be configured in vars-secrets.yml') }}"
+    aws_region: "{{ aws_default_region | default('aws_default_region must be defined') }}"
+    aws_instance_type: "{{ aws_default_instance_type | default('aws_default_instance_type must be defined') }}"
+    aws_ami_id: "{{ aws_default_ami_id | default('aws_default_ami_id must be defined') }}"  # Ubuntu 24.04 LTS in eu-north-1
+    aws_ssh_key_name: "{{ my_ssh_key_name | default('my_ssh_key_name must be defined') }}"
     aws_security_group_name: "ansible-sg"
     aws_instance_name: "rivendell"
 
@@ -113,9 +116,6 @@
           - "Public IP: {{ ec2_instance.instances[0].public_ip_address }}"
           - "Instance Type: {{ ec2_instance.instances[0].instance_type }}"
           - "SSH Command: ssh -i ~/.ssh/{{ aws_ssh_key_name }}.pem ubuntu@{{ ec2_instance.instances[0].public_ip_address }}"
-          - ""
-          - "To configure this instance, run:"
-          - "ansible-playbook configure-aws.yml"
       when: ec2_instance.instances | length > 0
 
     - name: Save instance information for inventory
