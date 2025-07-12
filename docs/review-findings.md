@@ -1,13 +1,13 @@
-# Summary: Update Instance Tagging for Unified Inventory Groups
+# Inventory Group Structure Improvement
 
-## Goal
-Modify the provisioner files to use consistent tagging that will automatically create the expected inventory groups when running `ansible-inventory --graph`. This will eliminate the need for manual group management and create a unified inventory structure across AWS and Hetzner Cloud providers.
+## Overview
+Replace `ansible_group` tags with `platform` tags to create both cross-provider groups (`@linux`, `@windows`) and provider-specific groups (`@aws_ec2_linux`, `@hcloud_linux`) automatically.
 
-## Expected Outcome
-After implementing these changes, the `ansible-inventory --graph` command should output:
+**Impact:** Low-risk additive change that maintains backward compatibility while adding provider-specific targeting capabilities.
+
+## Expected Result
 ```
 @all:
-  |--@ungrouped:
   |--@aws_ec2:
   |  |--moria
   |  |--rivendell
@@ -15,138 +15,100 @@ After implementing these changes, the `ansible-inventory --graph` command should
   |  |--rivendell
   |--@aws_ec2_windows:
   |  |--moria
-  |--@hcloud_linux:
-  |  |--hobbiton
-  |--@windows:
-  |  |--moria
-  |--@linux:
-  |  |--rivendell
-  |  |--hobbiton
   |--@hcloud:
   |  |--hobbiton
+  |--@hcloud_linux:
+  |  |--hobbiton
+  |--@linux:
+  |  |--hobbiton
+  |  |--rivendell
+  |--@windows:
+  |  |--moria
 ```
 
-## Required Changes
+## Benefits
+- **Backward compatible:** Existing `hosts: linux/windows` playbooks continue working
+- **Enhanced targeting:** New provider-specific groups enable fine-grained control
+- **Better semantics:** `platform: "linux"` is clearer than `ansible_group: "linux"`
+- **Automatic management:** Groups created from instance metadata, no manual configuration
 
-### 1. Update AWS Linux Provisioner (`provisioners/aws-linux.yml`)
-Replace the current tags section (line 78-80):
-```yaml
-tags:
-  Name: "{{ aws_instance_name }}"
-  ansible_group: "linux"
-```
-With:
-```yaml
-tags:
-  Name: "{{ aws_instance_name }}"
-  platform: "linux"
-```
+## Implementation
 
-### 2. Update AWS Windows Provisioner (`provisioners/aws-windows.yml`)
-Replace the current tags section:
+### 1. Update Provisioner Tags/Labels
+**AWS provisioners (`provisioners/aws-linux.yml`, `provisioners/aws-windows.yml`):**
 ```yaml
+# Change from:
 tags:
-  Name: "{{ aws_instance_name }}"
-  ansible_group: "windows"
-```
-With:
-```yaml
+  ansible_group: "linux"  # or "windows"
+# To:
 tags:
-  Name: "{{ aws_instance_name }}"
-  platform: "windows"
+  platform: "linux"      # or "windows"
 ```
 
-### 3. Update Hetzner Cloud Provisioner (`provisioners/hcloud.yml`)
-Replace the current labels section:
+**Hetzner provisioner (`provisioners/hcloud.yml`):**
 ```yaml
+# Change from:
 labels:
   ansible_group: "linux"
-```
-With:
-```yaml
+# To:
 labels:
   platform: "linux"
 ```
 
-### 4. Create/Update Dynamic Inventory Files
-
-**Create `inventories/aws_ec2.yml`:**
+### 2. Update Inventory Configurations
+**AWS inventory (`inventories/aws_ec2.yml`):**
 ```yaml
 plugin: amazon.aws.aws_ec2
 regions:
   - eu-north-1
 keyed_groups:
-  # Create platform groups (linux, windows)
-  - key: tags.platform
+  - key: tags.platform     # Creates @linux, @windows
     prefix: ""
     separator: ""
-  # Create provider-specific platform groups (aws_ec2_linux, aws_ec2_windows)
-  - key: tags.platform
+  - key: tags.platform     # Creates @aws_ec2_linux, @aws_ec2_windows
     prefix: "aws_ec2"
     separator: "_"
 filters:
   instance-state-name: ["running", "pending", "stopping", "stopped"]
 ```
 
-**Create/Update `inventories/hcloud.yml`:**
+**Hetzner inventory (`inventories/hcloud.yml`):**
 ```yaml
 plugin: hetzner.hcloud.hcloud
 keyed_groups:
-  # Create platform groups (linux)
-  - key: labels.platform
+  - key: labels.platform   # Creates @linux
     prefix: ""
     separator: ""
-  # Create provider-specific platform groups (hcloud_linux)
-  - key: labels.platform
+  - key: labels.platform   # Creates @hcloud_linux
     prefix: "hcloud"
     separator: "_"
 ```
 
-### 5. Update Group Variables Structure
-
-**Rename existing group_vars directories:**
+### 3. Rename Group Variables
 ```
-inventories/group_vars/aws/vars.yml → inventories/group_vars/aws_ec2/vars.yml
-inventories/group_vars/aws_linux/vars.yml → inventories/group_vars/aws_ec2_linux/vars.yml
-inventories/group_vars/aws_windows/vars.yml → inventories/group_vars/aws_ec2_windows/vars.yml
+inventories/group_vars/aws/ → inventories/group_vars/aws_ec2/
+inventories/group_vars/aws_linux/ → inventories/group_vars/aws_ec2_linux/
+inventories/group_vars/aws_windows/ → inventories/group_vars/aws_ec2_windows/
 ```
 
-**Update any playbooks that reference the old groups:**
-- Change `hosts: aws` to `hosts: aws_ec2`
-- Change `hosts: aws_linux` to `hosts: aws_ec2_linux`
-- Change `hosts: aws_windows` to `hosts: aws_ec2_windows`
-- Update any group references in task conditions or variable lookups
+### 4. Update Group References
+Search and replace in playbooks:
+- `hosts: aws` → `hosts: aws_ec2`
+- `hosts: aws_linux` → `hosts: aws_ec2_linux`
+- `hosts: aws_windows` → `hosts: aws_ec2_windows`
 
-## Benefits
-1. **Automatic Group Management**: Groups are created automatically based on instance metadata
-2. **Simplified Tagging**: Only requires a single `platform` tag/label per instance
-3. **Provider Context**: Provider information is implicit in each inventory file
-4. **Semantic Tags**: Tags reflect actual instance characteristics (platform) rather than Ansible-specific groups
-5. **Scalable**: Easy to extend to additional providers or platforms
-6. **Self-Documenting**: Instance purpose is clear from tags alone
-7. **Clean Configuration**: No artificial group creation needed - uses plugin defaults
-8. **Consistent Naming**: All AWS groups follow the `aws_ec2_*` pattern
-
-## Technical Notes
-- The `@aws_ec2` and `@hcloud` groups are created automatically by their respective inventory plugins
-- Provider-specific groups (e.g., `@aws_ec2_linux`, `@hcloud_linux`) are generated by prefixing the platform with the provider name
-- Global platform groups (e.g., `@linux`, `@windows`) are created without any prefix
-- Using `@aws_ec2` instead of `@aws` eliminates the need for additional keyed group configuration
-- The `aws_ec2_*` naming pattern provides consistency and future-proofs against other AWS services
+## Technical Details
+- Dual `keyed_groups` entries create both cross-provider and provider-specific groups
+- Existing `@linux`/`@windows` groups preserved (11 playbooks require no changes)
+- Provider groups (`@aws_ec2`, `@hcloud`) created automatically by plugins
+- Migration is gradual - existing instances work until next provision cycle
 
 ## Testing
-After implementation, verify the changes work by following the test procedure in `test/test_unified_inventory.md`.
+Follow test procedure in `test/test_unified_inventory.md` to verify group structure matches expected output.
 
 ## Migration Checklist
-- [ ] Update AWS Linux provisioner tags
-- [ ] Update AWS Windows provisioner tags  
-- [ ] Update Hetzner Cloud provisioner labels
-- [ ] Create/update AWS EC2 inventory file
-- [ ] Create/update Hetzner Cloud inventory file
-- [ ] Rename `inventories/group_vars/aws/` to `inventories/group_vars/aws_ec2/`
-- [ ] Rename `inventories/group_vars/aws_linux/` to `inventories/group_vars/aws_ec2_linux/`
-- [ ] Rename `inventories/group_vars/aws_windows/` to `inventories/group_vars/aws_ec2_windows/`
-- [ ] Search and replace `hosts: aws` with `hosts: aws_ec2` in playbooks
-- [ ] Search and replace `hosts: aws_linux` with `hosts: aws_ec2_linux` in playbooks
-- [ ] Search and replace `hosts: aws_windows` with `hosts: aws_ec2_windows` in playbooks
-- [ ] Test inventory graph output matches expected result
+- [ ] Update 3 provisioner files (tag/label changes)
+- [ ] Update 2 inventory files (keyed_groups configuration)  
+- [ ] Rename 3 group_vars directories
+- [ ] Update playbook group references (search/replace)
+- [ ] Test inventory output matches expected structure
