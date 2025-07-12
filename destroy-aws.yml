@@ -13,7 +13,7 @@
     aws_instance_states_to_terminate: ["running", "pending", "stopping", "stopped"]
 
   tasks:
-    - name: Get all EC2 instances created by ansible
+    - name: Get EC2 instances
       amazon.aws.ec2_instance_info:
         region: "{{ aws_region }}"
         filters:
@@ -28,7 +28,7 @@
           - "Security Group: {{ aws_security_group_name }}"
       when: ansible_instances.instances | length > 0
 
-    - name: Terminate all ansible-created EC2 instances
+    - name: Terminate EC2 instances
       amazon.aws.ec2_instance:
         instance_ids: "{{ ansible_instances.instances | map(attribute='instance_id') | list }}"
         region: "{{ aws_region }}"
