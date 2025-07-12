@@ -1,0 +1,5 @@
+---
+# Windows-specific variables
+# These apply to all Windows instances regardless of provider
+
+admin_user_on_fresh_system: "Administrator"

@@ -1,0 +1,16 @@
+---
+plugin: amazon.aws.aws_ec2
+
+keyed_groups:
+  - key: tags.platform
+    prefix: ""
+    separator: ""
+  - key: tags.platform
+    prefix: "aws_ec2"
+    separator: "_"
+
+hostnames:
+  - tag:Name
+
+compose:
+  ansible_host: public_ip_address

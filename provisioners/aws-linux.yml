@@ -2,17 +2,21 @@
 - name: Create AWS Linux Development Environment
   hosts: localhost
   connection: local
-  gather_facts: true
+  gather_facts: False
 
   vars_files:
     - ../playbooks/vars-secrets.yml
+    - ../inventories/group_vars/all/vars.yml
+    - ../inventories/group_vars/linux/vars.yml
+    - ../inventories/group_vars/aws_ec2/vars.yml
+    - ../inventories/group_vars/aws_ec2_linux/vars.yml
 
   vars:
     # Default values - can be overridden in group_vars
-    aws_region: "{{ aws_default_region | default('eu-north-1') }}"
-    aws_instance_type: "{{ aws_default_instance_type | default('t3.micro') }}"
-    aws_ami_id: "{{ aws_default_ami_id | default('ami-0989fb15ce71ba39e') }}"  # Ubuntu 24.04 LTS in eu-north-1
-    aws_ssh_key_name: "{{ my_ssh_key_name | default('SSH key name must be configured in vars-secrets.yml') }}"
+    aws_region: "{{ aws_default_region | default('aws_default_region must be defined') }}"
+    aws_instance_type: "{{ aws_default_instance_type | default('aws_default_instance_type must be defined') }}"
+    aws_ami_id: "{{ aws_default_ami_id | default('aws_default_ami_id must be defined') }}"  # Ubuntu 24.04 LTS in eu-north-1
+    aws_ssh_key_name: "{{ my_ssh_key_name | default('my_ssh_key_name must be defined') }}"
     aws_security_group_name: "ansible-sg"
     aws_instance_name: "rivendell"
 
@@ -49,14 +53,6 @@
           CreatedBy: "ansible"
       register: security_group
 
-    - name: Check if instance already exists
-      amazon.aws.ec2_instance_info:
-        region: "{{ aws_region }}"
-        filters:
-          "tag:Name": "{{ aws_instance_name }}"
-          instance-state-name: ["running", "pending", "stopping", "stopped"]
-      register: existing_instances
-
     - name: Launch Linux EC2 instance
       amazon.aws.ec2_instance:
         name: "{{ aws_instance_name }}"
@@ -77,24 +73,8 @@
               delete_on_termination: true
         tags:
           Name: "{{ aws_instance_name }}"
-          ansible_group: "linux"
+          platform: "linux"
       register: ec2_instance
-      when: existing_instances.instances | length == 0
-
-    - name: Get existing instance info if not created
-      amazon.aws.ec2_instance_info:
-        region: "{{ aws_region }}"
-        filters:
-          "tag:Name": "{{ aws_instance_name }}"
-          instance-state-name: ["running", "pending", "stopping", "stopped"]
-      register: ec2_instance_info
-      when: existing_instances.instances | length > 0
-
-    - name: Set instance facts for existing instance
-      ansible.builtin.set_fact:
-        ec2_instance:
-          instances: "{{ ec2_instance_info.instances }}"
-      when: existing_instances.instances | length > 0
 
     - name: Wait for SSH to become available
       ansible.builtin.wait_for:
@@ -105,21 +85,5 @@
         state: started
       when: ec2_instance.instances | length > 0
 
-    - name: Display instance information
-      ansible.builtin.debug:
-        msg:
-          - "EC2 Instance created successfully!"
-          - "Instance ID: {{ ec2_instance.instances[0].instance_id }}"
-          - "Public IP: {{ ec2_instance.instances[0].public_ip_address }}"
-          - "Instance Type: {{ ec2_instance.instances[0].instance_type }}"
-          - "SSH Command: ssh -i ~/.ssh/{{ aws_ssh_key_name }}.pem ubuntu@{{ ec2_instance.instances[0].public_ip_address }}"
-          - ""
-          - "To configure this instance, run:"
-          - "ansible-playbook -i inventories/aws/aws_ec2.yml configure.yml"
-      when: ec2_instance.instances | length > 0
-
-    - name: Save instance information for inventory
-      ansible.builtin.set_fact:
-        aws_instance_id: "{{ ec2_instance.instances[0].instance_id }}"
-        aws_instance_ip: "{{ ec2_instance.instances[0].public_ip_address }}"
-      when: ec2_instance.instances | length > 0
+    - name: Refresh inventory to ensure new host is available
+      meta: refresh_inventory

@@ -1,0 +1,10 @@
+# Ansible Collections for Multi-Provider Infrastructure
+collections:
+  - name: amazon.aws
+    version: ">=7.0.0"
+  - name: hetzner.hcloud
+    version: ">=1.0.0"
+  - name: ansible.windows
+    version: ">=1.0.0"
+  - name: community.windows
+    version: ">=1.0.0"

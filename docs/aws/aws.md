@@ -9,14 +9,13 @@ This section covers using Amazon Web Services (AWS) EC2 for development environm
 
 ## Prerequisites
 
-All AWS environments require:
+In addition to the common prerequisites listed in [Create a Virtual Machine](../create-vm.md), all AWS environments require
 
 1. AWS account with programmatic access configured
 2. SSH key pairs
 3. Ansible Vault setup for encrypted secrets
-4. Default Inventory
 
-### 1. AWS Credentials Setup
+### AWS Credentials Setup
 
 If you don't have an AWS account yet, follow these steps:
 
@@ -85,13 +84,6 @@ export AWS_DEFAULT_REGION="eu-north-1"  # or your preferred region
 ##### Option 2: AWS CLI Configuration
 
 ```shell
-# Setup and activate python virtual environment
-python3 -m venv ./venv
-source ./venv/bin/activate
-
-# Install AWS CLI if needed
-pip install awscli
-
 # Configure credentials
 # NOTE: I currently use eu-north-1 as the default region
 #       and leave the default output format as None.
@@ -124,22 +116,26 @@ Create or import an SSH key pair in the AWS EC2 console:
 
 Follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in [./ansible-vault-password.txt](./ansible-vault-password.txt) and in [./playbooks/vars-secrets.yml](./playbooks/vars-secrets.yml).
 
-### 4. Default Inventory
-
-Configure aws as the default inventory in [/ansible.cfg](../ansible.cfg):
-
-```ini
-[default]
-inventory = ./inventories/aws
-...
-```
-
 ## Status of Running VMs
 
-You can check for running VMs either in the [AWS EC2 Console](https://console.aws.amazon.com/ec2/) or via the `aws` CLI:
+You can check for running VMs in several ways:
+
+### Unified Inventory (Recommended)
+
+View all instances across all providers with:
 
 ```shell
-aws ec2 describe-instances --filters "Name=instance-state-name,Values=running
+ansible-inventory --graph
+```
+
+### AWS Console
+
+Check the [AWS EC2 Console](https://console.aws.amazon.com/ec2/)
+
+### AWS CLI
+
+```shell
+aws ec2 describe-instances --filters "Name=instance-state-name,Values=running"
 ```
 
 ---

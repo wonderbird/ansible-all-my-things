@@ -1,0 +1,5 @@
+---
+# AWS-specific overrides
+# These override platform defaults
+
+aws_default_region: "eu-north-1"

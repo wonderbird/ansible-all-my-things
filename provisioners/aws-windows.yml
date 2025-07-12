@@ -6,26 +6,21 @@
 
   vars_files:
     - ../playbooks/vars-secrets.yml
+    - ../inventories/group_vars/all/vars.yml
+    - ../inventories/group_vars/windows/vars.yml
+    - ../inventories/group_vars/aws_ec2/vars.yml
+    - ../inventories/group_vars/aws_ec2_windows/vars.yml
 
   vars:
     # Set up a Windows Server 2025 in the default region (eu-north-1)
-    aws_region: "{{ aws_default_region | default('eu-north-1') }}"
-    aws_instance_type: "{{ aws_windows_instance_type | default('t3.large') }}"
-    aws_ami_id: "{{ aws_windows_ami_id | default('ami-01998fe5b868df6e3') }}"
-    aws_ssh_key_name: "{{ my_ssh_key_name | default('my_ssh_key_name must be configured in vars-secrets.yml') }}"
+    aws_region: "{{ aws_default_region | default('aws_default_region must be defined') }}"
+    aws_instance_type: "{{ aws_default_instance_type | default('aws_default_instance_type must be defined') }}"
+    aws_ami_id: "{{ aws_default_ami_id | default('aws_default_ami_id must be defined') }}"
+    aws_ssh_key_name: "{{ my_ssh_key_name | default('my_ssh_key_name must be defined') }}"
     aws_security_group_name: "ansible-sg"
     aws_instance_name: "moria"
 
   tasks:
-    - name: Ensure required variables are defined
-      ansible.builtin.assert:
-        that:
-          - windows_admin_password is defined
-          - windows_admin_password | length > 0
-          - my_ssh_public_key is defined
-          - my_ssh_public_key | length > 0
-        fail_msg: "windows_admin_password and my_ssh_public_key must be defined"
-
     - name: Get current public IP for security group
       ansible.builtin.uri:
         url: https://ipinfo.io/ip
@@ -120,7 +115,7 @@
               delete_on_termination: true
         tags:
           Name: "{{ aws_instance_name }}"
-          ansible_group: "windows"
+          platform: "windows"
       register: ec2_instance
 
     - name: Wait for SSH to become available

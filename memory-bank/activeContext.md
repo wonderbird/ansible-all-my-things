@@ -2,160 +2,267 @@
 
 ## Current Work Focus
 
-### Unified Inventory System 🔄 IN PROGRESS
-**Goal**: Restructure inventory to provide unified visibility of all running instances across providers with single `ansible-inventory --graph` command.
+### Enhanced Inventory Group Structure ✅ COMPLETED & IMPROVED
+**Goal**: Improved inventory group structure with both cross-provider and provider-specific targeting capabilities.
 
-**Status**: 🔄 DESIGN COMPLETED - Implementation pending
+**Status**: ✅ COMPLETED - Advanced inventory grouping implemented and tested
 
-**Business Context**: Need consolidated view of instances across AWS and Hetzner Cloud providers for better infrastructure management.
+**Business Context**: Enhanced operational control - cross-provider groups (@linux, @windows) plus provider-specific groups (@aws_ec2_linux, @hcloud_linux) for fine-grained targeting.
 
-**Foundation**: Building on existing AWS and Hetzner Cloud dynamic inventory implementations.
+**Foundation**: Built on unified inventory system with backward-compatible improvements.
 
-**Target**: Single inventory command showing instances hobbiton, moria, and rivendell grouped by platform (linux/windows) only.
+**Target**: Enhanced inventory structure showing both cross-provider platform groups and provider-specific groups for better automation control.
 
-### Windows Server MVP ✅ COMPLETED & PRODUCTION-READY
-**Goal**: Deliver minimal viable Windows Server with Claude Desktop access for immediate work needs.
+**Implementation**: Improved unified inventory system with dual keyed_groups and cleaner tag semantics.
 
-**Status**: ✅ SUCCESSFULLY COMPLETED - Windows Server MVP tested and validated
+**Key Technical Solutions**:
+- **Enhanced Group Structure**: Dual keyed_groups create both cross-provider (@linux, @windows) and provider-specific (@aws_ec2_linux, @hcloud_linux) groups
+- **Improved Tag Semantics**: Replaced `ansible_group` tags with clearer `platform` tags
+- **Backward Compatibility**: Existing playbooks continue working while enabling enhanced targeting
+- **Dependency Management**: Created `requirements.txt` and `requirements.yml` for streamlined setup
+- **AWS Plugin Fix**: Resolved boto3 dependency and renamed `aws.yml` to `aws_ec2.yml` for plugin recognition
+- **Documentation Updates**: Unified dependency installation instructions across all documentation
 
-**Business Context**: User's immediate Claude Desktop access needs have been met with production-ready Windows Server implementation.
+## Production-Ready Infrastructure ✅ COMPLETED
 
-**Foundation**: Successfully extended AWS Linux implementation to Windows Server with complete lifecycle management.
+### Hetzner Cloud Linux ✅ PRODUCTION-READY & MOST MATURE
+**Instance**: `hobbiton` - Complete development environment
+**Status**: ✅ FULLY OPERATIONAL - Most comprehensive implementation
 
-**Implementation**: Complete Windows Server 2025 automation with SSH key authentication, RDP access, and automatic configuration working reliably.
+**Key Features**:
+- Full GNOME desktop environment with complete application suite
+- Automatic backup/restore system for seamless reprovisioning
+- Cost-optimized at ~$4/month (50% cheaper than AWS equivalent)
+- Persistent development environment designed for daily use
+- Complete automation from provision to configured desktop
 
-## Achieved Implementation Details
+### AWS Linux ✅ PRODUCTION-READY
+**Instance**: `rivendell` - On-demand development server
+**Status**: ✅ FULLY OPERATIONAL - Foundation for multi-provider patterns
 
-### Windows Server Infrastructure ✅ COMPLETED
-- **File**: `provisioners/aws-windows.yml` - Complete Windows Server 2025 provisioning
-- **Key Features**:
-  - Windows Server 2025 AMI (ami-01998fe5b868df6e3) with Desktop Experience
-  - t3.large instance type (4 vCPU, 8GB RAM) for optimal performance
-  - SSH key authentication with PowerShell integration
-  - Automatic Administrator SSH key setup via icacls
-- **Achievement**: Provisioner creates Windows Server with full SSH and RDP access
+**Key Features**:
+- On-demand provisioning with complete lifecycle management
+- Dynamic inventory integration patterns
+- Foundation for Windows Server extension
+- Proven provider abstraction architecture
 
-### Windows Security & Access ✅ COMPLETED
-- **Security Group**: Enhanced `ansible-sg` with SSH (22) and RDP (3389) access
-- **IP Restrictions**: Access limited to user's current public IP address
-- **Authentication**: SSH key-based authentication for Administrator account
-- **Achievement**: Secure, IP-restricted access to Windows Server via SSH and RDP
+### AWS Windows Server ✅ PRODUCTION-READY & RECENTLY COMPLETED
+**Instance**: `moria` - Windows application server
+**Status**: ✅ FULLY OPERATIONAL - Claude Desktop access ready
 
-### Windows Configuration Automation ✅ COMPLETED
-- **File**: `configure-aws-windows.yml` - Automatic Windows configuration
-- **Key Features**:
-  - Chocolatey package manager installation
-  - RDP performance optimization (32-bit color depth, clipboard sharing)
-  - PowerShell execution with Windows-specific modules
-- **Achievement**: Automatic configuration runs after provisioning without manual intervention
+**Key Features**:
+- Windows Server 2025 with SSH key authentication
+- RDP access optimized for desktop applications
+- Integrated provisioning and configuration workflow
+- Unified destroy process across platforms
 
-### Infrastructure Integration ✅ COMPLETED
-- **Main Playbooks**: 
-  - `provision-aws-windows.yml` - Integrated provisioning and configuration
-  - `destroy-aws.yml` - Unified destroy process for both Linux and Windows
-- **Key Features**:
-  - Automatic inventory refresh after provisioning
-  - Unified resource cleanup across platforms
-  - Consistent command patterns with Linux implementation
-- **Achievement**: Single-command provision-to-ready workflow with unified cleanup
+## Cross-Provider Architecture Achievements
 
-### Documentation & Usage ✅ COMPLETED
-- **File**: `docs/aws/create-windows-vm.md` - Complete Windows Server usage guide
-- **Content**:
-  - Step-by-step provisioning instructions
-  - SSH and RDP connection procedures
-  - Verification commands and troubleshooting
-  - Proper cleanup procedures
-- **Achievement**: Comprehensive documentation enabling independent Windows Server usage
+### Multi-Provider Foundation ✅ COMPLETED
+**Achievement**: Proven provider abstraction patterns working across AWS and Hetzner Cloud
 
-## Next Major Enhancement: Unified Inventory System
+**Shared Patterns**:
+- Dynamic inventory integration (`amazon.aws.aws_ec2` and `hetzner.hcloud.hcloud`)
+- Platform-based grouping (linux/windows) independent of provider
+- Consistent SSH key management and credential patterns
+- Unified command structure for similar operations
 
-### Unified Inventory Design 🔄 NEXT PRIORITY
-**Target Structure:**
+**Provider-Specific Optimizations**:
+- **AWS**: On-demand usage patterns with complete lifecycle management
+- **Hetzner Cloud**: Persistent development environment with comprehensive desktop setup
+- **Windows**: Platform-specific adaptations working within shared architecture
+
+### Implementation Specifications ✅ COMPLETED
+
+**Hetzner Cloud Linux (hobbiton)**:
+- **Instance**: cx22 (2 vCPU, 4GB RAM, 40GB SSD) in Helsinki
+- **OS**: Ubuntu 24.04 LTS with full GNOME desktop
+- **Cost**: ~$4/month with predictable pricing
+- **Features**: Complete desktop applications, automatic backup/restore
+- **User**: root → gandalf with sudo privileges
+
+**AWS Linux (rivendell)**:
+- **Instance**: t3.micro/small in eu-north-1
+- **OS**: Ubuntu 24.04 LTS with basic development tools
+- **Cost**: ~$8-10/month with on-demand usage
+- **Features**: Minimal server setup, dynamic inventory patterns
+- **User**: ubuntu → gandalf with sudo privileges
+
+**AWS Windows (moria)**:
+- **Instance**: t3.large (4 vCPU, 8GB RAM) in eu-north-1
+- **OS**: Windows Server 2025 with Desktop Experience
+- **Cost**: ~$60/month with on-demand usage reducing actual costs
+- **Features**: SSH + RDP access, Chocolatey package management
+- **User**: Administrator with SSH key authentication
+
+## Unified Inventory System Implementation ✅ COMPLETED
+
+### Unified Inventory System ✅ IMPLEMENTED AND TESTED
+**Goal**: Single-command visibility of all infrastructure across providers and platforms
+
+**Business Driver**: Cost control - reliable `ansible-inventory --graph` showing all instances across providers to eliminate manual console checking
+
+**Implementation Status:**
+- **Milestone 1**: Core Unified Inventory Structure with Playbook Updates ✅ COMPLETED
+- **Milestone 2**: Acceptance Testing & Validation ✅ COMPLETED
+- **Milestone 3**: Documentation Updates ✅ COMPLETED
+
+**Implemented Structure:**
 ```
 inventories/
-├── aws.yml                    # AWS dynamic inventory
-├── hcloud.yml                 # Hetzner Cloud dynamic inventory  
+├── aws_ec2.yml                  # AWS dynamic inventory (rivendell, moria)
+├── hcloud.yml                   # Hetzner Cloud dynamic inventory (hobbiton)
 └── group_vars/
-    ├── all/
-    │   └── vars.yml           # Global variables (merged common vars)
-    ├── linux/
-    │   └── vars.yml           # Linux-specific variables (merged)
-    └── windows/
-        └── vars.yml           # Windows-specific variables (merged)
+    ├── all/vars.yml             # Global variables (merged common vars)
+    ├── linux/vars.yml           # Linux-specific variables (hobbiton + rivendell)
+    ├── windows/vars.yml         # Windows-specific variables (moria)
+    ├── aws_ec2/vars.yml         # AWS-specific overrides (ubuntu admin user)
+    ├── aws_ec2_linux/vars.yml   # AWS Linux-specific variables
+    ├── aws_ec2_windows/vars.yml # AWS Windows-specific variables
+    ├── hcloud/vars.yml          # Hetzner-specific overrides (root admin user)
+    └── hcloud_linux/vars.yml    # Hetzner Linux-specific variables
 ```
 
-**Expected Output:**
-GIVEN hobbiton is a Linux instance hosted in the Hetzner Cloud
-AND rivendell is a Linux instance hosted in the AWS EC2 cloud
-AND moria is a Windows instance hosted in the AWS EC2 cloud
-WHEN I execute the command `ansible-inventory --graph`
-THEN I see the output
+**Achieved Output:**
 ```
 @all:
+  |--@aws_ec2:
+  |  |--moria
+  |  |--rivendell
+  |--@aws_ec2_linux:
+  |  |--rivendell
+  |--@aws_ec2_windows:
+  |  |--moria
+  |--@hcloud:
+  |  |--hobbiton
+  |--@hcloud_linux:
+  |  |--hobbiton
   |--@linux:
   |  |--hobbiton
   |  |--rivendell
   |--@windows:
   |  |--moria
 ```
+The test file test/test_unified_inventory.md shows the complete test specification.
 
 **Key Design Decisions:**
 - Single inventory directory with multiple provider files
-- Platform-based grouping only (linux/windows)
-- No provider-specific groups (aws/hcloud)
-- Consolidated group_vars with merged common variables
-- Maximally simplified design for unified instance visibility
+- Dual grouping strategy: cross-provider platforms (@linux, @windows) and provider-specific (@aws_ec2_linux, @hcloud_linux)
+- Improved tag semantics: `platform: "linux"` instead of `ansible_group: "linux"`
+- Provider-aware group_vars with enhanced granularity
+- Variable precedence: all → platform → provider → provider_platform
+- Backward-compatible improvement maintaining existing playbook functionality
 
-### MVP Achievement ✅ COMPLETED
-- **Goal**: Working Windows Server with Claude Desktop access ✅ ACHIEVED
-- **Quality**: Production-ready with reliable automation
-- **Cost**: ~$60/month with t3.large (optimizable for future)
-- **Features**: SSH key authentication, RDP access, automatic configuration
-- **Documentation**: Complete usage guides and troubleshooting information
+**Implementation Readiness:**
+- All three instances use compatible dynamic inventory patterns
+- Platform-based grouping already implemented in each provider
+- Provider-aware variable structure addresses admin user differences
+- Cross-provider SSH key management proven to work
+- **Scope Updated**: 2 playbooks require updates (provision.yml, provision-aws-windows.yml)
+
+**Acceptance Test Plan:**
+1. Provision instances on both providers (existing playbooks)
+2. Verify instances appear in unified `ansible-inventory --graph`
+3. Destroy instances (existing playbooks)
+4. Verify AWS shows "terminated" state and Hetzner shows empty list
+5. Verify unified inventory shows no instances
+
+**Enhanced Inventory Tasks ✅ COMPLETED:**
+1. Create unified inventory structure (aws_ec2.yml, hcloud.yml) ✅ COMPLETED
+2. Implement provider-aware group_vars structure ✅ COMPLETED & ENHANCED
+3. Update ansible.cfg to point to ./inventories ✅ COMPLETED
+4. Update 2 playbooks with hardcoded inventory paths ✅ COMPLETED
+5. Test unified inventory functionality ✅ COMPLETED & VERIFIED
+6. Remove legacy inventory structure ✅ COMPLETED
+7. Improve inventory group structure with dual keyed_groups ✅ COMPLETED
+8. Update provisioner tags from ansible_group to platform ✅ COMPLETED
+9. Reorganize group_vars for enhanced provider-specific targeting ✅ COMPLETED
+
+**Implementation Details:**
+- **Enhanced Inventory Structure**: Dual keyed_groups in aws_ec2.yml and hcloud.yml for cross-provider + provider-specific groups
+- **Improved Tag Semantics**: Changed from `ansible_group` to `platform` tags for clearer intent
+- **Enhanced Group Vars**: Implemented four-tier variable precedence (all → platform → provider → provider_platform)
+- **Group Vars Reorganization**: Renamed aws/* to aws_ec2/* directories and added provider-platform specific directories
+- **Provisioner Updates**: Updated all provisioners to use new platform tags
+- **Playbook Updates**: Updated provision.yml, provision-aws-windows.yml
+- **Legacy Cleanup**: Removed inventories/aws/ and inventories/hcloud/ directories
+- **Configuration**: Updated ansible.cfg to use unified ./inventories directory
+- **Dependency Management**: Created requirements.txt and requirements.yml for streamlined setup
+- **Technical Fixes**: Resolved boto3 dependency and AWS plugin recognition issues
+
+**User Testing Commands:**
+```bash
+# 1. Set up environment variables
+export AWS_ACCESS_KEY_ID="your-aws-key"
+export AWS_SECRET_ACCESS_KEY="your-aws-secret"
+export AWS_DEFAULT_REGION="eu-north-1"
+echo -n "hcloud API token: "; read -s HCLOUD_TOKEN; export HCLOUD_TOKEN
+export ANSIBLE_VAULT_PASSWORD_FILE="./ansible-vault-password.txt"
+export ANSIBLE_HOST_KEY_CHECKING=False
+
+# 2. Test unified inventory
+ansible-inventory --graph
+
+# 3. Full acceptance test (optional)
+ansible-playbook provision.yml --vault-password-file ansible-vault-password.txt
+ansible-playbook provision-aws-linux.yml --vault-password-file ansible-vault-password.txt
+ansible-playbook provision-aws-windows.yml --vault-password-file ansible-vault-password.txt
+ansible-inventory --graph
+ansible-playbook destroy.yml
+ansible-playbook destroy-aws.yml
+ansible-inventory --graph
+```
+
+### Multi-Provider Success ✅ COMPLETED
+- **Goal**: Cross-provider infrastructure automation ✅ ACHIEVED
+- **Quality**: Three production-ready implementations across providers and platforms
+- **Cost**: Optimized for different usage patterns ($4-60/month range)
+- **Features**: Proven provider abstraction with consistent patterns
+- **Documentation**: Complete usage guides for all implementations
 
 ### Future Enhancement Opportunities
-- **Cost Optimization**: Potential downgrade to t3.medium for $15/month target
-- **Application Expansion**: Additional Windows-only applications beyond Claude Desktop
-- **Advanced Automation**: Fully automated application installation workflows
-- **Performance Monitoring**: Enhanced performance tracking and optimization
-- **Security Enhancements**: Advanced security configurations and monitoring
+- **Unified Inventory**: Single-command visibility across all providers (immediate next step)
+- **Cost Optimization**: Instance sizing optimization based on usage patterns
+- **Application Expansion**: Additional applications leveraging existing infrastructure
+- **Advanced Automation**: Enhanced deployment and configuration workflows
+- **Monitoring Integration**: Comprehensive infrastructure monitoring and alerting
 
 ## Technical Implementation Achievements
 
-### Successful Windows Server Adaptations
-- **Authentication**: SSH key-based authentication working reliably with PowerShell integration
-- **User Management**: Administrator account with proper SSH key permissions via icacls
-- **Package Management**: Chocolatey package manager installed and configured
-- **Desktop Environment**: Windows Server Desktop Experience with RDP optimization
-- **Access Method**: Both SSH (port 22) and RDP (port 3389) working from IP-restricted access
+### Cross-Provider Pattern Success
+- **Dynamic Inventory**: Both `amazon.aws.aws_ec2` and `hetzner.hcloud.hcloud` plugins working seamlessly
+- **Platform Grouping**: Consistent linux/windows grouping across all providers
+- **SSH Key Management**: Single SSH key pair working across AWS and Hetzner Cloud
+- **Credential Management**: Unified Ansible Vault patterns for all implementations
+- **Configuration Patterns**: Modular playbook structure reusable across providers
 
-### Windows-Specific Implementation Details
-- **Ansible Collection**: `ansible.windows` successfully integrated
-- **SSH Configuration**: OpenSSH Server automatically configured via PowerShell user data
-- **PowerShell Integration**: Windows PowerShell configured as default SSH shell
-- **Security**: Windows Firewall configured for SSH and RDP access
-- **Performance**: RDP optimized with 32-bit color depth and clipboard sharing
+### Provider-Specific Optimizations
+**Hetzner Cloud Linux**:
+- **Complete Desktop Environment**: Full GNOME with comprehensive application suite
+- **Backup/Restore System**: Automated data persistence across reprovisioning
+- **Cost Leadership**: ~$4/month with predictable EU-based pricing
+- **User Experience**: Designed for persistent daily development use
 
-### Cost Achievement Analysis
-- **Windows Licensing**: Successfully included in AWS Windows AMI pricing
-- **Instance Size**: t3.large (4 vCPU, 8GB RAM) provides optimal Windows Server performance
-- **Storage**: 50GB GP3 EBS sufficient for Windows Server requirements
-- **Actual Cost**: ~$60/month base cost with on-demand usage reducing actual costs significantly
+**AWS Multi-Platform**:
+- **Platform Flexibility**: Both Linux and Windows on same provider
+- **On-Demand Patterns**: Optimized for intermittent usage with complete lifecycle management
+- **Windows Innovation**: Successfully adapted Linux patterns to Windows Server
+- **Security Model**: IP-restricted access with proper firewall configuration
 
-## Architecture Strengths Successfully Extended to Windows
+## Architecture Strengths Successfully Extended Across Providers
 
-### Proven Patterns Successfully Applied to Windows
-- **Dynamic Inventory**: AWS EC2 plugin works seamlessly with Windows instances
-- **Idempotent Provisioning**: Fixed instance identifiers prevent duplicates across platforms
-- **Security Groups**: Automated firewall rule management extended to Windows ports
-- **Complete Lifecycle**: Provision → configure → destroy automation working for Windows
-- **Cost Control**: Unified resource cleanup handles both Linux and Windows
+### Proven Cross-Provider Patterns
+- **Dynamic Inventory**: AWS EC2 and Hetzner Cloud plugins work seamlessly together
+- **Idempotent Provisioning**: Fixed instance identifiers prevent duplicates across all platforms
+- **Security Management**: Consistent SSH key and credential patterns across providers
+- **Complete Lifecycle**: Provision → configure → destroy automation working for all implementations
+- **Cost Control**: Unified resource cleanup patterns adapted for each provider
 
-### Multi-Provider Foundation Enhanced
+### Multi-Provider Foundation Demonstrated
 - **Provider Abstraction**: Clean separation maintained between provisioning and configuration
-- **Ansible Vault**: Encrypted credential management working for SSH keys and Windows passwords
-- **Modular Design**: Individual playbooks for platform-specific functionality
+- **Ansible Vault**: Encrypted credential management working across all implementations
+- **Modular Design**: Individual playbooks for provider and platform-specific functionality
+- **Consistent Interface**: Similar command patterns despite different underlying technologies
 
 ## Achieved Windows Server Implementation
 

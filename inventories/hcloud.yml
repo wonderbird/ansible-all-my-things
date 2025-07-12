@@ -18,9 +18,12 @@
 plugin: hetzner.hcloud.hcloud
 
 keyed_groups:
-  - key: labels.ansible_group
+  - key: labels.platform
     prefix: ""
     separator: ""
+  - key: labels.platform
+    prefix: "hcloud"
+    separator: "_"
 
 hostnames:
   - name

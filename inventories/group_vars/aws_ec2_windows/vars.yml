@@ -1,0 +1,7 @@
+---
+# AWS Windows-specific overrides
+# These override both platform and provider defaults
+
+# Windows Server 2025 in eu-north-1
+aws_default_ami_id: "ami-01998fe5b868df6e3"
+aws_default_instance_type: "t3.large"

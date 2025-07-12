@@ -4,5 +4,3 @@
 
 - name: Configure AWS Development Environment
   import_playbook: configure-aws-windows.yml
-  vars:
-    target_inventory: inventories/aws/aws_ec2.yml

@@ -7,5 +7,3 @@
 
 - name: Configure Hetzner Development Environment
   import_playbook: configure.yml
-  vars:
-    target_inventory: inventories/hcloud/hcloud.yml

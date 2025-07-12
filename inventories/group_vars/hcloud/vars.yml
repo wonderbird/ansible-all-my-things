@@ -1,0 +1,16 @@
+---
+# Hetzner Cloud-specific overrides
+# These override platform defaults
+
+# The location of the server. The following locations are available:
+#
+# - hel1: Helsinki, Finland
+# - fsn1: Falkenstein, Germany
+# - nbg1: Nuremberg, Germany
+# - ash: Ashburn, Virginia, USA
+# - hil: Hillsboro, Oregon, USA
+# - sin: Singapore
+#
+# For a list of available locations, check `hcloud location list`.
+#
+hcloud_default_location: "hel1"
