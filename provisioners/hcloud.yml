@@ -32,7 +32,7 @@
         state: present
         name: hobbiton
         labels:
-          ansible_group: "linux"
+          platform: "linux"
         server_type: "{{ hcloud_server_type }}"
         image: "{{ image }}"
         location: "{{ hcloud_server_location }}"

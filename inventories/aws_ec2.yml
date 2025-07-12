@@ -2,9 +2,12 @@
 plugin: amazon.aws.aws_ec2
 
 keyed_groups:
-  - key: tags.ansible_group
+  - key: tags.platform
     prefix: ""
     separator: ""
+  - key: tags.platform
+    prefix: "aws_ec2"
+    separator: "_"
 
 hostnames:
   - tag:Name

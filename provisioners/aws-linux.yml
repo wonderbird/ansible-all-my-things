@@ -8,8 +8,8 @@
     - ../playbooks/vars-secrets.yml
     - ../inventories/group_vars/all/vars.yml
     - ../inventories/group_vars/linux/vars.yml
-    - ../inventories/group_vars/aws/vars.yml
-    - ../inventories/group_vars/aws_linux/vars.yml
+    - ../inventories/group_vars/aws_ec2/vars.yml
+    - ../inventories/group_vars/aws_ec2_linux/vars.yml
 
   vars:
     # Default values - can be overridden in group_vars
@@ -81,7 +81,7 @@
               delete_on_termination: true
         tags:
           Name: "{{ aws_instance_name }}"
-          ansible_group: "linux"
+          platform: "linux"
       register: ec2_instance
       when: existing_instances.instances | length == 0
 

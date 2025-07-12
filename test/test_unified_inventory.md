@@ -16,18 +16,18 @@ THEN I see the output
   |--@aws_ec2:
   |  |--moria
   |  |--rivendell
-  |--@aws_ec2_linux:
-  |  |--rivendell
-  |--@aws_ec2_windows:
-  |  |--moria
-  |--@hcloud_linux:
-  |  |--hobbiton
   |--@windows:
+  |  |--moria
+  |--@aws_ec2_windows:
   |  |--moria
   |--@linux:
   |  |--rivendell
   |  |--hobbiton
+  |--@aws_ec2_linux:
+  |  |--rivendell
   |--@hcloud:
+  |  |--hobbiton
+  |--@hcloud_linux:
   |  |--hobbiton
 ```
 
