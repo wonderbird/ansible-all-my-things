@@ -41,25 +41,28 @@
 
 ## What's Next (Completed)
 
-### Unified Inventory System ✅ COMPLETED & VERIFIED
-- **Goal**: Single `ansible-inventory --graph` command for all providers and platforms ✅ ACHIEVED
-- **Business Driver**: Cost control - eliminate manual cloud console checking for running instances ✅ ADDRESSED
-- **Status**: Implementation completed and successfully tested ✅ VERIFIED
-- **Foundation**: Three production-ready implementations with compatible inventory patterns ✅ UTILIZED
-- **Target**: Show instances hobbiton, moria, rivendell grouped by platform only ✅ IMPLEMENTED
-- **Structure**: Provider-aware group_vars with variable precedence handling ✅ IMPLEMENTED
-- **Benefits**: Operational efficiency through unified infrastructure visibility ✅ DELIVERED
-- **Implementation**: Complete unified inventory system with updated playbooks ✅ COMPLETED
-- **Testing**: User testing completed successfully with all instances visible ✅ VERIFIED
+### Enhanced Inventory System ✅ COMPLETED & IMPROVED
+- **Goal**: Advanced inventory structure with cross-provider and provider-specific targeting ✅ ACHIEVED
+- **Business Driver**: Operational control - unified visibility plus fine-grained provider targeting ✅ ENHANCED
+- **Status**: Improved implementation completed and tested ✅ VERIFIED
+- **Foundation**: Built on unified inventory system with backward-compatible enhancements ✅ UTILIZED
+- **Target**: Show instances with both platform groups (@linux, @windows) and provider-specific groups (@aws_ec2_linux, @hcloud_linux) ✅ IMPLEMENTED
+- **Structure**: Enhanced provider-aware group_vars with dual keyed_groups and improved tag semantics ✅ IMPLEMENTED
+- **Benefits**: Unified visibility plus enhanced targeting capabilities for automation ✅ DELIVERED
+- **Implementation**: Improved unified inventory system with enhanced group structure ✅ COMPLETED
+- **Testing**: Enhanced inventory structure verified with expected output ✅ VERIFIED
 
 **Implementation Summary:**
-- Created unified inventories/aws_ec2.yml and inventories/hcloud.yml
-- Implemented provider-aware group_vars (all → platform → provider precedence)
+- Enhanced inventories/aws_ec2.yml and inventories/hcloud.yml with dual keyed_groups
+- Improved tag semantics: changed `ansible_group` to `platform` tags
+- Implemented enhanced provider-aware group_vars (all → platform → provider → provider_platform precedence)
+- Reorganized group_vars structure: aws/* → aws_ec2/*, added provider-platform directories
+- Updated all provisioners to use new platform tags
 - Updated ansible.cfg and 2 playbooks to use unified inventory
 - Removed legacy inventory structure
 - Created requirements.txt and requirements.yml for dependency management
 - Resolved boto3 dependency and AWS plugin recognition issues
-- Successfully tested with user verification showing all instances across providers
+- Successfully tested enhanced inventory structure with expected group output
 
 ## Cross-Provider Implementation Status ✅ ALL COMPLETED & TESTED
 
@@ -96,29 +99,35 @@
 ### Cross-Provider Infrastructure ✅ COMPLETED
 **Status**: Three production-ready implementations successfully deployed
 **Goal**: Multi-provider infrastructure automation ✅ ACHIEVED
-**Quality**: Proven provider abstraction with consistent patterns
-**Foundation**: Ready for unified inventory implementation
+**Quality**: Proven provider abstraction with enhanced inventory targeting
+**Foundation**: Enhanced with improved inventory group structure
 
-### Unified Inventory System ✅ IMPLEMENTED - READY FOR USER TESTING
-**Status**: Implementation completed successfully, ready for user testing and verification
-**Goal**: Single command visibility of all instances across providers and platforms ✅ ACHIEVED
-**Business Driver**: Cost control - eliminate manual cloud console checking for running instances ✅ ADDRESSED
-**Quality**: Provider-aware variable structure with operational efficiency focus ✅ IMPLEMENTED
-**Timeline**: Single Sprint deliverable with direct migration approach ✅ COMPLETED
-**Foundation**: All three instances using compatible dynamic inventory patterns ✅ UTILIZED
+### Enhanced Inventory System ✅ IMPLEMENTED & IMPROVED
+**Status**: Advanced inventory structure completed successfully with enhanced targeting capabilities
+**Goal**: Unified visibility plus provider-specific targeting for advanced automation ✅ ACHIEVED
+**Business Driver**: Operational control - unified visibility plus fine-grained provider targeting ✅ ENHANCED
+**Quality**: Enhanced provider-aware variable structure with improved automation control ✅ IMPLEMENTED
+**Timeline**: Incremental improvement building on unified inventory foundation ✅ COMPLETED
+**Foundation**: Enhanced dual keyed_groups providing both cross-provider and provider-specific groups ✅ IMPLEMENTED
 
-**Sprint Milestones:**
+**Enhancement Milestones:**
 - **Milestone 1**: Core Unified Inventory Structure with Playbook Updates ✅ COMPLETED
 - **Milestone 2**: Acceptance Testing & Validation ✅ COMPLETED
 - **Milestone 3**: Documentation Updates ✅ COMPLETED
+- **Milestone 4**: Enhanced Group Structure with Dual Keyed Groups ✅ COMPLETED
+- **Milestone 5**: Improved Tag Semantics and Group Vars Reorganization ✅ COMPLETED
 
-**Key Tasks for Milestone 1 ✅ COMPLETED:**
+**Enhanced Inventory Tasks ✅ ALL COMPLETED:**
 1. Create unified inventory structure (aws_ec2.yml, hcloud.yml) ✅ COMPLETED
-2. Implement provider-aware group_vars with variable precedence ✅ COMPLETED
+2. Implement provider-aware group_vars with variable precedence ✅ COMPLETED & ENHANCED
 3. Update ansible.cfg configuration ✅ COMPLETED
 4. Update 2 playbooks with hardcoded inventory paths (provision.yml, provision-aws-windows.yml) ✅ COMPLETED
 5. Test unified inventory functionality ✅ COMPLETED & VERIFIED
 6. Remove legacy inventory structure ✅ COMPLETED
+7. Implement dual keyed_groups for enhanced targeting ✅ COMPLETED
+8. Update provisioner tags from ansible_group to platform ✅ COMPLETED
+9. Reorganize group_vars for provider-specific targeting ✅ COMPLETED
+10. Test enhanced inventory structure output ✅ COMPLETED
 
 **User Testing Instructions:**
 ```bash
@@ -239,4 +248,4 @@ ansible-inventory --graph
 
 The project has successfully achieved its primary objectives of cross-platform application access through automated Windows Server provisioning. The Windows Server MVP has been delivered, tested, and validated as a production-ready solution.
 
-**Completed Phase**: Unified inventory system successfully implemented and tested, providing consolidated infrastructure visibility across all providers with a single command interface. Documentation updated for streamlined user setup experience.
+**Completed Phase**: Enhanced inventory system successfully implemented with advanced targeting capabilities. Provides both unified infrastructure visibility across providers and fine-grained provider-specific targeting for enhanced automation control. Maintains backward compatibility while enabling advanced operational workflows.

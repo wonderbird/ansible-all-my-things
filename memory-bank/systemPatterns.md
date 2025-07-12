@@ -19,27 +19,31 @@ Multi-Provider Infrastructure:
 - **SSH Key Management**: Single SSH key pair working across AWS and Hetzner Cloud
 - **Credential Management**: Unified Ansible Vault patterns for all implementations
 
-### Unified Inventory System ✅ COMPLETED
+### Enhanced Inventory System ✅ COMPLETED & IMPROVED
 **Implemented Structure:**
 ```
 inventories/
-├── aws_ec2.yml                # AWS dynamic inventory (rivendell, moria)
-├── hcloud.yml                 # Hetzner Cloud dynamic inventory (hobbiton)
+├── aws_ec2.yml                # AWS dynamic inventory with dual keyed_groups
+├── hcloud.yml                 # Hetzner Cloud dynamic inventory with dual keyed_groups
 ├── group_vars/
 │   ├── all/vars.yml           # Global variables (merged common vars)
-│   ├── linux/vars.yml         # Linux-specific variables (hobbiton + rivendell)
-│   ├── windows/vars.yml       # Windows-specific variables (moria)
-│   ├── aws/vars.yml           # AWS-specific overrides (ubuntu admin user)
-│   └── hcloud/vars.yml        # Hetzner-specific overrides (root admin user)
+│   ├── linux/vars.yml         # Cross-provider Linux variables (hobbiton + rivendell)
+│   ├── windows/vars.yml       # Cross-provider Windows variables (moria)
+│   ├── aws_ec2/vars.yml       # AWS provider-specific overrides
+│   ├── aws_ec2_linux/vars.yml # AWS Linux-specific variables
+│   ├── aws_ec2_windows/vars.yml # AWS Windows-specific variables
+│   ├── hcloud/vars.yml        # Hetzner provider-specific overrides
+│   └── hcloud_linux/vars.yml  # Hetzner Linux-specific variables
 ├── requirements.txt           # Python dependencies for multi-provider support
 └── requirements.yml           # Ansible collections for all providers
 ```
 
-**Unified Inventory Pattern ✅ IMPLEMENTED:**
-- **Single Command**: `ansible-inventory --graph` shows all instances across providers ✅ VERIFIED
-- **Platform Grouping**: Instances grouped by linux/windows only ✅ WORKING
-- **Provider-Aware Variables**: Variable precedence handles admin user differences ✅ IMPLEMENTED
-- **Direct Migration**: Full playbook updates completed successfully ✅ COMPLETED
+**Enhanced Inventory Pattern ✅ IMPLEMENTED & IMPROVED:**
+- **Dual Group Structure**: Both cross-provider (@linux, @windows) and provider-specific (@aws_ec2_linux, @hcloud_linux) groups ✅ IMPLEMENTED
+- **Enhanced Targeting**: Fine-grained automation control with provider-specific groups ✅ WORKING
+- **Improved Tag Semantics**: `platform: "linux"` instead of `ansible_group: "linux"` for clarity ✅ IMPLEMENTED
+- **Enhanced Variable Precedence**: all → platform → provider → provider_platform hierarchy ✅ IMPLEMENTED
+- **Backward Compatibility**: Existing playbooks continue working while enabling enhanced features ✅ VERIFIED
 - **Dependency Management**: Streamlined setup with requirements files ✅ COMPLETED
 
 ### Implemented Cross-Provider Playbook Structure
@@ -258,27 +262,40 @@ graph TD
 
 ## Extension Points
 
-### Unified Inventory System (Sprint Implementation - Updated Plan)
-**Development Plan - Milestone 1 (8 hours):**
-1. **Task 1**: Create unified inventory structure (aws.yml, hcloud.yml) - 2 hours
-2. **Task 2**: Implement provider-aware group_vars structure - 3 hours
-3. **Task 3**: Update ansible.cfg to point to ./inventories - 30 minutes
-4. **Task 4**: Update 2 playbooks with hardcoded inventory paths - 1 hour
-5. **Task 5**: Test unified inventory functionality - 1 hour
-6. **Task 6**: Remove legacy inventory structure - 30 minutes
+### Enhanced Inventory System (Completed Implementation)
+**Completed Enhancement Features:**
+1. **Dual Keyed Groups**: Cross-provider platform groups (@linux, @windows) plus provider-specific groups (@aws_ec2_linux, @hcloud_linux)
+2. **Improved Tag Semantics**: Changed from `ansible_group` to `platform` tags for clearer automation intent
+3. **Enhanced Variable Structure**: Four-tier precedence (all → platform → provider → provider_platform)
+4. **Group Vars Reorganization**: Provider directories renamed (aws → aws_ec2) and provider-platform directories added
+5. **Provisioner Updates**: All provisioners updated to use new platform tag semantics
+6. **Backward Compatibility**: Existing playbooks continue working while new targeting capabilities available
 
-**Required Playbook Updates (discovered during team analysis):**
-- `provision.yml` line 11: `target_inventory: inventories/hcloud/hcloud.yml`
-- `provision-aws-windows.yml` line 8: `target_inventory: inventories/aws/aws_ec2.yml`
+**Achieved Group Structure:**
+```
+@all:
+  |--@aws_ec2:              # Provider group (automatic)
+  |  |--moria
+  |  |--rivendell
+  |--@aws_ec2_linux:        # Provider-platform group (enhanced)
+  |  |--rivendell
+  |--@aws_ec2_windows:      # Provider-platform group (enhanced)
+  |  |--moria
+  |--@hcloud:               # Provider group (automatic)
+  |  |--hobbiton
+  |--@hcloud_linux:         # Provider-platform group (enhanced)
+  |  |--hobbiton
+  |--@linux:                # Cross-provider platform group (maintained)
+  |  |--hobbiton
+  |  |--rivendell
+  |--@windows:              # Cross-provider platform group (maintained)
+  |  |--moria
+```
 
-**Variable Precedence Strategy:**
-- `all` → `platform` (linux/windows) → `provider` (aws/hcloud) → `platform+provider` (aws_linux, hcloud_linux, aws_windows)
+**Enhanced Variable Precedence Strategy:**
+- `all` → `platform` (linux/windows) → `provider` (aws_ec2/hcloud) → `provider_platform` (aws_ec2_linux, hcloud_linux, aws_ec2_windows)
 - Handles admin user differences: AWS Linux (ubuntu), Hetzner Linux (root), AWS Windows (Administrator)
-- Minimizes redundancy while maintaining provider-specific overrides
-
-**Acceptance Test Plan:**
-- Provision instances on both providers → verify unified inventory shows them
-- Destroy instances → verify AWS "terminated" + Hetzner empty → verify unified inventory clean
+- Enhanced granularity for provider-specific automation while maintaining cross-provider capabilities
 
 ### Windows Application Support (Framework Ready)
 **Established Pattern for Additional Applications**:
@@ -296,17 +313,18 @@ graph TD
 
 ## Provider Differences Reference (Current Implementation)
 
-| Aspect | AWS Linux (Production) | AWS Windows (Production) |
-|--------|-----------------------|--------------------------|
-| Connection | SSH (port 22) | SSH (port 22) + RDP (port 3389) |
-| Default User | `ubuntu` | `Administrator` |
-| Package Manager | APT | Chocolatey |
-| Instance Type | t3.micro/small | t3.large |
-| Storage | 20GB | 50GB |
-| Desktop Access | SSH + X11 forwarding | SSH (command) + RDP (desktop) |
-| Cost (monthly) | ~$8-10 | ~$60 (optimizable to ~$15) |
-| Authentication | SSH keys | SSH keys + RDP |
-| Provisioning Time | ~3-5 minutes | ~5 minutes |
+| Aspect | AWS Linux (Production) | AWS Windows (Production) | Hetzner Linux (Production) |
+|--------|-----------------------|--------------------------|----------------------------|
+| Connection | SSH (port 22) | SSH (port 22) + RDP (port 3389) | SSH (port 22) |
+| Default User | `ubuntu` | `Administrator` | `root` |
+| Package Manager | APT | Chocolatey | APT |
+| Instance Type | t3.micro/small | t3.large | cx22 |
+| Storage | 20GB | 50GB | 40GB SSD |
+| Desktop Access | SSH + X11 forwarding | SSH (command) + RDP (desktop) | SSH + full GNOME |
+| Cost (monthly) | ~$8-10 | ~$60 (optimizable to ~$15) | ~$4 |
+| Authentication | SSH keys | SSH keys + RDP | SSH keys |
+| Provisioning Time | ~3-5 minutes | ~5 minutes | ~10-15 minutes |
+| Inventory Groups | @aws_ec2, @aws_ec2_linux, @linux | @aws_ec2, @aws_ec2_windows, @windows | @hcloud, @hcloud_linux, @linux |
 
 ## Windows-Specific Technical Implementation
 

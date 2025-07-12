@@ -2,20 +2,23 @@
 
 ## Current Work Focus
 
-### Unified Inventory System ✅ COMPLETED & TESTED
-**Goal**: Restructure inventory to provide unified visibility of all running instances across providers with single `ansible-inventory --graph` command.
+### Enhanced Inventory Group Structure ✅ COMPLETED & IMPROVED
+**Goal**: Improved inventory group structure with both cross-provider and provider-specific targeting capabilities.
 
-**Status**: ✅ COMPLETED - Implementation successful and user-tested
+**Status**: ✅ COMPLETED - Advanced inventory grouping implemented and tested
 
-**Business Context**: Operational efficiency - single command visibility of all instances across AWS and Hetzner Cloud providers.
+**Business Context**: Enhanced operational control - cross-provider groups (@linux, @windows) plus provider-specific groups (@aws_ec2_linux, @hcloud_linux) for fine-grained targeting.
 
-**Foundation**: Building on three production-ready implementations across providers and platforms.
+**Foundation**: Built on unified inventory system with backward-compatible improvements.
 
-**Target**: Single inventory command showing instances hobbiton, moria, and rivendell grouped by platform (linux/windows) only.
+**Target**: Enhanced inventory structure showing both cross-provider platform groups and provider-specific groups for better automation control.
 
-**Implementation**: Complete unified inventory system with provider-aware group_vars and updated playbooks.
+**Implementation**: Improved unified inventory system with dual keyed_groups and cleaner tag semantics.
 
 **Key Technical Solutions**:
+- **Enhanced Group Structure**: Dual keyed_groups create both cross-provider (@linux, @windows) and provider-specific (@aws_ec2_linux, @hcloud_linux) groups
+- **Improved Tag Semantics**: Replaced `ansible_group` tags with clearer `platform` tags
+- **Backward Compatibility**: Existing playbooks continue working while enabling enhanced targeting
 - **Dependency Management**: Created `requirements.txt` and `requirements.yml` for streamlined setup
 - **AWS Plugin Fix**: Resolved boto3 dependency and renamed `aws.yml` to `aws_ec2.yml` for plugin recognition
 - **Documentation Updates**: Unified dependency installation instructions across all documentation
@@ -113,19 +116,42 @@ inventories/
     ├── all/vars.yml           # Global variables (merged common vars)
     ├── linux/vars.yml         # Linux-specific variables (hobbiton + rivendell)
     ├── windows/vars.yml       # Windows-specific variables (moria)
-    ├── aws/vars.yml           # AWS-specific overrides (ubuntu admin user)
-    └── hcloud/vars.yml        # Hetzner-specific overrides (root admin user)
+    ├── aws_ec2/vars.yml       # AWS-specific overrides (ubuntu admin user)
+    ├── aws_ec2_linux/vars.yml # AWS Linux-specific variables
+    ├── aws_ec2_windows/vars.yml # AWS Windows-specific variables
+    ├── hcloud/vars.yml        # Hetzner-specific overrides (root admin user)
+    └── hcloud_linux/vars.yml  # Hetzner Linux-specific variables
 ```
 
 **Achieved Output:**
-The test file test/test_unified_inventory.md shows the achieved output.
+```
+@all:
+  |--@aws_ec2:
+  |  |--moria
+  |  |--rivendell
+  |--@aws_ec2_linux:
+  |  |--rivendell
+  |--@aws_ec2_windows:
+  |  |--moria
+  |--@hcloud:
+  |  |--hobbiton
+  |--@hcloud_linux:
+  |  |--hobbiton
+  |--@linux:
+  |  |--hobbiton
+  |  |--rivendell
+  |--@windows:
+  |  |--moria
+```
+The test file test/test_unified_inventory.md shows the complete test specification.
 
 **Key Design Decisions:**
 - Single inventory directory with multiple provider files
-- Platform-based grouping only (linux/windows)
-- Provider-aware group_vars for handling admin user differences
-- Variable precedence: all → platform → provider
-- Direct migration approach with full playbook updates
+- Dual grouping strategy: cross-provider platforms (@linux, @windows) and provider-specific (@aws_ec2_linux, @hcloud_linux)
+- Improved tag semantics: `platform: "linux"` instead of `ansible_group: "linux"`
+- Provider-aware group_vars with enhanced granularity
+- Variable precedence: all → platform → provider → provider_platform
+- Backward-compatible improvement maintaining existing playbook functionality
 
 **Implementation Readiness:**
 - All three instances use compatible dynamic inventory patterns
@@ -141,17 +167,23 @@ The test file test/test_unified_inventory.md shows the achieved output.
 4. Verify AWS shows "terminated" state and Hetzner shows empty list
 5. Verify unified inventory shows no instances
 
-**Milestone 1 Tasks ✅ COMPLETED:**
+**Enhanced Inventory Tasks ✅ COMPLETED:**
 1. Create unified inventory structure (aws_ec2.yml, hcloud.yml) ✅ COMPLETED
-2. Implement provider-aware group_vars structure ✅ COMPLETED
+2. Implement provider-aware group_vars structure ✅ COMPLETED & ENHANCED
 3. Update ansible.cfg to point to ./inventories ✅ COMPLETED
 4. Update 2 playbooks with hardcoded inventory paths ✅ COMPLETED
 5. Test unified inventory functionality ✅ COMPLETED & VERIFIED
 6. Remove legacy inventory structure ✅ COMPLETED
+7. Improve inventory group structure with dual keyed_groups ✅ COMPLETED
+8. Update provisioner tags from ansible_group to platform ✅ COMPLETED
+9. Reorganize group_vars for enhanced provider-specific targeting ✅ COMPLETED
 
 **Implementation Details:**
-- **Unified Structure**: Created inventories/aws_ec2.yml and inventories/hcloud.yml
-- **Provider-Aware Group Vars**: Implemented variable precedence (all → platform → provider)
+- **Enhanced Inventory Structure**: Dual keyed_groups in aws_ec2.yml and hcloud.yml for cross-provider + provider-specific groups
+- **Improved Tag Semantics**: Changed from `ansible_group` to `platform` tags for clearer intent
+- **Enhanced Group Vars**: Implemented four-tier variable precedence (all → platform → provider → provider_platform)
+- **Group Vars Reorganization**: Renamed aws/* to aws_ec2/* directories and added provider-platform specific directories
+- **Provisioner Updates**: Updated all provisioners to use new platform tags
 - **Playbook Updates**: Updated provision.yml, provision-aws-windows.yml
 - **Legacy Cleanup**: Removed inventories/aws/ and inventories/hcloud/ directories
 - **Configuration**: Updated ansible.cfg to use unified ./inventories directory
