@@ -53,14 +53,6 @@
           CreatedBy: "ansible"
       register: security_group
 
-    - name: Check if instance already exists
-      amazon.aws.ec2_instance_info:
-        region: "{{ aws_region }}"
-        filters:
-          "tag:Name": "{{ aws_instance_name }}"
-          instance-state-name: ["running", "pending", "stopping", "stopped"]
-      register: existing_instances
-
     - name: Launch Linux EC2 instance
       amazon.aws.ec2_instance:
         name: "{{ aws_instance_name }}"
@@ -83,22 +75,6 @@
           Name: "{{ aws_instance_name }}"
           platform: "linux"
       register: ec2_instance
-      when: existing_instances.instances | length == 0
-
-    - name: Get existing instance info if not created
-      amazon.aws.ec2_instance_info:
-        region: "{{ aws_region }}"
-        filters:
-          "tag:Name": "{{ aws_instance_name }}"
-          instance-state-name: ["running", "pending", "stopping", "stopped"]
-      register: ec2_instance_info
-      when: existing_instances.instances | length > 0
-
-    - name: Set instance facts for existing instance
-      ansible.builtin.set_fact:
-        ec2_instance:
-          instances: "{{ ec2_instance_info.instances }}"
-      when: existing_instances.instances | length > 0
 
     - name: Wait for SSH to become available
       ansible.builtin.wait_for:
@@ -109,18 +85,5 @@
         state: started
       when: ec2_instance.instances | length > 0
 
-    - name: Display instance information
-      ansible.builtin.debug:
-        msg:
-          - "EC2 Instance created successfully!"
-          - "Instance ID: {{ ec2_instance.instances[0].instance_id }}"
-          - "Public IP: {{ ec2_instance.instances[0].public_ip_address }}"
-          - "Instance Type: {{ ec2_instance.instances[0].instance_type }}"
-          - "SSH Command: ssh -i ~/.ssh/{{ aws_ssh_key_name }}.pem ubuntu@{{ ec2_instance.instances[0].public_ip_address }}"
-      when: ec2_instance.instances | length > 0
-
-    - name: Save instance information for inventory
-      ansible.builtin.set_fact:
-        aws_instance_id: "{{ ec2_instance.instances[0].instance_id }}"
-        aws_instance_ip: "{{ ec2_instance.instances[0].public_ip_address }}"
-      when: ec2_instance.instances | length > 0
+    - name: Refresh inventory to ensure new host is available
+      meta: refresh_inventory

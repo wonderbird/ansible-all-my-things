@@ -110,17 +110,17 @@
 **Implemented Structure:**
 ```
 inventories/
-├── aws_ec2.yml                # AWS dynamic inventory (rivendell, moria)
-├── hcloud.yml                 # Hetzner Cloud dynamic inventory (hobbiton)
+├── aws_ec2.yml                  # AWS dynamic inventory (rivendell, moria)
+├── hcloud.yml                   # Hetzner Cloud dynamic inventory (hobbiton)
 └── group_vars/
-    ├── all/vars.yml           # Global variables (merged common vars)
-    ├── linux/vars.yml         # Linux-specific variables (hobbiton + rivendell)
-    ├── windows/vars.yml       # Windows-specific variables (moria)
-    ├── aws_ec2/vars.yml       # AWS-specific overrides (ubuntu admin user)
-    ├── aws_ec2_linux/vars.yml # AWS Linux-specific variables
+    ├── all/vars.yml             # Global variables (merged common vars)
+    ├── linux/vars.yml           # Linux-specific variables (hobbiton + rivendell)
+    ├── windows/vars.yml         # Windows-specific variables (moria)
+    ├── aws_ec2/vars.yml         # AWS-specific overrides (ubuntu admin user)
+    ├── aws_ec2_linux/vars.yml   # AWS Linux-specific variables
     ├── aws_ec2_windows/vars.yml # AWS Windows-specific variables
-    ├── hcloud/vars.yml        # Hetzner-specific overrides (root admin user)
-    └── hcloud_linux/vars.yml  # Hetzner Linux-specific variables
+    ├── hcloud/vars.yml          # Hetzner-specific overrides (root admin user)
+    └── hcloud_linux/vars.yml    # Hetzner Linux-specific variables
 ```
 
 **Achieved Output:**
