@@ -7,8 +7,9 @@
   vars_files:
     - ../playbooks/vars-secrets.yml
     - ../inventories/group_vars/all/vars.yml
-    - ../inventories/group_vars/aws/vars.yml
     - ../inventories/group_vars/linux/vars.yml
+    - ../inventories/group_vars/aws/vars.yml
+    - ../inventories/group_vars/aws_linux/vars.yml
 
   vars:
     # Default values - can be overridden in group_vars

@@ -1,0 +1,19 @@
+---
+# Hetzner Cloud Linux-specific overrides
+# These override both platform and provider defaults
+
+# The following table gives an overview of server types and prices for servers
+# hosted in Finland (hel1) with an IPv4 address.
+#
+# | Server Type | Price per hour | Price per month | vCPUs | RAM   | SSD    |
+# |-------------|----------------|-----------------|-------|-------|--------|
+# | cx22        | 0,006 €        | 3,79 €          | 2     | 4 GB  | 40 GB  |
+# | cx32        | 0,0113 €       | 6,80 €          | 4     | 8 GB  | 80 GB  |
+# | cx42        | 0,0273 €       | 16,40 €         | 8     | 16 GB | 160 GB |
+#
+# Lookup current values at https://www.hetzner.com/cloud
+# or check `hcloud server-type list`.
+#
+hcloud_default_type: "cx22"
+
+admin_user_on_fresh_system: "root"

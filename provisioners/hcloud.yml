@@ -7,8 +7,9 @@
   vars_files:
     - ../playbooks/vars-secrets.yml
     - ../inventories/group_vars/all/vars.yml
-    - ../inventories/group_vars/hcloud/vars.yml
     - ../inventories/group_vars/linux/vars.yml
+    - ../inventories/group_vars/hcloud/vars.yml
+    - ../inventories/group_vars/hcloud_linux/vars.yml
 
   vars:
     # Check `hcloud image list | grep ubuntu` for a list of available images.
@@ -31,7 +32,7 @@
         state: present
         name: hobbiton
         labels:
-          ansible_group: linux
+          ansible_group: "linux"
         server_type: "{{ hcloud_server_type }}"
         image: "{{ image }}"
         location: "{{ hcloud_server_location }}"

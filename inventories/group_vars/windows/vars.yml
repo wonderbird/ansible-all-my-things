@@ -2,8 +2,4 @@
 # Windows-specific variables
 # These apply to all Windows instances regardless of provider
 
-# Windows Server 2025 in eu-north-1
-aws_default_ami_id: "ami-01998fe5b868df6e3"
-aws_default_instance_type: "t3.large"
-
 admin_user_on_fresh_system: "Administrator"

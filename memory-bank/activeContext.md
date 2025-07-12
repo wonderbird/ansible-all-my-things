@@ -118,25 +118,7 @@ inventories/
 ```
 
 **Achieved Output:**
-GIVEN hobbiton is a Linux instance hosted in the Hetzner Cloud
-AND rivendell is a Linux instance hosted in the AWS EC2 cloud
-AND moria is a Windows instance hosted in the AWS EC2 cloud
-WHEN I execute the command `ansible-inventory --graph`
-THEN I see the output ✅ VERIFIED
-```
-@all:
-  |--@ungrouped:
-  |--@aws_ec2:
-  |  |--moria
-  |  |--rivendell
-  |--@windows:
-  |  |--moria
-  |--@linux:
-  |  |--rivendell
-  |  |--hobbiton
-  |--@hcloud:
-  |  |--hobbiton
-```
+The test file test/test_unified_inventory.md shows the achieved output.
 
 **Key Design Decisions:**
 - Single inventory directory with multiple provider files

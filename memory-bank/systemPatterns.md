@@ -272,7 +272,7 @@ graph TD
 - `provision-aws-windows.yml` line 8: `target_inventory: inventories/aws/aws_ec2.yml`
 
 **Variable Precedence Strategy:**
-- `all` → `platform` (linux/windows) → `provider` (aws/hcloud)
+- `all` → `platform` (linux/windows) → `provider` (aws/hcloud) → `platform+provider` (aws_linux, hcloud_linux, aws_windows)
 - Handles admin user differences: AWS Linux (ubuntu), Hetzner Linux (root), AWS Windows (Administrator)
 - Minimizes redundancy while maintaining provider-specific overrides
 

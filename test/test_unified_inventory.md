@@ -16,6 +16,12 @@ THEN I see the output
   |--@aws_ec2:
   |  |--moria
   |  |--rivendell
+  |--@aws_ec2_linux:
+  |  |--rivendell
+  |--@aws_ec2_windows:
+  |  |--moria
+  |--@hcloud_linux:
+  |  |--hobbiton
   |--@windows:
   |  |--moria
   |--@linux:

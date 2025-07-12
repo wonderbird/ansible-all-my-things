@@ -7,8 +7,9 @@
   vars_files:
     - ../playbooks/vars-secrets.yml
     - ../inventories/group_vars/all/vars.yml
-    - ../inventories/group_vars/aws/vars.yml
     - ../inventories/group_vars/windows/vars.yml
+    - ../inventories/group_vars/aws/vars.yml
+    - ../inventories/group_vars/aws_windows/vars.yml
 
   vars:
     # Set up a Windows Server 2025 in the default region (eu-north-1)

@@ -1,11 +1,5 @@
 ---
-# AWS-specific overrides for all AWS instances
-# These override platform defaults for AWS provider
+# AWS-specific overrides
+# These override platform defaults
 
 aws_default_region: "eu-north-1"
-
-# Ubuntu 24.04 LTS in eu-north-1
-aws_default_ami_id: "ami-0989fb15ce71ba39e"
-aws_default_instance_type: "t3.micro"
-
-admin_user_on_fresh_system: "ubuntu"
