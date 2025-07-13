@@ -1,9 +1,25 @@
 ---
-# Hetzner Cloud Provision Playbook
-# Provisions and configures Hetzner Cloud development environment
+# Provision a Linux development environment
+#
+# Parameters:
+#
+#   provider: The cloud provider to use (aws, hcloud)
+#
+# Example usage:
+#
+#  ansible-playbook provision.yml --extra-vars "provider=aws"
+#
 
-- name: Provision Hetzner Cloud Instance
-  import_playbook: provisioners/hcloud.yml
+# Ensure that the provider variable is set
+# ERROR! 'assert' is not a valid attribute for a Play
+#- name: Check if provider variable is set
+#  assert:
+#    that:
+#      - provider is defined
+#    fail_msg: "The 'provider' variable must be defined. Example: --extra-vars 'provider=aws'"
 
-- name: Configure Hetzner Development Environment
-  import_playbook: configure.yml
+- name: Provision {{ provider }} Cloud Instance
+  import_playbook: provisioners/{{ provider }}-linux.yml
+
+- name: Configure Linux Development Environment
+  import_playbook: configure-linux.yml
