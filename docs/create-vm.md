@@ -33,7 +33,7 @@ Please follow the instructions in the [AWS](./aws/aws.md) documentation to creat
 
 Some prerequisites differ by provider. Refer to the corresponding documentation to complete the setup:
 
-- [AWS EC2](./aws/aws.md) - **Important**: Set `AWS_DEFAULT_REGION` environment variable to match your target region for optimal performance
+- [AWS EC2](./aws/aws.md)
 - [Hetzner Cloud](./hcloud/create-linux-vm.md)
 
 The following provisioners create virtual machines on your localhost:

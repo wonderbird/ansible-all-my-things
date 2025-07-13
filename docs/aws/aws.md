@@ -69,9 +69,18 @@ Create custom policy with these permissions:
   - Secret Access Key
 - Store these securely - you cannot retrieve the secret key again
 
-#### 5. Configure Credentials Locally
+#### 5. Configure Credentials and Default Region Locally
 
 Configure your AWS credentials using one of these methods:
+
+> [!IMPORTANT]
+> **Region Selection**: The `AWS_DEFAULT_REGION` environment variable determines which AWS region is used for:
+>
+> - Instance provisioning
+> - Inventory queries (critical for performance)
+> - Resource management
+>
+> **Performance Impact**: Setting `AWS_DEFAULT_REGION` to match your instance locations is essential for fast inventory operations (~1 second vs 16+ seconds). If not set, defaults to `eu-north-1`.
 
 ##### Option 1: Environment Variables (Recommended)
 
@@ -81,45 +90,26 @@ export AWS_SECRET_ACCESS_KEY="your-secret-access-key"
 export AWS_DEFAULT_REGION="eu-north-1"  # or your preferred region
 ```
 
-> [!IMPORTANT]
-> **Region Selection**: The `AWS_DEFAULT_REGION` environment variable determines which AWS region is used for:
-> - Instance provisioning
-> - Inventory queries (critical for performance)
-> - Resource management
->
-> **Performance Impact**: Setting `AWS_DEFAULT_REGION` to match your instance locations is essential for fast inventory operations (~1 second vs 16+ seconds). If not set, defaults to `eu-north-1`.
-
 ##### Option 2: AWS CLI Configuration
 
 ```shell
-# Configure credentials
-# NOTE: The region you select here will be used as AWS_DEFAULT_REGION
-#       Set this to match where you plan to create instances for optimal performance
 aws configure
 ```
 
 > [!NOTE]
-> When using `aws configure`, the region you specify is saved in your AWS configuration. To use it as an environment variable for this project, run:
-> 
-> ```shell
-> # Extract region from AWS CLI config and set as environment variable
-> export AWS_DEFAULT_REGION=$(aws configure get region)
-> 
-> # Verify the region is set correctly
-> echo "Using AWS region: $AWS_DEFAULT_REGION"
-> ```
-> 
-> This should match where you plan to create instances for optimal inventory performance.
+> When using `aws configure`, the region you specify is saved in your AWS configuration.
 
-#### 6. Test Access
+It is required to transfer the configuration to the environment variable `AWS_DEFAULT_REGION`:
 
 ```shell
-# Test connection
-aws ec2 describe-regions
+# Extract region from AWS CLI config and set as environment variable
+export AWS_DEFAULT_REGION=$(aws configure get region)
+
+# Verify the region is set correctly
+echo "Using AWS region: $AWS_DEFAULT_REGION"
 ```
 
-> [!NOTE]
-> The free tier includes 750 hours/month of t3.micro instances for the first 12 months, which covers this project's usage perfectly.
+This should match where you plan to create instances for optimal inventory performance.
 
 ### 2. SSH Key Pair Setup
 
