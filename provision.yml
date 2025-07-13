@@ -7,19 +7,11 @@
 #
 # Example usage:
 #
-#  ansible-playbook provision.yml --extra-vars "provider=aws"
+#  ansible-playbook provision.yml --extra-vars "provider=aws platform=linux"
 #
 
-# Ensure that the provider variable is set
-# ERROR! 'assert' is not a valid attribute for a Play
-#- name: Check if provider variable is set
-#  assert:
-#    that:
-#      - provider is defined
-#    fail_msg: "The 'provider' variable must be defined. Example: --extra-vars 'provider=aws'"
-
 - name: Provision {{ provider }} Cloud Instance
-  import_playbook: provisioners/{{ provider }}-linux.yml
+  import_playbook: provisioners/{{ provider }}-{{ platform }}.yml
 
-- name: Configure Linux Development Environment
-  import_playbook: configure-linux.yml
+- name: Configure {{ platform | capitalize }} development environment
+  import_playbook: configure-{{ platform }}.yml
