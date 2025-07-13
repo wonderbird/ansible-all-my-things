@@ -81,14 +81,35 @@ export AWS_SECRET_ACCESS_KEY="your-secret-access-key"
 export AWS_DEFAULT_REGION="eu-north-1"  # or your preferred region
 ```
 
+> [!IMPORTANT]
+> **Region Selection**: The `AWS_DEFAULT_REGION` environment variable determines which AWS region is used for:
+> - Instance provisioning
+> - Inventory queries (critical for performance)
+> - Resource management
+>
+> **Performance Impact**: Setting `AWS_DEFAULT_REGION` to match your instance locations is essential for fast inventory operations (~1 second vs 16+ seconds). If not set, defaults to `eu-north-1`.
+
 ##### Option 2: AWS CLI Configuration
 
 ```shell
 # Configure credentials
-# NOTE: I currently use eu-north-1 as the default region
-#       and leave the default output format as None.
+# NOTE: The region you select here will be used as AWS_DEFAULT_REGION
+#       Set this to match where you plan to create instances for optimal performance
 aws configure
 ```
+
+> [!NOTE]
+> When using `aws configure`, the region you specify is saved in your AWS configuration. To use it as an environment variable for this project, run:
+> 
+> ```shell
+> # Extract region from AWS CLI config and set as environment variable
+> export AWS_DEFAULT_REGION=$(aws configure get region)
+> 
+> # Verify the region is set correctly
+> echo "Using AWS region: $AWS_DEFAULT_REGION"
+> ```
+> 
+> This should match where you plan to create instances for optimal inventory performance.
 
 #### 6. Test Access
 
