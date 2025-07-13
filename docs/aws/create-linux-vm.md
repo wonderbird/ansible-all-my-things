@@ -1,16 +1,24 @@
 # AWS Linux Server Usage Guide
 
+> [!IMPORTANT]
+> The security group is configured to allow SSH access only from your current public IP address. If your IP changes, you may need to update the security group rules in the AWS console.
+
 ## Prerequisites
 
 The section **Prerequisites** in the parent [AWS Documentation](./aws.md) file explains how to setup the prerequisites.
 
 ## Create the VM
 
+Create the server using the following command:
+
 ```shell
-ansible-playbook provision-aws-linux.yml --vault-password-file ansible-vault-password.txt
+ansible-playbook provision.yml --vault-password-file ansible-vault-password.txt --extra-vars "provider=aws"
 ```
 
-After provisioning, the setup will take approximately 10-15 minutes to complete the full configuration.
+You will be asked to add the SSH key of the new server to your local
+`~/.ssh/known_hosts` file.
+
+After that, the setup will take some 10 - 15 minutes.
 
 ## Verify the Setup
 
@@ -29,23 +37,31 @@ Then run the following commands to verify the setup:
 
 ```shell
 # Check whether the server can be reached
-ansible linux -m shell -a 'whoami'
+ansible dev -m shell -a 'whoami' --extra-vars "ansible_user=gandalf"
+
+# Source .bash_profile to load the environment variables
+ansible dev -m shell -a '. $HOME/.bash_profile; mob moo' --extra-vars "ansible_user=gandalf"
 ```
+
+>[!IMPORTANT]
+> You might want to add additional SSH keys to the `authorized_keys` files on
+> the server.
 
 You can also SSH directly to the instance. The value of `IPV4_ADDRESS` is described in [Obtain Remote IP Adress](../../obtain-remote-ip-address.md).
 
 ```shell
-ssh ubuntu@$IPV4_ADDRESS
+ssh galadriel@$IPV4_ADDRESS
 ```
-
-> [!IMPORTANT]
-> The security group is configured to allow SSH access only from your current public IP address. If your IP changes, you may need to update the security group rules in the AWS console.
 
 ## Delete the VM
 
 To delete the VM and all associated resources, use the following command:
 
 ```shell
+# Backup your configuration
+ansible-playbook --vault-password-file ansible-vault-password.txt ./backup.yml
+
+# Destroy
 ansible-playbook ./destroy-aws.yml
 ```
 
