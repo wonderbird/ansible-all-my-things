@@ -1,5 +1,6 @@
 ---
 # AWS-specific overrides
 # These override platform defaults
+# Uses AWS_DEFAULT_REGION environment variable as single source of truth
 
-aws_default_region: "eu-north-1"
+aws_default_region: "{{ lookup('env', 'AWS_DEFAULT_REGION') | default('eu-north-1') }}"

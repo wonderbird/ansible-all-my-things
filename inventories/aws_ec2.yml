@@ -1,6 +1,20 @@
 ---
 plugin: amazon.aws.aws_ec2
 
+# Constrain to a specific region to reduce latency
+regions:
+  - "{{ lookup('env', 'AWS_DEFAULT_REGION') | default('eu-north-1') }}"
+
+# Cache the inventory to reduce latency
+cache: true
+cache_timeout: 300  # 5 minutes cache
+
+# Filter instance to reduce latency
+# Only runnng instances are billed (as of 2025-07-13),
+# see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html
+filters:
+  instance-state-name: running
+
 keyed_groups:
   - key: tags.platform
     prefix: ""

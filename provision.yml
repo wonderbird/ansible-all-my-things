@@ -1,9 +1,17 @@
 ---
-# Hetzner Cloud Provision Playbook
-# Provisions and configures Hetzner Cloud development environment
+# Provision a Linux development environment
+#
+# Parameters:
+#
+#   provider: The cloud provider to use (aws, hcloud)
+#
+# Example usage:
+#
+#  ansible-playbook provision.yml --extra-vars "provider=aws platform=linux"
+#
 
-- name: Provision Hetzner Cloud Instance
-  import_playbook: provisioners/hcloud.yml
+- name: Provision {{ provider }} Cloud Instance
+  import_playbook: provisioners/{{ provider }}-{{ platform }}.yml
 
-- name: Configure Hetzner Development Environment
-  import_playbook: configure.yml
+- name: Configure {{ platform | capitalize }} development environment
+  import_playbook: configure-{{ platform }}.yml

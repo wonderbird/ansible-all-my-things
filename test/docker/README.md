@@ -5,8 +5,7 @@ This test system uses the Vagrant / Docker Provider stack described in
 
 ## Warning: Refresh SSH Keys after cloning this repository
 
-The SSH keys in this project are known to the entire world! If you use these
-keys, you risk being hacked.
+The SSH keys in [./ssh_host_keys/](./ssh_host_keys/) and [../ssh_user_key/](../ssh_user_key/) are published on GitHub. Thus, they are known to the entire world! If you use these keys, you risk being hacked.
 
 Please generate fresh keys before building the Dockerfile in this directory:
 
@@ -26,6 +25,10 @@ ssh-keygen -q -N "" -t ecdsa -b 521 -f ../ssh_user_key/id_ecdsa -C vagrant@testl
 
 Install the Vagrant / Docker Provider stack as described in
 [boos2025b](../../README.md#references).
+
+Configure your public key for connecting to the VM as described in the section about secrets in [/docs/important-concepts.md](../../docs/important-concepts.md).
+
+Load the SSH key matching the `my_ssh_public_key` configured in [/playbooks/vars-secrets.yml](../../playbooks/vars-secrets.yml) into your SSH agent.
 
 ## Running the test system
 
