@@ -5,6 +5,11 @@ Vagrant.configure("2") do |config|
 
     config.ssh.insert_key = false
     config.ssh.private_key_path = ["../ssh_user_key/id_ecdsa"]
+
+    # Allow using keys loaded into the SSH agent
+    # This allows using the personal key for logging in as the user "gandalf".
+    # A similar configuration is used for Hetzner Cloud and AWS VMs.
+    config.ssh.keys_only = false
     
     config.vm.synced_folder ".", "/vagrant", disabled: true
     
@@ -34,7 +39,7 @@ Vagrant.configure("2") do |config|
         ]
         
         # Debug by uncommenting the following line:
-        #ansible.verbose = "vvv"
+        ansible.verbose = "vvv"
         
         # Vagrant fails to detect the Ansible version. Thus we force it to
         # use v2.
