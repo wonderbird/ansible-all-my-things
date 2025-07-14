@@ -1,6 +1,6 @@
 # AWS Prerequisites
 
-In addition to the common prerequisites listed in [Create a Virtual Machine](../create-vm.md), all AWS environments require
+In addition to the common prerequisites listed in [Create a Virtual Machine](./create-vm.md), all AWS environments require
 
 1. AWS account with programmatic access configured
 2. SSH key pairs
@@ -120,5 +120,5 @@ Follow the instructions in section [Important concepts](./important-concepts.md)
 
 ---
 
-Next: [Work with a Virtual Machine](../work-with-vm.md)
-Up: [Create a Virtual Machine](../create-vm.md)
+Next: [Work with a Virtual Machine](./work-with-vm.md)
+Up: [Create a Virtual Machine](./create-vm.md)

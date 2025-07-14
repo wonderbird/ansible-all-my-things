@@ -18,5 +18,5 @@ echo -n "hcloud API token: "; read -s HCLOUD_TOKEN; export HCLOUD_TOKEN
 
 ---
 
-Next: [Work with a Virtual Machine](../work-with-vm.md)
-Up: [Create a Virtual Machine](../create-vm.md)
+Next: [Work with a Virtual Machine](./work-with-vm.md)
+Up: [Create a Virtual Machine](./create-vm.md)

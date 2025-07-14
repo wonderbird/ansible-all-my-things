@@ -1,7 +1,7 @@
 # Important concepts
 
 <!-- Execute the following command to update the table of contents: -->
-<!-- doctoc --maxlevel 2 ../docs/important-concepts.md -->
+<!-- doctoc --maxlevel 2 ./docs/important-concepts.md -->
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
