@@ -1,5 +1,6 @@
 ---
-- hosts: linux
+- name: Restore Visual Studio Code settings
+  hosts: linux
   tags: not-supported-on-vagrant-docker
   become: true
 

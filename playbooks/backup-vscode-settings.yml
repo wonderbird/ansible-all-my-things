@@ -1,5 +1,6 @@
 ---
-- hosts: linux
+- name: Backup Visual Studio Code settings
+  hosts: linux
   tags: not-supported-on-vagrant-docker
   become: true
 
@@ -18,7 +19,7 @@
       shell: code --list-extensions > "{{ extensions_remote_file }}"
       become_user: "{{ backup_user }}"
 
-    - import_tasks: tasks/backup-directory.yml
+    - import_tasks: tasks/backup.yml
       vars:
         path:
           - "{{ extensions_remote_file }}"

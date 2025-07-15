@@ -1,5 +1,6 @@
 ---
-- hosts: linux
+- name: Restore keyring
+  hosts: linux
   tags: not-supported-on-vagrant-docker
   become: true
 

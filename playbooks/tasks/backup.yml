@@ -18,6 +18,7 @@
     path: "{{ path }}"
     dest: "{{ temp_backup_path }}"
     format: gz
+    force_archive: yes
     exclusion_patterns: "{{ exclusion_patterns | default([]) }}"
 
 - name: Fetch backup file

@@ -1,0 +1,20 @@
+---
+- name: Backup files in home directory
+  hosts: linux
+  become: true
+
+  vars_files:
+    - vars-usernames.yml
+    - vars-secrets.yml
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    backup_user: "{{ desktop_users[0].name }}"
+
+  tasks:
+    - import_tasks: tasks/backup.yml
+      vars:
+        path:
+          - "/home/{{ backup_user }}/.gitconfig"
+        temp_backup_path: "/home/{{ backup_user }}/home-folder-files-backup.tar.gz"
+        dest: "{{ playbook_dir }}/../configuration/home/my_desktop_user/home-folder-files-backup.tar.gz"
