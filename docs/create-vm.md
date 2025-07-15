@@ -109,9 +109,12 @@ ansible windows -m win_command -a 'whoami'
 > You might want to add additional SSH keys to the `authorized_keys` files on
 > the server.
 
-You can also SSH directly to the instance. The value of `IPV4_ADDRESS` is described in [Obtain Remote IP Adress](../../obtain-remote-ip-address.md).
+You can also SSH directly to the instance. `IPV4_ADDRESS` is set by sourcing [/configure.sh](../configure.sh):
 
 ```shell
+# Configure your shell to work with the VM
+source ./configure.sh
+
 # On Linux, galadriel is the default desktop user
 ssh galadriel@$IPV4_ADDRESS
 

@@ -25,10 +25,10 @@ vagrant up
 # Verify the configuration
 # The following command should show that ansible uses the user configured
 # in Vagrantfile (extra_vars) and the host name is "lorien"
-ansible dev -m shell -a "whoami"
+ansible linux -m shell -a "whoami"
 
 # List the users we have added to the system
-ansible dev -m shell -a 'ls /home'
+ansible linux -m shell -a 'ls /home'
 
 # Stop the local test system
 vagrant halt
