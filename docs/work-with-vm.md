@@ -6,7 +6,11 @@ The username of the desktop user is set configured in `/playbooks/vars-secrets.y
 
 The section [Important Concepts](./important-concepts.md) provides more information about the different users and their purposes.
 
-Set the environment variable `IPV4_ADDRESS` as described in [Obtain Remote IP Address](./obtain-remote-ip-address.md).
+Source the script [/configure.sh](../configure.sh) in order to set environment variables to work with the Virtual Machine:
+
+```shell
+source ./configure.sh
+```
 
 Then use the following command to log in:
 
