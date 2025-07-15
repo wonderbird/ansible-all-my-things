@@ -4,7 +4,6 @@
   tags: not-supported-on-vagrant-docker
   become: true
 
-  # TODO: smell - copied from restore-chromium-settings.yml - can we abstract this?
   vars_files:
     - vars-usernames.yml
     - vars-secrets.yml
@@ -17,7 +16,7 @@
 
   tasks:
 
-    # TODO: smell - complicated error handling - consider using `block`, `rescue`, `always` - see p. 121 (147 in PDF) of Ansible for DevOps
+    # TODO: Can we use `include_tasks` here to avoid code duplication with other restore tasks?
 
     - name: Check if archive exists locally
       delegate_to: localhost

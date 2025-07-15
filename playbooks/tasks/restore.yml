@@ -1,0 +1,83 @@
+---
+# Usage: Import this task into your playbook
+#
+# Parameters
+#
+#   users:                    List of users to restore backup for
+#   source_path:              Path to the backup file on the local machine
+#   destination_beneath_home: Destination folder relative to each user's home directory
+#   delete_destination:       DANGER! Whether to delete the target folder before restoring. Be careful!
+#
+
+- name: Calculate helper variables
+  set_fact:
+    source_path: "{{ source_path | realpath }}"
+    remote_temp_path: "/tmp/{{ source_path | basename }}"
+    destination_parent: "{{ destination_beneath_home | dirname }}"
+    delete_destination: "{{ delete_destination | default(false) }}"
+
+- name: Show backup parameters (Debug Message)
+  debug:
+    msg:
+      - "Restoring backup:"
+      - ""
+      - "  Delete destination: {{ delete_destination | default(false) }}"
+      - ""
+      - "              Source: {{ source_path }}"
+      - "               Users: {{ users | list }}"
+      - "         Destination: /home/(user)/{{ destination_beneath_home }}"
+      - "         Dest parent: /home/(user)/{{ destination_parent }}"
+      - "         Remote temp: {{ remote_temp_path }}"
+
+- name: Check if backup file exists
+  delegate_to: localhost
+  become: false
+  stat:
+    path: "{{ source_path }}"
+  register: backup_local
+
+- name: Upload backup file
+  copy:
+    src: "{{ source_path }}"
+    dest: "{{ remote_temp_path }}"
+    mode: '0644'
+  when: backup_local.stat.exists
+  register: upload_result
+
+- name: Delete destination folder
+  file:
+    path: "/home/{{ item }}/{{ destination_beneath_home }}"
+    state: absent
+  when:
+    - delete_destination
+    - destination_parent != ""
+    - destination_beneath_home != ""
+    - not upload_result.failed | default(true)
+  loop: "{{ users }}"
+
+- name: Ensure parent directory exists
+  file:
+    path: "/home/{{ item }}/{{ destination_parent }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ item }}"
+    group: "{{ item }}"
+  when: not upload_result.failed | default(true)
+  loop: "{{ users }}"
+
+- name: Extract backup
+  become_user: "{{ item }}"
+  unarchive:
+    src: "{{ remote_temp_path }}"
+    dest: "/home/{{ item }}/{{ destination_parent }}"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    remote_src: yes
+  loop: "{{ users }}"
+  when: not upload_result.failed | default(true)
+
+- name: Remove temporary archive
+  file:
+    path: "{{ remote_temp_path }}"
+    state: absent
+  ignore_errors: true

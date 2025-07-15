@@ -2,7 +2,6 @@
 # Usage: Import this task into your playbook
 #
 # Parameters
-# ----------
 #
 #   path:             single file / directory or list of files / directories
 #                     to backup
