@@ -1,5 +1,6 @@
 ---
-- hosts: linux
+- name: Backup keyring
+  hosts: linux
   tags: not-supported-on-vagrant-docker
   become: true
 
@@ -12,7 +13,7 @@
     backup_user: "{{ desktop_users[0].name }}"
 
   tasks:
-    - import_tasks: tasks/backup-directory.yml
+    - import_tasks: tasks/backup.yml
       vars:
         path: "/home/{{ backup_user }}/.local/share/keyrings"
         temp_backup_path: "/home/{{ backup_user }}/keyrings-backup.tar.gz"

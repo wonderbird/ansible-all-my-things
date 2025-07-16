@@ -1,8 +1,15 @@
 # Improvement Backlog
 
-Sorted by priority - Last update: 2025-07-15
+## Done
 
-- [ ] Create a backup for configuration files in the home directory, especially for ~/.gitconfig
+- [x] Create a backup for configuration files in the home directory, especially for ~/.gitconfig
+
+## In progress
+
+
+## Backlog
+
+Sorted by priority - Last update: 2025-07-15
 
 - [ ] Create a backup for the claude configuration files
 

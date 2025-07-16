@@ -1,5 +1,6 @@
 ---
-- hosts: linux
+- name: Restore keyring
+  hosts: linux
   tags: not-supported-on-vagrant-docker
   become: true
 
@@ -9,58 +10,13 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    backup_user: "{{ desktop_users[0].name }}"
-    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
-    backup_remote_path: "/tmp/keyrings-backup.tar.gz"
-    backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/keyrings-backup.tar.gz"
 
   tasks:
-
-    # TODO: smell - complicated error handling - consider using `block`, `rescue`, `always` - see p. 121 (147 in PDF) of Ansible for DevOps
-
-    - name: Check if archive file exists locally
-      delegate_to: localhost
-      become: false
-      stat:
-        path: "{{ backup_local_path }}"
-      register: archive_local
-
-    - name: Upload archive file to remote server
-      copy:
-        src: "{{ backup_local_path }}"
-        dest: "{{ backup_remote_path }}"
-        mode: '0644'
-      when: archive_local.stat.exists
-      register: upload_result
-
-    - name: Remove existing configuration
-      file:
-        path: "/home/{{ item }}/.local/share/keyrings"
-        state: absent
-      when: not upload_result.failed | default(true)
-      loop: "{{ desktop_user_names }}"
-
-    - name: Ensure configuration parent directory exists
-      file:
-        path: "/home/{{ item }}/.local/share"
-        state: directory
-        mode: '0755'
-        owner: "{{ item }}"
-        group: "{{ item }}"
-      when: not upload_result.failed | default(true)
-      loop: "{{ desktop_user_names }}"
-
-    - name: Extract archive
-      become_user: "{{ item }}"
-      unarchive:
-        src: "{{ backup_remote_path }}"
-        dest: "/home/{{ item }}/.local/share"
-        remote_src: yes
-      when: not upload_result.failed | default(true)
-      loop: "{{ desktop_user_names }}"
-
-    - name: Remove temporary archive from remote server
-      file:
-        path: "{{ backup_remote_path }}"
-        state: absent
-      ignore_errors: true
+    - name: Restore keyring
+      include_tasks: tasks/restore.yml
+      vars:
+        users: "{{ desktop_users | map(attribute='name') | list }}"
+        source_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/keyrings-backup.tar.gz"
+        destination_beneath_home: ".local/share/keyrings"
+        delete_before_beneath_home:
+          - ".local/share/keyrings"

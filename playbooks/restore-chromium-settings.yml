@@ -1,5 +1,6 @@
 ---
-- hosts: linux
+- name: Restore Chromium settings
+  hosts: linux
   tags: not-supported-on-vagrant-docker
   become: true
 
@@ -9,58 +10,14 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
-    backup_remote_path: "/tmp/chromium-backup.tar.gz"
-    backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/chromium-backup.tar.gz"
 
   tasks:
 
-    # TODO: smell - complicated error handling - consider using `block`, `rescue`, `always` - see p. 121 (147 in PDF) of Ansible for DevOps
-
-    - name: Check if backup file exists locally
-      delegate_to: localhost
-      become: false
-      stat:
-        path: "{{ backup_local_path }}"
-      register: backup_local
-
-    - name: Upload Chromium backup file to remote server
-      copy:
-        src: "{{ backup_local_path }}"
-        dest: "{{ backup_remote_path }}"
-      when: backup_local.stat.exists
-      register: upload_result
-
-    - name: Remove existing Chromium profile
-      file:
-        path: "/home/{{ item }}/snap/chromium/common/chromium/Default"
-        state: absent
-      when: not upload_result.failed | default(true)
-      loop: "{{ desktop_user_names }}"
-
-    - name: Ensure Chromium base directory exists
-      file:
-        path: "/home/{{ item }}/snap/chromium/common/chromium"
-        state: directory
-        mode: '0755'
-        owner: "{{ item }}"
-        group: "{{ item }}"
-      when: not upload_result.failed | default(true)
-      loop: "{{ desktop_user_names }}"
-
-    - name: Extract Chromium backup
-      become_user: "{{ item }}"
-      unarchive:
-        src: "{{ backup_remote_path }}"
-        dest: "/home/{{ item }}/snap/chromium/common/chromium/"
-        owner: "{{ item }}"
-        group: "{{ item }}"
-        remote_src: yes
-      loop: "{{ desktop_user_names }}"
-      when: not upload_result.failed | default(true)
-
-    - name: Remove temporary archive
-      file:
-        path: "{{ backup_remote_path }}"
-        state: absent
-      ignore_errors: true
+    - name: Restore Chromium settings
+      include_tasks: tasks/restore.yml
+      vars:
+        users: "{{ desktop_users | map(attribute='name') | list }}"
+        source_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/chromium-backup.tar.gz"
+        destination_beneath_home: "snap/chromium/common/chromium/Default"
+        delete_before_beneath_home:
+          - "snap/chromium/common/chromium/Default"

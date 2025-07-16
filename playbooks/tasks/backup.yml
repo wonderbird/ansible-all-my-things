@@ -2,7 +2,6 @@
 # Usage: Import this task into your playbook
 #
 # Parameters
-# ----------
 #
 #   path:             single file / directory or list of files / directories
 #                     to backup
@@ -18,6 +17,7 @@
     path: "{{ path }}"
     dest: "{{ temp_backup_path }}"
     format: gz
+    force_archive: yes
     exclusion_patterns: "{{ exclusion_patterns | default([]) }}"
 
 - name: Fetch backup file

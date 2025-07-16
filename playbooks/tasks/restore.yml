@@ -1,0 +1,96 @@
+---
+# Usage: Import this task into your playbook
+#
+# Parameters
+#
+#   users:                      List of users to restore backup for
+#   source_path:                Path to the backup file on the local machine
+#   destination_beneath_home:   Destination folder relative to each user's home directory
+#   delete_before_beneath_home: (optional) List of files and directories to delete before restoring,
+#                               relative to each user's home directory. These entries will
+#                               only be deleted, if the backup file has been successfully
+#                               uploaded. This allows to restore a clean backup.
+#
+#                               ATTENTION: This variable is always of type LIST, even if it contains
+#                                          only one entry.
+#
+
+- name: Calculate helper variables
+  set_fact:
+    source_path: "{{ source_path | realpath }}"
+    remote_temp_path: "/tmp/{{ source_path | basename }}"
+    delete_before_beneath_home: "{{ delete_before_beneath_home | default([]) | list }}"
+    destinations: "{{ users | map('regex_replace', '^', '/home/') | map('regex_replace', '$', '/' + destination_beneath_home) | list }}"
+
+- name: Derive variables from helpers
+  set_fact:
+    user_destinations: "{{ users | zip(destinations) | list }}"
+    delete_before: "{{ users | product(delete_before_beneath_home) | map('join', '/') | map('regex_replace', '^', '/home/') | list }}"
+
+- name: Show backup parameters (Debug Message)
+  debug:
+    msg:
+      - "Restoring backup:"
+      - ""
+      - "          Users: {{ users | list }}"
+      - "         Source: {{ source_path }}"
+      - "    Remote temp: {{ remote_temp_path }}"
+
+- name: Show destination directories (Debug Message)
+  debug:
+    msg: "- {{ item }}"
+  loop: "{{ destinations }}"
+
+- name: Show folders to delete before restoring (Debug Message)
+  debug:
+    msg: "- {{ item }}"
+  loop: "{{ delete_before }}"
+
+- name: Check if backup file exists
+  delegate_to: localhost
+  become: false
+  stat:
+    path: "{{ source_path }}"
+  register: backup_local
+
+- name: Upload backup file
+  copy:
+    src: "{{ source_path }}"
+    dest: "{{ remote_temp_path }}"
+    mode: '0644'
+  when: backup_local.stat.exists
+  register: upload_result
+
+- name: Clean up target directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  when: not upload_result.failed | default(true)
+  loop: "{{ delete_before }}"
+
+- name: Ensure parent directories exist
+  file:
+    path: "{{ item.1 | dirname }}"
+    state: directory
+    mode: '0755'
+    owner: "{{ item.0 }}"
+    group: "{{ item.0 }}"
+  when: not upload_result.failed | default(true)
+  loop: "{{ user_destinations }}"
+
+- name: Extract backup
+  become_user: "{{ item.0 }}"
+  unarchive:
+    src: "{{ remote_temp_path }}"
+    dest: "{{ item.1 | dirname }}"
+    owner: "{{ item.0 }}"
+    group: "{{ item.0 }}"
+    remote_src: yes
+  loop: "{{ user_destinations }}"
+  when: not upload_result.failed | default(true)
+
+- name: Remove temporary archive
+  file:
+    path: "{{ remote_temp_path }}"
+    state: absent
+  ignore_errors: true
