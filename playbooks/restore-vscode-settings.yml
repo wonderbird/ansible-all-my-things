@@ -10,14 +10,14 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    users: "{{ desktop_users | map(attribute='name') | list }}"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
 
   tasks:
 
     - name: Restore Visual Studio Code backup
       include_tasks: tasks/restore.yml
       vars:
-        users: "{{ users }}"
+        users: "{{ desktop_user_names }}"
         source_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/vscode-backup.tar.gz"
         destination_beneath_home: ""
         delete_before_beneath_home:
@@ -36,4 +36,4 @@
           exit 0
         fi
       become_user: "{{ item }}"
-      loop: "{{ users }}"
+      loop: "{{ desktop_user_names }}"

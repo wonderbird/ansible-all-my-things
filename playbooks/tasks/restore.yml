@@ -19,13 +19,9 @@
     delete_before_beneath_home: "{{ delete_before_beneath_home | default([]) | list }}"
     destinations: "{{ users | map('regex_replace', '^', '/home/') | map('regex_replace', '$', '/' + destination_beneath_home) | list }}"
 
-- name: Combine user names and destination paths
+- name: Derive variables from helpers
   set_fact:
-    # Create the product of users and delete_before_beneath_home. Then map the result to a list of full paths below the home directory of the respective user.
     user_destinations: "{{ users | zip(destinations) | list }}"
-
-- name: Create full paths for deletion
-  set_fact:
     delete_before: "{{ users | product(delete_before_beneath_home) | map('join', '/') | map('regex_replace', '^', '/home/') | list }}"
 
 - name: Show backup parameters (Debug Message)
