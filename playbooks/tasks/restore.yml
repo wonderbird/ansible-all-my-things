@@ -3,31 +3,49 @@
 #
 # Parameters
 #
-#   users:                    List of users to restore backup for
-#   source_path:              Path to the backup file on the local machine
-#   destination_beneath_home: Destination folder relative to each user's home directory
-#   delete_destination:       DANGER! Whether to delete the target folder before restoring. Be careful!
+#   users:                      List of users to restore backup for
+#   source_path:                Path to the backup file on the local machine
+#   destination_beneath_home:   Destination folder relative to each user's home directory
+#   delete_before_beneath_home: (optional) List of files and directories to delete before restoring,
+#                               relative to each user's home directory. These entries will
+#                               only be deleted, if the backup file has been successfully
+#                               uploaded. This allows to restore a clean backup.
 #
 
 - name: Calculate helper variables
   set_fact:
     source_path: "{{ source_path | realpath }}"
     remote_temp_path: "/tmp/{{ source_path | basename }}"
-    destination_parent: "{{ destination_beneath_home | dirname }}"
-    delete_destination: "{{ delete_destination | default(false) }}"
+    delete_before_beneath_home: "{{ delete_before_beneath_home | default([]) | list }}"
+    destinations: "{{ users | map('regex_replace', '^', '/home/') | map('regex_replace', '$', '/' + destination_beneath_home) | list }}"
+
+- name: Combine user names and destination paths
+  set_fact:
+    # Create the product of users and delete_before_beneath_home. Then map the result to a list of full paths below the home directory of the respective user.
+    user_destinations: "{{ users | zip(destinations) | list }}"
+
+- name: Create full paths for deletion
+  set_fact:
+    delete_before: "{{ users | product(delete_before_beneath_home) | map('join', '/') | map('regex_replace', '^', '/home/') | list }}"
 
 - name: Show backup parameters (Debug Message)
   debug:
     msg:
       - "Restoring backup:"
       - ""
-      - "  Delete destination: {{ delete_destination | default(false) }}"
-      - ""
-      - "              Source: {{ source_path }}"
-      - "               Users: {{ users | list }}"
-      - "         Destination: /home/(user)/{{ destination_beneath_home }}"
-      - "         Dest parent: /home/(user)/{{ destination_parent }}"
-      - "         Remote temp: {{ remote_temp_path }}"
+      - "          Users: {{ users | list }}"
+      - "         Source: {{ source_path }}"
+      - "    Remote temp: {{ remote_temp_path }}"
+
+- name: Show destination directories (Debug Message)
+  debug:
+    msg: "- {{ item }}"
+  loop: "{{ destinations }}"
+
+- name: Show folders to delete before restoring (Debug Message)
+  debug:
+    msg: "- {{ item }}"
+  loop: "{{ delete_before }}"
 
 - name: Check if backup file exists
   delegate_to: localhost
@@ -44,36 +62,32 @@
   when: backup_local.stat.exists
   register: upload_result
 
-- name: Delete destination folder
+- name: Clean up target directories
   file:
-    path: "/home/{{ item }}/{{ destination_beneath_home }}"
+    path: "{{ item }}"
     state: absent
-  when:
-    - delete_destination
-    - destination_parent != ""
-    - destination_beneath_home != ""
-    - not upload_result.failed | default(true)
-  loop: "{{ users }}"
+  when: not upload_result.failed | default(true)
+  loop: "{{ delete_before }}"
 
-- name: Ensure parent directory exists
+- name: Ensure parent directories exist
   file:
-    path: "/home/{{ item }}/{{ destination_parent }}"
+    path: "{{ item.1 | dirname }}"
     state: directory
     mode: '0755'
-    owner: "{{ item }}"
-    group: "{{ item }}"
+    owner: "{{ item.0 }}"
+    group: "{{ item.0 }}"
   when: not upload_result.failed | default(true)
-  loop: "{{ users }}"
+  loop: "{{ user_destinations }}"
 
 - name: Extract backup
-  become_user: "{{ item }}"
+  become_user: "{{ item.0 }}"
   unarchive:
     src: "{{ remote_temp_path }}"
-    dest: "/home/{{ item }}/{{ destination_parent }}"
-    owner: "{{ item }}"
-    group: "{{ item }}"
+    dest: "{{ item.1 | dirname }}"
+    owner: "{{ item.0 }}"
+    group: "{{ item.0 }}"
     remote_src: yes
-  loop: "{{ users }}"
+  loop: "{{ user_destinations }}"
   when: not upload_result.failed | default(true)
 
 - name: Remove temporary archive

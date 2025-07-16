@@ -19,4 +19,5 @@
         users: "{{ desktop_users | map(attribute='name') | list }}"
         source_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/chromium-backup.tar.gz"
         destination_beneath_home: "snap/chromium/common/chromium/Default"
-        delete_destination: true
+        delete_before_beneath_home:
+          - "snap/chromium/common/chromium/Default"

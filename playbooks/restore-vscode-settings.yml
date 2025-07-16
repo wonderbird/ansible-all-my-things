@@ -10,64 +10,30 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
-    backup_remote_path: "/tmp/vscode-backup.tar.gz"
-    backup_local_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/vscode-backup.tar.gz"
+    users: "{{ desktop_users | map(attribute='name') | list }}"
 
   tasks:
 
-    # TODO: Can we use `include_tasks` here to avoid code duplication with other restore tasks?
+    - name: Restore Visual Studio Code backup
+      include_tasks: tasks/restore.yml
+      vars:
+        users: "{{ users }}"
+        source_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/vscode-backup.tar.gz"
+        destination_beneath_home: ""
+        delete_before_beneath_home:
+          - ".vscode"
+          - ".config/Code/User"
 
-    - name: Check if archive exists locally
-      delegate_to: localhost
-      become: false
-      stat:
-        path: "{{ backup_local_path }}"
-      register: backup_local
-
-    - name: Upload archive to remote server
-      copy:
-        src: "{{ backup_local_path }}"
-        dest: "{{ backup_remote_path }}"
-      when: backup_local.stat.exists
-      register: upload_result
-
-    - name: Remove existing config directories
-      file:
-        path: "{{ item }}"
-        state: absent
-      with_items:
-        - "/home/{{ item }}/.vscode"
-        - "/home/{{ item }}/.config/Code/User"
-      loop: "{{ desktop_user_names }}"
-      when: not upload_result.failed | default(true)
-
-    - name: Extract archive
+    - name: Install Visual Studio Code extensions
+      shell: |
+        EXTENSIONS_FILE="/home/{{ item }}/vscode-extension-list.txt"
+        if [ -f "$EXTENSIONS_FILE" ]; then
+          echo "Installing extensions for user {{ item }}..."
+          cat "$EXTENSIONS_FILE" | xargs -n 1 code --force --install-extension
+          rm -f "$EXTENSIONS_FILE"
+        else
+          echo "No extensions found for user {{ item }}, skipping installation."
+          exit 0
+        fi
       become_user: "{{ item }}"
-      unarchive:
-        src: "{{ backup_remote_path }}"
-        dest: "/home/{{ item }}/"
-        owner: "{{ item }}"
-        group: "{{ item }}"
-        remote_src: yes
-      loop: "{{ desktop_user_names }}"
-      when: not upload_result.failed | default(true)
-
-    - name: Remove temporary archive
-      file:
-        path: "{{ backup_remote_path }}"
-        state: absent
-      ignore_errors: true
-
-    - name: Install VSCode extensions
-      shell: cat /home/{{ item }}/vscode-extension-list.txt | xargs -n 1 code --force --install-extension
-      become_user: "{{ item }}"
-      loop: "{{ desktop_user_names }}"
-      when: not upload_result.failed | default(true)
-
-    - name: Remove extensions list
-      file:
-        path: "/home/{{ item }}/vscode-extension-list.txt"
-        state: absent
-      loop: "{{ desktop_user_names }}"
-      ignore_errors: true
+      loop: "{{ users }}"
