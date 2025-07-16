@@ -11,6 +11,9 @@
 #                               only be deleted, if the backup file has been successfully
 #                               uploaded. This allows to restore a clean backup.
 #
+#                               ATTENTION: This variable is always of type LIST, even if it contains
+#                                          only one entry.
+#
 
 - name: Calculate helper variables
   set_fact:
