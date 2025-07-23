@@ -15,7 +15,9 @@
 
 **Current Progress**:
 - **docs/create-vm.md ✅ COMPLETED**: Updated with streamlined dependencies, provider selection guidelines, consistent SSH user references, and proper instance name context
-- **Windows Server Documentation**: In progress - comprehensive documentation for production-ready Windows Server capability
+- **README.md ✅ COMPLETED**: Enhanced table structure with platform column for clearer infrastructure overview
+- **docs/next-steps.md ✅ UPDATED**: Comprehensive progress tracking and remaining documentation priorities
+- **Windows Server Documentation**: Analyzed and planned - ready for implementation with detailed section outline
 - **Multi-Provider Comparison**: Pending - decision-making guidance for provider selection
 - **Additional Documentation**: Various files need updates to reflect current production status
 
@@ -25,6 +27,8 @@
 - **Consistent User References**: Aligned SSH user references to use `galadriel` throughout
 - **Instance Name Context**: Added reference to README table for hostname explanations
 - **Updated Verification Commands**: Fixed inventory and connectivity verification procedures
+- **Enhanced Infrastructure Overview**: Improved README table with platform column for clarity
+- **Progress Tracking**: Updated next-steps.md with comprehensive status and remaining priorities
 
 ## Production-Ready Infrastructure ✅ COMPLETED
 
