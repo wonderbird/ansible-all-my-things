@@ -51,8 +51,7 @@ Some prerequisites differ by provider. Refer to the corresponding documentation 
 Once you have configured the prerequisites for both providers, you can set the required environment variables as follows:
 
 ```shell
-# This statement assumes that you are using the aws cli to configure your provider defaults
-echo -n "hcloud API token: "; read -s HCLOUD_TOKEN; export HCLOUD_TOKEN; export AWS_DEFAULT_REGION=$(aws configure get region); echo "\nUsing AWS region: $AWS_DEFAULT_REGION"
+source ./configure.sh
 ```
 
 ## Create a Cloud VM
@@ -76,10 +75,15 @@ The `provider` parameter can be one of
 > [!NOTE]
 > Windows is only supported by AWS.
 
-You will be asked to add the SSH key of the new server to your local
-`~/.ssh/known_hosts` file.
+To pick a good combination, use the following guidelines:
 
-After that, the setup will take some 10 - 15 minutes.
+- If you want to run Windows, choose `provider=aws platform=windows`
+- If you want to run Linux, prefer `provider=hcloud platform=linux`
+- If there are no virtual machines available on `hcloud`, then try aws: `provider=aws platform=linux`
+
+After about 1 - 2 minutes, you will be asked to add the SSH key of the new server to your local `~/.ssh/known_hosts` file.
+
+After that, the setup will take another 10 - 15 minutes.
 
 ## Verify the Setup
 
@@ -87,6 +91,8 @@ After that, the setup will take some 10 - 15 minutes.
 # Show the inventory
 ansible-inventory --graph
 ```
+
+The inventory will show the host name for the provisioned instance. The host name is unique for each provider and platform combination. Have a look at the table in the [/README.md](../README.md) to see the possible combinations of provider, platform and host name.
 
 Before executing the other commands in this section, load the configured key into your SSH agent:
 
@@ -99,7 +105,7 @@ Then run the following commands to verify the setup:
 ```shell
 # Check whether the server can be reached
 # Linux variant:
-ansible linux -m shell -a 'whoami' --extra-vars "ansible_user=gandalf"
+ansible linux -m shell -a 'whoami' --extra-vars "ansible_user=galadriel"
 
 # Windows variant using win_command
 ansible windows -m win_command -a 'whoami'
@@ -118,7 +124,7 @@ source ./configure.sh
 # On Linux, galadriel is the default desktop user
 ssh galadriel@$IPV4_ADDRESS
 
-# On Windows, only Administrator is configured
+# On Windows, only Administrator is configured as a user
 ssh Administrator@$IPV4_ADDRESS
 ```
 
