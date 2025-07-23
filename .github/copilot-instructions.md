@@ -1,1 +1,0 @@
-Read and follow the instructions in all files inside the .clinerules directory. Let me know if I need to toggle the mode so that you can read the files.
