@@ -45,11 +45,11 @@ Automate complete lifecycle of development environments across cloud providers, 
 ## Current Status ✅ PRODUCTION-READY
 - **AWS Linux**: Production-ready with complete lifecycle management ✅ WORKING
 - **Hetzner Cloud**: Production-ready reference implementation ✅ WORKING
-- **AWS Windows Server**: Production-ready with complete automation ✅ IMPLEMENTED
+- **AWS Windows Server**: Infrastructure automation complete, manual application setup required ✅ IMPLEMENTED
 
 ## Success Metrics ✅ ACHIEVED
 - Windows Server environments provisioned in ~5 minutes ✅ BETTER THAN TARGET
-- Framework ready for Claude Desktop and other Windows applications ✅ READY
+- Framework ready for Claude Desktop and other Windows applications (requires manual installation) ✅ READY
 - Cost-effective operation with on-demand usage model ✅ ACHIEVED
 - Consistent automation patterns across Linux and Windows ✅ ACHIEVED
 

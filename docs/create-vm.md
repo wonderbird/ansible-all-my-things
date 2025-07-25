@@ -85,6 +85,19 @@ After about 1 - 2 minutes, you will be asked to add the SSH key of the new serve
 
 After that, the setup will take another 10 - 15 minutes.
 
+### Note: Windows requires manual setup
+
+The Windows Server provides a clean installation with SSH, RDP access, and the Chocolatey package manager. However, unlike the Linux systems, **it does not include**:
+
+- Pre-installed development applications and tools
+- Automated backup/restore of user configurations
+- Keyring restoration with saved passwords
+- Ready-to-use development environment
+
+**Expected setup time**: 1-2 hours to manually install and configure your development tools and applications.
+
+**Recommendation**: Use Windows Server when you specifically need Windows-only applications. For general development work, prefer the Linux systems which provide a complete, instantly-ready development environment with automatic configuration restoration.
+
 ## Verify the Setup
 
 ```shell

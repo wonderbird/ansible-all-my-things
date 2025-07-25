@@ -17,7 +17,7 @@
 - **docs/create-vm.md ✅ COMPLETED**: Updated with streamlined dependencies, provider selection guidelines, consistent SSH user references, and proper instance name context
 - **README.md ✅ COMPLETED**: Enhanced table structure with platform column for clearer infrastructure overview
 - **docs/next-steps.md ✅ UPDATED**: Comprehensive progress tracking and remaining documentation priorities
-- **Windows Server Documentation**: Analyzed and planned - ready for implementation with detailed section outline
+- **Windows Server Documentation**: Priority reassessed - infrastructure documentation less critical due to manual setup requirements
 - **Multi-Provider Comparison**: Pending - decision-making guidance for provider selection
 - **Additional Documentation**: Various files need updates to reflect current production status
 
@@ -53,15 +53,21 @@
 - Foundation for Windows Server extension
 - Proven provider abstraction architecture
 
-### AWS Windows Server ✅ PRODUCTION-READY & RECENTLY COMPLETED
+### AWS Windows Server ✅ INFRASTRUCTURE READY - MANUAL SETUP REQUIRED
 **Instance**: `moria` - Windows application server
-**Status**: ✅ FULLY OPERATIONAL - Claude Desktop access ready
+**Status**: ✅ INFRASTRUCTURE OPERATIONAL - Requires manual development environment setup
 
 **Key Features**:
-- Windows Server 2025 with SSH key authentication
-- RDP access optimized for desktop applications
-- Integrated provisioning and configuration workflow
-- Unified destroy process across platforms
+- Windows Server 2025 with SSH key authentication and RDP access
+- Chocolatey package manager automatically installed
+- Clean Windows installation without pre-configured applications
+- No automated backup/restore system (unlike Linux implementations)
+
+**Limitations**:
+- Requires 1-2 hours manual setup for development environment
+- No pre-installed development applications or tools
+- No automated configuration restoration or keyring backup
+- Users start from scratch with each new instance
 
 ## Cross-Provider Architecture Achievements
 

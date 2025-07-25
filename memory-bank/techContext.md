@@ -16,7 +16,7 @@
 
 **AWS EC2**: Multi-platform provider for diverse workloads
   - **Linux**: Production implementation (Ubuntu 24.04 LTS) ✅ WORKING
-  - **Windows**: Production implementation (Windows Server 2025) ✅ WORKING
+  - **Windows**: Infrastructure implementation (Windows Server 2025) - requires manual application setup ✅ WORKING
   - **Authentication**: AWS credentials via environment variables ✅ WORKING
   - **Region**: eu-north-1 (carbon footprint and latency optimization) ✅ IMPLEMENTED
 
