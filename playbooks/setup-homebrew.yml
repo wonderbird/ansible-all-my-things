@@ -31,10 +31,6 @@
   tags: not-supported-on-vagrant-arm64
   become: false
 
-  vars_files:
-    - vars-usernames.yml
-    - vars-secrets.yml
-
   vars:
     ansible_user: "{{ my_ansible_user }}"
 

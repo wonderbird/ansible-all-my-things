@@ -4,10 +4,6 @@
   tags: not-supported-on-vagrant-docker
   become: true
 
-  vars_files:
-    - vars-usernames.yml
-    - vars-secrets.yml
-
   vars:
     ansible_user: "{{ my_ansible_user }}"
 

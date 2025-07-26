@@ -7,7 +7,8 @@ Vagrant.configure("2") do |config|
     config.ssh.private_key_path = ["../ssh_user_key/id_ecdsa"]
 
     # Allow using keys loaded into the SSH agent
-    # This allows using the personal key for logging in as the user "gandalf".
+    # This allows using the personal key for logging in as the user
+    # my_ansible_user configured in the group_vars/all/vars.yml file.
     # A similar configuration is used for Hetzner Cloud and AWS VMs.
     config.ssh.keys_only = false
     

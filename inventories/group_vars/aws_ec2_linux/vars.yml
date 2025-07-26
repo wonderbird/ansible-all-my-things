@@ -27,6 +27,6 @@ aws_default_ami_id: "ami-081c358c86e68b9f9"
 #
 # NOTE: t3.micro is sufficient for testing and it is free tier eligible.
 #
-aws_default_instance_type: "t3.medium"
+aws_default_instance_type: "t3.micro"
 
 admin_user_on_fresh_system: "ubuntu"

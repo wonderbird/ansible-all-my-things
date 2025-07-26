@@ -1,0 +1,16 @@
+---
+# Documentation of the secrets is given in `vars.yml`
+
+vault_my_ansible_user_password: "PROVIDE_PASSWORD_HERE"
+
+vault_my_ssh_key_name: "PROVIDE_SSH_KEY_NAME_HERE"
+
+vault_my_ssh_public_key: "PROVIDE_SSH_PUBLIC_KEY_HERE"
+
+vault_gnome_keyring_password: "PROVIDE_GNOME_KEYRING_PASSWORD_HERE"
+
+vault_windows_admin_password: "PROVIDE_STRONG_WINDOWS_PASSWORD_HERE"
+
+vault_galadriels_password: "PROVIDE_GALADRIELS_PASSWORD_HERE"
+
+vault_legolas_password: "PROVIDE_LEGOLAS_PASSWORD_HERE"

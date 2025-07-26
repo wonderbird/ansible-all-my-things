@@ -28,7 +28,7 @@ Install the Vagrant / Docker Provider stack as described in
 
 Configure your public key for connecting to the VM as described in the section about secrets in [/docs/important-concepts.md](../../docs/important-concepts.md).
 
-Load the SSH key matching the `my_ssh_public_key` configured in [/playbooks/vars-secrets.yml](../../playbooks/vars-secrets.yml) into your SSH agent.
+Load the SSH key matching the `my_ssh_public_key` configured in [/inventories/group_vars/all/vars.yml](../../inventories/group_vars/all/vars.yml) into your SSH agent.
 
 ## Running the test system
 

@@ -35,8 +35,7 @@ Different cloud providers and operating systems have varying SSH key type suppor
 
 The playbooks create user accounts and register SSH keys for passwordless login.
 
-The required secrets are expected in `/playbooks/vars-secrets.yml`. This file
-shall be encrypted with ansible vault.
+The required secrets are expected in `/inventories/group_vars/all/vault.yml`. This file shall be encrypted with ansible vault.
 
 The ansible vault password is expected in `/ansible-vault-password.txt`. This
 way, the Vagrant provisioners in the [/test](../test/) folders can access it.
@@ -52,13 +51,28 @@ echo -n "New ansible vault password: " \
   && read -s ANSIBLE_VAULT_PASSWORD \
   && echo "$ANSIBLE_VAULT_PASSWORD" > ./ansible-vault-password.txt
 
-# Create a new vars-secrets.yml file from the template
-cp -v ./playbooks/vars-secrets-template.yml ./playbooks/vars-secrets.yml \
-  && ansible-vault encrypt --vault-password-file ./ansible-vault-password.txt ./playbooks/vars-secrets.yml
+# Create a new vault.yml file from the template
+cp -v ./inventories/group_vars/all/vault-template.yml ./inventories/group_vars/all/vault.yml \
+&& ansible-vault encrypt --vault-password-file ./ansible-vault-password.txt ./inventories/group_vars/all/vault.yml
 
 # Replace the placeholders with your secrets
-ansible-vault edit --vault-password-file ./ansible-vault-password.txt ./playbooks/vars-secrets.yml
+ansible-vault edit --vault-password-file ./ansible-vault-password.txt ./inventories/group_vars/all/vault.yml
 ```
+
+### Work in progress: Apply idiomatic Ansible for secrets
+
+This is a pending refactoring: **Transition from encrypted playbook/vars-secrets.yml to encrypted inventories/group_vars/all/vars.yml**
+
+When setting up this project, I did not know how variables and secrets are handled in Ansible. Thus, I put encrypted variables into playbooks/vars-secrets.yml and excluded that file from git.
+
+Meanwhile I have learned that idiomatic ansible expects encrypted variables in inventory group variables. Thus, I want to move the playbooks/vars-secrets.yml file to inventories/group_vars/all/vars.yml.
+
+The steps required to achieve this goal are:
+
+- [x] refactor: remove vars.yml (The existing vars.yml can safely be deleted, because there are no variables inside)
+- [x] refactor: move vars-secrets.yml to vars.yml (exclude vars.yml from git and move the vars-secrets.yml file to inventories/group_vars/all)
+- [x] refactor: playbooks do not need to load vars-secrets.yml explicitly
+- [ ] fix: test/tart configuration must consider changed secret handling
 
 ## Admin user on fresh system differs per provider
 
@@ -85,7 +99,7 @@ the inventory files for the non-test systems.
 
 ## Desktop user accounts are used to log in
 
-[/playbooks/vars-secrets.yml](../playbooks/vars-secrets.yml) defines user names
+[/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml) defines user names
 and passwords for the `desktop_users`. These accounts are intended for logging
 into the (desktop) environment.
 

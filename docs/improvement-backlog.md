@@ -6,6 +6,7 @@
 
 ## In progress
 
+- [ ] Should the Ansible Vault be located somewhere else instead of in playbooks/vars-secrets.yml? E.g., under the respective inventory? Example: inventories/aws/group_vars/aws_windows
 
 ## Backlog
 
@@ -30,8 +31,6 @@ Sorted by priority - Last update: 2025-07-15
 - [ ] Configure the firewall on Hetzner the same way as on AWS
 
 - [ ] Move the non-secrets from the secrets to the vars.yml files
-
-- [ ] Should the Ansible Vault be located somewhere else instead of in playbooks/vars-secrets.yml? E.g., under the respective inventory? Example: inventories/aws/group_vars/aws_windows
 
 - [ ] AWS Linux computers should be configured in the same way as the Hetzner VM. Try to map the provider-specific configuration completely using the corresponding provisioner script. If this is not possible: Do provider-specific inventory groups help, e.g., “hcloud_linux,” “aws_linux,” “aws_windows”?
   - [ ] Convert setup scripts into roles if necessary; restrict playbooks to Windows/Linux – in particular, the hcloud playbooks contain “dev” or “all” as a restriction.

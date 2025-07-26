@@ -5,8 +5,6 @@
   gather_facts: False
 
   vars_files:
-    - ../playbooks/vars-secrets.yml
-    - ../inventories/group_vars/all/vars.yml
     - ../inventories/group_vars/windows/vars.yml
     - ../inventories/group_vars/aws_ec2/vars.yml
     - ../inventories/group_vars/aws_ec2_windows/vars.yml

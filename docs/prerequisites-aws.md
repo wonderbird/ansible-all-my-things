@@ -108,7 +108,7 @@ Create or import an SSH key pair in the AWS EC2 console:
 
 1. Go to EC2 → Key Pairs in your AWS console
 2. Either create a new key pair or import your existing public key
-3. Configure the key pair name in [/playbooks/vars-secrets.yml](../../playbooks/vars-secrets.yml) (see section on Ansible Vault Setup below)
+3. Configure the key pair name in [/inventories/group_vars/all/vars.yml](../../inventories/group_vars/all/vars.yml) (see section on Ansible Vault Setup below)
 4. Ensure you have the corresponding private key file (`.pem` format) in your `~/.ssh/` directory with permissions restricted to 600: `chmod 600 ~/.ssh/*pem`
 
 > [!IMPORTANT]
@@ -116,7 +116,7 @@ Create or import an SSH key pair in the AWS EC2 console:
 
 ## 3. Ansible Vault Setup for Encrypted Secrets
 
-Follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in [./ansible-vault-password.txt](./ansible-vault-password.txt) and in [./playbooks/vars-secrets.yml](./playbooks/vars-secrets.yml).
+Follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in [./ansible-vault-password.txt](./ansible-vault-password.txt) and in [./inventories/group_vars/all/vars.yml](./inventories/group_vars/all/vars.yml).
 
 ---
 
