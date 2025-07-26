@@ -1,3 +1,0 @@
----
-# Global variables for all instances across providers
-# These are base values that can be overridden by platform and provider-specific vars
