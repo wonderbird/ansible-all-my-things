@@ -17,7 +17,7 @@
     hcloud_server_type: "{{ hcloud_default_type | default('hcloud_default_type must be specified') }}"
     hcloud_server_location: "{{ hcloud_default_location | default('hcloud_default_location must be specified') }}"
     hcloud_ssh_key_name: "{{ my_ssh_key_name | default('my_ssh_key_name must be configured in vars-secrets.yml') }}"
-    hcloud_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
+    hcloud_token: "{{ my_hcloud_token | default('my_hcloud_token must be configured in vars-secrets.yml') }}"
 
   tasks:
     - name: Ensure required variables are defined
@@ -31,6 +31,7 @@
       hetzner.hcloud.server:
         state: present
         name: hobbiton
+        api_token: "{{ hcloud_token }}"
         labels:
           platform: "linux"
         server_type: "{{ hcloud_server_type }}"

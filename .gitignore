@@ -1,9 +1,7 @@
 # Skip secrets and vault password files
 *password*
 *secrets*
-
-# ... but keep the secrets template (it may only contain placeholders for secrets)
-!/playbooks/vars-secrets-template.yml
+/inventories/group_vars/all/vault.yml
 
 # Skip backup files
 *-backup.tar.gz

@@ -16,6 +16,7 @@
 # (5) https://docs.ansible.com/ansible/latest/collections/hetzner/hcloud/server_module.html#ansible-collections-hetzner-hcloud-server-module
 ---
 plugin: hetzner.hcloud.hcloud
+api_token: "{{ my_hcloud_token }}"
 
 keyed_groups:
   - key: labels.platform

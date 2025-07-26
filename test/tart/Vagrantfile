@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
     config.vm.provider "tart" do |tart|
       tart.image = "ghcr.io/cirruslabs/ubuntu:latest"
       tart.name = "lorien"
-      tart.disk = 20
+      tart.disk = 30
       tart.cpus = 4
       tart.memory = 8192
     end
