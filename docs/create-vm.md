@@ -135,7 +135,7 @@ To delete the VM and all associated resources, use the following command:
 ansible-playbook --vault-password-file ansible-vault-password.txt ./backup.yml
 
 # Destroy
-ansible-playbook ./destroy.yml
+ansible-playbook ./destroy.yml --vault-password-file=ansible-vault-password.txt
 ```
 
 --

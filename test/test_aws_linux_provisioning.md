@@ -5,6 +5,10 @@ Provision a minimal Ubuntu Linux VM on AWS (t3.micro), verify it is reachable an
 
 ## Manual Test Instructions
 
+### Prerequisite: Configure AWS Instance Size
+- This test requires valid AWS credentials, a configured SSH key, and a populated vault file. See [/docs/prerequisites-aws.md](../docs/create-vm.md) for more details.
+- In [/inventories/group_vars/aws_ec2_linux/vars.yml](../inventories/group_vars/aws_ec2_linux/vars.yml) assign the value `t3.micro` to the variable `aws_default_instance_type`. This instance type is free tier eligible. However, this is subject to AWS account limits.
+
 ### Step 1: Provision the Instance
 Run the following command from the project root:
 
@@ -34,13 +38,13 @@ ansible-playbook provision.yml \
 
 3. **Check connectivity and user:**
    ```shell
-   ansible linux -m shell -a 'whoami' --extra-vars "ansible_user=gandalf"
+   source ./configure.sh rivendell
+   ansible linux -m shell -a 'whoami' --extra-vars "ansible_user=gandalf" --vault-password-file=ansible-vault-password.txt
    ```
    - The output should show `gandalf` as the user.
 
 4. **(Optional) SSH directly to the instance:**
    ```shell
-   source ./configure.sh
    ssh galadriel@$IPV4_ADDRESS
    ```
    - Replace `galadriel` if your default user is different.
@@ -49,12 +53,7 @@ ansible-playbook provision.yml \
 To avoid AWS charges, destroy the instance after verification:
 
 ```shell
-ansible-playbook destroy.yml --vault-password-file ansible-vault-password.txt
+ansible-playbook destroy.yml --vault-password-file=ansible-vault-password.txt
 ```
 
 - This will remove the VM and associated resources.
-
-## Notes
-- This test requires valid AWS credentials, a configured SSH key, and a populated vault file.
-- The t3.micro instance type is free tier eligible (subject to AWS account limits).
-- No backup is performed in this minimal test. 

@@ -28,6 +28,6 @@ export AWS_DEFAULT_REGION
 echo ""
 echo "Using AWS region: $AWS_DEFAULT_REGION"
 
-IPV4_ADDRESS=$(ansible-inventory --list | jq --raw-output "._meta.hostvars.$HOSTNAME.ansible_host")
+IPV4_ADDRESS=$(ansible-inventory --list --vault-password-file ./ansible-vault-password.txt | jq --raw-output "._meta.hostvars.$HOSTNAME.ansible_host")
 export IPV4_ADDRESS
 echo "IP address of $HOSTNAME: $IPV4_ADDRESS"
