@@ -10,6 +10,29 @@ This occurred because:
 3. Vagrant's default inventory generation doesn't include the main project's group_vars structure
 4. The `my_ansible_user` variable is defined in `inventories/group_vars/all/vars.yml` but wasn't being loaded
 
+## Test to Reproduce the Problem
+
+### Prerequisite: Enable Logging of Secrets
+
+Enable logging of the "Setup accounts" task in the playbook [/playbooks/setup-users.yml](../../playbooks/setup-users.yml)
+
+### Test Provisioning a VM
+
+Execute the following test:
+
+```shell
+cd test/docker
+vagrant up
+```
+
+Expected: Success
+
+Actual: Fail with final message
+
+```json
+FAILED! => {"msg": "{{ console_users + desktop_users }}: [{'name': '{{ my_ansible_user }}', 'password': \"{{ my_ansible_user_password | default('my_ansible_user_password must be configured in inventory/group_vars/all/vault.yml') }}\"}]: 'my_ansible_user' is undefined"}
+```
+
 ## Analysis
 
 ### Current Architecture
@@ -19,6 +42,18 @@ This occurred because:
 
 ### Root Cause
 Vagrant creates its own inventory file (`.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory`) and the local `ansible.cfg` points to it, but this inventory doesn't include the group_vars from the main project structure.
+
+## Test to Reproduce the Root Cause
+Execute the following test:
+
+```shell
+cd test/docker
+ansible-playbook ../test_group_vars_loading.yml --vault-password-file ../../ansible-vault-password.txt
+```
+
+Expected: Success
+
+Actual: Fail with final message `Variables from group_vars/all/vars.yml are not automatically loaded`
 
 ## References
 - [Vagrant: Ansible Provisioner](https://developer.hashicorp.com/vagrant/docs/provisioning/ansible)
