@@ -99,10 +99,10 @@ Then run the following commands to verify the setup:
 ```shell
 # Check whether the server can be reached
 # Linux variant:
-ansible linux -m shell -a 'whoami' --extra-vars "ansible_user=gandalf"
+ansible linux -m shell -a 'whoami' --extra-vars "ansible_user=gandalf" --vault-password-file "ansible-vault-password.txt"
 
 # Windows variant using win_command
-ansible windows -m win_command -a 'whoami'
+ansible windows -m win_command -a 'whoami' --vault-password-file "ansible-vault-password.txt"
 ```
 
 >[!IMPORTANT]
@@ -113,7 +113,7 @@ You can also SSH directly to the instance. `IPV4_ADDRESS` is set by sourcing [/c
 
 ```shell
 # Configure your shell to work with the VM
-source ./configure.sh
+source ./configure.sh HOSTNAME
 
 # On Linux, galadriel is the default desktop user
 ssh galadriel@$IPV4_ADDRESS
