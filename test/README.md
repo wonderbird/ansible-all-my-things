@@ -8,6 +8,14 @@ The reason is that this project has been in a "proof of concept phase" until 202
 
 Now the project is transitioning from a "Genesis" stage to a more mature "Custom Built" stage [wardley2020], [harrer2023]. Thus, existing manual tests are documented in this directory. Automated tests are planned.
 
+### Test Suite Overview
+The test suite covers provisioning, configuration, and integration testing across multiple environments:
+- **Local testing**: Vagrant with Docker and Tart providers
+- **Cloud testing**: AWS EC2 instances
+- **Integration testing**: Group vars loading, inventory management, provisioner configuration
+
+Each test case is self-documenting with clear prerequisites, execution steps, and verification procedures.
+
 ## Test systems
 
 The test systems use Vagrant.
@@ -64,6 +72,49 @@ To delete a VM completely, consider backing it up first, then enter
 ```shell
 vagrant destroy -f
 ```
+
+## Quick Test Execution Guide
+
+### Prerequisites
+- Generate fresh SSH keys (see warning above)
+- Ensure vault password file exists: `ansible-vault-password.txt`
+- For AWS tests: Configure AWS credentials and SSH key
+
+### Running Tests
+Execute the test cases in the test folders:
+- `test/docker/` - Docker-based Vagrant tests
+- `test/tart/` - Tart-based Vagrant tests  
+- `test/test_*.md` - Individual test procedures
+
+### Test Execution Checklist
+- [ ] SSH keys refreshed after repository clone
+- [ ] Vault password file available
+- [ ] AWS credentials configured (for AWS tests)
+- [ ] Test environment matches test requirements
+- [ ] Clean up resources after testing
+
+### Troubleshooting
+- **SSH connection issues**: Verify SSH keys are loaded in agent
+- **Vault errors**: Check vault password file path and permissions
+- **AWS errors**: Verify credentials and region configuration
+- **Vagrant errors**: Check provider installation and system requirements
+
+## AWS Instance Type Guidelines
+
+### Recommended Instance Types for Testing
+- **t3.micro**: Default choice for all AWS tests
+  - Free tier eligible (subject to account limits)
+  - Sufficient for most testing scenarios
+  - Cost: ~$0.0104/hour
+- **t3.small**: Use only when t3.micro is insufficient
+  - For tests requiring more resources
+  - Cost: ~$0.0208/hour
+
+### Cost Considerations
+- Always destroy AWS instances after testing
+- Monitor AWS billing dashboard for unexpected charges
+- Consider using AWS free tier for development accounts
+- Use spot instances for longer-running tests when appropriate
 
 ## References
 
