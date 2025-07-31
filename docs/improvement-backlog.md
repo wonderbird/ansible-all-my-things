@@ -3,7 +3,7 @@
 ## Done
 
 - [x] Create a backup for configuration files in the home directory, especially for ~/.gitconfig
-
+  
 ## In progress
 
 - [ ] Should the Ansible Vault be located somewhere else instead of in playbooks/vars-secrets.yml? E.g., under the respective inventory? Example: inventories/aws/group_vars/aws_windows
@@ -11,6 +11,8 @@
 ## Backlog
 
 Sorted by priority - Last update: 2025-07-15
+
+- [ ] To provision Vagrant VMs, use the same `--extra-vars "provider=hcloud platform=linux"` mechanism as for cloud instances. The mechanism is described in [./create-vm.md](./create-vm.md). I assume that we can move the vagrant commands into a provisioner specific playbook and then provision and destroy the VMs like for the cloud instances.
 
 - [ ] Create a backup for the claude configuration files
 
