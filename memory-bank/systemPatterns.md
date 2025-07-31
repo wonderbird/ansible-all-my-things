@@ -21,8 +21,9 @@ Multi-Provider Infrastructure:
 - **Dynamic Inventory**: `amazon.aws.aws_ec2`, `hetzner.hcloud.hcloud` plugins plus static Vagrant inventories
 - **Platform Grouping**: Consistent linux/windows grouping across all providers including test environments
 - **SSH Key Management**: Single SSH key pair working across AWS, Hetzner Cloud, and test environments
-- **Credential Management**: Unified Ansible Vault patterns for all implementations
-- **Testing Integration**: Same inventory patterns and variable management in test environments
+- **Idiomatic Secret Management**: Vault-encrypted variables in `inventories/group_vars/all/vars.yml` ✅ NEW
+- **Automated Vault Access**: `ansible.cfg` with `vault_password_file` for seamless secret handling ✅ NEW
+- **Testing Integration**: Unified secret management across production and test environments ✅ ENHANCED
 
 ### Enhanced Inventory System ✅ COMPLETED & IMPROVED
 **Implemented Structure:**
@@ -33,7 +34,9 @@ inventories/
 ├── vagrant_docker.yml         # Vagrant Docker static inventory for testing
 ├── vagrant_tart.yml           # Vagrant Tart static inventory for testing
 ├── group_vars/
-│   ├── all/vars.yml           # Global variables (merged common vars)
+│   ├── all/
+│   │   ├── vars.yml           # Encrypted secrets (was playbooks/vars-secrets.yml) ✅ MOVED
+│   │   └── vault-template.yml # Secret documentation template ✅ NEW
 │   ├── linux/vars.yml         # Cross-provider Linux variables (hobbiton + rivendell + dagorlad + lorien)
 │   ├── windows/vars.yml       # Cross-provider Windows variables (moria)
 │   ├── aws_ec2/vars.yml       # AWS provider-specific overrides

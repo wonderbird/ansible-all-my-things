@@ -39,30 +39,30 @@
 - **Modular Architecture**: Clean separation of provisioning and configuration 
 - **Cross-Provider Documentation**: Comprehensive setup and usage instructions for all implementations
 
-## What's Next (Completed)
+## What's Next (Recently Completed)
 
-### Testing Infrastructure & Variable Management ✅ COMPLETED & OPERATIONAL
-- **Goal**: Reliable testing infrastructure with proper variable loading across test environments ✅ ACHIEVED
-- **Business Driver**: Project maturity - transition from "Genesis" to "Custom Built" stage with comprehensive testing ✅ COMPLETED
-- **Status**: Testing infrastructure implemented and variable loading issues resolved ✅ VERIFIED
-- **Foundation**: Built on enhanced inventory system with test-specific configurations ✅ UTILIZED
-- **Target**: Complete Vagrant-based testing with Docker and Tart providers using unified variable management ✅ IMPLEMENTED
-- **Structure**: Test environments integrated with main project inventory and group_vars structure ✅ IMPLEMENTED
-- **Benefits**: Reliable testing workflows preventing regression and enabling confident development ✅ DELIVERED
-- **Implementation**: Fixed undefined group_vars in test configurations and enhanced testing documentation ✅ COMPLETED
-- **Testing**: Manual testing procedures documented and verified across Docker and Tart providers ✅ VERIFIED
+### Idiomatic Ansible Configuration ✅ COMPLETED & OPERATIONAL
+- **Goal**: Apply idiomatic Ansible practices for secrets and variable management ✅ ACHIEVED
+- **Business Driver**: Technical debt elimination - modernizing configuration to follow Ansible best practices ✅ COMPLETED
+- **Status**: Complete transition from explicit vars loading to inventory group_vars structure ✅ VERIFIED
+- **Foundation**: Built on enhanced inventory system with proper secret management patterns ✅ UTILIZED
+- **Target**: Idiomatic variable and secret handling using Ansible inventory conventions ✅ IMPLEMENTED
+- **Structure**: Secrets now properly located in `inventories/group_vars/all/vars.yml` with template documentation ✅ IMPLEMENTED
+- **Benefits**: Simplified playbook maintenance and improved Ansible best practice compliance ✅ DELIVERED
+- **Implementation**: Refactored all playbooks to eliminate explicit vars file loading ✅ COMPLETED
+- **Testing**: Vagrant test configurations updated and verified for new secret handling ✅ VERIFIED
 
 **Implementation Summary:**
-- Fixed undefined `my_ansible_user` variable in test/docker and test/tart configurations
-- Integrated test environments with main project inventory structure (../../inventories)
-- Created vagrant_docker.yml and vagrant_tart.yml inventory files for test environments
-- Added vagrant_docker and vagrant_tart specific group_vars for proper admin user handling
-- Updated Vagrant configurations to use unified inventory approach
-- Enhanced testing documentation with step-by-step procedures and troubleshooting guides
-- Established SSH key security guidelines for safe testing environments
-- Created comprehensive manual testing procedures for Docker and Tart providers
-- Documented AWS testing cost management guidelines
-- Successfully verified testing infrastructure across multiple providers
+- Moved secrets from `playbooks/vars-secrets.yml` to `inventories/group_vars/all/vars.yml` (encrypted)
+- Updated `ansible.cfg` to include `vault_password_file = ansible-vault-password.txt` for automated vault access
+- Removed explicit `vars_files` loading from all playbooks for cleaner, idiomatic configuration
+- Created `vault-template.yml` documenting all required secret variables
+- Fixed Vagrant test configurations (Docker and Tart) to work with new secret handling
+- Enhanced Windows provisioning with proper shell type configuration
+- Updated testing documentation for new vault password file handling
+- Verified idiomatic variable loading works across all production and test environments
+- Established Ansible best practices for maintainable secret management
+- Successfully tested new configuration across all providers and platforms
 
 ## Cross-Provider Implementation Status ✅ ALL COMPLETED & TESTED
 

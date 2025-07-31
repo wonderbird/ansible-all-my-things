@@ -54,7 +54,7 @@ hcloud >= 1.16.0           # Hetzner Cloud CLI (optional)
 aws CLI                    # AWS credential management
 ```
 
-### Multi-Provider Environment Configuration
+### Multi-Provider Environment Configuration ✅ ENHANCED WITH IDIOMATIC ANSIBLE
 ```bash
 # Production Environment Credentials
 # AWS credentials (for rivendell and moria)
@@ -65,13 +65,13 @@ export AWS_DEFAULT_REGION="eu-north-1"
 # Hetzner Cloud credentials (for hobbiton)
 export HCLOUD_TOKEN="your-hcloud-token"
 
-# Ansible configuration (unified across production and testing)
-export ANSIBLE_VAULT_PASSWORD_FILE="./ansible-vault-password.txt"
+# Ansible configuration (automated vault password handling)
+# Note: ansible.cfg now includes vault_password_file = ansible-vault-password.txt
 export ANSIBLE_HOST_KEY_CHECKING=False
 
-# Testing Environment Setup
-# Vagrant-based testing requires fresh SSH keys (see test/README.md)
-# No additional credentials needed for Docker/Tart providers
+# No need to set ANSIBLE_VAULT_PASSWORD_FILE - now handled by ansible.cfg ✅ IMPROVED
+# Testing Environment Setup - uses same automated vault configuration
+# Vagrant-based testing uses unified inventory structure (see test/README.md)
 ```
 
 ### Ansible Collections ✅ IMPLEMENTED & TESTED
@@ -101,12 +101,14 @@ ansible-all-my-things/
 ├── Cleanup:
 │   ├── destroy.yml               # Hetzner Cloud cleanup ✅ WORKING
 │   └── destroy-aws.yml           # AWS unified cleanup ✅ WORKING
-├── Unified Inventory:
+├── Unified Inventory & Idiomatic Configuration:
 │   ├── inventories/aws_ec2.yml   # AWS inventory (rivendell, moria) ✅ WORKING
 │   ├── inventories/hcloud.yml    # Hetzner inventory (hobbiton) ✅ WORKING
-│   ├── inventories/vagrant_docker.yml # Docker testing inventory (dagorlad) ✅ NEW
-│   ├── inventories/vagrant_tart.yml   # Tart testing inventory (lorien) ✅ NEW
-│   └── inventories/group_vars/   # Provider-aware variables including test providers ✅ ENHANCED
+│   ├── inventories/vagrant_docker.yml # Docker testing inventory (dagorlad) ✅ WORKING
+│   ├── inventories/vagrant_tart.yml   # Tart testing inventory (lorien) ✅ WORKING
+│   └── inventories/group_vars/   # Provider-aware variables with idiomatic secret handling ✅ ENHANCED
+│       └── all/vars.yml          # Encrypted secrets (was playbooks/vars-secrets.yml) ✅ NEW
+│       └── all/vault-template.yml # Secret documentation template ✅ NEW
 ├── Provider Provisioners:
 │   ├── provisioners/hcloud.yml   # Hetzner provisioning ✅ WORKING
 │   ├── provisioners/aws-linux.yml  # AWS Linux provisioning ✅ WORKING
