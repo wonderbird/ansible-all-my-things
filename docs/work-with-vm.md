@@ -23,11 +23,11 @@ Now you can open an RDP client like Remmina, Windows App or Remote Desktop to co
 
 ## GNOME keyring password is login password
 
-The GNOME keyring needs to be unlocked when you launch an application using it, e.g. Visual Studio Code. The password is configured in `/inventories/group_vars/all/vars.yml`.
+The GNOME keyring needs to be unlocked when you launch an application using it, e.g. Visual Studio Code. The password is configured in [/inventories/group_vars/all/vault.yml](../inventories/group_vars/all/vault.yml).
 
 ## Backup working directory of desktop user
 
-To backup the working directory of the first desktop user listed in `/inventories/group_vars/all/vars.yml`, use the following command:
+To backup the working directory of the first desktop user listed in [/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml), use the following command:
 
 ```shell
 ansible-playbook --vault-password-file ansible-vault-password.txt ./backup.yml
