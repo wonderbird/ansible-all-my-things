@@ -2,9 +2,6 @@
 - hosts: linux
   become: true
   
-  vars_files:
-    - vars-usernames.yml
-
   vars:
     ansible_user: "{{ my_ansible_user }}"
 
