@@ -30,7 +30,7 @@ The GNOME keyring needs to be unlocked when you launch an application using it, 
 To backup the working directory of the first desktop user listed in [/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml), use the following command:
 
 ```shell
-ansible-playbook --vault-password-file ansible-vault-password.txt ./backup.yml
+ansible-playbook ./backup.yml
 ```
 
 ## Restore a backup of the desktop user
@@ -43,7 +43,7 @@ Restoring the backup is a part of the [../configure.yml](../configure.yml) playb
 To restore a backup later manually, use the following command:
 
 ```shell
-ansible-playbook --vault-password-file ansible-vault-password.txt ./restore.yml
+ansible-playbook ./restore.yml
 ```
 
 --

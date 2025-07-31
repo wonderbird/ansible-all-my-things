@@ -46,7 +46,7 @@ Provision either a Docker or Tart VM following the corresponding README file:
    # Replace HOSTNAME by dagorlad when using Docker or by lorien when using Tart
    source ./configure.sh HOSTNAME
 
-   ansible linux -m shell -a 'whoami' --extra-vars "ansible_user=gandalf" --vault-password-file ansible-vault-password.txt
+   ansible linux -m shell -a 'whoami' --extra-vars "ansible_user=gandalf"
    ```
 
    - The output should show `gandalf` as the user.

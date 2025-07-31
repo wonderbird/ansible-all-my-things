@@ -18,12 +18,12 @@ Run the following commands from the project root:
 
 ```shell
 # Start Linux instance "rivendell"
-ansible-playbook --vault-password-file ansible-vault-password.txt ./provision.yml --extra-vars "provider=aws platform=linux"
+ansible-playbook ./provision.yml --extra-vars "provider=aws platform=linux"
 
 # Wait until the security group has been configured
 
 # Start Windows instance "moria"
-ansible-playbook --vault-password-file ansible-vault-password.txt ./provision.yml --extra-vars "provider=aws platform=windows"
+ansible-playbook ./provision.yml --extra-vars "provider=aws platform=windows"
 
 # It will take some minutes until the SSH host key is shown
 ```
@@ -34,15 +34,15 @@ ansible-playbook --vault-password-file ansible-vault-password.txt ./provision.ym
 
 ### Step 2: Verify the Instance
 
-#### 1. Show the inventory:
+#### 1. Show the inventory
 
 ```shell
 ansible-inventory --graph
 ```
 
-- You should see the new instances listed under the `linux` group and under the `windows` group, respectively.
+You should see the new instances listed under the `linux` group and under the `windows` group, respectively. Note that the instances will also be part of other groups.
 
-#### 2. Load your SSH key into the agent:
+#### 2. Load your SSH key into the agent
 
 ```shell
 ssh-add ~/.ssh/user@host.pem
@@ -50,19 +50,19 @@ ssh-add ~/.ssh/user@host.pem
 
 Replace `user@host.pem` with your actual private key filename.
 
-#### 3. Check connectivity and user:
+#### 3. Check connectivity and user
 
 ```shell
 source ./configure.sh rivendell
-ansible rivendell -m shell -a 'whoami' --extra-vars "ansible_user=gandalf" --vault-password-file=ansible-vault-password.txt
+ansible rivendell -m shell -a 'whoami' --extra-vars "ansible_user=gandalf"
 
 source ./configure.sh moria
-ansible moria -m win_command -a 'whoami' --extra-vars "ansible_user=Administrator" --vault-password-file ansible-vault-password.txt
+ansible moria -m win_command -a 'whoami' --extra-vars "ansible_user=Administrator"
 ```
 
 The output should show `gandalf` for Linux and `administrator` for Windows as the user.
 
-#### 4. (Optional) SSH and RDP directly to the instance:
+#### 4. (Optional) SSH and RDP directly to the instance
 
 ```shell
 # For the Linux instance
@@ -83,7 +83,7 @@ Replace `galadriel` if your default user is different.
 To avoid AWS charges, destroy the instance after verification:
 
 ```shell
-ansible-playbook --vault-password-file ansible-vault-password.txt ./destroy.yml
+ansible-playbook ./destroy.yml
 ```
 
 This will remove the VM and associated resources.
