@@ -23,7 +23,7 @@ vagrant up
 cd ../..
 
 # Install packages for this particular system type
-ansible-playbook configure-linux.yml --skip-tags "not-supported-on-vagrant-arm64,not-supported-on-vagrant-docker" --vault-password-file ansible-vault-password.txt
+ansible-playbook --vault-password-file ansible-vault-password.txt ./configure-linux.yml --skip-tags "not-supported-on-vagrant-arm64,not-supported-on-vagrant-docker"
 ```
 
 ## References

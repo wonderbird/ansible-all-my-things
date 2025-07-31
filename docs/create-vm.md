@@ -60,7 +60,7 @@ echo -n "hcloud API token: "; read -s HCLOUD_TOKEN; export HCLOUD_TOKEN; export 
 Create the server using the following command:
 
 ```shell
-ansible-playbook provision.yml --vault-password-file ansible-vault-password.txt --extra-vars "provider=hcloud platform=linux"
+ansible-playbook --vault-password-file ansible-vault-password.txt ./provision.yml --extra-vars "provider=hcloud platform=linux"
 ```
 
 The `provider` parameter can be one of
@@ -135,7 +135,7 @@ To delete the VM and all associated resources, use the following command:
 ansible-playbook --vault-password-file ansible-vault-password.txt ./backup.yml
 
 # Destroy
-ansible-playbook ./destroy.yml --vault-password-file=ansible-vault-password.txt
+ansible-playbook --vault-password-file ansible-vault-password.txt ./destroy.yml
 ```
 
 --

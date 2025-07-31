@@ -21,5 +21,5 @@ vagrant up
 tart ip lorien
 
 # Install packages for this particular system type
-ansible-playbook configure-linux.yml --skip-tags "not-supported-on-vagrant-arm64" --vault-password-file ansible-vault-password.txt
+ansible-playbook --vault-password-file ansible-vault-password.txt ./configure-linux.yml --skip-tags "not-supported-on-vagrant-arm64"
 ```
