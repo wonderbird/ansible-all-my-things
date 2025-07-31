@@ -2,22 +2,28 @@
 
 ## Architecture Overview
 
-### Cross-Provider Infrastructure System ✅ IMPLEMENTED
-**Current Reality**: Three production-ready implementations across providers and platforms
+### Cross-Provider Infrastructure System ✅ IMPLEMENTED & TESTED
+**Current Reality**: Three production-ready implementations plus comprehensive testing framework
 
 **Proven Architecture:**
 ```
 Multi-Provider Infrastructure:
-├── Hetzner Cloud Linux (hobbiton)     # Complete desktop development environment
-├── AWS Linux (rivendell)              # On-demand development server  
-└── AWS Windows (moria)                # Windows application server
+├── Production Environments:
+│   ├── Hetzner Cloud Linux (hobbiton)     # Complete desktop development environment
+│   ├── AWS Linux (rivendell)              # On-demand development server  
+│   └── AWS Windows (moria)                # Windows application server
+└── Testing Environments:
+    ├── Vagrant Docker (dagorlad)          # Linux testing with Docker provider
+    └── Vagrant Tart (lorien)              # macOS-compatible testing environment
 ```
 
 **Cross-Provider Patterns ✅ WORKING:**
-- **Dynamic Inventory**: Both `amazon.aws.aws_ec2` and `hetzner.hcloud.hcloud` plugins
-- **Platform Grouping**: Consistent linux/windows grouping across all providers
-- **SSH Key Management**: Single SSH key pair working across AWS and Hetzner Cloud
-- **Credential Management**: Unified Ansible Vault patterns for all implementations
+- **Dynamic Inventory**: `amazon.aws.aws_ec2`, `hetzner.hcloud.hcloud` plugins plus static Vagrant inventories
+- **Platform Grouping**: Consistent linux/windows grouping across all providers including test environments
+- **SSH Key Management**: Single SSH key pair working across AWS, Hetzner Cloud, and test environments
+- **Idiomatic Secret Management**: Vault-encrypted variables in `inventories/group_vars/all/vars.yml` ✅ NEW
+- **Automated Vault Access**: `ansible.cfg` with `vault_password_file` for seamless secret handling ✅ NEW
+- **Testing Integration**: Unified secret management across production and test environments ✅ ENHANCED
 
 ### Enhanced Inventory System ✅ COMPLETED & IMPROVED
 **Implemented Structure:**
@@ -25,54 +31,95 @@ Multi-Provider Infrastructure:
 inventories/
 ├── aws_ec2.yml                # AWS dynamic inventory with dual keyed_groups
 ├── hcloud.yml                 # Hetzner Cloud dynamic inventory with dual keyed_groups
+├── vagrant_docker.yml         # Vagrant Docker static inventory for testing
+├── vagrant_tart.yml           # Vagrant Tart static inventory for testing
 ├── group_vars/
-│   ├── all/vars.yml           # Global variables (merged common vars)
-│   ├── linux/vars.yml         # Cross-provider Linux variables (hobbiton + rivendell)
+│   ├── all/
+│   │   ├── vars.yml           # Encrypted secrets (was playbooks/vars-secrets.yml) ✅ MOVED
+│   │   └── vault-template.yml # Secret documentation template ✅ NEW
+│   ├── linux/vars.yml         # Cross-provider Linux variables (hobbiton + rivendell + dagorlad + lorien)
 │   ├── windows/vars.yml       # Cross-provider Windows variables (moria)
 │   ├── aws_ec2/vars.yml       # AWS provider-specific overrides
 │   ├── aws_ec2_linux/vars.yml # AWS Linux-specific variables
 │   ├── aws_ec2_windows/vars.yml # AWS Windows-specific variables
 │   ├── hcloud/vars.yml        # Hetzner provider-specific overrides
-│   └── hcloud_linux/vars.yml  # Hetzner Linux-specific variables
+│   ├── hcloud_linux/vars.yml  # Hetzner Linux-specific variables
+│   ├── vagrant_docker/vars.yml # Vagrant Docker provider-specific variables
+│   └── vagrant_tart/vars.yml   # Vagrant Tart provider-specific variables
 ├── requirements.txt           # Python dependencies for multi-provider support
 └── requirements.yml           # Ansible collections for all providers
 ```
 
-**Enhanced Inventory Pattern ✅ IMPLEMENTED & IMPROVED:**
-- **Dual Group Structure**: Both cross-provider (@linux, @windows) and provider-specific (@aws_ec2_linux, @hcloud_linux) groups ✅ IMPLEMENTED
-- **Enhanced Targeting**: Fine-grained automation control with provider-specific groups ✅ WORKING
+**Enhanced Inventory Pattern ✅ IMPLEMENTED & TESTED:**
+- **Dual Group Structure**: Both cross-provider (@linux, @windows) and provider-specific (@aws_ec2_linux, @hcloud_linux, @vagrant_docker, @vagrant_tart) groups ✅ IMPLEMENTED
+- **Enhanced Targeting**: Fine-grained automation control with provider-specific groups including test environments ✅ WORKING
 - **Improved Tag Semantics**: `platform: "linux"` instead of `ansible_group: "linux"` for clarity ✅ IMPLEMENTED
-- **Enhanced Variable Precedence**: all → platform → provider → provider_platform hierarchy ✅ IMPLEMENTED
+- **Enhanced Variable Precedence**: all → platform → provider → provider_platform hierarchy including test providers ✅ IMPLEMENTED
 - **Backward Compatibility**: Existing playbooks continue working while enabling enhanced features ✅ VERIFIED
 - **Dependency Management**: Streamlined setup with requirements files ✅ COMPLETED
+- **Testing Integration**: Test environments follow same inventory patterns as production ✅ VERIFIED
 
 ### Implemented Cross-Provider Playbook Structure
 ```
 Cross-Provider Patterns:
-├── Hetzner Cloud Linux:  provision.yml → provisioners/hcloud.yml → configure.yml
-├── AWS Linux:            provision-aws-linux.yml → provisioners/aws-linux.yml
-├── AWS Windows:          provision-aws-windows.yml → provisioners/aws-windows.yml → configure-aws-windows.yml
-└── Unified Cleanup:      destroy.yml (Hetzner) / destroy-aws.yml (AWS)
+├── Production Environments:
+│   ├── Hetzner Cloud Linux:  provision.yml → provisioners/hcloud.yml → configure.yml
+│   ├── AWS Linux:            provision-aws-linux.yml → provisioners/aws-linux.yml
+│   ├── AWS Windows:          provision-aws-windows.yml → provisioners/aws-windows.yml → configure-aws-windows.yml
+│   └── Unified Cleanup:      destroy.yml (Hetzner) / destroy-aws.yml (AWS)
+└── Testing Environments:
+    ├── Vagrant Docker:       vagrant up → configure-linux.yml (via Vagrantfile)
+    └── Vagrant Tart:         vagrant up → configure-linux.yml (via Vagrantfile)
 ```
 
 **Separation of Concerns (Achieved):**
 - **Provision Layer**: Provider-specific infrastructure creation with platform-specific configurations
 - **Configuration Layer**: Platform-specific system setup and application installation  
 - **Unified Patterns**: Consistent structure across providers with provider-specific optimizations
+- **Testing Layer**: Vagrant-based testing environments using same configuration patterns as production
 
-### Multi-Provider Pattern (Implemented)
+### Multi-Provider Pattern (Implemented & Tested)
 All implementations follow consistent structure with provider and platform-specific implementations:
 ```
+Production Environments:
 Hetzner Cloud Linux:  provision.yml → configure.yml → destroy.yml
 AWS Linux:            provision-aws-linux.yml → destroy-aws.yml
 AWS Windows:          provision-aws-windows.yml → configure-aws-windows.yml → destroy-aws.yml
+
+Testing Environments:
+Vagrant Docker:       vagrant up → configure-linux.yml → vagrant destroy
+Vagrant Tart:         vagrant up → configure-linux.yml → vagrant destroy
 ```
 
+### Testing Infrastructure Pattern (Implemented)
+**Problem Resolved**: Fixed undefined group_vars in test environments by integrating with main inventory structure
+
+**Testing Architecture:**
+```
+Testing Infrastructure:
+├── test/docker/               # Vagrant Docker provider testing
+│   ├── Vagrantfile              # Docker provider configuration with inventory integration
+│   ├── ansible.cfg              # Points to ../../inventories for unified variable loading
+│   └── README.md                # Testing procedures and documentation
+├── test/tart/                 # Vagrant Tart provider testing
+│   ├── Vagrantfile              # Tart provider configuration with inventory integration
+│   ├── ansible.cfg              # Points to ../../inventories for unified variable loading
+│   └── README.md                # Testing procedures and documentation
+└── test/README.md             # Overall testing framework documentation
+```
+
+**Key Testing Patterns:**
+- **Unified Variable Loading**: Test environments use main project inventory structure (../../inventories)
+- **Provider-Specific Variables**: vagrant_docker and vagrant_tart group_vars for admin user handling
+- **Consistent Patterns**: Test environments follow same configuration patterns as production
+- **Security Integration**: SSH key management and security guidelines for testing environments
+
 **Provider Abstraction Achieved:**
-- **Common Interface**: Similar command patterns across providers
-- **Provider-Specific Optimizations**: Each provider optimized for its strengths
-- **Consistent Patterns**: Same architectural principles applied differently
-- **Unified User Experience**: Predictable workflows regardless of provider
+- **Common Interface**: Similar command patterns across providers including test environments
+- **Provider-Specific Optimizations**: Each provider optimized for its strengths (production) and testing needs
+- **Consistent Patterns**: Same architectural principles applied across production and test environments
+- **Unified User Experience**: Predictable workflows regardless of provider or environment type
+- **Testing Integration**: Test environments follow production patterns for reliable validation
 
 ## Key Technical Decisions
 

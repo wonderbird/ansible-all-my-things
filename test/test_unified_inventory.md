@@ -46,13 +46,16 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 ansible-inventory --graph
 
 # GIVEN hobbiton is a Linux instance hosted in the Hetzner Cloud
-ansible-playbook provision.yml --vault-password-file ansible-vault-password.txt
+ansible-playbook ./provision.yml --extra-vars "provider=hcloud platform=linux"
+# Press CTRL+C to terminate the provisioner when it presents the SSH host key and asks whether to continue
 
 # AND rivendell is a Linux instance hosted in the AWS EC2 cloud
-ansible-playbook provision-aws-linux.yml --vault-password-file ansible-vault-password.txt
+ansible-playbook ./provision.yml --extra-vars "provider=aws platform=linux"
+# Press CTRL+C to terminate the provisioner when it presents the SSH host key and asks whether to continue
 
 # AND moria is a Windows instance hosted in the AWS EC2 cloud
-ansible-playbook provision-aws-windows.yml --vault-password-file ansible-vault-password.txt
+ansible-playbook ./provision.yml --extra-vars "provider=aws platform=windows"
+# Press CTRL+C to terminate the provisioner when it presents the SSH host key and asks whether to continue
 
 # WHEN I execute the command `ansible-inventory --graph`
 ansible-inventory --graph
@@ -60,8 +63,7 @@ ansible-inventory --graph
 # THEN I see the output ... (requires manual verification)
 
 # Test destroying all instances
-ansible-playbook destroy.yml
-ansible-playbook destroy-aws.yml
+ansible-playbook ./destroy.yml
 
 # Assert: No instances are running
 ansible-inventory --graph

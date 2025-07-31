@@ -5,8 +5,6 @@
   gather_facts: False
 
   vars_files:
-    - ../playbooks/vars-secrets.yml
-    - ../inventories/group_vars/all/vars.yml
     - ../inventories/group_vars/windows/vars.yml
     - ../inventories/group_vars/aws_ec2/vars.yml
     - ../inventories/group_vars/aws_ec2_windows/vars.yml
@@ -21,6 +19,14 @@
     aws_instance_name: "moria"
 
   tasks:
+    # For Windows, the default shell is PowerShell. Because the provision script
+    # runs on localhost, we stick to sh and must override the shell type
+    # imported above from ../inventories/group_vars/windows/vars.yml.
+    - name: Override powershell by sh
+      set_fact:
+        ansible_shell_type: sh
+        ansible_shell_executable: /bin/sh
+
     - name: Get current public IP for security group
       ansible.builtin.uri:
         url: https://ipinfo.io/ip

@@ -10,39 +10,16 @@ If the system is running while you change the configuration, restart it by
 vagrant reload
 ```
 
-## Run the test system
-
-The following instructions show how to run a test system with Vagrant.
-For the Docker provider, executed the same commands from the `test/docker`
-folder.
+## Provisioning the Test System
 
 ```shell
-cd test/tart
-
-# Initialize the local test system
+# Provision the system
 vagrant up
 
-# Verify the configuration
-# The following command should show that ansible uses the user configured
-# in Vagrantfile (extra_vars) and the host name is "lorien"
-ansible linux -m shell -a "whoami"
+# Update the IP address in the inventory file /inventories/vagrant_tart.yml
+# Query the IP address as follows:
+tart ip lorien
 
-# List the users we have added to the system
-ansible linux -m shell -a 'ls /home'
-
-# Stop the local test system
-vagrant halt
-
-# Restart the local test system
-# Note that booting will take about a minute, because the desktop environment
-# needs to be loaded.
-vagrant up
-
-# Destroy the local test system
-vagrant destroy -f
+# Install packages for this particular system type
+ansible-playbook ./configure-linux.yml --skip-tags "not-supported-on-vagrant-arm64"
 ```
-
-## Log in as the desktop user
-
-Refer to [Work with a VM](../../docs/work-with-vm.md) for instructions on how to
-log in as the desktop user.
