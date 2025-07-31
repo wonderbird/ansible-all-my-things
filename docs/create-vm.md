@@ -102,7 +102,7 @@ Then run the following commands to verify the setup:
 ansible linux -m shell -a 'whoami' --extra-vars "ansible_user=gandalf" --vault-password-file "ansible-vault-password.txt"
 
 # Windows variant using win_command
-ansible windows -m win_command -a 'whoami' --vault-password-file "ansible-vault-password.txt"
+ansible windows -m win_command -a 'whoami' --extra-vars "ansible_user=Administrator" --vault-password-file ansible-vault-password.txt
 ```
 
 >[!IMPORTANT]
