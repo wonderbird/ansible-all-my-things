@@ -2,10 +2,8 @@
 
 ## Architecture Overview
 
-### Cross-Provider Infrastructure System ✅ IMPLEMENTED & TESTED
-**Current Reality**: Three production-ready implementations plus comprehensive testing framework
-
-**Proven Architecture:**
+### Multi-Provider Infrastructure System
+**Current Architecture:**
 ```
 Multi-Provider Infrastructure:
 ├── Production Environments:
@@ -17,31 +15,27 @@ Multi-Provider Infrastructure:
     └── Vagrant Tart (lorien)              # macOS-compatible testing environment
 ```
 
-**Cross-Provider Patterns ✅ WORKING:**
-- **Dynamic Inventory**: `amazon.aws.aws_ec2`, `hetzner.hcloud.hcloud` plugins plus static Vagrant inventories
+**Cross-Provider Patterns:**
+- **Multi-Source Inventory**: Dynamic inventory (AWS, Hetzner) plus static inventory (Vagrant)
 - **Platform Grouping**: Consistent linux/windows grouping across all providers including test environments
-- **SSH Key Management**: Single SSH key pair working across AWS, Hetzner Cloud, and test environments
-- **Idiomatic Secret Management**: Vault-encrypted variables in `inventories/group_vars/all/vars.yml` ✅ NEW
-- **Automated Vault Access**: `ansible.cfg` with `vault_password_file` for seamless secret handling ✅ NEW
-- **Testing Integration**: Unified secret management across production and test environments ✅ ENHANCED
+- **SSH Key Management**: Single SSH key pair working across all environments
+- **Idiomatic Secret Management**: Vault-encrypted variables in `inventories/group_vars/all/vars.yml`
+- **Automated Vault Access**: `ansible.cfg` with `vault_password_file` for seamless secret handling
+- **Unified Command Target**: Extending consistent `provision.yml` pattern to all environments
 
-### Enhanced Inventory System ✅ COMPLETED & IMPROVED
-**Implemented Structure:**
+### Enhanced Inventory System
+**Current Structure:**
 ```
 inventories/
-├── aws_ec2.yml                # AWS dynamic inventory with dual keyed_groups
-├── hcloud.yml                 # Hetzner Cloud dynamic inventory with dual keyed_groups
+├── aws_ec2.yml                # AWS dynamic inventory
+├── hcloud.yml                 # Hetzner Cloud dynamic inventory
 ├── vagrant_docker.yml         # Vagrant Docker static inventory for testing
 ├── vagrant_tart.yml           # Vagrant Tart static inventory for testing
 ├── group_vars/
 │   ├── all/
-│   │   ├── vars.yml           # Encrypted secrets (was playbooks/vars-secrets.yml) ✅ MOVED
-│   │   └── vault-template.yml # Secret documentation template ✅ NEW
-│   ├── linux/vars.yml         # Cross-provider Linux variables (hobbiton + rivendell + dagorlad + lorien)
-│   ├── windows/vars.yml       # Cross-provider Windows variables (moria)
-│   ├── aws_ec2/vars.yml       # AWS provider-specific overrides
-│   ├── aws_ec2_linux/vars.yml # AWS Linux-specific variables
-│   ├── aws_ec2_windows/vars.yml # AWS Windows-specific variables
+│   │   ├── vars.yml           # Encrypted secrets (idiomatic location)
+│   │   └── vault-template.yml # Secret documentation template
+│   ├── linux/vars.yml         # Cross-provider Linux variables
 │   ├── hcloud/vars.yml        # Hetzner provider-specific overrides
 │   ├── hcloud_linux/vars.yml  # Hetzner Linux-specific variables
 │   ├── vagrant_docker/vars.yml # Vagrant Docker provider-specific variables
@@ -50,33 +44,32 @@ inventories/
 └── requirements.yml           # Ansible collections for all providers
 ```
 
-**Enhanced Inventory Pattern ✅ IMPLEMENTED & TESTED:**
-- **Dual Group Structure**: Both cross-provider (@linux, @windows) and provider-specific (@aws_ec2_linux, @hcloud_linux, @vagrant_docker, @vagrant_tart) groups ✅ IMPLEMENTED
-- **Enhanced Targeting**: Fine-grained automation control with provider-specific groups including test environments ✅ WORKING
-- **Improved Tag Semantics**: `platform: "linux"` instead of `ansible_group: "linux"` for clarity ✅ IMPLEMENTED
-- **Enhanced Variable Precedence**: all → platform → provider → provider_platform hierarchy including test providers ✅ IMPLEMENTED
-- **Backward Compatibility**: Existing playbooks continue working while enabling enhanced features ✅ VERIFIED
-- **Dependency Management**: Streamlined setup with requirements files ✅ COMPLETED
-- **Testing Integration**: Test environments follow same inventory patterns as production ✅ VERIFIED
+**Enhanced Inventory Patterns:**
+- **Dual Group Structure**: Both cross-provider (@linux, @windows) and provider-specific (@hcloud_linux, @vagrant_docker) groups
+- **Enhanced Targeting**: Fine-grained automation control with provider-specific groups including test environments
+- **Improved Tag Semantics**: `platform: "linux"` instead of `ansible_group: "linux"` for clarity
+- **Enhanced Variable Precedence**: all → platform → provider → provider_platform hierarchy including test providers
+- **Dependency Management**: Streamlined setup with requirements files
+- **Testing Integration**: Test environments follow same inventory patterns as production
 
-### Implemented Cross-Provider Playbook Structure
+### Current Cross-Provider Playbook Structure
 ```
 Cross-Provider Patterns:
 ├── Production Environments:
 │   ├── Hetzner Cloud Linux:  provision.yml → provisioners/hcloud.yml → configure.yml
-│   ├── AWS Linux:            provision-aws-linux.yml → provisioners/aws-linux.yml
-│   ├── AWS Windows:          provision-aws-windows.yml → provisioners/aws-windows.yml → configure-aws-windows.yml
+│   ├── AWS Multi-Platform:   provision-aws-*.yml → provisioners/aws-*.yml → configure-*.yml
 │   └── Unified Cleanup:      destroy.yml (Hetzner) / destroy-aws.yml (AWS)
-└── Testing Environments:
-    ├── Vagrant Docker:       vagrant up → configure-linux.yml (via Vagrantfile)
-    └── Vagrant Tart:         vagrant up → configure-linux.yml (via Vagrantfile)
+└── Testing Environments (Current Gap):
+    ├── Vagrant Docker:       vagrant up → configure-linux.yml (INCONSISTENT PATTERN)
+    └── TARGET: Unified:      provision.yml --extra-vars "provider=vagrant_docker platform=linux"
 ```
 
-**Separation of Concerns (Achieved):**
+**Separation of Concerns:**
 - **Provision Layer**: Provider-specific infrastructure creation with platform-specific configurations
 - **Configuration Layer**: Platform-specific system setup and application installation  
 - **Unified Patterns**: Consistent structure across providers with provider-specific optimizations
 - **Testing Layer**: Vagrant-based testing environments using same configuration patterns as production
+- **Current Gap**: Vagrant environments need unified command pattern integration
 
 ### Multi-Provider Pattern (Implemented & Tested)
 All implementations follow consistent structure with provider and platform-specific implementations:
@@ -344,55 +337,37 @@ graph TD
 - Handles admin user differences: AWS Linux (ubuntu), Hetzner Linux (root), AWS Windows (Administrator)
 - Enhanced granularity for provider-specific automation while maintaining cross-provider capabilities
 
-### Windows Application Support (Framework Ready)
-**Established Pattern for Additional Applications**:
-1. Use existing Windows Server infrastructure (provisioners/aws-windows.yml)
-2. Extend configure-aws-windows.yml with additional Chocolatey packages
-3. Leverage established SSH and RDP access patterns
-4. Test via SSH for command-line functionality and RDP for desktop applications
+### Future Extension Opportunities
+**Additional Vagrant Providers**: Extend unified command pattern to Vagrant Tart and other providers
+**Enhanced Testing**: Automated test suites leveraging unified command patterns
+**CI/CD Integration**: Unified provisioning in continuous integration workflows
+**Monitoring Integration**: Comprehensive infrastructure monitoring across providers
 
-### Future Windows Development Environment
-**Available Extensions**:
-- Visual Studio installation via Chocolatey
-- .NET development environment setup
-- Windows-specific development tools (Git, Docker Desktop, etc.)
-- Multiple Windows-only applications per instance
+## Provider Differences Reference (Focus Areas)
 
-## Provider Differences Reference (Current Implementation)
+| Aspect | Hetzner Linux | Vagrant Docker | Current Gap |
+|--------|---------------|----------------|-------------|
+| Connection | SSH (port 22) | SSH (port 22) | Same pattern |
+| Default User | `root` | `vagrant` | Variable handling |
+| Package Manager | APT | APT | Same |
+| Provisioning | `provision.yml` | `vagrant up` | **INCONSISTENT** |
+| Cost | ~$4/month | Free | Cost leader vs free testing |
+| Inventory Groups | @hcloud, @hcloud_linux, @linux | @vagrant_docker, @vagrant_docker_linux, @linux | Target pattern |
 
-| Aspect | AWS Linux (Production) | AWS Windows (Production) | Hetzner Linux (Production) |
-|--------|-----------------------|--------------------------|----------------------------|
-| Connection | SSH (port 22) | SSH (port 22) + RDP (port 3389) | SSH (port 22) |
-| Default User | `ubuntu` | `Administrator` | `root` |
-| Package Manager | APT | Chocolatey | APT |
-| Instance Type | t3.micro/small | t3.large | cx22 |
-| Storage | 20GB | 50GB | 40GB SSD |
-| Desktop Access | SSH + X11 forwarding | SSH (command) + RDP (desktop) | SSH + full GNOME |
-| Cost (monthly) | ~$8-10 | ~$60 (optimizable to ~$15) | ~$4 |
-| Authentication | SSH keys | SSH keys + RDP | SSH keys |
-| Provisioning Time | ~3-5 minutes | ~5 minutes | ~10-15 minutes |
-| Inventory Groups | @aws_ec2, @aws_ec2_linux, @linux | @aws_ec2, @aws_ec2_windows, @windows | @hcloud, @hcloud_linux, @linux |
+## Key Technical Patterns for Current MVP
 
-## Windows-Specific Technical Implementation
-
-### Implemented Ansible Collections
+### Ansible Collections (Relevant)
 ```yaml
-# Successfully implemented collections
+# Required collections for current focus
 collections:
-  - name: ansible.windows  # ✅ WORKING
-  - name: community.windows  # ✅ AVAILABLE
-  - name: amazon.aws  # ✅ WORKING
+  - name: hetzner.hcloud    # Hetzner Cloud support
+  - name: community.general # General utilities
 ```
 
-### Achieved Windows Server Configuration
-- **OpenSSH Server**: ✅ Enabled SSH via PowerShell user data
-- **Desktop Experience**: ✅ Windows Server 2025 with GUI
-- **PowerShell Integration**: ✅ PowerShell as default SSH shell
-- **Windows Firewall**: ✅ Configured for SSH and RDP access
-- **SSH Key Authentication**: ✅ Administrator access with icacls permissions
-
-### Implemented RDP Optimization
-- **Performance Settings**: ✅ 32-bit color depth configured
-- **Display Configuration**: ✅ Optimized for desktop application responsiveness
-- **Clipboard Sharing**: ✅ Enabled clipboard between host and Windows Server
-- **Security**: ✅ IP-restricted RDP access from user's public IP only
+### Vagrant Docker Integration Pattern (Target)
+```yaml
+# Target: provision.yml support for Vagrant Docker
+- name: Handle Vagrant Docker provisioning
+  include_tasks: provisioners/vagrant_docker-linux.yml
+  when: provider == "vagrant_docker" and platform == "linux"
+```
