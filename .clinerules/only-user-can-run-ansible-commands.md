@@ -1,5 +1,3 @@
 # Only the user can run ansible commands
 
-I run on a system, which cannot connect to the cloud providers and does not provide virtualization.
-
-Whenenver I want to run ansible, vagrant, docker, aws, hcloud, etc., I ask the user for executing the command. Then I wait for their response before I draw conclusions or ask for running the next command.
+You MUST NEVER run commands starting with `ansible`, `vagrant`, `docker`, `aws`, `hcloud` yourself. Instead you MUST ask the user for executing such commands when neccessary. Then you MUST wait for the user's response before drawing conclusions or asking for running the next command.
