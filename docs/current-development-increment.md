@@ -51,16 +51,17 @@ ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=li
 
 ### Acceptable Quality Trade-offs
 
-**What's Acceptable**:
+**What's Acceptable for MVP**:
 - Basic error handling (fail fast, clear error messages)
 - Manual steps documented if needed for edge cases
 - Rough proof of concept implementation
 - Limited to dagorlad environment only (no other Vagrant providers)
 
 **Non-Negotiable**:
-- Tests must pass (green tests top priority)
-- Documentation must be current and accurate
+- **Working command is top priority** (confirmed with Product Owner)
 - Command pattern must match AWS Linux approach
+- Documentation must be current and accurate
+- Test automation is secondary to working implementation
 
 ### Success Criteria
 
@@ -77,23 +78,80 @@ Command `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker pl
 - Consistent with other environments
 - Clear error messages if something fails
 
-### Timeline: 2-3 Days
+## Development Plan (Milestone-Based)
 
-**Day 1**: Test-first development
-- Write test specifications
-- Implement core `provisioners/vagrant_docker-linux.yml` logic
-- Test provider/platform parameter integration
+### Priority Strategy
+**Confirmed with Product Owner**: Focus on getting the basic command working first. Test automation is secondary priority if time constraints arise.
 
-**Day 2**: Integration and refinement
-- Integrate with inventory system
-- Test end-to-end functionality
-- Fix integration issues
+### Milestone 1: Core Command Implementation (Day 1 - Priority 1)
+**Goal**: Get the basic unified command working
 
-**Day 3**: Documentation and validation
-- Update `docs/create-vm.md` with vagrant_docker provider option
-- Update `test/docker/README.md` with unified command
-- Final validation testing
-- Memory bank updates
+**Task 1.1: Create Vagrant Provisioner Module** (2-3 hours)
+- **File**: `provisioners/vagrant_docker-linux.yml`
+- **Implementation**:
+  - Change directory to `test/docker/` (existing structure)
+  - Execute `vagrant up` command via Ansible
+  - Add basic error handling for vagrant failures
+  - Follow existing provisioner patterns from `provisioners/hcloud-linux.yml`
+- **Technical Notes**:
+  - Use `shell` module with `chdir: test/docker` parameter
+  - Handle `vagrant up` idempotency (check if already running)
+
+**Task 1.2: Verify Template Routing** (1 hour)
+- **Test**: Run `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux" --vault-password-file ansible-vault-password.txt`
+- **Validation**: 
+  - Confirm routing to new provisioner works (`provisioners/vagrant_docker-linux.yml`)
+  - Confirm routing to existing configure works (`configure-linux.yml`)
+- **Expected Behavior**: No template routing errors
+
+**Task 1.3: Manual End-to-End Validation** (1 hour)
+- **Test Protocol**: Clean environment → run unified command → verify dagorlad accessible
+- **Validation Steps**:
+  - SSH connectivity test: `ssh vagrant@dagorlad_ip -p 2223`
+  - Basic whoami check: `ansible linux -m shell -a 'whoami' --extra-vars "ansible_user=gandalf"`
+- **Success Criteria**: Command completes without errors and dagorlad is reachable
+
+### Milestone 2: Integration & Testing (Day 2 - Priority 2)
+**Goal**: Ensure reliability and proper integration
+
+**Task 2.1: Test Idempotency** (2 hours)
+- Verify command can run multiple times safely without errors
+- Test with existing vagrant environment (should not fail)
+- Validate no duplicate resources created
+
+**Task 2.2: Inventory Integration Validation** (1 hour)
+- Verify `ansible-inventory --graph` shows dagorlad correctly
+- Test variable loading from `inventories/group_vars/vagrant_docker/vars.yml`
+- Confirm SSH key and vault integration works
+
+**Task 2.3: Automated Test Creation** (2-3 hours)
+- Copy and adapt existing `test/test_vagrant_linux_provisioning.md`
+- Create automated test script based on existing validation steps
+- Focus on core functionality validation
+
+### Milestone 3: Documentation & Completion (Day 3 - Priority 3)
+**Goal**: Complete the MVP with documentation
+
+**Task 3.1: Documentation Updates** (2 hours)
+- Update `docs/create-vm.md` to include `vagrant_docker` as provider option
+- Update `test/docker/README.md` with unified command usage
+- Document `provider=vagrant_docker platform=linux` parameter pattern
+
+**Task 3.2: Memory Bank Updates** (1 hour)
+- Update `progress.md` with completed milestone
+- Update `activeContext.md` with current implementation status
+- Document lessons learned and next steps
+
+**Task 3.3: Final Validation** (1 hour)
+- Complete end-to-end testing with fresh environment
+- Verify all Definition of Done criteria met
+- Prepare for Product Owner acceptance
+
+### Risk Mitigation Strategy
+- **Keep existing structure**: Use `test/docker/` directory as-is to minimize risk
+- **Follow existing patterns**: Base implementation on `provisioners/hcloud-linux.yml`
+- **Manual validation first**: Ensure command works before automated testing
+- **Incremental approach**: Get basic functionality working, then enhance
 
 ### Technical Implementation Notes
 
