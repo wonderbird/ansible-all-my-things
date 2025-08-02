@@ -137,6 +137,34 @@ ansible --version  # Executes normally (not blocked)
 - Pros: Extremely simple, bulletproof across all sessions and directories, no project-specific logic
 - Cons: System-wide impact, requires user path setup or sudo for real command access
 
+### Self-Provisioning Implementation Approaches ⚠️ DISTRIBUTED DEPLOYMENT
+
+**Critical Context**: AI agents run on target systems (`hobbiton`, `rivendell`, `moria`) provisioned by this ansible project under `desktop_users` accounts (`galadriel`, `legolas`). Restrictions must be deployed via ansible to multiple target systems.
+
+**Approach F: Ansible-Deployed User Profile Integration**
+- Deploy restriction scripts to desktop_users' `.bashrc`/`.profile` on target systems
+- Windows: Deploy to PowerShell profiles for desktop_users
+- Use ansible templates to customize restrictions per user/platform
+- Include in existing `playbooks/setup-users.yml` workflow
+- Pros: User-specific, cross-platform, ansible-integrated, persistent across reboots
+- Cons: Profile loading dependency, per-user deployment complexity
+
+**Approach G: Ansible-Deployed System-Wide Wrappers**
+- Deploy wrapper scripts to `/usr/local/bin/` (Linux) or `C:\Windows\System32\` (Windows) via ansible
+- Modify system PATH during user provisioning to prioritize wrappers
+- Cross-platform ansible tasks for Linux and Windows deployment
+- Include verification tasks in ansible playbooks
+- Pros: System-wide on target systems, ansible-deployable, cross-platform, bulletproof
+- Cons: System-wide impact on target systems, requires elevated privileges during deployment
+
+**Approach H: Ansible-Deployed Service-Based Blocking**
+- Deploy systemd services (Linux) or Windows services that monitor and block commands
+- Service-based approach survives all session types and reboots
+- Cross-platform ansible deployment with platform-specific implementations
+- Remote monitoring and control capabilities via ansible
+- Pros: Ultimate persistence, service-level blocking, remotely manageable
+- Cons: Complex implementation, service overhead, platform-specific development
+
 **Blocked Commands (Current + Enhanced)**:
 - `ansible` (all variants: ansible-playbook, ansible-vault, ansible-inventory, ansible-galaxy, ansible-config)
 - `vagrant` (all subcommands)

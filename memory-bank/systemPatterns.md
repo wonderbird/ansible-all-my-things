@@ -17,8 +17,26 @@ Production-ready cross-provider infrastructure automation with unified managemen
 
 ## AI Agent Safety Architecture ⚠️ CRITICAL IMPLEMENTATION REQUIRED
 
+### Self-Provisioning Context ⚠️ ARCHITECTURAL GAME-CHANGER
+**Infrastructure-as-Code Security**: This ansible-all-my-things project provisions the very target systems where AI agents operate, fundamentally changing the implementation approach.
+
+**Target System Deployment**:
+- **AI Agent Runtime Environment**: AI agents run on provisioned systems (`hobbiton`, `rivendell`, `moria`)
+- **Target User Accounts**: AI agents operate under `desktop_users` accounts (`galadriel`, `legolas`) created by ansible
+- **Cross-Platform Deployment**: Restrictions must work on AWS Linux, AWS Windows, and Hetzner Cloud systems
+- **Infrastructure-as-Code**: Command restrictions must be deployed via ansible playbooks, not manually configured
+
+**Design Implications**:
+- Restrictions must be **baked into the provisioned systems** during infrastructure deployment
+- Cannot rely on project-local solutions since "project" exists on control machine, AI agents run on target machines
+- Must work across **multiple target systems** with different operating systems
+- Must integrate with existing **user provisioning playbooks** (`playbooks/setup-users.yml`)
+- Must **persist through system reboots** and infrastructure updates
+
 ### Command Restriction System Requirements
 **Core Challenge**: Claude Code creates independent shell sessions for each command execution, bypassing traditional bash function-based restrictions.
+
+**Enhanced Challenge - Distributed Deployment**: Restrictions must be deployed to multiple target systems via ansible automation and work reliably across different platforms.
 
 **Current Broken State**:
 - **Command Restriction System**: ⚠️ BROKEN - Current bash function approach fails with Claude Code's shell session isolation
@@ -26,34 +44,45 @@ Production-ready cross-provider infrastructure automation with unified managemen
 - **Sub-Shell Resistance**: ⚠️ MISSING - Need mechanism that persists across independent bash sessions
 - **Verification System**: ⚠️ UNRELIABLE - Status checking doesn't work across Claude tool calls
 
-**Required Architecture Patterns**:
+**Required Architecture Patterns (Distributed Deployment)**:
 ```
-AI Agent Safety System:
+Infrastructure-as-Code AI Agent Safety System:
+├── Ansible-Deployed Restrictions:
+│   ├── User Account Integration: Deploy to desktop_users (galadriel, legolas)
+│   ├── Cross-Platform Support: Linux and Windows target systems  
+│   ├── Persistent Installation: Survive reboots and system updates
+│   └── Playbook Integration: Extend existing setup-users.yml
 ├── Sub-Shell Resistant Blocking:
-│   ├── Option A: Wrapper Scripts with PATH manipulation
-│   ├── Option B: Environment Detection with persistent markers
-│   ├── Option C: direnv Integration with automatic loading
-│   └── Option D: Shell Initialization with BASH_ENV/project .bashrc
+│   ├── Option A: Global System Wrappers (deployed via ansible)
+│   ├── Option B: User Profile Integration (bashrc/profile.ps1 deployment)
+│   ├── Option C: System-Wide PATH Manipulation (ansible-managed)
+│   └── Option D: Service-Based Blocking (systemd/Windows services)
 ├── Comprehensive Command Coverage:
 │   ├── Infrastructure: ansible*, vagrant, docker, tart
 │   ├── Cloud Providers: aws, hcloud
-│   └── Project-Scoped: Only within ansible-all-my-things directory
-└── Verification & Status:
-    ├── Cross-Session Status Checking
-    ├── Clear Error Messages
-    └── User Override Capability
+│   └── Target System Scope: Apply to all desktop_users on target systems
+└── Cross-System Verification:
+    ├── Ansible-Verifiable Status: Check restrictions via ansible tasks
+    ├── Platform-Specific Implementation: Linux vs Windows approaches
+    └── Remote Status Checking: Verify from control machine
 ```
 
-**Implementation Success Criteria**:
-- **Persistent Blocking**: Commands blocked across separate Claude tool calls
-- **Status Verification**: Reliable `--status` command across sessions
-- **User Override**: Normal user command execution unaffected
+**Implementation Success Criteria (Distributed)**:
+- **Persistent Blocking**: Commands blocked across separate Claude tool calls on target systems
+- **Cross-Platform Deployment**: Works on AWS Linux, AWS Windows, and Hetzner Cloud systems
+- **Ansible Integration**: Deployed automatically during infrastructure provisioning
+- **User Account Targeting**: Applied to all desktop_users (galadriel, legolas) on target systems
+- **Reboot Persistence**: Restrictions survive system reboots and updates
+- **Remote Verification**: Status checkable from control machine via ansible
 
-**Technical Constraints**:
-- Must work with Claude Code's independent bash session architecture
+**Technical Constraints (Enhanced)**:
+- Must work with Claude Code's independent bash session architecture **on target systems**
+- Must be deployable via ansible playbooks across multiple platforms
+- Must integrate with existing user provisioning workflows
+- Must work on both Linux and Windows target systems
 - No modification of Claude Code tool behavior allowed
-- Must be maintainable and easily debuggable
-- Should not impact normal development workflow
+- Must be maintainable and easily debuggable across distributed infrastructure
+- Should not impact normal user workflows on target systems
 
 ## Inventory System Architecture ✅ IMPLEMENTED
 
