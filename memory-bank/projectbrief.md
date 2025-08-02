@@ -1,71 +1,71 @@
 # Project Brief: Ansible All My Things
 
 ## Project Overview
-An Ansible-based infrastructure automation system for personal IT environment management, enabling cross-platform development environments with comprehensive testing infrastructure. Successfully transitioned from "Genesis" to "Custom Built" stage with robust testing framework supporting reliable development workflows.
 
-## Core Purpose ✅ ACHIEVED & TESTED
-Automate complete lifecycle of development environments across cloud providers with comprehensive testing, with emphasis on:
-- **Cross-Platform Access**: Enable Windows-only applications from non-Windows host systems ✅ ACHIEVED
-- **AWS Windows Server**: Primary target for Windows-specific applications ✅ IMPLEMENTED
-- **AWS Linux Foundation**: Proven foundation successfully extended to Windows Server ✅ ACHIEVED
-- **Application Focus**: Framework ready for Claude Desktop and other Windows applications ✅ READY
-- **Cost Efficiency**: On-demand provisioning with complete resource cleanup ✅ ACHIEVED
-- **Testing Infrastructure**: Comprehensive testing framework with Vagrant providers ✅ IMPLEMENTED
-- **Project Maturity**: Successful transition from "Genesis" to "Custom Built" stage ✅ COMPLETED
+An Infrastructure-as-Code automation system that provisions cross-platform development environments with AI agent safety controls. The system deploys automated command restrictions to target systems to ensure safe AI agent operation.
+
+## Core Purpose
+
+Automate complete lifecycle of development environments across cloud providers with built-in AI agent safety:
+
+- **Cross-Platform Access**: Enable Windows-only applications from non-Windows host systems
+- **Multi-Provider Infrastructure**: AWS EC2 and Hetzner Cloud automation
+- **AI Agent Safety**: Command restrictions deployed to target systems via ansible
+- **Cost Efficiency**: On-demand provisioning with complete resource cleanup
+- **Target System Security**: Prevent infrastructure commands on provisioned systems
 
 ## Key Requirements
 
-### Windows Server Development Status
+### Infrastructure Automation
+- **AWS Linux**: On-demand development servers (`rivendell`)
+- **AWS Windows**: Windows application servers (`moria`) 
+- **Hetzner Cloud**: Persistent development environments (`hobbiton`)
+- **Complete Lifecycle**: Provision → Configure → Access → Destroy
 
-#### Track 1: MVP ✅ COMPLETED
-- **Target Application**: Framework ready for Claude Desktop Application (Windows-only) ✅ READY
-- **Platform**: AWS EC2 Windows Server instances (t3.large) ✅ IMPLEMENTED
-- **Access Method**: SSH and RDP for comprehensive environment access ✅ WORKING
-- **Foundation**: Successfully extended existing AWS Linux implementation ✅ ACHIEVED
-- **Timeline**: URGENT (2-3 days delivery) ✅ DELIVERED
-- **Business Driver**: Immediate Windows application access needs ✅ MET
-- **Cost**: ~$60/month with on-demand usage reducing actual costs ✅ ACCEPTABLE
+### AI Agent Safety on Target Systems
+- **Command Restrictions**: Block infrastructure commands on target systems
+- **Target Users**: Apply to `desktop_users` accounts (`galadriel`, `legolas`)
+- **Cross-Platform**: Work on Linux and Windows target systems
+- **Ansible Deployment**: Deploy restrictions via infrastructure automation
 
-#### Track 2: Future Optimization Opportunities
-- **Goal**: Cost-optimized, fully automated Windows Server solution
-- **Timeline**: Available for future implementation as needed
-- **Target Cost**: $15/month achievable with t3.medium downgrade and usage optimization
-- **Quality**: Production-ready with comprehensive automation
-- **Features**: Advanced security, performance tuning, full automation
+### Target Applications
+- **Claude Desktop**: Windows-only application access
+- **Development Tools**: Cross-platform development environments
+- **Testing Infrastructure**: Vagrant-based testing environments
 
-### Multi-Provider Foundation ✅ COMPLETED
-- **AWS EC2**: Production-ready Linux and Windows implementations ✅ BOTH WORKING
-- **Hetzner Cloud**: Production-ready Linux environments ✅ WORKING
-- **Local Testing**: Vagrant-based testing for Linux configurations ✅ WORKING
+## Current Status
 
-### Complete Lifecycle Management ✅ ACHIEVED
-1. **Provision**: Create Windows Server infrastructure on AWS ✅ AUTOMATED
-2. **Configure**: Automatic Chocolatey installation and RDP optimization ✅ AUTOMATED
-3. **Access**: SSH and RDP-based environment access ✅ WORKING
-4. **Destroy**: Unified teardown to eliminate costs ✅ IMPLEMENTED
+### Infrastructure ✅ OPERATIONAL
+- **AWS Linux**: Production-ready development servers
+- **AWS Windows**: Production-ready Windows application servers
+- **Hetzner Cloud**: Production-ready persistent environments
+- **Testing Framework**: Comprehensive Vagrant-based testing
 
-## Current Status ✅ PRODUCTION-READY & TESTED
-- **AWS Linux**: Production-ready with complete lifecycle management ✅ WORKING
-- **Hetzner Cloud**: Production-ready reference implementation ✅ WORKING
-- **AWS Windows Server**: Production-ready with complete automation ✅ IMPLEMENTED
-- **Testing Infrastructure**: Comprehensive testing framework operational ✅ COMPLETED
-  - **Vagrant Docker**: Linux testing environment with proper variable management ✅ WORKING
-  - **Vagrant Tart**: macOS-compatible testing environment ✅ WORKING
-  - **Problem Resolution**: Fixed undefined group_vars in test configurations ✅ RESOLVED
-  - **Documentation**: Complete testing procedures and troubleshooting guides ✅ COMPLETED
+### AI Agent Safety 🔴 IN PROGRESS
+- **Command Restriction System**: Implementation required on target systems
+- **Ansible Integration**: Deploy via existing user provisioning workflows
+- **Cross-Platform Support**: Linux and Windows target system compatibility
 
-## Success Metrics ✅ ACHIEVED
-- Windows Server environments provisioned in ~5 minutes ✅ BETTER THAN TARGET
-- Framework ready for Claude Desktop and other Windows applications ✅ READY
-- Cost-effective operation with on-demand usage model ✅ ACHIEVED
-- Consistent automation patterns across Linux and Windows ✅ ACHIEVED
-- **Testing Infrastructure**: Reliable testing framework with proper variable management ✅ ACHIEVED
-- **Project Maturity**: Successful transition to "Custom Built" stage with testing foundation ✅ COMPLETED
-- **Problem Resolution**: Undefined group_vars issue resolved in test environments ✅ FIXED
-- **Documentation Excellence**: Comprehensive testing procedures documented ✅ COMPLETED
+## Success Metrics
 
-## Technical Implementation ✅ RESOLVED
-- Windows Server licensing costs included in AWS AMI pricing ✅ HANDLED
-- SSH and RDP access requirements for comprehensive environment access ✅ IMPLEMENTED
-- Windows-specific Ansible modules successfully integrated ✅ WORKING
-- t3.large instance type provides optimal Windows Server GUI performance ✅ IMPLEMENTED
+### Infrastructure Performance
+- Environment provisioning: 3-15 minutes depending on platform
+- Cost optimization: Provider choice based on usage patterns
+- Unified management: Single automation framework across providers
+
+### AI Agent Safety
+- Command blocking: Infrastructure commands blocked on target systems
+- Persistence: Restrictions survive system reboots and updates
+- Remote verification: Status checkable from control machine via ansible
+
+## Technical Implementation
+
+### Multi-Provider Architecture
+- Unified inventory system with dynamic host discovery
+- Cross-provider SSH key management
+- Idiomatic ansible configuration with vault encryption
+
+### Target System Deployment
+- AI agents operate on provisioned systems (`hobbiton`, `rivendell`, `moria`)
+- Command restrictions deployed during user provisioning
+- Cross-platform ansible automation for Linux and Windows systems

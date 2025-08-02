@@ -13,9 +13,10 @@
 **AWS EC2**: Multi-platform provider for diverse workloads (~$8-60/month depending on usage)
 
 ### Target Applications & Use Cases
-**Cross-Provider Development**: Automated development environments across providers ✅ ACHIEVED
-**Windows Application Access**: Claude Desktop Application (Windows-only) ✅ ACHIEVED
-**Cost-Optimized Infrastructure**: Provider choice based on usage patterns ✅ IMPLEMENTED
+**Cross-Provider Development**: Automated development environments across providers
+**Windows Application Access**: Claude Desktop Application (Windows-only)
+**Cost-Optimized Infrastructure**: Provider choice based on usage patterns
+**AI Agent Safety**: Command restrictions deployed to target systems
 
 ## Development Setup
 
@@ -29,7 +30,7 @@ pip3 install -r requirements.txt
 ansible-galaxy collection install -r requirements.yml
 ```
 
-### Multi-Provider Environment Configuration ✅ ENHANCED WITH IDIOMATIC ANSIBLE
+### Multi-Provider Environment Configuration
 ```bash
 # Production Environment Credentials
 export AWS_ACCESS_KEY_ID="your-aws-key"
@@ -42,7 +43,7 @@ export HCLOUD_TOKEN="your-hcloud-token"
 export ANSIBLE_HOST_KEY_CHECKING=False
 ```
 
-### Project Structure (Current Implementation)
+### Project Structure
 ```
 ansible-all-my-things/
 ├── Multi-Provider Provisioning:
@@ -56,139 +57,79 @@ ansible-all-my-things/
 ├── Cleanup:
 │   ├── destroy.yml               # Hetzner Cloud cleanup ✅ WORKING
 │   └── destroy-aws.yml           # AWS unified cleanup ✅ WORKING
-├── Unified Inventory & Idiomatic Configuration:
+├── Unified Inventory & Configuration:
 │   ├── inventories/aws_ec2.yml   # AWS inventory ✅ WORKING
 │   ├── inventories/hcloud.yml    # Hetzner inventory ✅ WORKING
-│   └── inventories/group_vars/   # Provider-aware variables with secrets ✅ ENHANCED
+│   └── inventories/group_vars/   # Provider-aware variables with secrets ✅ WORKING
 ├── Dependencies:
 │   ├── requirements.txt          # Python dependencies ✅ COMPLETED
 │   └── requirements.yml          # Ansible collections ✅ COMPLETED
 └── memory-bank/                  # Cross-provider documentation ✅ CURRENT
 ```
 
-## Technical Constraints & Requirements
+## AI Agent Safety Implementation
 
-### AI Agent Safety Constraints ⚠️ CRITICAL LIMITATION DISCOVERED
+### Target System Deployment Requirements
+**Target Systems**: AI agents operate on provisioned systems (`hobbiton`, `rivendell`, `moria`) under `desktop_users` accounts (`galadriel`, `legolas`).
 
-#### Claude Code Shell Session Isolation ⚠️ FUNDAMENTAL ISSUE
-**Problem**: Claude Code creates independent shell sessions for each command execution, causing traditional bash function-based command restrictions to fail.
+**Deployment Constraints**:
+- **Cross-Platform**: Must work on AWS Linux, AWS Windows, and Hetzner Cloud systems
+- **Ansible Integration**: Deploy via ansible playbooks during infrastructure provisioning
+- **Shell Session Resistance**: Work across Claude Code's independent bash sessions
+- **User Isolation**: Apply only to AI agents, not human users
 
-**Technical Root Cause**:
-```bash
-# Shell session 1: Restrictions applied
-source <(./scripts/setup-command-restrictions.sh)
-ansible --version  # Would be blocked
+### Implementation Approaches
 
-# Shell session 2: Restrictions gone  
-ansible --version  # Executes normally (not blocked)
-```
+#### User Profile Integration
+**Concept**: Deploy restriction scripts to desktop_users' profiles on target systems
+- **Linux Implementation**: `.bashrc`/`.profile` modification via ansible templates
+- **Windows Implementation**: PowerShell profile deployment for desktop_users
+- **Ansible Integration**: Extend existing `playbooks/setup-users.yml` workflow
+- **Persistence**: Restrictions loaded on every shell session
 
-**Impact**: Current `.clinerules/only-user-can-run-ansible-commands.md` rule is technically unenforceable, creating security and compliance violations.
+#### System-Wide Wrappers
+**Concept**: Deploy global wrapper scripts to target systems via ansible
+- **Linux Implementation**: `/usr/local/bin/` deployment with PATH modification
+- **Windows Implementation**: `C:\Windows\System32\` deployment via ansible
+- **Deployment**: Cross-platform ansible tasks for installation and verification
+- **Management**: Remote updates and status checking via ansible
 
-**Required Solution Characteristics**:
-- **Sub-Shell Resistant**: Must work across independent bash sessions
-- **Project-Scoped**: Only apply restrictions within ansible-all-my-things directory
-- **Verification Capable**: AI agents must be able to verify restriction status across sessions
-- **User-Friendly**: Must not interfere with normal user command execution
-- **Maintainable**: Simple to understand, debug, and extend
+#### Service-Based Blocking
+**Concept**: Deploy services that monitor and block commands on target systems
+- **Linux Implementation**: systemd services deployed via ansible
+- **Windows Implementation**: Windows services deployed via ansible
+- **Monitoring**: Service-based approach survives all session types and reboots
+- **Control**: Remote monitoring and management capabilities via ansible
 
-#### Implementation Constraint Analysis
-**Cannot Rely On**:
-- Bash functions (lost across sessions)
-- Environment variables (not inherited by independent sessions)
-- Session-specific configuration (Claude creates fresh sessions)
+**Blocked Commands**: `ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`
 
-**Must Work With**:
-- PATH manipulation (persists across sessions if properly configured)
-- File system markers (persistent across sessions)
-- Directory-specific configuration (direnv, project-local files)
-- Shell initialization hooks (BASH_ENV, .bashrc)
+### Technical Constraints
 
-#### Command Restriction Implementation Options ⚠️ SOLUTION SELECTION REQUIRED
+**Claude Code Architecture**: Creates independent shell sessions for each command execution, requiring sub-shell resistant solutions.
 
-**Approach A: Project-Local Wrapper Scripts**
-- Create `scripts/bin/` directory with wrapper scripts for each restricted command
-- Modify PATH to prioritize local wrappers that check project directory and either block or delegate
-- Pros: Very robust, hard to bypass, works across all shell sessions
-- Cons: PATH manipulation complexity, requires finding real command paths
+**Deployment Requirements**:
+- Must be deployable via ansible playbooks across multiple platforms
+- Must integrate with existing user provisioning workflows
+- Must work on both Linux and Windows target systems
+- Must be maintainable and debuggable across distributed infrastructure
+- Should not impact normal user workflows on target systems
 
-**Approach B: Environment Detection**
-- Set marker file (`.ansible-restriction-active`) or environment variable
-- Each bash session checks for marker and auto-applies restrictions
-- Pros: Non-intrusive, toggleable, works with existing code
-- Cons: Requires Claude to check markers, relies on "good behavior"
+## Infrastructure Requirements ✅ IMPLEMENTED
 
-**Approach C: direnv Integration**
-- Create `.envrc` file that sources existing restriction script
-- direnv automatically loads restrictions when entering directory
-- Pros: Automatic, leverages existing script, standard developer workflow
-- Cons: External dependency, user must run `direnv allow .`
-
-**Approach D: Shell Initialization**
-- Use `BASH_ENV`, project-local `.bashrc`, or command prefixes
-- Automatically source restrictions on every shell initialization
-- Pros: Automatic, clean, uses standard bash features
-- Cons: May require modifying Claude's bash tool behavior
-
-**Approach E: Global System-Wide Wrapper Scripts**
-- Create global wrapper scripts in `~/bin/` or `/usr/local/bin/` that always block AI agent execution
-- Modify system PATH to prioritize global wrappers over real commands
-- AI agents are blocked system-wide, users can bypass with full paths or sudo when needed
-- Pros: Extremely simple, bulletproof across all sessions and directories, no project-specific logic
-- Cons: System-wide impact, requires user path setup or sudo for real command access
-
-### Self-Provisioning Implementation Approaches ⚠️ DISTRIBUTED DEPLOYMENT
-
-**Critical Context**: AI agents run on target systems (`hobbiton`, `rivendell`, `moria`) provisioned by this ansible project under `desktop_users` accounts (`galadriel`, `legolas`). Restrictions must be deployed via ansible to multiple target systems.
-
-**Approach F: Ansible-Deployed User Profile Integration**
-- Deploy restriction scripts to desktop_users' `.bashrc`/`.profile` on target systems
-- Windows: Deploy to PowerShell profiles for desktop_users
-- Use ansible templates to customize restrictions per user/platform
-- Include in existing `playbooks/setup-users.yml` workflow
-- Pros: User-specific, cross-platform, ansible-integrated, persistent across reboots
-- Cons: Profile loading dependency, per-user deployment complexity
-
-**Approach G: Ansible-Deployed System-Wide Wrappers**
-- Deploy wrapper scripts to `/usr/local/bin/` (Linux) or `C:\Windows\System32\` (Windows) via ansible
-- Modify system PATH during user provisioning to prioritize wrappers
-- Cross-platform ansible tasks for Linux and Windows deployment
-- Include verification tasks in ansible playbooks
-- Pros: System-wide on target systems, ansible-deployable, cross-platform, bulletproof
-- Cons: System-wide impact on target systems, requires elevated privileges during deployment
-
-**Approach H: Ansible-Deployed Service-Based Blocking**
-- Deploy systemd services (Linux) or Windows services that monitor and block commands
-- Service-based approach survives all session types and reboots
-- Cross-platform ansible deployment with platform-specific implementations
-- Remote monitoring and control capabilities via ansible
-- Pros: Ultimate persistence, service-level blocking, remotely manageable
-- Cons: Complex implementation, service overhead, platform-specific development
-
-**Blocked Commands (Current + Enhanced)**:
-- `ansible` (all variants: ansible-playbook, ansible-vault, ansible-inventory, ansible-galaxy, ansible-config)
-- `vagrant` (all subcommands)
-- `docker` (all subcommands)
-- `tart` (all subcommands)
-- `aws` (AWS CLI)
-- `hcloud` (Hetzner Cloud CLI)
-
-### Infrastructure Requirements ✅ IMPLEMENTED
-
-#### Current System Capabilities
+### Current System Capabilities
 - **Multi-Provider Support**: AWS and Hetzner Cloud with dynamic inventory
 - **Cross-Platform**: Linux and Windows environments with unified patterns
 - **Secret Management**: Ansible Vault with automated password handling
 - **Testing Integration**: Vagrant-based testing environments
 
-#### Cost Analysis (Current Implementation)
-- **Hetzner Cloud**: ~$4/month with predictable EU pricing ✅ COST LEADER
-- **AWS Linux**: ~$8-10/month with on-demand usage ✅ IMPLEMENTED
-- **AWS Windows**: ~$60/month base with on-demand reducing actual costs ✅ IMPLEMENTED
+### Cost Analysis
+- **Hetzner Cloud**: ~$4/month with predictable EU pricing
+- **AWS Linux**: ~$8-10/month with on-demand usage
+- **AWS Windows**: ~$60/month base with on-demand reducing actual costs
 
 ## Tool Usage Patterns
 
-### Current Infrastructure Patterns (Implemented)
+### Current Infrastructure Patterns
 ```yaml
 # Multi-provider inventory management ✅ WORKING
 # Cross-provider SSH key authentication ✅ WORKING
@@ -196,11 +137,10 @@ ansible --version  # Executes normally (not blocked)
 # Automated vault password handling ✅ WORKING
 ```
 
-### Security Architecture (Broken - Requires Fix)
-**Current State**: Command restrictions fail with Claude Code's independent session architecture
-**Required**: Sub-shell resistant command blocking system
+### AI Agent Safety Architecture
+**Current Priority**: Deploy command restriction system to target systems
 **Timeline**: 2-3 days maximum for implementation
-**Priority**: Critical security compliance issue
+**Approach**: Select from three implementation options based on requirements
 
 ## Dependencies & Integration
 
@@ -210,7 +150,7 @@ ansible --version  # Executes normally (not blocked)
 - **Inventory Integration**: Dynamic inventory plugins working across providers
 - **Secret Management**: Unified Ansible Vault patterns for all implementations
 
-### Critical Missing Dependency ⚠️ URGENT
-**AI Agent Safety System**: Robust command restriction mechanism compatible with Claude Code's architecture
+### Command Restriction Implementation
+**AI Agent Safety System**: Deploy robust command restriction mechanism to target systems via ansible automation
 
-The technical foundation is solid for infrastructure automation, but the critical security gap in AI agent safety controls must be resolved immediately to enable safe development workflows.
+The technical foundation provides a solid base for infrastructure automation with the command restriction system ready for implementation on target systems.
