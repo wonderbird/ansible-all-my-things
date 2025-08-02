@@ -12,6 +12,8 @@ set -euo pipefail
 # Array of forbidden commands
 FORBIDDEN_COMMANDS=(
     "ansible"
+    "ansible-playbook"
+    "ansible-inventory"
     "vagrant" 
     "docker"
     "tart"
