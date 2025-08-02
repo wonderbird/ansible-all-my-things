@@ -88,7 +88,7 @@ bash -c "git status"
 
 ## Implementation Strategy
 
-### Three Implementation Approaches
+### Four Implementation Approaches
 
 #### 1. User Profile Integration
 **Concept**: Deploy restriction scripts to desktop_users' profiles on target systems
@@ -119,6 +119,44 @@ bash -c "git status"
 
 **Pros**: Ultimate persistence, service-level blocking, remotely manageable
 **Cons**: Complex implementation, service overhead, platform-specific development
+
+#### 4. fapolicyd Integration (Linux-Only Alternative)
+**Concept**: Use Red Hat's File Access Policy Daemon for application allowlisting on Linux target systems
+- Deploy fapolicyd rules via ansible to block infrastructure commands on Linux target systems
+- Configure user/group-based policies to allow commands for human users but block for AI agent accounts
+- Leverage RPM trust database for application allowlisting
+- Integration with systemd for service-level persistence
+
+**Rule Examples**:
+```bash
+# Block ansible for specific user accounts
+deny_audit perm=execute uid=galadriel : path=/usr/bin/ansible
+deny_audit perm=execute uid=legolas : path=/usr/bin/ansible
+
+# Allow for admin users
+allow perm=execute gid=wheel : path=/usr/bin/ansible
+```
+
+**Pros**: 
+- System-level enforcement, very difficult to bypass
+- Integration with Red Hat ecosystem and RHEL system roles
+- Comprehensive application allowlisting capabilities
+- Performance optimizations and kernel-level integration
+
+**Cons**: 
+- **Linux-only solution** (doesn't address Windows target `moria`)
+- System-wide impact and complexity
+- Performance overhead from monitoring all file access
+- Overkill for simple command blocking requirements
+- Risk of blocking legitimate system operations
+
+**Assessment**: **NOT RECOMMENDED** for this use case due to platform limitations and complexity mismatch
+
+**Key Resources**:
+- [Red Hat fapolicyd Documentation](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/8/html/security_hardening/assembly_blocking-and-allowing-applications-using-fapolicyd_security-hardening)
+- [fapolicyd GitHub Repository](https://github.com/linux-application-whitelisting/fapolicyd)
+- [Automating fapolicyd with RHEL System Roles](https://www.redhat.com/en/blog/automating-fapolicyd-rhel-system-roles)
+- [fapolicyd Ansible Configuration](https://access.redhat.com/solutions/6997136) (Red Hat Subscription Required)
 
 ### Implementation Decision
 **Solution Selection Required**: Choose implementation approach based on:

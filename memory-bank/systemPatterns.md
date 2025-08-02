@@ -36,7 +36,7 @@ Production-ready cross-provider infrastructure automation with unified managemen
 
 **Core Challenge**: Deploy restrictions via ansible that work reliably across Claude Code's independent shell sessions on target systems.
 
-**Three Implementation Approaches**:
+**Four Implementation Approaches**:
 
 #### 1. User Profile Integration
 - Deploy restriction scripts to desktop_users' profiles on target systems
@@ -61,6 +61,12 @@ Production-ready cross-provider infrastructure automation with unified managemen
 - Remote monitoring and control capabilities via ansible
 - **Pros**: Ultimate persistence, service-level blocking, remotely manageable, survives all changes
 - **Cons**: Complex implementation, service overhead, platform-specific development
+
+#### 4. fapolicyd Integration (Linux-Only Alternative)
+- Deploy Red Hat's File Access Policy Daemon for application allowlisting on Linux target systems
+- Configure user/group-based policies via ansible to block infrastructure commands for AI agent accounts
+- Leverage RPM trust database and systemd integration for comprehensive application control
+- **Assessment**: Not recommended due to Linux-only limitation (doesn't address Windows target `moria`) and complexity mismatch for simple command blocking requirements
 
 **Blocked Commands**: `ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`
 

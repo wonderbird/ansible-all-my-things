@@ -39,6 +39,7 @@
 - **User Profile Integration**: Deploy restriction scripts to desktop_users' profiles on target systems
 - **System-Wide Wrappers**: Deploy global wrapper scripts to target systems via ansible
 - **Service-Based Blocking**: Deploy services that monitor and block commands on target systems
+- **fapolicyd Integration**: Red Hat's File Access Policy Daemon (Linux-only, not recommended for this use case)
 
 ## Current System State
 
@@ -53,8 +54,15 @@ Production-ready cross-provider infrastructure automation:
 - Idiomatic Ansible configuration with automated vault password handling
 - Cross-provider SSH key management and credential patterns
 - Target systems ready for command restriction deployment
+- **Documentation streamlined**: Removed discovery narrative, consolidated approaches
 
 ## Recent Changes
+
+### Documentation Streamlining Completed
+- **Memory bank restructured**: Removed "broken state" and "discovery" language throughout all files
+- **Implementation approaches consolidated**: From 8 scattered options to 4 clear distributed approaches
+- **Forward-looking documentation**: Written as if target system deployment was always the known approach
+- **fapolicyd research completed**: Documented as fourth approach but assessed as not suitable for cross-platform requirements
 
 ### Infrastructure Improvements
 - Enhanced inventory system with provider-specific targeting
@@ -62,7 +70,7 @@ Production-ready cross-provider infrastructure automation:
 - Unified command patterns across multiple cloud providers
 
 ### Next Steps
-- Select command restriction implementation approach
+- Select command restriction implementation approach from the three viable options
 - Develop ansible playbooks for restriction deployment
 - Test cross-platform compatibility on target systems
 - Integrate with existing user provisioning workflows
