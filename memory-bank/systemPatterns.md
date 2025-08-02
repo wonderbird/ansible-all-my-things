@@ -25,6 +25,12 @@ Multi-Provider Infrastructure:
 - **Automated Vault Access**: `ansible.cfg` with `vault_password_file` for seamless secret handling ✅ NEW
 - **Testing Integration**: Unified secret management across production and test environments ✅ ENHANCED
 
+**AI Agent Safety Patterns ⚠️ CRITICAL IMPLEMENTATION REQUIRED:**
+- **Command Restriction System**: ⚠️ BROKEN - Current bash function approach fails with Claude Code's shell session isolation
+- **Security Compliance**: ⚠️ VIOLATED - `.clinerules/only-user-can-run-ansible-commands.md` technically unenforceable
+- **Sub-Shell Resistance**: ⚠️ MISSING - Need mechanism that persists across independent bash sessions
+- **Verification System**: ⚠️ UNRELIABLE - Status checking doesn't work across Claude tool calls
+
 ### Enhanced Inventory System ✅ COMPLETED & IMPROVED
 **Implemented Structure:**
 ```
@@ -306,6 +312,41 @@ graph TD
 - **Instance Sizing**: t3.large for optimal Windows Server GUI performance ✅ IMPLEMENTED
 - **Storage Optimization**: 50GB GP3 for cost-effectiveness ✅ IMPLEMENTED
 - **Usage Patterns**: On-demand sessions significantly reduce costs ✅ ACHIEVED
+
+## AI Agent Safety Architecture ⚠️ CRITICAL IMPLEMENTATION REQUIRED
+
+### Command Restriction System Requirements
+**Core Challenge**: Claude Code creates independent shell sessions for each command execution, bypassing traditional bash function-based restrictions.
+
+**Required Architecture Patterns**:
+```
+AI Agent Safety System:
+├── Sub-Shell Resistant Blocking:
+│   ├── Option A: Wrapper Scripts with PATH manipulation
+│   ├── Option B: Environment Detection with persistent markers
+│   ├── Option C: direnv Integration with automatic loading
+│   └── Option D: Shell Initialization with BASH_ENV/project .bashrc
+├── Comprehensive Command Coverage:
+│   ├── Infrastructure: ansible*, vagrant, docker, tart
+│   ├── Cloud Providers: aws, hcloud
+│   └── Project-Scoped: Only within ansible-all-my-things directory
+└── Verification & Status:
+    ├── Cross-Session Status Checking
+    ├── Clear Error Messages
+    └── User Override Capability
+```
+
+**Implementation Success Criteria**:
+- **Persistent Blocking**: Commands blocked across separate Claude tool calls
+- **Status Verification**: Reliable `--status` command across sessions
+- **Project Scope**: Restrictions only apply in project directory
+- **User Override**: Normal user command execution unaffected
+
+**Technical Constraints**:
+- Must work with Claude Code's independent bash session architecture
+- No modification of Claude Code tool behavior allowed
+- Must be maintainable and easily debuggable
+- Should not impact normal development workflow
 
 ## Extension Points
 

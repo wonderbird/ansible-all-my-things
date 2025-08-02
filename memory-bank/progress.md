@@ -39,9 +39,19 @@
 - **Modular Architecture**: Clean separation of provisioning and configuration 
 - **Cross-Provider Documentation**: Comprehensive setup and usage instructions for all implementations
 
-## What's Next (Recently Completed)
+## What's Next (Current Critical Priority)
 
-### Idiomatic Ansible Configuration ✅ COMPLETED & OPERATIONAL
+### Robust Command Restriction System Implementation 🔴 URGENT & IN PROGRESS
+- **Goal**: Implement bulletproof command restriction system preventing AI agents from executing infrastructure commands ⚠️ CRITICAL
+- **Business Driver**: **SECURITY CRITICAL** - Current restriction mechanism fundamentally broken with Claude Code architecture ⚠️ URGENT
+- **Status**: Critical security compliance issue requiring immediate resolution within 2-3 days ⚠️ IN PROGRESS
+- **Problem**: Claude Code's shell session isolation bypasses bash function-based restrictions ⚠️ DISCOVERED
+- **Impact**: Security risk of accidental infrastructure provisioning, compliance violation, workflow disruption ⚠️ HIGH RISK
+- **Requirements**: Sub-shell resistant command blocking, comprehensive command coverage, AI agent verification system ⚠️ MVP SCOPE
+- **Success Criteria**: Persistent blocking across Claude tool calls, reliable status verification, project-scoped restrictions ⚠️ DEFINED
+- **Implementation**: Solution approach selection required from wrapper scripts, environment detection, direnv, or shell initialization ⚠️ PENDING
+
+### Recently Completed: Idiomatic Ansible Configuration ✅ COMPLETED & OPERATIONAL
 - **Goal**: Apply idiomatic Ansible practices for secrets and variable management ✅ ACHIEVED
 - **Business Driver**: Technical debt elimination - modernizing configuration to follow Ansible best practices ✅ COMPLETED
 - **Status**: Complete transition from explicit vars loading to inventory group_vars structure ✅ VERIFIED
@@ -96,11 +106,18 @@
 
 ## Current Implementation Status
 
-### Cross-Provider Infrastructure ✅ COMPLETED
+### Command Restriction System 🔴 CRITICAL SECURITY GAP DISCOVERED
+**Status**: Current system fundamentally broken with Claude Code - urgent security fix required
+**Problem**: Shell session isolation causes restriction bypass, creating security and compliance risks
+**Timeline**: 2-3 days maximum for robust solution implementation
+**Priority**: **CRITICAL** - blocks safe AI agent operation in project
+
+### Cross-Provider Infrastructure ✅ COMPLETED & PRODUCTION-READY
 **Status**: Three production-ready implementations successfully deployed
 **Goal**: Multi-provider infrastructure automation ✅ ACHIEVED
 **Quality**: Proven provider abstraction with enhanced inventory targeting
 **Foundation**: Enhanced with improved inventory group structure
+**Security Note**: Infrastructure solid, but AI agent safety controls require urgent attention
 
 ### Enhanced Inventory System ✅ IMPLEMENTED & IMPROVED
 **Status**: Advanced inventory structure completed successfully with enhanced targeting capabilities

@@ -130,6 +130,76 @@ ansible-all-my-things/
 
 ## Technical Constraints & Requirements
 
+### AI Agent Safety Constraints ⚠️ CRITICAL LIMITATION DISCOVERED
+
+#### Claude Code Shell Session Isolation ⚠️ FUNDAMENTAL ISSUE
+**Problem**: Claude Code creates independent shell sessions for each command execution, causing traditional bash function-based command restrictions to fail.
+
+**Technical Root Cause**:
+```bash
+# Shell session 1: Restrictions applied
+source <(./scripts/setup-command-restrictions.sh)
+ansible --version  # Would be blocked
+
+# Shell session 2: Restrictions gone  
+ansible --version  # Executes normally (not blocked)
+```
+
+**Impact**: Current `.clinerules/only-user-can-run-ansible-commands.md` rule is technically unenforceable, creating security and compliance violations.
+
+**Required Solution Characteristics**:
+- **Sub-Shell Resistant**: Must work across independent bash sessions
+- **Project-Scoped**: Only apply restrictions within ansible-all-my-things directory
+- **Verification Capable**: AI agents must be able to verify restriction status across sessions
+- **User-Friendly**: Must not interfere with normal user command execution
+- **Maintainable**: Simple to understand, debug, and extend
+
+#### Implementation Constraint Analysis
+**Cannot Rely On**:
+- Bash functions (lost across sessions)
+- Environment variables (not inherited by independent sessions)
+- Session-specific configuration (Claude creates fresh sessions)
+
+**Must Work With**:
+- PATH manipulation (persists across sessions if properly configured)
+- File system markers (persistent across sessions)
+- Directory-specific configuration (direnv, project-local files)
+- Shell initialization hooks (BASH_ENV, .bashrc)
+
+#### Command Restriction Implementation Options ⚠️ SOLUTION SELECTION REQUIRED
+
+**Approach A: Wrapper Scripts**
+- Create `scripts/bin/` directory with wrapper scripts for each restricted command
+- Modify PATH to prioritize local wrappers that check project directory and either block or delegate
+- Pros: Very robust, hard to bypass, works across all shell sessions
+- Cons: PATH manipulation complexity, requires finding real command paths
+
+**Approach B: Environment Detection**
+- Set marker file (`.ansible-restriction-active`) or environment variable
+- Each bash session checks for marker and auto-applies restrictions
+- Pros: Non-intrusive, toggleable, works with existing code
+- Cons: Requires Claude to check markers, relies on "good behavior"
+
+**Approach C: direnv Integration**
+- Create `.envrc` file that sources existing restriction script
+- direnv automatically loads restrictions when entering directory
+- Pros: Automatic, leverages existing script, standard developer workflow
+- Cons: External dependency, user must run `direnv allow .`
+
+**Approach D: Shell Initialization**
+- Use `BASH_ENV`, project-local `.bashrc`, or command prefixes
+- Automatically source restrictions on every shell initialization
+- Pros: Automatic, clean, uses standard bash features
+- Cons: May require modifying Claude's bash tool behavior
+
+**Blocked Commands (Current + Enhanced)**:
+- `ansible` (all variants: ansible-playbook, ansible-vault, ansible-inventory, ansible-galaxy, ansible-config)
+- `vagrant` (all subcommands)
+- `docker` (all subcommands)
+- `tart` (all subcommands)
+- `aws` (AWS CLI)
+- `hcloud` (Hetzner Cloud CLI)
+
 ### Cross-Provider Infrastructure Requirements ✅ IMPLEMENTED & TESTED
 
 #### Testing Environment Requirements

@@ -9,7 +9,7 @@
 
 **Platform-Specific Application Access**: Some applications are only available on specific platforms (e.g., Claude Desktop on Windows/macOS), creating gaps for users on other systems.
 
-### The Solution (Achieved)
+### The Solution (Achieved with Critical Security Gap)
 A unified, cross-provider automation system that provides automated access to development environments across multiple cloud providers and platforms, successfully enabling:
 
 **Multi-Provider Infrastructure**: Automated environments across AWS and Hetzner Cloud ✅ ACHIEVED
@@ -17,6 +17,8 @@ A unified, cross-provider automation system that provides automated access to de
 **Cost Optimization**: Provider choice optimized for specific usage patterns and requirements ✅ ACHIEVED
 **Application Access**: Run platform-specific applications from any host system ✅ ACHIEVED
 **Unified Management**: Single automation framework managing diverse infrastructure ✅ ACHIEVED
+
+**⚠️ CRITICAL SECURITY GAP DISCOVERED**: Current AI agent safety controls are fundamentally broken with Claude Code's architecture, creating security risks and compliance violations that require immediate resolution.
 
 ## How It Works (Implemented)
 
@@ -77,6 +79,22 @@ ansible-playbook destroy-aws.yml
 3. **Access**: SSH and RDP connections to Windows Server environment ✅ WORKING
 4. **Use**: Ready for Claude Desktop and other Windows applications ✅ READY
 5. **Destroy**: Complete environment cleanup via unified destroy process ✅ WORKING
+
+## Security & Compliance Requirements ⚠️ CRITICAL
+
+### AI Agent Safety (Urgent Implementation Required)
+**Problem**: Infrastructure automation projects require strict AI agent safety controls to prevent accidental resource provisioning or destruction.
+
+**Current Broken State**: Command restriction system fails with Claude Code due to shell session isolation, making project rules technically unenforceable.
+
+**Business Impact**:
+- **Security Risk**: AI agents can accidentally provision expensive cloud resources or destroy existing infrastructure
+- **Compliance Violation**: Project-defined safety rules (`.clinerules/only-user-can-run-ansible-commands.md`) are ineffective
+- **Workflow Disruption**: Unreliable restrictions force manual oversight and slow development processes
+
+**Required Solution**: Sub-shell resistant command restriction system that works with Claude Code's independent bash session architecture.
+
+**Success Criteria**: AI agents cannot execute infrastructure commands (`ansible`, `vagrant`, `docker`, `aws`, `hcloud`) while users retain full command access.
 
 ## Problems This Solves
 
