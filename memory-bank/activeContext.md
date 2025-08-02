@@ -3,7 +3,7 @@
 ## Current Work Focus
 
 ### Robust Command Restriction System Implementation 🔴 URGENT
-**Goal**: Implement bulletproof command restriction system that prevents AI agents from executing infrastructure commands while working in the ansible-all-my-things project directory.
+**Goal**: Implement bulletproof command restriction system that prevents AI agents from executing infrastructure commands.
 
 **Status**: 🔴 IN PROGRESS - Critical security compliance issue requiring immediate resolution
 
@@ -22,20 +22,21 @@
 1. **Sub-Shell Resistant Command Blocking**: Mechanism that works when Claude creates new bash sub-shells
 2. **Comprehensive Command Coverage**: Block all infrastructure commands (`ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`)
 3. **AI Agent Verification System**: Enhanced `--status` command that works across sessions
-4. **Easy Setup & Maintenance**: Extend existing `./scripts/setup-command-restrictions.sh` with project-scoped restrictions
+4. **Easy Setup & Maintenance**: Extend existing `./scripts/setup-command-restrictions.sh` with robust restrictions
 
 **Success Criteria**:
 - ✅ **Persistent Blocking**: Commands remain blocked across multiple separate Claude tool calls
 - ✅ **Status Verification**: `--status` correctly shows "BLOCKED" status across sessions
 - ✅ **Error Messages**: Blocked commands display project-rule-compliant error messages
-- ✅ **Project Scope**: Restrictions only apply within ansible-all-my-things directory
+- ✅ **Robust Implementation**: Restrictions work reliably across Claude's session architecture
 - ✅ **User Override**: User can still execute commands when needed (restrictions only apply to Claude)
 
 **Implementation Options Under Consideration**:
-- **Approach A**: Wrapper Scripts (project-local PATH manipulation)
+- **Approach A**: Project-Local Wrapper Scripts (PATH manipulation)
 - **Approach B**: Environment Detection (persistent markers/files)
 - **Approach C**: direnv Integration (automatic directory-based loading)
 - **Approach D**: Shell Initialization (BASH_ENV/project-local .bashrc)
+- **Approach E**: Global System-Wide Wrapper Scripts (bulletproof cross-session blocking)
 
 ## Current System State
 

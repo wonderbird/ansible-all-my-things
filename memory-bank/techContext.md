@@ -106,7 +106,7 @@ ansible --version  # Executes normally (not blocked)
 
 #### Command Restriction Implementation Options ⚠️ SOLUTION SELECTION REQUIRED
 
-**Approach A: Wrapper Scripts**
+**Approach A: Project-Local Wrapper Scripts**
 - Create `scripts/bin/` directory with wrapper scripts for each restricted command
 - Modify PATH to prioritize local wrappers that check project directory and either block or delegate
 - Pros: Very robust, hard to bypass, works across all shell sessions
@@ -129,6 +129,13 @@ ansible --version  # Executes normally (not blocked)
 - Automatically source restrictions on every shell initialization
 - Pros: Automatic, clean, uses standard bash features
 - Cons: May require modifying Claude's bash tool behavior
+
+**Approach E: Global System-Wide Wrapper Scripts**
+- Create global wrapper scripts in `~/bin/` or `/usr/local/bin/` that always block AI agent execution
+- Modify system PATH to prioritize global wrappers over real commands
+- AI agents are blocked system-wide, users can bypass with full paths or sudo when needed
+- Pros: Extremely simple, bulletproof across all sessions and directories, no project-specific logic
+- Cons: System-wide impact, requires user path setup or sudo for real command access
 
 **Blocked Commands (Current + Enhanced)**:
 - `ansible` (all variants: ansible-playbook, ansible-vault, ansible-inventory, ansible-galaxy, ansible-config)

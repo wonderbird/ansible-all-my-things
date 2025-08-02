@@ -2,7 +2,7 @@
 
 ## Product Owner Decision: MVP Increment Definition
 
-**Business Goal**: Implement robust command restriction system that prevents AI agents from executing infrastructure commands while working in the ansible-all-my-things project directory.
+**Business Goal**: Implement robust command restriction system that prevents AI agents from executing infrastructure commands.
 
 **Business Driver**: Current mechanism is fundamentally broken with Claude Code - AI agents ignore rules and execute forbidden commands, creating security risks and workflow problems.
 
@@ -69,7 +69,7 @@ AI agents (especially Claude Code) create sub-bash shells for every command exec
 
 #### 4. Easy Setup & Maintenance
 - Extend existing `./scripts/setup-command-restrictions.sh` script
-- Project-scoped restrictions (only apply in ansible-all-my-things directory)
+- Robust restrictions that work across Claude's session architecture
 - Configurable command list for future additions
 
 ### Success Criteria
@@ -78,7 +78,7 @@ AI agents (especially Claude Code) create sub-bash shells for every command exec
 1. ✅ **Persistent Blocking**: Commands remain blocked across multiple separate Claude tool calls
 2. ✅ **Status Verification**: `--status` correctly shows "BLOCKED" status across sessions
 3. ✅ **Error Messages**: Blocked commands display project-rule-compliant error messages
-4. ✅ **Project Scope**: Restrictions only apply within ansible-all-my-things directory
+4. ✅ **Robust Implementation**: Restrictions work reliably across Claude's session architecture
 5. ✅ **User Override**: User can still execute commands when needed (restrictions only apply to Claude)
 
 **Acceptance Test**:
@@ -106,14 +106,14 @@ bash -c "git status"
 **NOT Compromised**:
 - Reliability in sub-shell scenarios (core requirement)
 - Easy verification for AI agents (workflow requirement)
-- Project-scoped behavior (security requirement)
+- Robust cross-session behavior (security requirement)
 - Maintainable command list (future requirement)
 
 ## Implementation Strategy
 
 ### Solution Approaches for Developer Team Consideration
 
-#### Approach A: Wrapper Scripts
+#### Approach A: Project-Local Wrapper Scripts
 **Concept**: Create project-local wrapper scripts that intercept commands
 - Create `scripts/bin/` directory with wrapper scripts for each restricted command
 - Modify PATH to prioritize local wrappers
@@ -149,6 +149,15 @@ bash -c "git status"
 **Pros**: Automatic, clean, uses standard bash features
 **Cons**: May require modifying Claude's bash tool behavior
 
+#### Approach E: Global System-Wide Wrapper Scripts
+**Concept**: Create global wrapper scripts that always block AI agent execution
+- Create global wrapper scripts in `~/bin/` or `/usr/local/bin/` that always block AI agent execution
+- Modify system PATH to prioritize global wrappers over real commands
+- AI agents are blocked system-wide, users can bypass with full paths or sudo when needed
+
+**Pros**: Extremely simple, bulletproof across all sessions and directories, no project-specific logic
+**Cons**: System-wide impact, requires user path setup or sudo for real command access
+
 ### Implementation Strategy
 
 **⚠️ Solution Selection Required**: The development team must choose which approach to implement based on:
@@ -168,7 +177,7 @@ bash -c "git status"
 ## Requirements Compliance
 
 ### Functional Requirements
-1. **Project-Scoped**: Restrictions apply only when working in ansible-all-my-things directory ✅
+1. **Robust Implementation**: Restrictions work reliably across Claude's session architecture ✅
 2. **Command Coverage**: All specified commands blocked ✅
 3. **Persistence**: Restrictions survive across multiple Claude bash tool calls ✅
 4. **Clear Messaging**: Blocked commands display clear error messages referencing project rules ✅
@@ -180,7 +189,7 @@ bash -c "git status"
 4. **Reversible**: Easy to disable when needed ✅
 
 ## Success Definition
-**MVP Complete When**: AI agents working in project directory cannot execute infrastructure commands even in sub-shells, can easily verify restriction status, and restrictions persist across all Claude tool calls.
+**MVP Complete When**: AI agents cannot execute infrastructure commands even in sub-shells, can easily verify restriction status, and restrictions persist across all Claude tool calls.
 
 **Future Enhancements**: Detailed logging, parameter-based filtering, automated testing, additional command categories.
 

@@ -47,7 +47,6 @@ AI Agent Safety System:
 **Implementation Success Criteria**:
 - **Persistent Blocking**: Commands blocked across separate Claude tool calls
 - **Status Verification**: Reliable `--status` command across sessions
-- **Project Scope**: Restrictions only apply in project directory
 - **User Override**: Normal user command execution unaffected
 
 **Technical Constraints**:
@@ -89,7 +88,7 @@ inventories/
 - **Defense in Depth**: Multiple layers of protection against accidental execution
 - **Clear Verification**: Easy status checking for AI agents across sessions
 - **User Autonomy**: Restrictions apply only to AI agents, not human users
-- **Project Scoping**: Restrictions confined to specific project directory
+- **Robust Architecture**: Restrictions that work reliably across Claude's session model
 
 ## Extension Points
 

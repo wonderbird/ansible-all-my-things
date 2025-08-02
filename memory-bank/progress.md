@@ -29,7 +29,7 @@
 - **Problem**: Claude Code's shell session isolation bypasses bash function-based restrictions ⚠️ DISCOVERED
 - **Impact**: Security risk of accidental infrastructure provisioning, compliance violation, workflow disruption ⚠️ HIGH RISK
 - **Requirements**: Sub-shell resistant command blocking, comprehensive command coverage, AI agent verification system ⚠️ MVP SCOPE
-- **Success Criteria**: Persistent blocking across Claude tool calls, reliable status verification, project-scoped restrictions ⚠️ DEFINED
+- **Success Criteria**: Persistent blocking across Claude tool calls, reliable status verification, robust implementation ⚠️ DEFINED
 - **Implementation**: Solution approach selection required from wrapper scripts, environment detection, direnv, or shell initialization ⚠️ PENDING
 
 ## Technical Foundation
