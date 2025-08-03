@@ -88,6 +88,42 @@ bash -c "git status"
 
 ## Implementation Strategy
 
+### Decision Drivers
+
+The following aspectes are most important for the decision. These aspects are sorted by priority.
+
+- **Linux Support:** The solution must work for Linux
+- **Effectiveness:** The security measure must be absolutely reliable
+- **User Level:** The solution must be employable on a per-user basis. It must be possible to have user accounts that are unaffected from the security measures.
+- **Maturity:** Prefer a mature solution which is maintained by a professional developer team
+- **Simplicity:** Prefer a simple and easy to maintain solution for Debian/Ubuntu based systems
+
+### Unimportant Aspects
+
+The following aspects are not important and can be neglected:
+
+- **One-fits-all solution:** As long as the solution works for any Linux OS, it is sufficient
+
+### Decision Matrix
+
+| Rating | Quality      |
+| ------ | ------------ |
+| 1      | excellent    |
+| 2      | good         |
+| 3      | mediocre     |
+| 4      | sufficient   |
+| 5      | flawed       |
+| 6      | unacceptable |
+
+| Solution                         | Linux Support | Effectiveness | User Level | Maturity | Simplicity | Average Score | All <= 4 |
+| -------------------------------- | ------------- | ------------- | ---------- | -------- | ---------- | ------------- | -------- |
+| 1 User Profile Integration       | 2             | 2             | 1          | 5        | 4          | 2,8           | ✅       |
+| 2 System-Wide Wrappers           | 2             | 2             | 6          | 5        | 4          |               | ❌       |
+| 3 Service-Based Blocking         | 1             | 2             | 1          | 5        | 5          |               | ❌       |
+| 4 fapolicyd Integration          | 1             | 1             | 1          | 1        | 3          | 1,4           | ✅       |
+| 5 AppArmor Integration           | 1             | 1             | 1          | 1        | 2          | 1,2           | ✅       |
+| 6 Claude CLI Native Restrictions | 1             | 1             | 1          | 1        | 1          | 1,0           | ✅       |
+
 ### Six Implementation Approaches
 
 #### 1. User Profile Integration
