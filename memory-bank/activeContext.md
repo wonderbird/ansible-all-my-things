@@ -2,10 +2,10 @@
 
 ## Current Work Focus
 
-### Command Restriction System Implementation 🔴 URGENT
-**Goal**: Deploy command restriction system to target systems that prevents AI agents from executing infrastructure commands.
+### AppArmor Implementation Spike 🔴 URGENT
+**Goal**: Validate AppArmor kernel-level command restrictions on target systems via manual configuration spike.
 
-**Status**: 🔴 IN PROGRESS - Critical implementation priority
+**Status**: 🔴 IMPLEMENTATION READY - AppArmor selected, spike approach defined
 
 **Business Context**: Infrastructure automation projects require AI agent safety controls to prevent accidental resource provisioning or destruction on target systems.
 
@@ -35,13 +35,11 @@
 - ✅ **Reboot Persistence**: Restrictions survive system reboots and updates
 - ✅ **Remote Verification**: Status checkable from control machine via ansible
 
-**Implementation Approaches**:
-- **User Profile Integration**: Deploy restriction scripts to desktop_users' profiles on target systems
-- **System-Wide Wrappers**: Deploy global wrapper scripts to target systems via ansible
-- **Service-Based Blocking**: Deploy services that monitor and block commands on target systems
-- **fapolicyd Integration**: Red Hat's File Access Policy Daemon (Linux-only, not recommended for this use case)
-- **AppArmor Integration**: Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems
-- **Claude CLI Native Restrictions**: Deploy `.claude/settings.json` via ansible
+**Selected Implementation**: **AppArmor Integration**
+- **Decision Rationale**: Kernel-level enforcement provides maximum effectiveness (1.2 average score, tied with Claude CLI Native)
+- **Tiebreaker**: Superior effectiveness on second-highest priority criterion
+- **Implementation Scope**: Linux systems (`hobbiton`, `rivendell`) with Windows (`moria`) deferred
+- **Fallback Option**: Claude CLI Native Restrictions if AppArmor spike fails
 
 ## Current System State
 
@@ -72,8 +70,8 @@ Production-ready cross-provider infrastructure automation:
 - Complete transition to idiomatic ansible configuration
 - Unified command patterns across multiple cloud providers
 
-### Next Steps
-- Development team and software architect to analyze and select command restriction implementation approach from six documented options
-- Develop ansible playbooks for restriction deployment
-- Test Ubuntu target system compatibility with AppArmor approach
-- Integrate with existing user provisioning workflows
+### Next Immediate Actions
+- **Phase 1**: Manual AppArmor configuration spike on fresh `rivendell` instance
+- **Spike Goals**: Validate kernel-level blocking effectiveness with Claude Code shell sessions
+- **Decision Point**: Proceed with AppArmor ansible automation or fallback to Claude CLI Native
+- **Phase 2**: Develop ansible automation for selected approach integration with `playbooks/setup-users.yml`

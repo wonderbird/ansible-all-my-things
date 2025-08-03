@@ -2,10 +2,10 @@
 
 ## Current Status
 
-### Command Restriction System 🔴 URGENT IMPLEMENTATION
-**Status**: Command restriction system implementation in progress
-**Goal**: Deploy command restrictions to target systems via ansible
-**Timeline**: 2-3 days maximum for implementation
+### AppArmor Implementation Spike 🔴 URGENT
+**Status**: AppArmor selected, ready for implementation spike
+**Goal**: Validate kernel-level command restrictions via manual configuration on rivendell
+**Timeline**: 2-3 days maximum for spike and implementation
 **Priority**: **CRITICAL** - required for safe AI agent operation on target systems
 
 ## What Works
@@ -24,18 +24,16 @@
 
 ## What's Next
 
-### Command Restriction System Implementation 🔴 IN PROGRESS
-- **Goal**: Deploy command restriction system to target systems preventing AI agents from executing infrastructure commands
-- **Target Systems**: Deploy to `hobbiton`, `rivendell`, `moria` under `desktop_users` accounts (`galadriel`, `legolas`)
-- **Implementation Approaches**: Six options evaluated:
-  1. **User Profile Integration**: Deploy restriction scripts to desktop_users' profiles ✅ VIABLE
-  2. **System-Wide Wrappers**: Deploy global wrapper scripts via ansible ✅ VIABLE
-  3. **Service-Based Blocking**: Deploy monitoring services that block commands ✅ VIABLE
-  4. **fapolicyd Integration**: Red Hat's File Access Policy Daemon ⚠️ NOT RECOMMENDED (Linux-only)
-  5. **AppArmor Integration**: Deploy AppArmor profiles for Ubuntu/Debian target systems ✅ VIABLE
-  6. **Claude CLI Native Restrictions**: Deploy `.claude/settings.json` via ansible ✅ VIABLE
-- **Requirements**: Sub-shell resistant command blocking, cross-platform compatibility, ansible integration
-- **Success Criteria**: Persistent blocking across Claude tool calls, remote verification capability, reboot persistence
+### AppArmor Implementation 🔴 IMPLEMENTATION READY
+- **Goal**: Deploy kernel-level command restrictions to Linux target systems via AppArmor
+- **Target Systems**: `hobbiton`, `rivendell` under `desktop_users` accounts (`galadriel`, `legolas`)
+- **Decision Analysis**: ✅ COMPLETED
+  - **Six approaches evaluated** with comprehensive scoring matrix
+  - **AppArmor selected**: 1.2 average score, superior effectiveness tiebreaker
+  - **Decision rationale documented** with collaborative analysis insights
+  - **Implementation strategy defined**: Spike-first validation approach
+- **Current Phase**: Manual configuration spike on fresh rivendell instance
+- **Success Criteria**: Kernel-level blocking across Claude tool calls, remote verification, reboot persistence
 
 ### Documentation Streamlining ✅ COMPLETED
 - **Memory Bank Restructured**: Removed discovery narrative and "broken state" language from all files
@@ -60,17 +58,18 @@
 
 ## Next Immediate Actions
 
-1. **Select Implementation Approach**: Development team and software architect to analyze and choose from six documented approaches
-2. **Develop Ansible Playbooks**: Create deployment automation for restrictions
-3. **Test Cross-Platform Compatibility**: Verify functionality on Linux and Windows target systems
-4. **Integrate with User Provisioning**: Extend existing `playbooks/setup-users.yml` workflow
-5. **Implement Remote Verification**: Enable status checking from control machine via ansible
+1. **AppArmor Spike Implementation**: Manual configuration on fresh rivendell instance
+2. **Validate Kernel-Level Blocking**: Test effectiveness with Claude Code shell sessions
+3. **Decision Point**: Proceed with AppArmor or fallback to Claude CLI Native
+4. **Develop Ansible Automation**: Create AppArmor deployment playbooks
+5. **Integrate with User Provisioning**: Extend existing `playbooks/setup-users.yml` workflow
 
 ## Recent Accomplishments
 
-- **Documentation Excellence**: Successfully streamlined entire memory bank and development increment documentation
-- **Research Completeness**: Thoroughly evaluated enterprise-grade security solutions (fapolicyd, AppArmor) to ensure no viable approaches were overlooked
-- **Ubuntu Solution Identified**: AppArmor provides robust kernel-level command blocking with native Ubuntu/Debian support
-- **Clear Decision Path**: Six implementation approaches documented for development team and software architect analysis
+- **Decision Analysis Completed**: ✅ Comprehensive evaluation of six implementation approaches
+- **AppArmor Selection**: ✅ Kernel-level enforcement approach selected based on effectiveness priority
+- **Implementation Strategy**: ✅ Spike-first validation approach defined for rivendell
+- **Collaborative Decision Rationale**: ✅ Scoring matrix and decision logic documented for future reference
+- **Fallback Strategy**: ✅ Claude CLI Native identified as viable alternative
 
 The project has achieved its primary infrastructure objectives, completed comprehensive solution research, and is ready for command restriction system implementation on target systems.

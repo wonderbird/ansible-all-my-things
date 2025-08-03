@@ -68,13 +68,13 @@ Production-ready cross-provider infrastructure automation with unified managemen
 - Leverage RPM trust database and systemd integration for comprehensive application control
 - **Assessment**: Not recommended due to Linux-only limitation (doesn't address Windows target `moria`) and complexity mismatch for simple command blocking requirements
 
-#### 5. AppArmor Integration (Ubuntu/Debian Linux Systems)
+#### 5. AppArmor Integration (Ubuntu/Debian Linux Systems) ✅ SELECTED
 - Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems
 - Use `pam_apparmor` for user-specific targeting of `desktop_users` accounts (`galadriel`, `legolas`)
 - Kernel-level Mandatory Access Control (MAC) that blocks infrastructure commands
-- **Pros**: Native Ubuntu/Debian support, kernel-level enforcement, user-specific targeting, ansible-deployable
-- **Cons**: Linux-only solution, PAM configuration required, system-wide impact
-- **Implementation**: Deploy profiles to `/etc/apparmor.d/ai-agent-block` via ansible templates
+- **Selection Rationale**: 1.2 average score, superior effectiveness (kernel-level enforcement) on priority criteria
+- **Implementation Status**: Manual configuration spike planned for rivendell validation
+- **Deployment Plan**: Deploy profiles to `/etc/apparmor.d/ai-agent-block` via ansible templates after spike success
 
 #### 6. Claude CLI Native Restrictions
 - Deploy `.claude/settings.json` files to desktop_users' home directories on target systems via ansible
@@ -86,13 +86,13 @@ Production-ready cross-provider infrastructure automation with unified managemen
 
 **Blocked Commands**: `ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`
 
-**Implementation Success Criteria**:
-- **Persistent Blocking**: Commands blocked across separate Claude tool calls on target systems
-- **Cross-Platform Deployment**: Works on AWS Linux, AWS Windows, and Hetzner Cloud systems
-- **Ansible Integration**: Deployed automatically during infrastructure provisioning
-- **User Account Targeting**: Applied to all desktop_users on target systems
-- **Reboot Persistence**: Restrictions survive system reboots and updates
-- **Remote Verification**: Status checkable from control machine via ansible
+**AppArmor Implementation Success Criteria**:
+- **Kernel-Level Blocking**: Commands blocked via mandatory access control across Claude tool calls
+- **Linux Target Systems**: Deployed to `hobbiton` and `rivendell` via ansible automation
+- **User-Specific Targeting**: Applied to `galadriel` and `legolas` accounts via pam_apparmor
+- **Ansible Integration**: Deployed automatically during infrastructure provisioning via playbooks/setup-users.yml
+- **Reboot Persistence**: Kernel-level restrictions survive system reboots and updates
+- **Remote Verification**: Status checkable via `aa-status` command through ansible tasks
 
 ## Inventory System Architecture ✅ IMPLEMENTED
 

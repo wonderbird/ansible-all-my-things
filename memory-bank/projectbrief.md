@@ -41,10 +41,10 @@ Automate complete lifecycle of development environments across cloud providers w
 - **Hetzner Cloud**: Production-ready persistent environments
 - **Testing Framework**: Comprehensive Vagrant-based testing
 
-### AI Agent Safety 🔴 IN PROGRESS
-- **Command Restriction System**: Implementation required on target systems
-- **Ansible Integration**: Deploy via existing user provisioning workflows
-- **Cross-Platform Support**: Linux and Windows target system compatibility
+### AI Agent Safety 🔴 IMPLEMENTATION READY
+- **AppArmor Selected**: Kernel-level command restrictions for Linux target systems
+- **Implementation Strategy**: Manual spike validation on rivendell, then ansible automation
+- **Target Systems**: Deploy to `hobbiton` and `rivendell` with `moria` deferred until needed
 
 ## Success Metrics
 

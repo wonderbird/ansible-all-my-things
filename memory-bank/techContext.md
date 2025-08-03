@@ -155,9 +155,10 @@ ansible-all-my-things/
 ```
 
 ### AI Agent Safety Architecture
-**Current Priority**: Deploy command restriction system to target systems
-**Timeline**: 2-3 days maximum for implementation
-**Approach**: Development team and software architect to analyze and select from six documented implementation options
+**Current Priority**: AppArmor kernel-level command restrictions implementation
+**Timeline**: 2-3 days maximum for spike validation and ansible automation
+**Selected Approach**: AppArmor Integration (1.2 score, kernel-level effectiveness priority)
+**Implementation Phase**: Manual configuration spike on rivendell, then ansible automation
 
 ## Dependencies & Integration
 
