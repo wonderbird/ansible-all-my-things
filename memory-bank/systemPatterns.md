@@ -36,7 +36,7 @@ Production-ready cross-provider infrastructure automation with unified managemen
 
 **Core Challenge**: Deploy restrictions via ansible that work reliably across Claude Code's independent shell sessions on target systems.
 
-**Five Implementation Approaches**:
+**Six Implementation Approaches**:
 
 #### 1. User Profile Integration
 - Deploy restriction scripts to desktop_users' profiles on target systems
@@ -68,7 +68,15 @@ Production-ready cross-provider infrastructure automation with unified managemen
 - Leverage RPM trust database and systemd integration for comprehensive application control
 - **Assessment**: Not recommended due to Linux-only limitation (doesn't address Windows target `moria`) and complexity mismatch for simple command blocking requirements
 
-#### 5. Claude CLI Native Restrictions (Recommended)
+#### 5. AppArmor Integration (Ubuntu/Debian Linux Systems)
+- Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems
+- Use `pam_apparmor` for user-specific targeting of `desktop_users` accounts (`galadriel`, `legolas`)
+- Kernel-level Mandatory Access Control (MAC) that blocks infrastructure commands
+- **Pros**: Native Ubuntu/Debian support, kernel-level enforcement, user-specific targeting, ansible-deployable
+- **Cons**: Linux-only solution, PAM configuration required, system-wide impact
+- **Implementation**: Deploy profiles to `/etc/apparmor.d/ai-agent-block` via ansible templates
+
+#### 6. Claude CLI Native Restrictions (Cross-Platform Recommended)
 - Deploy `.claude/settings.json` files to desktop_users' home directories on target systems via ansible
 - Use Claude Code's built-in permission system to block commands at tool execution level
 - Cross-platform ansible deployment with simple file management

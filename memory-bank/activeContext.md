@@ -40,7 +40,8 @@
 - **System-Wide Wrappers**: Deploy global wrapper scripts to target systems via ansible
 - **Service-Based Blocking**: Deploy services that monitor and block commands on target systems
 - **fapolicyd Integration**: Red Hat's File Access Policy Daemon (Linux-only, not recommended for this use case)
-- **Claude CLI Native Restrictions**: Deploy `.claude/settings.json` via ansible (⭐ RECOMMENDED - native architecture integration)
+- **AppArmor Integration**: Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems (⭐ UBUNTU-FOCUSED)
+- **Claude CLI Native Restrictions**: Deploy `.claude/settings.json` via ansible (⭐ CROSS-PLATFORM)
 
 ## Current System State
 
@@ -61,9 +62,10 @@ Production-ready cross-provider infrastructure automation:
 
 ### Documentation Streamlining Completed
 - **Memory bank restructured**: Removed "broken state" and "discovery" language throughout all files
-- **Implementation approaches consolidated**: From 8 scattered options to 4 clear distributed approaches
+- **Implementation approaches consolidated**: From 8 scattered options to 6 clear approaches
 - **Forward-looking documentation**: Written as if target system deployment was always the known approach
 - **fapolicyd research completed**: Documented as fourth approach but assessed as not suitable for cross-platform requirements
+- **AppArmor research completed**: Ubuntu/Debian equivalent to fapolicyd identified and documented as sixth approach with kernel-level security
 
 ### Infrastructure Improvements
 - Enhanced inventory system with provider-specific targeting
@@ -71,7 +73,7 @@ Production-ready cross-provider infrastructure automation:
 - Unified command patterns across multiple cloud providers
 
 ### Next Steps
-- Select command restriction implementation approach from the three viable options
+- Select command restriction implementation approach from the viable options (Ubuntu-focused: AppArmor vs Cross-platform: Claude CLI)
 - Develop ansible playbooks for restriction deployment
-- Test cross-platform compatibility on target systems
+- Test Ubuntu target system compatibility with AppArmor approach
 - Integrate with existing user provisioning workflows

@@ -88,7 +88,7 @@ bash -c "git status"
 
 ## Implementation Strategy
 
-### Five Implementation Approaches
+### Six Implementation Approaches
 
 #### 1. User Profile Integration
 **Concept**: Deploy restriction scripts to desktop_users' profiles on target systems
@@ -156,7 +156,81 @@ allow perm=execute gid=wheel : path=/usr/bin/ansible
 - [Automating fapolicyd with RHEL System Roles](https://www.redhat.com/en/blog/automating-fapolicyd-rhel-system-roles)
 - [fapolicyd Ansible Configuration](https://access.redhat.com/solutions/6997136) (Red Hat Subscription Required)
 
-#### 5. Claude CLI Native Restrictions (Recommended)
+#### 5. AppArmor Integration (Ubuntu/Debian Linux Systems)
+**Concept**: Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems
+
+**Implementation**: Deploy AppArmor profiles to target systems blocking infrastructure commands for specific desktop users
+
+**Profile Structure**:
+```bash
+# Example profile for blocking commands per user
+#include <tunables/global>
+
+profile ai_agent_block flags=(attach_disconnected) {
+  #include <abstractions/base>
+  
+  # Block infrastructure commands for specific users
+  owner /usr/bin/ansible ux,
+  owner /usr/bin/vagrant ux,
+  owner /usr/bin/docker ux,
+  owner /usr/bin/aws ux,
+  owner /usr/bin/hcloud ux,
+  
+  # Allow normal system commands
+  /bin/* ux,
+  /usr/bin/* ux,
+  /usr/local/bin/* ux,
+}
+```
+
+**User-Specific Targeting via pam_apparmor**:
+```bash
+# Configure PAM to apply profiles based on user accounts
+# /etc/security/pam_apparmor.conf
+galadriel default_profile=ai_agent_block
+legolas default_profile=ai_agent_block
+```
+
+**Ansible Integration**:
+```yaml
+- name: Deploy AppArmor profile for AI agent command restrictions
+  template:
+    src: ai-agent-block.profile.j2
+    dest: /etc/apparmor.d/ai-agent-block
+  notify: reload apparmor
+
+- name: Configure pam_apparmor for desktop users
+  template:
+    src: pam_apparmor.conf.j2  
+    dest: /etc/security/pam_apparmor.conf
+  notify: restart ssh
+
+- name: Enable AppArmor profile
+  command: aa-enforce /etc/apparmor.d/ai-agent-block
+```
+
+**Pros**: 
+- **Native Ubuntu/Debian Support**: Ships by default, fully supported security framework
+- **User-Specific Targeting**: Can apply restrictions to specific desktop_users via pam_apparmor
+- **Kernel-Level Enforcement**: Mandatory Access Control that's difficult to bypass
+- **Ansible Integration**: Simple profile deployment and management via ansible
+- **Persistent Security**: Restrictions survive reboots and system updates
+- **Remote Verification**: Status checking via `aa-status` command through ansible
+- **Shell Session Resistant**: Works across all shell types and sub-shells
+
+**Cons**:
+- **Linux-Only Solution** (doesn't address Windows target `moria`)
+- **PAM Configuration Required**: Additional complexity for user-specific targeting
+- **Profile Development**: Requires AppArmor profile syntax knowledge
+- **System-Wide Impact**: Profiles apply at kernel level
+
+**Key Resources**:
+- [Ubuntu AppArmor Documentation](https://ubuntu.com/server/docs/security-apparmor)
+- [AppArmor Profile Syntax](https://manpages.ubuntu.com/manpages/focal/man5/apparmor.d.5.html)
+- [pam_apparmor Configuration](https://wiki.debian.org/AppArmor/HowToUse)
+- [AppArmor Management Tools](https://documentation.ubuntu.com/server/how-to/security/apparmor/)
+
+#### 6. Claude CLI Native Restrictions (Recommended)
 **Concept**: Use Claude Code's built-in permission system to block commands at the tool execution level
 
 **Implementation**: Deploy `.claude/settings.json` files to desktop_users' home directories on target systems via ansible
@@ -222,7 +296,9 @@ allow perm=execute gid=wheel : path=/usr/bin/ansible
 
 **Implementation Timeline**: 2-3 days maximum for chosen solution
 
-**Recommended Approach**: Claude CLI Native Restrictions offers the most elegant solution by working directly with Claude's architecture rather than against it.
+**Recommended Approaches**: 
+- **Cross-Platform**: Claude CLI Native Restrictions offers the most elegant solution by working directly with Claude's architecture rather than against it
+- **Ubuntu/Debian Focus**: AppArmor Integration provides robust kernel-level security with native platform support for Ubuntu target systems
 
 ## Requirements Compliance
 

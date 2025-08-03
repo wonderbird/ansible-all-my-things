@@ -101,7 +101,16 @@ ansible-all-my-things/
 - **Monitoring**: Service-based approach survives all session types and reboots
 - **Control**: Remote monitoring and management capabilities via ansible
 
-#### Claude CLI Native Restrictions (Recommended)
+#### AppArmor Integration (Ubuntu/Debian Linux Systems)
+**Concept**: Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems
+- **Implementation**: Deploy AppArmor profiles blocking infrastructure commands for specific desktop users
+- **User Targeting**: Use `pam_apparmor` to apply restrictions to `galadriel` and `legolas` accounts
+- **Kernel-Level Security**: Mandatory Access Control that's difficult to bypass
+- **Ansible Integration**: Deploy profiles to `/etc/apparmor.d/ai-agent-block` via ansible templates
+- **Persistence**: Restrictions survive reboots and system updates
+- **Management**: Remote status checking via `aa-status` command through ansible
+
+#### Claude CLI Native Restrictions (Cross-Platform Recommended)
 **Concept**: Use Claude Code's built-in permission system to block commands at tool execution level
 - **Implementation**: Deploy `.claude/settings.json` files to desktop_users' home directories on target systems
 - **Cross-Platform**: Inherent Linux + Windows support through Claude's architecture
@@ -148,7 +157,7 @@ ansible-all-my-things/
 ### AI Agent Safety Architecture
 **Current Priority**: Deploy command restriction system to target systems
 **Timeline**: 2-3 days maximum for implementation
-**Approach**: Select from three implementation options based on requirements
+**Approach**: Select from six implementation options based on requirements (Ubuntu-focused: AppArmor vs Cross-platform: Claude CLI)
 
 ## Dependencies & Integration
 
