@@ -150,8 +150,6 @@ allow perm=execute gid=wheel : path=/usr/bin/ansible
 - Overkill for simple command blocking requirements
 - Risk of blocking legitimate system operations
 
-**Assessment**: **NOT RECOMMENDED** for this use case due to platform limitations and complexity mismatch
-
 **Key Resources**:
 - [Red Hat fapolicyd Documentation](https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/8/html/security_hardening/assembly_blocking-and-allowing-applications-using-fapolicyd_security-hardening)
 - [fapolicyd GitHub Repository](https://github.com/linux-application-whitelisting/fapolicyd)
