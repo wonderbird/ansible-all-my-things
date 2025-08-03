@@ -88,7 +88,7 @@ bash -c "git status"
 
 ## Implementation Strategy
 
-### Four Implementation Approaches
+### Five Implementation Approaches
 
 #### 1. User Profile Integration
 **Concept**: Deploy restriction scripts to desktop_users' profiles on target systems
@@ -156,6 +156,63 @@ allow perm=execute gid=wheel : path=/usr/bin/ansible
 - [Automating fapolicyd with RHEL System Roles](https://www.redhat.com/en/blog/automating-fapolicyd-rhel-system-roles)
 - [fapolicyd Ansible Configuration](https://access.redhat.com/solutions/6997136) (Red Hat Subscription Required)
 
+#### 5. Claude CLI Native Restrictions (Recommended)
+**Concept**: Use Claude Code's built-in permission system to block commands at the tool execution level
+
+**Implementation**: Deploy `.claude/settings.json` files to desktop_users' home directories on target systems via ansible
+
+**Settings Template**:
+```json
+{
+  "permissions": {
+    "deny": [
+      "Bash(ansible:*)",
+      "Bash(vagrant:*)", 
+      "Bash(docker:*)",
+      "Bash(tart:*)",
+      "Bash(aws:*)",
+      "Bash(hcloud:*)"
+    ]
+  }
+}
+```
+
+**Ansible Integration**:
+```yaml
+- name: Create Claude settings directory
+  file:
+    path: "{{ ansible_user_dir }}/.claude"
+    state: directory
+    
+- name: Deploy Claude command restrictions
+  template:
+    src: claude-settings.json.j2
+    dest: "{{ ansible_user_dir }}/.claude/settings.json"
+```
+
+**Deployment Locations**:
+- **User-level**: `~/.claude/settings.json` (standard approach)
+- **Project-level**: `.claude/settings.json` (for project-specific restrictions)
+- **Enterprise-managed**: `/etc/claude-code/managed-settings.json` (Linux system-wide)
+
+**Pros**: 
+- **Native Architecture**: Works directly with Claude's tool execution system
+- **Sub-shell Resistant**: Inherently handles Claude's independent sessions
+- **Cross-Platform**: Built-in Linux + Windows support through Claude
+- **Zero Brittleness**: No shell profile dependencies or wrapper complications
+- **Elegant Deployment**: Simple file management via ansible templates
+- **Remote Verification**: Standard file existence/content checking via ansible
+- **Bulletproof Persistence**: Restrictions apply automatically across all Claude sessions
+
+**Cons**:
+- **Claude-Specific**: Only works when Claude CLI is the execution environment
+- **Tool Dependency**: Effectiveness tied to Claude Code tool architecture
+
+**Key Resources**:
+- [Claude Code Settings Documentation](https://docs.anthropic.com/en/docs/claude-code/settings)
+- [Claude Code CLI Reference](https://docs.anthropic.com/en/docs/claude-code/cli-reference)
+- [Claude Code Security Features](https://docs.anthropic.com/en/docs/claude-code/security)
+
 ### Implementation Decision
 **Solution Selection Required**: Choose implementation approach based on:
 - Technical feasibility with Claude Code's architecture
@@ -164,6 +221,8 @@ allow perm=execute gid=wheel : path=/usr/bin/ansible
 - Cross-platform compatibility requirements
 
 **Implementation Timeline**: 2-3 days maximum for chosen solution
+
+**Recommended Approach**: Claude CLI Native Restrictions offers the most elegant solution by working directly with Claude's architecture rather than against it.
 
 ## Requirements Compliance
 

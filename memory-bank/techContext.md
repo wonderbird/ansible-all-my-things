@@ -101,6 +101,14 @@ ansible-all-my-things/
 - **Monitoring**: Service-based approach survives all session types and reboots
 - **Control**: Remote monitoring and management capabilities via ansible
 
+#### Claude CLI Native Restrictions (Recommended)
+**Concept**: Use Claude Code's built-in permission system to block commands at tool execution level
+- **Implementation**: Deploy `.claude/settings.json` files to desktop_users' home directories on target systems
+- **Cross-Platform**: Inherent Linux + Windows support through Claude's architecture
+- **Ansible Integration**: Simple file deployment with ansible templates
+- **Persistence**: Restrictions apply automatically across all Claude sessions
+- **Management**: Standard file existence/content checking via ansible
+
 **Blocked Commands**: `ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`
 
 ### Technical Constraints

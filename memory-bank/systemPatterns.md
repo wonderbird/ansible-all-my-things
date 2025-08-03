@@ -36,7 +36,7 @@ Production-ready cross-provider infrastructure automation with unified managemen
 
 **Core Challenge**: Deploy restrictions via ansible that work reliably across Claude Code's independent shell sessions on target systems.
 
-**Four Implementation Approaches**:
+**Five Implementation Approaches**:
 
 #### 1. User Profile Integration
 - Deploy restriction scripts to desktop_users' profiles on target systems
@@ -67,6 +67,14 @@ Production-ready cross-provider infrastructure automation with unified managemen
 - Configure user/group-based policies via ansible to block infrastructure commands for AI agent accounts
 - Leverage RPM trust database and systemd integration for comprehensive application control
 - **Assessment**: Not recommended due to Linux-only limitation (doesn't address Windows target `moria`) and complexity mismatch for simple command blocking requirements
+
+#### 5. Claude CLI Native Restrictions (Recommended)
+- Deploy `.claude/settings.json` files to desktop_users' home directories on target systems via ansible
+- Use Claude Code's built-in permission system to block commands at tool execution level
+- Cross-platform ansible deployment with simple file management
+- **Pros**: Native architecture integration, sub-shell resistant, zero brittleness, elegant deployment
+- **Cons**: Claude-specific solution, effectiveness tied to Claude Code tool architecture
+- **Implementation**: Simple ansible file deployment with immediate effectiveness
 
 **Blocked Commands**: `ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`
 

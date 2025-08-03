@@ -27,17 +27,18 @@
 ### Command Restriction System Implementation 🔴 IN PROGRESS
 - **Goal**: Deploy command restriction system to target systems preventing AI agents from executing infrastructure commands
 - **Target Systems**: Deploy to `hobbiton`, `rivendell`, `moria` under `desktop_users` accounts (`galadriel`, `legolas`)
-- **Implementation Approaches**: Four options evaluated:
+- **Implementation Approaches**: Five options evaluated:
   1. **User Profile Integration**: Deploy restriction scripts to desktop_users' profiles ✅ VIABLE
   2. **System-Wide Wrappers**: Deploy global wrapper scripts via ansible ✅ VIABLE
   3. **Service-Based Blocking**: Deploy monitoring services that block commands ✅ VIABLE
   4. **fapolicyd Integration**: Red Hat's File Access Policy Daemon ⚠️ NOT RECOMMENDED (Linux-only)
+  5. **Claude CLI Native Restrictions**: Deploy `.claude/settings.json` via ansible ⭐ RECOMMENDED
 - **Requirements**: Sub-shell resistant command blocking, cross-platform compatibility, ansible integration
 - **Success Criteria**: Persistent blocking across Claude tool calls, remote verification capability, reboot persistence
 
 ### Documentation Streamlining ✅ COMPLETED
 - **Memory Bank Restructured**: Removed discovery narrative and "broken state" language from all files
-- **Implementation Approaches Consolidated**: From 8 scattered options to 4 clear approaches with 3 viable for cross-platform
+- **Implementation Approaches Consolidated**: From 8 scattered options to 5 clear approaches with 4 viable for cross-platform
 - **Forward-Looking Documentation**: Rewritten as if target system deployment was always the known approach
 - **fapolicyd Research**: Comprehensive analysis completed, documented but assessed as unsuitable for cross-platform requirements
 

@@ -40,6 +40,7 @@
 - **System-Wide Wrappers**: Deploy global wrapper scripts to target systems via ansible
 - **Service-Based Blocking**: Deploy services that monitor and block commands on target systems
 - **fapolicyd Integration**: Red Hat's File Access Policy Daemon (Linux-only, not recommended for this use case)
+- **Claude CLI Native Restrictions**: Deploy `.claude/settings.json` via ansible (⭐ RECOMMENDED - native architecture integration)
 
 ## Current System State
 
