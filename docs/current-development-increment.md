@@ -118,11 +118,44 @@ The following aspects are not important and can be neglected:
 | Solution                         | Linux Support | Effectiveness | User Level | Maturity | Simplicity | Average Score | All <= 4 |
 | -------------------------------- | ------------- | ------------- | ---------- | -------- | ---------- | ------------- | -------- |
 | 1 User Profile Integration       | 2             | 2             | 1          | 5        | 4          | 2,8           | ✅       |
-| 2 System-Wide Wrappers           | 2             | 2             | 6          | 5        | 4          |               | ❌       |
-| 3 Service-Based Blocking         | 1             | 2             | 1          | 5        | 5          |               | ❌       |
+| 2 System-Wide Wrappers           | 2             | 2             | 2          | 5        | 4          |               | ❌       |
+| 3 Service-Based Blocking         | 1             | 3             | 1          | 5        | 5          |               | ❌       |
 | 4 fapolicyd Integration          | 1             | 1             | 1          | 1        | 3          | 1,4           | ✅       |
 | 5 AppArmor Integration           | 1             | 1             | 1          | 1        | 2          | 1,2           | ✅       |
-| 6 Claude CLI Native Restrictions | 1             | 1             | 1          | 1        | 1          | 1,0           | ✅       |
+| 6 Claude CLI Native Restrictions | 1             | 2             | 1          | 1        | 1          | 1,2           | ✅       |
+
+### Decision Matrix Rationale
+
+#### Scoring Rationale
+**Linux Support**: All solutions work on Linux systems, with varying degrees of native platform integration.
+
+**Effectiveness**: Scored based on reliability and bypass resistance:
+- **Kernel-level enforcement** (AppArmor, fapolicyd): Maximum reliability through mandatory access control
+- **Application-level blocking** (Claude CLI): Good reliability within Claude's architecture
+- **Custom implementations**: Lower reliability due to development complexity and potential edge cases
+
+**User Level**: Ability to apply restrictions per-user without affecting other accounts:
+- System-wide wrappers can implement user-specific logic by checking current user identity
+- Profile-based and native solutions naturally support per-user deployment
+
+**Maturity**: Professional maintenance vs. custom development:
+- Enterprise security frameworks (AppArmor, fapolicyd, Claude CLI): Professionally maintained
+- Custom implementations: Require development and maintenance from scratch
+
+**Simplicity**: Learning curve and deployment complexity from Ubuntu/Debian perspective:
+- Claude CLI: Familiar JSON configuration
+- AppArmor: Native Ubuntu support but requires profile syntax knowledge
+- fapolicyd: Fedora-focused tooling adds complexity for Ubuntu environments
+
+#### Decision Result
+**Selected Approach**: **AppArmor Integration**
+- **Final Score**: 1.2 (tied with Claude CLI Native)
+- **Tiebreaker**: Superior effectiveness (kernel-level enforcement) on second-highest priority criterion
+- **Implementation Scope**: Linux systems (`hobbiton`, `rivendell`) with Windows (`moria`) deferred until needed
+
+#### Implementation Strategy
+**Phase 1**: Feasibility validation through manual configuration spike on `rivendell`
+**Phase 2**: Ansible automation development if spike succeeds, otherwise fallback to Claude CLI Native
 
 ### Six Implementation Approaches
 
@@ -139,11 +172,12 @@ The following aspects are not important and can be neglected:
 #### 2. System-Wide Wrappers
 **Concept**: Deploy global wrapper scripts to target systems via ansible
 - Deploy wrapper scripts to `/usr/local/bin/` (Linux) or `C:\Windows\System32\` (Windows) via ansible
+- Wrapper scripts check current user identity and only block commands for specific accounts (`galadriel`, `legolas`)
 - Modify system PATH during user provisioning to prioritize wrappers
 - Cross-platform ansible tasks for Linux and Windows deployment
 - Include verification tasks in ansible playbooks
 
-**Pros**: System-wide on target systems, ansible-deployable, cross-platform, bulletproof
+**Pros**: System-wide on target systems, ansible-deployable, cross-platform, bulletproof, supports user-specific targeting
 **Cons**: System-wide impact on target systems, requires elevated privileges during deployment
 
 #### 3. Service-Based Blocking
