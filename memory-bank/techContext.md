@@ -110,7 +110,7 @@ ansible-all-my-things/
 - **Persistence**: Restrictions survive reboots and system updates
 - **Management**: Remote status checking via `aa-status` command through ansible
 
-#### Claude CLI Native Restrictions (Cross-Platform Recommended)
+#### Claude CLI Native Restrictions
 **Concept**: Use Claude Code's built-in permission system to block commands at tool execution level
 - **Implementation**: Deploy `.claude/settings.json` files to desktop_users' home directories on target systems
 - **Cross-Platform**: Inherent Linux + Windows support through Claude's architecture
@@ -157,7 +157,7 @@ ansible-all-my-things/
 ### AI Agent Safety Architecture
 **Current Priority**: Deploy command restriction system to target systems
 **Timeline**: 2-3 days maximum for implementation
-**Approach**: Select from six implementation options based on requirements (Ubuntu-focused: AppArmor vs Cross-platform: Claude CLI)
+**Approach**: Development team and software architect to analyze and select from six documented implementation options
 
 ## Dependencies & Integration
 

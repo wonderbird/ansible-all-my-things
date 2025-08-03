@@ -76,7 +76,7 @@ Production-ready cross-provider infrastructure automation with unified managemen
 - **Cons**: Linux-only solution, PAM configuration required, system-wide impact
 - **Implementation**: Deploy profiles to `/etc/apparmor.d/ai-agent-block` via ansible templates
 
-#### 6. Claude CLI Native Restrictions (Cross-Platform Recommended)
+#### 6. Claude CLI Native Restrictions
 - Deploy `.claude/settings.json` files to desktop_users' home directories on target systems via ansible
 - Use Claude Code's built-in permission system to block commands at tool execution level
 - Cross-platform ansible deployment with simple file management

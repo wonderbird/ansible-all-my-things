@@ -230,7 +230,7 @@ legolas default_profile=ai_agent_block
 - [pam_apparmor Configuration](https://wiki.debian.org/AppArmor/HowToUse)
 - [AppArmor Management Tools](https://documentation.ubuntu.com/server/how-to/security/apparmor/)
 
-#### 6. Claude CLI Native Restrictions (Recommended)
+#### 6. Claude CLI Native Restrictions
 **Concept**: Use Claude Code's built-in permission system to block commands at the tool execution level
 
 **Implementation**: Deploy `.claude/settings.json` files to desktop_users' home directories on target systems via ansible
@@ -296,9 +296,7 @@ legolas default_profile=ai_agent_block
 
 **Implementation Timeline**: 2-3 days maximum for chosen solution
 
-**Recommended Approaches**: 
-- **Cross-Platform**: Claude CLI Native Restrictions offers the most elegant solution by working directly with Claude's architecture rather than against it
-- **Ubuntu/Debian Focus**: AppArmor Integration provides robust kernel-level security with native platform support for Ubuntu target systems
+**Available Approaches**: Six implementation approaches documented for development team and software architect analysis and decision
 
 ## Requirements Compliance
 

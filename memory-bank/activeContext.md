@@ -40,8 +40,8 @@
 - **System-Wide Wrappers**: Deploy global wrapper scripts to target systems via ansible
 - **Service-Based Blocking**: Deploy services that monitor and block commands on target systems
 - **fapolicyd Integration**: Red Hat's File Access Policy Daemon (Linux-only, not recommended for this use case)
-- **AppArmor Integration**: Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems (⭐ UBUNTU-FOCUSED)
-- **Claude CLI Native Restrictions**: Deploy `.claude/settings.json` via ansible (⭐ CROSS-PLATFORM)
+- **AppArmor Integration**: Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems
+- **Claude CLI Native Restrictions**: Deploy `.claude/settings.json` via ansible
 
 ## Current System State
 
@@ -73,7 +73,7 @@ Production-ready cross-provider infrastructure automation:
 - Unified command patterns across multiple cloud providers
 
 ### Next Steps
-- Select command restriction implementation approach from the viable options (Ubuntu-focused: AppArmor vs Cross-platform: Claude CLI)
+- Development team and software architect to analyze and select command restriction implementation approach from six documented options
 - Develop ansible playbooks for restriction deployment
 - Test Ubuntu target system compatibility with AppArmor approach
 - Integrate with existing user provisioning workflows
