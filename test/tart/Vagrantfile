@@ -6,7 +6,7 @@ Vagrant.configure("2") do |config|
     config.vm.provider "tart" do |tart|
       tart.image = "ghcr.io/cirruslabs/ubuntu:latest"
       tart.name = "lorien"
-      tart.disk = 20
+      tart.disk = 30
       tart.cpus = 4
       tart.memory = 8192
     end
@@ -16,40 +16,5 @@ Vagrant.configure("2") do |config|
 
     config.vm.define "lorien" do |lorien|
       lorien.vm.hostname = "lorien"
-      
-      # Run Ansible provisioner once for all VMs at the end
-      config.vm.provision "ansible" do |ansible|
-        ansible.playbook = "../../configure-linux.yml"
-        ansible.vault_password_file = "../../ansible-vault-password.txt"
-
-        # On macOS with Apple Silicon, some playbooks are not supported.
-        # In the configure.yml, these are tagged with
-        # "not-supported-on-vagrant-arm64".
-        # We have to skip them here.
-        ansible.skip_tags = [ "not-supported-on-vagrant-arm64" ]
-        
-        # Debug by uncommenting the following line:
-        #ansible.verbose = "vvv"
-        
-        # Vagrant fails to detect the Ansible version. Thus we force it to
-        # use v2.
-        ansible.compatibility_mode = "2.0"
-
-        # We deliberately deviate from the Hetzner configuration using "root"
-        # as the remote user. Tart only supports "admin" as the remote user.
-        ansible.force_remote_user = true
-        ansible.extra_vars = {
-          "ansible_user" => "admin"
-        }
-
-        ansible.limit = "all"
-
-        ansible.groups = {
-          "linux" => ["lorien"],
-          "linux:vars" => {
-            "admin_user_on_fresh_system" => "admin",
-          }
-        }
-      end
     end
 end

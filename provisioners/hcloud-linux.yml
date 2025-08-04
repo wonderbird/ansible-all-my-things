@@ -5,8 +5,6 @@
   gather_facts: False
 
   vars_files:
-    - ../playbooks/vars-secrets.yml
-    - ../inventories/group_vars/all/vars.yml
     - ../inventories/group_vars/linux/vars.yml
     - ../inventories/group_vars/hcloud/vars.yml
     - ../inventories/group_vars/hcloud_linux/vars.yml
@@ -16,7 +14,7 @@
     image: "ubuntu-24.04"
     hcloud_server_type: "{{ hcloud_default_type | default('hcloud_default_type must be specified') }}"
     hcloud_server_location: "{{ hcloud_default_location | default('hcloud_default_location must be specified') }}"
-    hcloud_ssh_key_name: "{{ my_ssh_key_name | default('my_ssh_key_name must be configured in vars-secrets.yml') }}"
+    hcloud_ssh_key_name: "{{ my_ssh_key_name | default('my_ssh_key_name must be configured in inventory/group_vars/all/vault.yml') }}"
     hcloud_token: "{{ lookup('env', 'HCLOUD_TOKEN') }}"
 
   tasks:

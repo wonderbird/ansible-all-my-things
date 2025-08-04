@@ -7,7 +7,7 @@
 #
 # Example usage:
 #
-#  ansible-playbook provision.yml --extra-vars "provider=aws platform=linux"
+#  ansible-playbook ./provision.yml --extra-vars "provider=aws platform=linux"
 #
 
 - name: Provision {{ provider }} Cloud Instance

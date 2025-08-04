@@ -2,7 +2,7 @@
 
 ## Log in as the desktop user
 
-The username of the desktop user is set configured in `/playbooks/vars-secrets.yml`. Here, we assume it is `galadriel`.
+The username of the desktop user is configured in `/inventories/group_vars/all/vars.yml`. Here, we assume it is `galadriel`.
 
 The section [Important Concepts](./important-concepts.md) provides more information about the different users and their purposes.
 
@@ -23,14 +23,14 @@ Now you can open an RDP client like Remmina, Windows App or Remote Desktop to co
 
 ## GNOME keyring password is login password
 
-The GNOME keyring needs to be unlocked when you launch an application using it, e.g. Visual Studio Code. The password is configured in `/playbooks/vars-secrets.yml`.
+The GNOME keyring needs to be unlocked when you launch an application using it, e.g. Visual Studio Code. The password is configured in [/inventories/group_vars/all/vault.yml](../inventories/group_vars/all/vault.yml).
 
 ## Backup working directory of desktop user
 
-To backup the working directory of the first desktop user listed in `/playbooks/vars-secrets.yml`, use the following command:
+To backup the working directory of the first desktop user listed in [/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml), use the following command:
 
 ```shell
-ansible-playbook --vault-password-file ansible-vault-password.txt ./backup.yml
+ansible-playbook ./backup.yml
 ```
 
 ## Restore a backup of the desktop user
@@ -43,7 +43,7 @@ Restoring the backup is a part of the [../configure.yml](../configure.yml) playb
 To restore a backup later manually, use the following command:
 
 ```shell
-ansible-playbook --vault-password-file ansible-vault-password.txt ./restore.yml
+ansible-playbook ./restore.yml
 ```
 
 --

@@ -1,3 +1,36 @@
 ---
 # Global variables for all instances across providers
+#
+# Every secret is taken from the file `vault.yml` in the same directory.
+# These secrets are prefixed with `vault_`, so that they can be copied
+# into the corresponding variables here.
+#
+# More details:
+# https://docs.ansible.com/ansible/latest/tips_tricks/ansible_tips_tricks.html#keep-vaulted-variables-safely-visible
+# https://docs.ansible.com/ansible/latest/playbook_guide/playbooks_variables.html#tips-on-where-to-set-variables
+
+# The way users are set up in setup-users.yml requires to have a temporary
+# my_ansible_user instead of just setting the ansible_user variable here.
+my_ansible_user: "gandalf"
+
 # These are base values that can be overridden by platform and provider-specific vars
+my_ansible_user_password: "{{ vault_my_ansible_user_password }}"
+
+# Your SSH key is registered with this name in your cloud provider(s)
+my_ssh_key_name: "{{ vault_my_ssh_key_name }}"
+
+# SSH public key for passwordless login
+my_ssh_public_key: "{{ vault_my_ssh_public_key }}"
+
+gnome_keyring_password: "{{ vault_gnome_keyring_password }}"
+
+# Windows Server Administrator password (for AWS Windows instances)
+windows_admin_password: "{{ vault_windows_admin_password }}"
+
+# The following users will be created on the desktop system.
+# Add as many users as you like. There should be at least one user.
+desktop_users:
+  - name: "galadriel"
+    password: "{{ vault_galadriels_password }}"
+  - name: "legolas"
+    password: "{{ vault_legolas_password }}"
