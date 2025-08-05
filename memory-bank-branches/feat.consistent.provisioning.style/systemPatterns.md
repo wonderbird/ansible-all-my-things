@@ -2,10 +2,8 @@
 
 ## Architecture Overview
 
-### Cross-Provider Infrastructure System ✅ IMPLEMENTED
-**Current Reality**: Three production-ready implementations across providers and platforms
-
-**Proven Architecture:**
+### Multi-Provider Infrastructure System
+**Current Architecture:**
 ```
 Multi-Provider Infrastructure:
 ├── Hetzner Cloud Linux (hobbiton)     # Complete desktop development environment
@@ -13,52 +11,59 @@ Multi-Provider Infrastructure:
 └── AWS Windows (moria)                # Windows application server
 ```
 
-**Cross-Provider Patterns ✅ WORKING:**
-- **Dynamic Inventory**: Both `amazon.aws.aws_ec2` and `hetzner.hcloud.hcloud` plugins
-- **Platform Grouping**: Consistent linux/windows grouping across all providers
-- **SSH Key Management**: Single SSH key pair working across AWS and Hetzner Cloud
-- **Credential Management**: Unified Ansible Vault patterns for all implementations
+**Cross-Provider Patterns:**
+- **Multi-Source Inventory**: Dynamic inventory (AWS, Hetzner) plus static inventory (Vagrant)
+- **Platform Grouping**: Consistent linux/windows grouping across all providers including test environments
+- **SSH Key Management**: Single SSH key pair working across all environments
+- **Idiomatic Secret Management**: Vault-encrypted variables in `inventories/group_vars/all/vars.yml`
+- **Automated Vault Access**: `ansible.cfg` with `vault_password_file` for seamless secret handling
+- **Unified Command Target**: Extending consistent `provision.yml` pattern to all environments
 
 ### Enhanced Inventory System
 **Current Structure:**
 ```
 inventories/
-├── aws_ec2.yml                # AWS dynamic inventory with dual keyed_groups
-├── hcloud.yml                 # Hetzner Cloud dynamic inventory with dual keyed_groups
+├── aws_ec2.yml                # AWS dynamic inventory
+├── hcloud.yml                 # Hetzner Cloud dynamic inventory
+├── vagrant_docker.yml         # Vagrant Docker static inventory for testing
+├── vagrant_tart.yml           # Vagrant Tart static inventory for testing
 ├── group_vars/
-│   ├── all/vars.yml           # Global variables (merged common vars)
-│   ├── linux/vars.yml         # Cross-provider Linux variables (hobbiton + rivendell)
-│   ├── windows/vars.yml       # Cross-provider Windows variables (moria)
-│   ├── aws_ec2/vars.yml       # AWS provider-specific overrides
-│   ├── aws_ec2_linux/vars.yml # AWS Linux-specific variables
-│   ├── aws_ec2_windows/vars.yml # AWS Windows-specific variables
+│   ├── all/
+│   │   ├── vars.yml           # Encrypted secrets (idiomatic location)
+│   │   └── vault-template.yml # Secret documentation template
+│   ├── linux/vars.yml         # Cross-provider Linux variables
 │   ├── hcloud/vars.yml        # Hetzner provider-specific overrides
 │   └── hcloud_linux/vars.yml  # Hetzner Linux-specific variables
 ├── requirements.txt           # Python dependencies for multi-provider support
 └── requirements.yml           # Ansible collections for all providers
 ```
 
-**Enhanced Inventory Pattern ✅ IMPLEMENTED & IMPROVED:**
-- **Dual Group Structure**: Both cross-provider (@linux, @windows) and provider-specific (@aws_ec2_linux, @hcloud_linux) groups ✅ IMPLEMENTED
-- **Enhanced Targeting**: Fine-grained automation control with provider-specific groups ✅ WORKING
-- **Improved Tag Semantics**: `platform: "linux"` instead of `ansible_group: "linux"` for clarity ✅ IMPLEMENTED
-- **Enhanced Variable Precedence**: all → platform → provider → provider_platform hierarchy ✅ IMPLEMENTED
-- **Backward Compatibility**: Existing playbooks continue working while enabling enhanced features ✅ VERIFIED
-- **Dependency Management**: Streamlined setup with requirements files ✅ COMPLETED
+**Enhanced Inventory Patterns:**
+- **Dual Group Structure**: Both cross-provider (@linux, @windows) and provider-specific (@hcloud_linux, @vagrant_docker) groups
+- **Enhanced Targeting**: Fine-grained automation control with provider-specific groups including test environments
+- **Improved Tag Semantics**: `platform: "linux"` instead of `ansible_group: "linux"` for clarity
+- **Enhanced Variable Precedence**: all → platform → provider → provider_platform hierarchy including test providers
+- **Dependency Management**: Streamlined setup with requirements files
+- **Testing Integration**: Test environments follow same inventory patterns as production
 
 ### Current Cross-Provider Playbook Structure
 ```
 Cross-Provider Patterns:
-├── Hetzner Cloud Linux:  provision.yml → provisioners/hcloud.yml → configure.yml
-├── AWS Linux:            provision-aws-linux.yml → provisioners/aws-linux.yml
-├── AWS Windows:          provision-aws-windows.yml → provisioners/aws-windows.yml → configure-aws-windows.yml
-└── Unified Cleanup:      destroy.yml (Hetzner) / destroy-aws.yml (AWS)
+├── Production Environments:
+│   ├── Hetzner Cloud Linux:  provision.yml → provisioners/hcloud.yml → configure.yml
+│   ├── AWS Multi-Platform:   provision-aws-*.yml → provisioners/aws-*.yml → configure-*.yml
+│   └── Unified Cleanup:      destroy.yml (Hetzner) / destroy-aws.yml (AWS)
+└── Testing Environments (Current Gap):
+    ├── Vagrant Docker:       vagrant up → configure-linux.yml (INCONSISTENT PATTERN)
+    └── TARGET: Unified:      provision.yml --extra-vars "provider=vagrant_docker platform=linux"
 ```
 
 **Separation of Concerns:**
 - **Provision Layer**: Provider-specific infrastructure creation with platform-specific configurations
 - **Configuration Layer**: Platform-specific system setup and application installation  
 - **Unified Patterns**: Consistent structure across providers with provider-specific optimizations
+- **Testing Layer**: Vagrant-based testing environments using same configuration patterns as production
+- **Current Gap**: Vagrant environments need unified command pattern integration
 
 ### Multi-Provider Pattern (Implemented)
 All implementations follow consistent structure with provider and platform-specific implementations:
