@@ -9,6 +9,28 @@
 # Skip mob.sh configuration file
 .mob
 
+# Memory banks are maintained per feature.
+#
+# For every feature, a subfolder is created in memory-bank-branches. The
+# subfolder name matches a branch name but the '/' is replaced with a '.'.
+#
+# Example:
+#
+#     feature/memory-bank-branches becomes
+#     memory-bank-branches/feature.memory-bank-branches
+#
+# Before working on a feature, copy the corresponding memory bank to the
+# memory-bank folder or create a symbolic link to the corresponding memory
+# bank:
+#
+#     ln -s memory-bank-branches/feature.memory-bank-branches memory-bank
+#
+# Credits:
+#
+#     This concept has been adopted from
+#     https://docs.cline.bot/features/cline-rules
+/memory-bank/
+
 # Created by https://www.toptal.com/developers/gitignore/api/linux,macos,ansible,vagrant,windows,visualstudiocode,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,ansible,vagrant,windows,visualstudiocode,python
 
