@@ -1,4 +1,4 @@
-# Current Development Increment: Command Restriction System
+# Command Restriction System
 
 ## Product Owner Decision: MVP Increment Definition
 

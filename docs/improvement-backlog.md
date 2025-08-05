@@ -9,15 +9,19 @@
 
 ## In progress
 
+This section lists all started product increments. The list is sorted by start date, newest on top. If there is more than one increment, then the older ones were interrupted by the newer ones. Reason is usually a dependency or feature split.
+
+However, be careful not to allow feature creep!
+
+- [ ] (large increment) **Command restrictions:** Deploy command restriction system to target systems that prevents AI agents from executing infrastructure commands.
+
 - [ ] (large increment) **Consistent provisioning style:** To provision Vagrant VMs, use the same `--extra-vars "provider=hcloud platform=linux"` mechanism as for cloud instances. The mechanism is described in [./create-vm.md](./create-vm.md). I assume that we can move the vagrant commands into a provisioner specific playbook and then provision and destroy the VMs like for the cloud instances.
 
-- [ ] (small improvement) **Keep only seecrets in vault:** Move the non-secrets from the secrets to the vars.yml files
+- [ ] **docs/update**: Transfer insights from memory bank to user facing documentation and to developer facing documentation.
 
 ## Backlog of large increments
 
-This backlog contains larger increments. It is sorted by priority - Last update: 2025-08-01
-
-Every time you pick one increment from this backlog, add one small improvement listed in the next section. This allows to keep technical debt low.
+This backlog contains larger increments. It is sorted by priority.
 
 - [ ] Create automatic tests
   - [ ] Install the necessary tools on the VM: aws cli, hcloud cli. Problem: hcloud CLI is not available for arm64 (tart) as a binary; you cannot build hcloud cli on tart/linux either. If you follow the build instructions in CONTRIBUTING.md, a logging/unit testing dependency will fail with the error that there is no support for arm64/Linux.
@@ -49,6 +53,8 @@ Every time you pick one increment from this backlog, add one small improvement l
 - [ ] The shell scripts in the scripts folder should be python scripts, so that they are more compatible with other platforms and so that they can be integrated into a real application later
 
 ## Backlog of small improvements (pick one for each large increment)
+
+- [ ] (small improvement) **Keep only seecrets in vault:** Move the non-secrets from the secrets to the vars.yml files
 
 - [ ] Do I want to allow updating a VM? Today, updating a VM by re-executing the corresponding configure-*.yml playbook is not possible. Is this because of some deactivation in `setup-users.yml`?
 
