@@ -1,4 +1,4 @@
-# Current Development Increment: Unified Vagrant Docker Provisioning
+# Unified Vagrant Docker Provisioning
 
 ## Product Owner Context
 **Role**: Experienced Scrum Product Owner
