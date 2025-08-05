@@ -6,9 +6,13 @@
 **Current Architecture:**
 ```
 Multi-Provider Infrastructure:
-├── Hetzner Cloud Linux (hobbiton)     # Complete desktop development environment
-├── AWS Linux (rivendell)              # On-demand development server  
-└── AWS Windows (moria)                # Windows application server
+├── Production Environments:
+│   ├── Hetzner Cloud Linux (hobbiton)     # Complete desktop development environment
+│   ├── AWS Linux (rivendell)              # On-demand development server  
+│   └── AWS Windows (moria)                # Windows application server
+└── Testing Environments:
+    ├── Vagrant Docker (dagorlad)          # Linux testing with Docker provider
+    └── Vagrant Tart (lorien)              # macOS-compatible testing environment
 ```
 
 **Cross-Provider Patterns:**
@@ -33,7 +37,9 @@ inventories/
 │   │   └── vault-template.yml # Secret documentation template
 │   ├── linux/vars.yml         # Cross-provider Linux variables
 │   ├── hcloud/vars.yml        # Hetzner provider-specific overrides
-│   └── hcloud_linux/vars.yml  # Hetzner Linux-specific variables
+│   ├── hcloud_linux/vars.yml  # Hetzner Linux-specific variables
+│   ├── vagrant_docker/vars.yml # Vagrant Docker provider-specific variables
+│   └── vagrant_tart/vars.yml   # Vagrant Tart provider-specific variables
 ├── requirements.txt           # Python dependencies for multi-provider support
 └── requirements.yml           # Ansible collections for all providers
 ```
@@ -65,19 +71,48 @@ Cross-Provider Patterns:
 - **Testing Layer**: Vagrant-based testing environments using same configuration patterns as production
 - **Current Gap**: Vagrant environments need unified command pattern integration
 
-### Multi-Provider Pattern (Implemented)
+### Multi-Provider Pattern (Implemented & Tested)
 All implementations follow consistent structure with provider and platform-specific implementations:
 ```
+Production Environments:
 Hetzner Cloud Linux:  provision.yml → configure.yml → destroy.yml
 AWS Linux:            provision-aws-linux.yml → destroy-aws.yml
 AWS Windows:          provision-aws-windows.yml → configure-aws-windows.yml → destroy-aws.yml
+
+Testing Environments:
+Vagrant Docker:       vagrant up → configure-linux.yml → vagrant destroy
+Vagrant Tart:         vagrant up → configure-linux.yml → vagrant destroy
 ```
 
+### Testing Infrastructure Pattern (Implemented)
+**Problem Resolved**: Fixed undefined group_vars in test environments by integrating with main inventory structure
+
+**Testing Architecture:**
+```
+Testing Infrastructure:
+├── test/docker/               # Vagrant Docker provider testing
+│   ├── Vagrantfile              # Docker provider configuration with inventory integration
+│   ├── ansible.cfg              # Points to ../../inventories for unified variable loading
+│   └── README.md                # Testing procedures and documentation
+├── test/tart/                 # Vagrant Tart provider testing
+│   ├── Vagrantfile              # Tart provider configuration with inventory integration
+│   ├── ansible.cfg              # Points to ../../inventories for unified variable loading
+│   └── README.md                # Testing procedures and documentation
+└── test/README.md             # Overall testing framework documentation
+```
+
+**Key Testing Patterns:**
+- **Unified Variable Loading**: Test environments use main project inventory structure (../../inventories)
+- **Provider-Specific Variables**: vagrant_docker and vagrant_tart group_vars for admin user handling
+- **Consistent Patterns**: Test environments follow same configuration patterns as production
+- **Security Integration**: SSH key management and security guidelines for testing environments
+
 **Provider Abstraction Achieved:**
-- **Common Interface**: Similar command patterns across providers
-- **Provider-Specific Optimizations**: Each provider optimized for its strengths
-- **Consistent Patterns**: Same architectural principles applied differently
-- **Unified User Experience**: Predictable workflows regardless of provider
+- **Common Interface**: Similar command patterns across providers including test environments
+- **Provider-Specific Optimizations**: Each provider optimized for its strengths (production) and testing needs
+- **Consistent Patterns**: Same architectural principles applied across production and test environments
+- **Unified User Experience**: Predictable workflows regardless of provider or environment type
+- **Testing Integration**: Test environments follow production patterns for reliable validation
 
 ## Key Technical Decisions
 
