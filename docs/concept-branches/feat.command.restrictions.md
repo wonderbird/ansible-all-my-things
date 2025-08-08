@@ -8,6 +8,12 @@
 
 **Timeline**: URGENT - Delivery within 2-3 days maximum
 
+**Examples**: The following modifications are not allowed for AI agents. The list states the use case first, then it names the commands usually involved for the use case.
+
+- Provision virtual machines in the cloud (`ansible`, `ansible-playbook`)
+- Provision virtual machines on the host (`vagrant`, `docker`, `tart`)
+- Modify cloud ressources (`aws`, `hcloud`)
+
 ## Problem Analysis
 
 ### Target System Deployment Context
@@ -383,6 +389,20 @@ legolas default_profile=ai_agent_block
 2. **Robustness**: Difficult to bypass accidentally or through normal usage ✅
 3. **Non-Intrusive**: No interference with normal user command execution ✅
 4. **Reversible**: Easy to disable when needed ✅
+
+## Constraints
+
+### sudo is Forbidden
+
+An AI agent MUST NOT run commands as root.
+
+This is achieved by excluding the corresponding user account from the sudoers group. Thus, an AI agent cannot execute the `sudo` command.
+
+The reason for disallowing `sudo` is that an AI agent shall only manipulate files that are a part of source control. This ensures **reproducibility** by Infrastructure as Code.
+
+The need for `sudo` usually shows that configuration is missing or that we are facing a security or integrity problem.
+
+To account for this, the AI agent rules must be extended so that the agent informs the user instead of running commands as root.
 
 ## Success Definition
 **MVP Complete When**: AI agents operating on target systems (`hobbiton`, `rivendell`, `moria`) under `desktop_users` accounts cannot execute infrastructure commands, restrictions are deployed via ansible during infrastructure provisioning, work cross-platform, and can be verified remotely from control machine.
