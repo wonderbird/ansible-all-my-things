@@ -2,11 +2,18 @@
 
 In addition to the common prerequisites listed in [Create a Virtual Machine](./create-vm.md), all AWS environments require
 
-1. AWS account with programmatic access configured
-2. SSH key pairs
-3. Ansible Vault setup for encrypted secrets
+1. AWS CLI installed
+2. AWS account with programmatic access configured
+3. SSH key pairs
+4. Ansible Vault setup for encrypted secrets
 
-## 1. AWS Credentials Setup
+## 1. Install AWS CLI
+
+Follow the instructions for your operating system to install the latest supported AWS CLI:
+
+[Installing or updating to the latest version of the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+
+## 2. AWS Credentials Setup
 
 If you don't have an AWS account yet, follow these steps:
 
@@ -102,7 +109,7 @@ echo "Using AWS region: $AWS_DEFAULT_REGION"
 
 This should match where you plan to create instances for optimal inventory performance.
 
-## 2. SSH Key Pair Setup
+## 3. SSH Key Pair Setup
 
 Create or import an SSH key pair in the AWS EC2 console:
 
@@ -114,7 +121,7 @@ Create or import an SSH key pair in the AWS EC2 console:
 > [!IMPORTANT]
 > **Windows AMI Limitation**: AWS does not support ED25519 key pairs for Windows AMIs. If you plan to use Windows Server instances, you must use RSA (minimum 2048-bit) or ECDSA key pairs. For Linux AMIs, all key types including ED25519 are supported.
 
-## 3. Ansible Vault Setup for Encrypted Secrets
+## 4. Ansible Vault Setup for Encrypted Secrets
 
 Follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in [./ansible-vault-password.txt](./ansible-vault-password.txt) and in [./inventories/group_vars/all/vars.yml](./inventories/group_vars/all/vars.yml).
 
