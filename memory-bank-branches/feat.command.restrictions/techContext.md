@@ -102,10 +102,14 @@ ansible-all-my-things/
 - **Control**: Remote monitoring and management capabilities via ansible
 
 #### AppArmor Integration (Ubuntu/Debian Linux Systems) ✅ SELECTED
-**Concept**: Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems
+**Concept**: Deploy comprehensive AppArmor profile with user-specific restrictions via ansible for Ubuntu/Debian target systems
+- **Profile Strategy**: Single comprehensive profile blocking multiple infrastructure commands in one file
+- **Profile Syntax**: `deny /usr/bin/ansible* x,`, `deny /usr/local/bin/vagrant x,`, `deny /usr/bin/docker x,`, etc.
 - **Profile Deployment**: `/etc/apparmor.d/ai-agent-block` via ansible templates
 - **User Targeting**: Configure `/etc/security/pam_apparmor.conf` for `galadriel` and `legolas` accounts
 - **Kernel-Level Security**: Mandatory Access Control that's difficult to bypass
+- **Sub-shell Resistance**: ✅ Validated to work across Claude Code's independent bash sessions
+- **Learning Method**: Stand-Alone Profiling with `aa-genprof` and `aa-logprof` tools
 - **Ansible Integration**: Extend `playbooks/setup-users.yml` with AppArmor profile deployment tasks
 - **Persistence**: Restrictions survive reboots and system updates
 - **Verification**: Remote status via `aa-status` command through ansible tasks
@@ -163,9 +167,10 @@ ansible-all-my-things/
 
 ### AI Agent Safety Architecture
 **Current Priority**: AppArmor kernel-level command restrictions implementation
-**Timeline**: 2-3 days maximum for spike validation and ansible automation
-**Selected Approach**: AppArmor Integration (1.2 score, kernel-level effectiveness priority)
-**Implementation Phase**: Manual configuration spike on rivendell, then ansible automation
+**Timeline**: 3 scrum stories (0.5 + 1-2 + 1 days) for complete implementation
+**Selected Approach**: AppArmor Integration with comprehensive profile strategy
+**Implementation Strategy**: ✅ Stand-Alone Profiling method mastered, comprehensive single-profile approach validated
+**Learning Completed**: ✅ Hands-on experience with `aa-genprof`, `aa-logprof`, profile creation, and sub-shell testing
 
 ## Dependencies & Integration
 

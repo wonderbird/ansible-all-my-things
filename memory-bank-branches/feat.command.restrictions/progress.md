@@ -2,10 +2,10 @@
 
 ## Current Status
 
-### AppArmor Implementation Spike 🔴 URGENT
-**Status**: AppArmor selected, ready for implementation spike
+### AppArmor Implementation Spike 🟡 READY TO START
+**Status**: AppArmor learning completed, scrum stories defined, ready for implementation
 **Goal**: Validate kernel-level command restrictions via manual configuration on rivendell
-**Timeline**: 2-3 days maximum for spike and implementation
+**Timeline**: 3 scrum stories (0.5 + 1-2 + 1 days) for complete implementation
 **Priority**: **CRITICAL** - required for safe AI agent operation on target systems
 
 ## What Works
@@ -21,20 +21,27 @@
 - **Unified Management**: Single automation framework managing diverse infrastructure
 - **Cross-Provider Documentation**: Complete setup and usage instructions
 - **Target System Architecture**: AI agents operate on provisioned systems under desktop_users accounts
+- **AppArmor Expertise**: ✅ Stand-Alone Profiling mastered with hands-on wget security profile creation
 
 ## What's Next
 
-### AppArmor Implementation 🔴 IMPLEMENTATION READY
+### AppArmor Implementation 🟡 SCRUM STORIES READY
 - **Goal**: Deploy kernel-level command restrictions to Linux target systems via AppArmor
 - **Target Systems**: `hobbiton`, `rivendell` under `desktop_users` accounts (`galadriel`, `legolas`)
-- **Implementation Specifications**: ✅ DEFINED
+- **Implementation Strategy**: ✅ REFINED
+  - **Comprehensive Profile**: Single profile blocking all infrastructure commands (`deny /usr/bin/ansible* x,` etc.)
   - **Profile Path**: `/etc/apparmor.d/ai-agent-block` via ansible templates
   - **User Targeting**: `/etc/security/pam_apparmor.conf` configuration for desktop_users
   - **Ansible Integration**: Extend `playbooks/setup-users.yml` workflow
   - **Verification**: `aa-status` command through ansible tasks
   - **Fallback**: Claude CLI Native via `~/.claude/settings.json` deployment
   - **Security Constraint**: AI agents excluded from sudoers group (no `sudo` access)
-- **Current Phase**: Manual configuration spike on fresh rivendell instance
+
+**Scrum Stories**:
+1. **Fresh rivendell Provisioning** (0.5 day) - Deploy clean target system
+2. **Manual AppArmor Spike** (1-2 days) - Create and validate comprehensive profile
+3. **Ansible Automation** (1 day) - Deploy via ansible with remote verification
+
 - **Acceptance Tests**: `bash -c "ansible --version"` fails, `bash -c "ls -la"` succeeds
 - **Success Criteria**: Kernel-level blocking across Claude tool calls, remote verification, reboot persistence
 
@@ -61,18 +68,33 @@
 
 ## Next Immediate Actions
 
-1. **Provision Fresh rivendell**: Deploy clean AWS Linux instance for AppArmor spike testing
-2. **AppArmor Manual Configuration**: Install AppArmor, create profile at `/etc/apparmor.d/ai-agent-block`, configure pam_apparmor
-3. **Validation Testing**: Execute acceptance tests (`bash -c "ansible --version"` fails, `bash -c "ls -la"` succeeds)
-4. **Decision Point**: Proceed with AppArmor ansible automation or fallback to Claude CLI Native approach
-5. **Ansible Automation**: Create AppArmor deployment tasks in `playbooks/setup-users.yml` with remote verification
+**Scrum Sprint Ready**:
+
+**Story 1: Fresh rivendell Provisioning** (0.5 day)
+- Execute `ansible-playbook provision-aws-linux.yml --vault-password-file ansible-vault-password.txt`
+- Verify SSH access: `ssh galadriel@$RIVENDELL_IP`
+- Confirm clean Ubuntu/Debian system ready for AppArmor installation
+
+**Story 2: Manual AppArmor Spike** (1-2 days)
+- Install AppArmor: `apt install apparmor-utils`
+- Create comprehensive profile: `/etc/apparmor.d/ai-agent-block` with all infrastructure command denials
+- Configure user targeting: `/etc/security/pam_apparmor.conf` for galadriel/legolas accounts
+- Execute acceptance tests: Validate `bash -c "ansible --version"` fails, `bash -c "ls -la"` succeeds
+- Document spike results for ansible automation decision
+
+**Story 3: Ansible Automation** (1 day)
+- Create AppArmor deployment tasks in `playbooks/setup-users.yml`
+- Add remote verification via `aa-status` command through ansible
+- Test idempotent deployment across multiple runs
 
 ## Recent Accomplishments
 
+- **AppArmor Learning Completed**: ✅ Stand-Alone Profiling mastered with hands-on wget security profile creation
+- **Profile Creation Strategy**: ✅ Comprehensive single profile approach identified as optimal for multiple command blocking
+- **Sub-shell Validation**: ✅ Confirmed AppArmor works across Claude Code's independent bash sessions
+- **Implementation Specifications**: ✅ Detailed technical specifications and scrum stories defined
 - **Decision Analysis Completed**: ✅ Comprehensive evaluation of six implementation approaches
 - **AppArmor Selection**: ✅ Kernel-level enforcement approach selected based on effectiveness priority
-- **Implementation Strategy**: ✅ Spike-first validation approach defined for rivendell
-- **Collaborative Decision Rationale**: ✅ Scoring matrix and decision logic documented for future reference
 - **Fallback Strategy**: ✅ Claude CLI Native identified as viable alternative
 
 The project has achieved its primary infrastructure objectives, completed comprehensive solution research, and is ready for command restriction system implementation on target systems.

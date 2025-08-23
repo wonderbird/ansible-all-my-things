@@ -2,10 +2,10 @@
 
 ## Current Work Focus
 
-### AppArmor Implementation Spike 🔴 URGENT
+### AppArmor Implementation Spike 🟡 READY TO START
 **Goal**: Validate AppArmor kernel-level command restrictions on target systems via manual configuration spike.
 
-**Status**: 🔴 IMPLEMENTATION READY - AppArmor selected, spike approach defined
+**Status**: 🟡 IMPLEMENTATION READY - AppArmor learning completed, comprehensive profile approach defined
 
 **Business Context**: Infrastructure automation projects require AI agent safety controls to prevent accidental resource provisioning or destruction on target systems.
 
@@ -42,7 +42,8 @@
 - **Fallback Strategy**: Claude CLI Native Restrictions via `.claude/settings.json` deployment if AppArmor spike fails
 
 **Implementation Specifications**:
-- **AppArmor Profile**: Deploy to `/etc/apparmor.d/ai-agent-block` via ansible templates
+- **AppArmor Profile**: Single comprehensive profile at `/etc/apparmor.d/ai-agent-block` blocking all infrastructure commands
+- **Profile Approach**: Block multiple executables (`deny /usr/bin/ansible* x,`, `deny /usr/local/bin/vagrant x,` etc.) in one profile
 - **User Targeting**: Configure `/etc/security/pam_apparmor.conf` for `galadriel` and `legolas` accounts
 - **Ansible Integration**: Extend `playbooks/setup-users.yml` with AppArmor tasks
 - **Remote Verification**: Use `aa-status` command through ansible tasks
@@ -66,12 +67,17 @@ Production-ready cross-provider infrastructure automation:
 
 ## Recent Changes
 
+### AppArmor Learning Completed ✅
+- **Stand-Alone Profiling mastered**: Hands-on experience with `aa-genprof` and `aa-logprof` tools
+- **Profile structure understanding**: Learned abstractions, deny rules, and enforcement modes
+- **Security decision-making**: Practiced allow/deny choices for file access and capabilities
+- **Comprehensive profile approach**: Identified single profile blocking multiple commands as optimal strategy
+- **Sub-shell testing validated**: Confirmed AppArmor works across Claude Code's independent bash sessions
+
 ### Documentation Streamlining Completed
 - **Memory bank restructured**: Removed "broken state" and "discovery" language throughout all files
 - **Implementation approaches consolidated**: From 8 scattered options to 6 clear approaches
 - **Forward-looking documentation**: Written as if target system deployment was always the known approach
-- **fapolicyd research completed**: Documented as fourth approach but assessed as not suitable for cross-platform requirements
-- **AppArmor research completed**: Ubuntu/Debian equivalent to fapolicyd identified and documented as sixth approach with kernel-level security
 
 ### Infrastructure Improvements
 - Enhanced inventory system with provider-specific targeting
@@ -79,7 +85,20 @@ Production-ready cross-provider infrastructure automation:
 - Unified command patterns across multiple cloud providers
 
 ### Next Immediate Actions
-- **Phase 1**: Manual AppArmor configuration spike on fresh `rivendell` instance
-- **Spike Goals**: Validate kernel-level blocking effectiveness with Claude Code shell sessions
-- **Decision Point**: Proceed with AppArmor ansible automation or fallback to Claude CLI Native
-- **Phase 2**: Develop ansible automation for selected approach integration with `playbooks/setup-users.yml`
+**Sprint Ready Implementation Steps**:
+
+**Story 1: Fresh rivendell Provisioning** (0.5 day)
+- Deploy clean AWS Linux instance using existing `provision-aws-linux.yml`
+- Verify SSH access and basic system setup
+
+**Story 2: Manual AppArmor Spike** (1-2 days)  
+- Install AppArmor on rivendell target system
+- Create comprehensive `/etc/apparmor.d/ai-agent-block` profile blocking all infrastructure commands
+- Configure `/etc/security/pam_apparmor.conf` for user-specific targeting
+- Execute acceptance tests: `bash -c "ansible --version"` fails, `bash -c "ls -la"` succeeds
+- Document spike results and decision for ansible automation vs fallback
+
+**Story 3: Ansible Automation** (1 day)
+- Create AppArmor deployment tasks in `playbooks/setup-users.yml` 
+- Add remote verification via `aa-status` command
+- Test idempotent deployment across multiple runs
