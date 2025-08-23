@@ -18,6 +18,26 @@ The core technical challenge is that Claude Code creates independent shell sessi
 - **Workflow Protection**: Enable safe AI agent operation during development
 - **Timeline**: URGENT - 2-3 days maximum delivery requirement
 
+### MVP Requirements
+
+**Core MVP Deliverables**:
+1. **Sub-Shell Resistant Command Blocking**: Mechanism that works across Claude's independent bash sessions
+2. **Comprehensive Command Coverage**: Block all infrastructure commands (`ansible`, `vagrant`, `docker`, `aws`, `hcloud`) 
+3. **AI Agent Verification System**: Remote verification capability via ansible tasks
+4. **Ansible-Integrated Deployment**: Deploy via existing `playbooks/setup-users.yml` workflow
+
+**Acceptance Tests on Target Systems**:
+```bash
+# These commands must fail for AI agent accounts
+bash -c "ansible --version"
+bash -c "vagrant status" 
+bash -c "docker ps"
+
+# These commands must continue working
+bash -c "ls -la"
+bash -c "git status"
+```
+
 ## Decision Drivers
 
 Priority-ordered criteria for evaluating solutions:
@@ -27,6 +47,52 @@ Priority-ordered criteria for evaluating solutions:
 3. **User Level**: Must apply per-user basis, allowing unaffected human user accounts
 4. **Maturity**: Prefer professionally maintained solutions over custom implementations
 5. **Simplicity**: Easy to maintain solution for Ubuntu/Debian based target systems
+
+### Decision Matrix
+
+**Quality Rating Scale**:
+| Rating | Quality      |
+| ------ | ------------ |
+| 1      | excellent    |
+| 2      | good         |
+| 3      | mediocre     |
+| 4      | sufficient   |
+| 5      | flawed       |
+| 6      | unacceptable |
+
+**Solution Evaluation**:
+| Solution                         | Linux Support | Effectiveness | User Level | Maturity | Simplicity | Average Score | Viable |
+| -------------------------------- | ------------- | ------------- | ---------- | -------- | ---------- | ------------- | ------ |
+| 1 User Profile Integration       | 2             | 2             | 1          | 5        | 4          | 2.8           | ✅     |
+| 2 System-Wide Wrappers           | 2             | 2             | 2          | 5        | 5          | 3.2           | ❌     |
+| 3 Service-Based Blocking         | 1             | 3             | 1          | 5        | 5          | 3.0           | ❌     |
+| 4 fapolicyd Integration          | 1             | 1             | 1          | 1        | 3          | 1.4           | ✅     |
+| 5 AppArmor Integration           | 1             | 1             | 1          | 1        | 2          | 1.2           | ✅     |
+| 6 Claude CLI Native Restrictions | 1             | 2             | 1          | 1        | 1          | 1.2           | ✅     |
+
+*Solutions with any score > 4 eliminated (marked as ❌)*
+
+### Scoring Rationale
+
+**Linux Support**: All solutions work on Linux systems, with varying degrees of native platform integration.
+
+**Effectiveness**: Scored based on reliability and bypass resistance:
+- **Kernel-level enforcement** (AppArmor, fapolicyd): Maximum reliability through mandatory access control
+- **Application-level blocking** (Claude CLI): Good reliability within Claude's architecture  
+- **Custom implementations**: Lower reliability due to development complexity and potential edge cases
+
+**User Level**: Ability to apply restrictions per-user without affecting other accounts:
+- System-wide wrappers can implement user-specific logic by checking current user identity
+- Profile-based and native solutions naturally support per-user deployment
+
+**Maturity**: Professional maintenance vs. custom development:
+- Enterprise security frameworks (AppArmor, fapolicyd, Claude CLI): Professionally maintained
+- Custom implementations: Require development and maintenance from scratch
+
+**Simplicity**: Learning curve and deployment complexity from Ubuntu/Debian perspective:
+- Claude CLI: Familiar JSON configuration
+- AppArmor: Native Ubuntu support but requires profile syntax knowledge  
+- fapolicyd: Fedora-focused tooling adds complexity for Ubuntu environments
 
 ## Considered Options
 
@@ -101,6 +167,27 @@ Deploy `.claude/settings.json` files to desktop_users' home directories via ansi
 - Test idempotent deployment across multiple runs
 
 **Fallback Implementation**: If AppArmor spike fails, implement Claude CLI Native via `.claude/settings.json` deployment
+
+## Constraints
+
+### sudo Prohibition for AI Agents
+
+**Critical Constraint**: AI agents MUST NOT execute commands as root via `sudo`.
+
+**Implementation**: Desktop_users accounts (`galadriel`, `legolas`) excluded from sudoers group during provisioning.
+
+**Rationale**: Ensures reproducibility via Infrastructure as Code by limiting AI agents to source-controlled files only. The need for `sudo` usually indicates missing configuration or security/integrity problems.
+
+**Enforcement**: AI agent rules extended to inform the user instead of running commands as root.
+
+### Cross-Platform Requirements
+
+**Target Systems**: 
+- **hobbiton** (Hetzner Cloud Linux) - Primary persistent development environment
+- **rivendell** (AWS Linux) - On-demand development server
+- **moria** (AWS Windows) - Windows application server [deferred until needed]
+
+**Deployment Method**: All restrictions must be deployable via ansible Infrastructure-as-Code during target system provisioning.
 
 ## Consequences
 
@@ -197,6 +284,54 @@ bash -c "python --version"
 - ✅ **Target User Coverage**: Applied to all `desktop_users` (galadriel, legolas) on target systems
 - ✅ **Reboot Persistence**: Restrictions survive system reboots and updates
 - ✅ **Remote Verification**: Status checkable from control machine via ansible
+
+### Claude CLI Native Fallback Specifications
+
+**Fallback Settings Template**:
+```json
+{
+  "permissions": {
+    "deny": [
+      "Bash(ansible:*)",
+      "Bash(vagrant:*)", 
+      "Bash(docker:*)",
+      "Bash(tart:*)",
+      "Bash(aws:*)",
+      "Bash(hcloud:*)"
+    ]
+  }
+}
+```
+
+**Ansible Deployment**:
+```yaml
+- name: Create Claude settings directory
+  file:
+    path: "{{ ansible_user_dir }}/.claude"
+    state: directory
+    mode: '0755'
+    
+- name: Deploy Claude command restrictions
+  template:
+    src: claude-settings.json.j2
+    dest: "{{ ansible_user_dir }}/.claude/settings.json"
+    mode: '0644'
+    
+- name: Verify Claude settings deployment
+  stat:
+    path: "{{ ansible_user_dir }}/.claude/settings.json"
+  register: claude_settings_stat
+```
+
+## Future Enhancements
+
+**Beyond MVP Scope**:
+- **Detailed Command Logging**: Log attempted command executions for audit trails
+- **Parameter-Based Filtering**: Allow specific ansible commands while blocking others
+- **Automated Testing**: Continuous verification of command restriction effectiveness
+- **Additional Command Categories**: Extend blocking to other infrastructure tools
+- **Windows Implementation**: Full Claude CLI Native deployment for `moria` target system
+- **Graduated Restrictions**: Different restriction levels based on AI agent trust levels
 
 ## References
 
