@@ -32,73 +32,38 @@ Production-ready cross-provider infrastructure automation with unified managemen
 - Work across **multiple target systems** with different operating systems
 - **Persist through system reboots** and infrastructure updates
 
-### Command Restriction Implementation Approaches
+### Command Restriction Implementation
 
-**Core Challenge**: Deploy restrictions via ansible that work reliably across Claude Code's independent shell sessions on target systems.
+**Architecture Decision**: AppArmor Integration selected for kernel-level command blocking on Linux target systems. See [ADR-001: Command Restriction Mechanism](../docs/architecture-decisions/001-command-restrictions.md) for complete decision rationale.
 
-**Six Implementation Approaches**:
+**Implementation Architecture Patterns**:
 
-#### 1. User Profile Integration
-- Deploy restriction scripts to desktop_users' profiles on target systems
-- Linux: `.bashrc`/`.profile` modification via ansible templates
-- Windows: PowerShell profile deployment for desktop_users
-- Ansible integration: Extend existing `playbooks/setup-users.yml`
-- **Pros**: User-specific, cross-platform, ansible-integrated, persistent across reboots
-- **Cons**: Profile loading dependency, per-user deployment complexity
+**Target System Deployment Pattern**:
+- **AI Agent Runtime Environment**: AI agents run on provisioned systems (`hobbiton`, `rivendell`, `moria`)
+- **Target User Accounts**: AI agents operate under `desktop_users` accounts (`galadriel`, `legolas`) created by ansible
+- **Cross-Platform Deployment**: Restrictions work on AWS Linux, AWS Windows, and Hetzner Cloud systems
+- **Infrastructure-as-Code**: Command restrictions deployed via ansible playbooks during provisioning
 
-#### 2. System-Wide Wrappers
-- Deploy global wrapper scripts to target systems via ansible
-- Linux: `/usr/local/bin/` deployment with PATH modification
-- Windows: `C:\Windows\System32\` deployment via ansible
-- Cross-platform ansible tasks for deployment and verification
-- **Pros**: System-wide on target systems, ansible-deployable, bulletproof, remotely manageable
-- **Cons**: System-wide impact on target systems, requires elevated privileges
+**AppArmor Integration Pattern** ✅ SELECTED:
+- **Profile Deployment**: Single comprehensive profile at `/etc/apparmor.d/ai-agent-block` blocking all infrastructure commands
+- **User-Specific Targeting**: Configure `/etc/security/pam_apparmor.conf` for `galadriel` and `legolas` accounts only
+- **Ansible Workflow Integration**: Extend existing `playbooks/setup-users.yml` with AppArmor tasks
+- **Remote Verification Pattern**: Use `aa-status` command through ansible tasks for monitoring
+- **Kernel-Level Security**: Mandatory Access Control that persists across reboots and system updates
 
-#### 3. Service-Based Blocking
-- Deploy systemd services (Linux) or Windows services via ansible
-- Service-based approach survives all session types and reboots
-- Cross-platform ansible deployment with platform-specific implementations
-- Remote monitoring and control capabilities via ansible
-- **Pros**: Ultimate persistence, service-level blocking, remotely manageable, survives all changes
-- **Cons**: Complex implementation, service overhead, platform-specific development
+**Claude CLI Native Fallback Pattern** ✅ FALLBACK:
+- **Settings Deployment**: Deploy `.claude/settings.json` files to desktop_users' home directories
+- **Cross-Platform Support**: Works on both Linux and Windows target systems via Claude's architecture
+- **Simple Deployment**: File-based ansible template deployment with immediate effectiveness
+- **User-Level Restrictions**: JSON configuration with `"permissions": {"deny": ["Bash(ansible:*)", ...]}` format
 
-#### 4. fapolicyd Integration (Linux-Only Alternative)
-- Deploy Red Hat's File Access Policy Daemon for application allowlisting on Linux target systems
-- Configure user/group-based policies via ansible to block infrastructure commands for AI agent accounts
-- Leverage RPM trust database and systemd integration for comprehensive application control
-- **Assessment**: Not recommended due to Linux-only limitation (doesn't address Windows target `moria`) and complexity mismatch for simple command blocking requirements
-
-#### 5. AppArmor Integration (Ubuntu/Debian Linux Systems) ✅ SELECTED
-- Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems
-- Use `pam_apparmor` for user-specific targeting of `desktop_users` accounts (`galadriel`, `legolas`)
-- Kernel-level Mandatory Access Control (MAC) that blocks infrastructure commands
-- **Selection Rationale**: 1.2 average score, superior effectiveness (kernel-level enforcement) on priority criteria
-- **Implementation Status**: Manual configuration spike planned for rivendell validation
-- **Profile Path**: `/etc/apparmor.d/ai-agent-block` deployed via ansible templates
-- **PAM Configuration**: `/etc/security/pam_apparmor.conf` for user-specific targeting
-- **Ansible Integration**: Extend `playbooks/setup-users.yml` workflow
-- **Verification**: Remote status via `aa-status` command through ansible tasks
-
-#### 6. Claude CLI Native Restrictions ✅ FALLBACK OPTION
-- Deploy `.claude/settings.json` files to desktop_users' home directories on target systems via ansible
-- Use Claude Code's built-in permission system to block commands at tool execution level
-- Cross-platform ansible deployment with simple file management
-- **Settings Path**: `~/.claude/settings.json` for user-level restrictions
-- **Configuration**: JSON with `"permissions": {"deny": ["Bash(ansible:*)", "Bash(vagrant:*)", ...]}` format
-- **Ansible Integration**: Simple file template deployment with cross-platform support
-- **Verification**: Standard file existence and content checking via ansible
-- **Implementation**: Simple ansible file deployment with immediate effectiveness
-- **Selection Criteria**: Primary fallback if AppArmor spike validation fails
-
-**Blocked Commands**: `ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`
-
-**AppArmor Implementation Success Criteria**:
-- **Kernel-Level Blocking**: Commands blocked via mandatory access control across Claude tool calls
-- **Linux Target Systems**: Deployed to `hobbiton` and `rivendell` via ansible automation
-- **User-Specific Targeting**: Applied to `galadriel` and `legolas` accounts via pam_apparmor
-- **Ansible Integration**: Deployed automatically during infrastructure provisioning via playbooks/setup-users.yml
-- **Reboot Persistence**: Kernel-level restrictions survive system reboots and updates
-- **Remote Verification**: Status checkable via `aa-status` command through ansible tasks
+**Implementation Integration Points**:
+- **Selected**: AppArmor Integration (Ubuntu kernel-level MAC) for `hobbiton` and `rivendell`
+- **Fallback**: Claude CLI Native (.claude/settings.json) if AppArmor spike fails
+- **Blocked Commands**: `ansible`, `vagrant`, `docker`, `aws`, `hcloud` and variants
+- **Target Users**: `galadriel` and `legolas` accounts on target systems
+- **Ansible Integration**: Deploy via `playbooks/setup-users.yml` during provisioning
+- **Remote Verification**: Status checkable via `aa-status` command (AppArmor) or file existence (Claude CLI)
 
 ## Inventory System Architecture ✅ IMPLEMENTED
 

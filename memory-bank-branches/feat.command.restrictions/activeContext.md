@@ -85,20 +85,33 @@ Production-ready cross-provider infrastructure automation:
 - Unified command patterns across multiple cloud providers
 
 ### Next Immediate Actions
-**Sprint Ready Implementation Steps**:
 
-**Story 1: Fresh rivendell Provisioning** (0.5 day)
-- Deploy clean AWS Linux instance using existing `provision-aws-linux.yml`
-- Verify SSH access and basic system setup
+**Implementation Timeline**: Complete AppArmor command restriction implementation via two-phase approach with fallback strategy.
 
-**Story 2: Manual AppArmor Spike** (1-2 days)  
-- Install AppArmor on rivendell target system
-- Create comprehensive `/etc/apparmor.d/ai-agent-block` profile blocking all infrastructure commands
-- Configure `/etc/security/pam_apparmor.conf` for user-specific targeting
-- Execute acceptance tests: `bash -c "ansible --version"` fails, `bash -c "ls -la"` succeeds
-- Document spike results and decision for ansible automation vs fallback
+**Phase 1: Manual AppArmor Spike** (1-2 days)
+- Deploy clean `rivendell` AWS Linux instance using existing `provision-aws-linux.yml`
+- Install AppArmor and create comprehensive `/etc/apparmor.d/ai-agent-block` profile  
+- Configure `/etc/security/pam_apparmor.conf` for user-specific targeting (`galadriel`, `legolas`)
+- Execute acceptance tests: `bash -c "ansible --version"` must fail, `bash -c "ls -la"` must succeed
+- Document spike results for ansible automation decision
 
-**Story 3: Ansible Automation** (1 day)
-- Create AppArmor deployment tasks in `playbooks/setup-users.yml` 
-- Add remote verification via `aa-status` command
-- Test idempotent deployment across multiple runs
+**Phase 2: Ansible Automation** (1 day)  
+- Create AppArmor deployment tasks in `playbooks/setup-users.yml`
+- Add remote verification via `aa-status` command through ansible tasks
+- Test idempotent deployment across multiple runs on target systems
+
+**Fallback Implementation Strategy**
+If AppArmor spike fails validation, implement Claude CLI Native via `.claude/settings.json` deployment with cross-platform ansible support.
+
+**Sprint Ready Stories**:
+1. **Fresh rivendell Provisioning** (0.5 day) - Deploy clean target system for spike
+2. **Manual AppArmor Validation** (1-2 days) - Validate kernel-level command blocking
+3. **Ansible Automation Development** (1 day) - Deploy restrictions via Infrastructure-as-Code
+
+**Success Criteria for Current Implementation**:
+- ✅ **Persistent Blocking**: Commands remain blocked across multiple Claude tool calls on target systems
+- ✅ **Cross-Platform Deployment**: Works on AWS Linux, AWS Windows, and Hetzner Cloud systems  
+- ✅ **Ansible Integration**: Deployed automatically during infrastructure provisioning
+- ✅ **Target User Coverage**: Applied to all `desktop_users` (galadriel, legolas) on target systems
+- ✅ **Reboot Persistence**: Restrictions survive system reboots and updates
+- ✅ **Remote Verification**: Status checkable from control machine via ansible

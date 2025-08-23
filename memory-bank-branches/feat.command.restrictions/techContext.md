@@ -102,30 +102,117 @@ ansible-all-my-things/
 - **Control**: Remote monitoring and management capabilities via ansible
 
 #### AppArmor Integration (Ubuntu/Debian Linux Systems) ✅ SELECTED
-**Concept**: Deploy comprehensive AppArmor profile with user-specific restrictions via ansible for Ubuntu/Debian target systems
-- **Profile Strategy**: Single comprehensive profile blocking multiple infrastructure commands in one file
-- **Profile Syntax**: `deny /usr/bin/ansible* x,`, `deny /usr/local/bin/vagrant x,`, `deny /usr/bin/docker x,`, etc.
-- **Profile Deployment**: `/etc/apparmor.d/ai-agent-block` via ansible templates
-- **User Targeting**: Configure `/etc/security/pam_apparmor.conf` for `galadriel` and `legolas` accounts
-- **Kernel-Level Security**: Mandatory Access Control that's difficult to bypass
-- **Sub-shell Resistance**: ✅ Validated to work across Claude Code's independent bash sessions
-- **Learning Method**: Stand-Alone Profiling with `aa-genprof` and `aa-logprof` tools
-- **Ansible Integration**: Extend `playbooks/setup-users.yml` with AppArmor profile deployment tasks
-- **Persistence**: Restrictions survive reboots and system updates
-- **Verification**: Remote status via `aa-status` command through ansible tasks
-- **Acceptance Test**: `bash -c "ansible --version"` must fail, `bash -c "ls -la"` must succeed on target systems
+
+**Technical Specifications**: See [ADR-001 Command Restriction Decision](../docs/architecture-decisions/001-command-restrictions.md) for decision rationale.
+
+**AppArmor Profile Structure**:
+```bash
+# /etc/apparmor.d/ai-agent-block - comprehensive profile blocking infrastructure commands
+#include <tunables/global>
+
+profile ai-agent-block flags=(attach_disconnected) {
+  #include <abstractions/base>
+  
+  # Block infrastructure commands
+  deny /usr/bin/ansible* x,
+  deny /usr/local/bin/vagrant x,
+  deny /usr/bin/docker x,
+  deny /usr/bin/aws x,
+  deny /usr/bin/hcloud x,
+  
+  # Allow normal system operations
+  /bin/** ux,
+  /usr/bin/** ux,
+  /usr/local/bin/** ux,
+}
+```
+
+**User-Specific Targeting**:
+```bash
+# /etc/security/pam_apparmor.conf - apply profile to specific users
+galadriel default_profile=ai-agent-block  
+legolas default_profile=ai-agent-block
+```
+
+**Ansible Integration Tasks**:
+```yaml
+- name: Deploy AppArmor profile for AI agent command restrictions
+  template:
+    src: ai-agent-block.profile.j2
+    dest: /etc/apparmor.d/ai-agent-block
+  notify: reload apparmor
+
+- name: Configure pam_apparmor for desktop users
+  template:
+    src: pam_apparmor.conf.j2  
+    dest: /etc/security/pam_apparmor.conf
+  notify: restart ssh
+
+- name: Enable AppArmor profile
+  command: aa-enforce /etc/apparmor.d/ai-agent-block
+
+- name: Verify AppArmor profile status
+  command: aa-status
+  register: apparmor_status
+```
 
 #### Claude CLI Native Restrictions ✅ FALLBACK OPTION
-**Concept**: Use Claude Code's built-in permission system to block commands at tool execution level
-- **Settings Path**: `~/.claude/settings.json` in desktop_users' home directories
-- **Configuration Format**: JSON with `"permissions": {"deny": ["Bash(ansible:*)", "Bash(vagrant:*)", "Bash(docker:*)", "Bash(aws:*)", "Bash(hcloud:*)"]}`
-- **Cross-Platform**: Inherent Linux + Windows support through Claude's architecture
-- **Ansible Integration**: Simple file template deployment via ansible
-- **Persistence**: Restrictions apply automatically across all Claude sessions
-- **Verification**: Standard file existence and content checking via ansible tasks
-- **Selection Criteria**: Primary fallback if AppArmor spike validation fails
+
+**Fallback Settings Template**:
+```json
+{
+  "permissions": {
+    "deny": [
+      "Bash(ansible:*)",
+      "Bash(vagrant:*)", 
+      "Bash(docker:*)",
+      "Bash(tart:*)",
+      "Bash(aws:*)",
+      "Bash(hcloud:*)"
+    ]
+  }
+}
+```
+
+**Ansible Deployment**:
+```yaml
+- name: Create Claude settings directory
+  file:
+    path: "{{ ansible_user_dir }}/.claude"
+    state: directory
+    mode: '0755'
+    
+- name: Deploy Claude command restrictions
+  template:
+    src: claude-settings.json.j2
+    dest: "{{ ansible_user_dir }}/.claude/settings.json"
+    mode: '0644'
+    
+- name: Verify Claude settings deployment
+  stat:
+    path: "{{ ansible_user_dir }}/.claude/settings.json"
+  register: claude_settings_stat
+```
 
 **Blocked Commands**: `ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`
+
+**Comprehensive Acceptance Tests**:
+```bash
+# These commands must fail on target systems for AI agent accounts
+bash -c "ansible --version"
+bash -c "ansible-playbook --help"
+bash -c "vagrant status" 
+bash -c "docker ps"
+bash -c "aws --version"
+bash -c "hcloud version"
+
+# These commands must continue working normally
+bash -c "ls -la"
+bash -c "git status"
+bash -c "python --version"
+bash -c "curl --version"
+bash -c "ssh -V"
+```
 
 ### Technical Constraints
 
