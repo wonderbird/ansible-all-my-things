@@ -6,11 +6,11 @@ Deciders: Stefan (Product Owner)
 
 ## Context and Problem Statement
 
-Infrastructure automation projects require AI agent safety controls to prevent accidental resource provisioning or destruction on target systems where AI agents operate.
+**The Challenge**: AI coding agents operating on remote development systems need safety controls to prevent accidental infrastructure destruction.
 
-AI agents run on provisioned systems (`hobbiton`, `rivendell`, `moria`) under `desktop_users` accounts (`galadriel`, `legolas`) created by ansible. These agents must be prevented from executing infrastructure commands that could modify or destroy the very systems they're running on.
+**Specific Problem**: This project provisions cloud development environments (`hobbiton`, `rivendell`, `moria`) where AI agents run under user accounts created by ansible automation. Without restrictions, these agents could accidentally execute commands like `ansible-playbook destroy.yml` or `docker system prune -a`, potentially destroying the very systems they're working on.
 
-The core technical challenge is that Claude Code creates independent shell sessions for each command execution, requiring sub-shell resistant command blocking mechanisms deployed via ansible Infrastructure-as-Code.
+**Technical Constraint**: Claude Code (the AI agent) creates independent shell sessions for each command, making traditional shell-based blocking ineffective. Any solution must work across these isolated shell sessions and be deployable via Infrastructure-as-Code.
 
 **Business Impact**:
 - **Security Risk**: Prevent accidental execution of infrastructure commands on target systems
@@ -89,16 +89,22 @@ Priority-ordered criteria for evaluating solutions:
 
 ## Decision Outcome
 
-**Chosen option**: **AppArmor Integration** with **Claude CLI Native Restrictions** as fallback.
+**Chosen option**: **AppArmor Integration** (Linux kernel-level security framework)
 
-**Rationale**: AppArmor achieved the same 1.2 average score as Claude CLI Native but provides superior effectiveness through kernel-level enforcement (second-highest priority criterion). This provides maximum security through Mandatory Access Control that is difficult to bypass.
+**Why AppArmor?** 
+- **Tied for best score** (1.2/6.0) with Claude CLI Native approach
+- **Kernel-level enforcement** provides maximum reliability - nearly impossible to bypass
+- **Battle-tested** security framework built into Ubuntu/Debian systems  
+- **User-specific targeting** via PAM configuration affects only AI agent accounts
 
-**Implementation Scope**: 
-- **Primary**: Linux target systems (`hobbiton`, `rivendell`) via AppArmor
-- **Deferred**: Windows target system (`moria`) until needed
-- **Fallback Strategy**: Claude CLI Native if AppArmor spike fails
+**Fallback Strategy**: Claude CLI Native restrictions (simpler `.claude/settings.json` deployment) if AppArmor implementation proves too complex.
 
-**Blocked Commands**: `ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`
+**Scope**: 
+- **Phase 1**: Linux systems (`hobbiton`, `rivendell`) 
+- **Future**: Windows system (`moria`) via Claude CLI Native
+- **Commands Blocked**: `ansible`, `vagrant`, `docker`, `aws`, `hcloud` and variants
+
+**Bottom Line**: AppArmor provides enterprise-grade security with minimal complexity for Ubuntu-based target systems.
 
 ## Implementation Strategy
 
@@ -114,13 +120,16 @@ Priority-ordered criteria for evaluating solutions:
 
 ### sudo Prohibition for AI Agents
 
-**Critical Constraint**: AI agents MUST NOT execute commands as root via `sudo`.
+**Rule**: AI agents cannot use `sudo` (administrative privileges) on target systems.
 
-**Implementation**: Desktop_users accounts (`galadriel`, `legolas`) excluded from sudoers group during provisioning.
+**Why?** Infrastructure-as-Code principles require that all changes be reproducible through source-controlled automation. If an AI agent needs `sudo`, it usually indicates:
+- Missing ansible automation for that task
+- Security misconfiguration  
+- Attempt to make changes that should be in version control
 
-**Rationale**: Ensures reproducibility via Infrastructure as Code by limiting AI agents to source-controlled files only. The need for `sudo` usually indicates missing configuration or security/integrity problems.
+**Implementation**: AI agent accounts (`galadriel`, `legolas`) are created without sudo privileges during system provisioning.
 
-**Enforcement**: AI agent rules extended to inform the user instead of running commands as root.
+**Benefit**: Prevents AI agents from making unreproducible system changes while maintaining the ability to perform development tasks.
 
 ### Cross-Platform Requirements
 
@@ -155,13 +164,15 @@ Priority-ordered criteria for evaluating solutions:
 
 ## Technical Specifications Overview
 
-**AppArmor Implementation**:
-- **Profile**: `/etc/apparmor.d/ai-agent-block` with deny rules for infrastructure commands
-- **User Targeting**: Via `/etc/security/pam_apparmor.conf` for `galadriel` and `legolas` accounts
-- **Ansible Integration**: Templates deployed through `playbooks/setup-users.yml`
-- **Verification**: Remote status checking via `aa-status` command
+**How AppArmor Works**: AppArmor is Ubuntu's built-in security system that can prevent specific users from running specific programs. It works at the Linux kernel level, making it nearly impossible for applications to bypass.
 
-**Acceptance Criteria**: Infrastructure commands (`ansible`, `vagrant`, `docker`) blocked while system commands (`ls`, `git`) work normally.
+**Our Implementation**:
+- **Security Profile**: Creates rules that block infrastructure commands for AI agent users
+- **User Targeting**: Only applies restrictions to `galadriel` and `legolas` accounts (AI agents)
+- **Ansible Integration**: Deployed automatically during target system provisioning
+- **Remote Management**: Status and updates manageable from control machine
+
+**Result**: AI agents get "permission denied" when trying to run `ansible`, `vagrant`, or `docker`, but can still use development tools like `git`, `python`, and `curl` normally.
 
 *Complete technical specifications provided in Appendix D*
 
