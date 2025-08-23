@@ -101,22 +101,25 @@ ansible-all-my-things/
 - **Monitoring**: Service-based approach survives all session types and reboots
 - **Control**: Remote monitoring and management capabilities via ansible
 
-#### AppArmor Integration (Ubuntu/Debian Linux Systems)
+#### AppArmor Integration (Ubuntu/Debian Linux Systems) ✅ SELECTED
 **Concept**: Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems
-- **Implementation**: Deploy AppArmor profiles blocking infrastructure commands for specific desktop users
-- **User Targeting**: Use `pam_apparmor` to apply restrictions to `galadriel` and `legolas` accounts
+- **Profile Deployment**: `/etc/apparmor.d/ai-agent-block` via ansible templates
+- **User Targeting**: Configure `/etc/security/pam_apparmor.conf` for `galadriel` and `legolas` accounts
 - **Kernel-Level Security**: Mandatory Access Control that's difficult to bypass
-- **Ansible Integration**: Deploy profiles to `/etc/apparmor.d/ai-agent-block` via ansible templates
+- **Ansible Integration**: Extend `playbooks/setup-users.yml` with AppArmor profile deployment tasks
 - **Persistence**: Restrictions survive reboots and system updates
-- **Management**: Remote status checking via `aa-status` command through ansible
+- **Verification**: Remote status via `aa-status` command through ansible tasks
+- **Acceptance Test**: `bash -c "ansible --version"` must fail, `bash -c "ls -la"` must succeed on target systems
 
-#### Claude CLI Native Restrictions
+#### Claude CLI Native Restrictions ✅ FALLBACK OPTION
 **Concept**: Use Claude Code's built-in permission system to block commands at tool execution level
-- **Implementation**: Deploy `.claude/settings.json` files to desktop_users' home directories on target systems
+- **Settings Path**: `~/.claude/settings.json` in desktop_users' home directories
+- **Configuration Format**: JSON with `"permissions": {"deny": ["Bash(ansible:*)", "Bash(vagrant:*)", "Bash(docker:*)", "Bash(aws:*)", "Bash(hcloud:*)"]}`
 - **Cross-Platform**: Inherent Linux + Windows support through Claude's architecture
-- **Ansible Integration**: Simple file deployment with ansible templates
+- **Ansible Integration**: Simple file template deployment via ansible
 - **Persistence**: Restrictions apply automatically across all Claude sessions
-- **Management**: Standard file existence/content checking via ansible
+- **Verification**: Standard file existence and content checking via ansible tasks
+- **Selection Criteria**: Primary fallback if AppArmor spike validation fails
 
 **Blocked Commands**: `ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`
 
@@ -124,9 +127,13 @@ ansible-all-my-things/
 
 **Claude Code Architecture**: Creates independent shell sessions for each command execution, requiring sub-shell resistant solutions.
 
+**Security Constraints**:
+- **sudo Prohibition**: AI agents MUST NOT execute commands as root - enforced by excluding desktop_users from sudoers group
+- **Acceptance Tests**: Sub-shell command blocking must work (`bash -c "ansible --version"` fails, `bash -c "ls -la"` succeeds)
+
 **Deployment Requirements**:
 - Must be deployable via ansible playbooks across multiple platforms
-- Must integrate with existing user provisioning workflows
+- Must integrate with existing user provisioning workflows (`playbooks/setup-users.yml`)
 - Must work on both Linux and Windows target systems
 - Must be maintainable and debuggable across distributed infrastructure
 - Should not impact normal user workflows on target systems

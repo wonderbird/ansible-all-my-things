@@ -74,15 +74,21 @@ Production-ready cross-provider infrastructure automation with unified managemen
 - Kernel-level Mandatory Access Control (MAC) that blocks infrastructure commands
 - **Selection Rationale**: 1.2 average score, superior effectiveness (kernel-level enforcement) on priority criteria
 - **Implementation Status**: Manual configuration spike planned for rivendell validation
-- **Deployment Plan**: Deploy profiles to `/etc/apparmor.d/ai-agent-block` via ansible templates after spike success
+- **Profile Path**: `/etc/apparmor.d/ai-agent-block` deployed via ansible templates
+- **PAM Configuration**: `/etc/security/pam_apparmor.conf` for user-specific targeting
+- **Ansible Integration**: Extend `playbooks/setup-users.yml` workflow
+- **Verification**: Remote status via `aa-status` command through ansible tasks
 
-#### 6. Claude CLI Native Restrictions
+#### 6. Claude CLI Native Restrictions ✅ FALLBACK OPTION
 - Deploy `.claude/settings.json` files to desktop_users' home directories on target systems via ansible
 - Use Claude Code's built-in permission system to block commands at tool execution level
 - Cross-platform ansible deployment with simple file management
-- **Pros**: Native architecture integration, sub-shell resistant, zero brittleness, elegant deployment
-- **Cons**: Claude-specific solution, effectiveness tied to Claude Code tool architecture
+- **Settings Path**: `~/.claude/settings.json` for user-level restrictions
+- **Configuration**: JSON with `"permissions": {"deny": ["Bash(ansible:*)", "Bash(vagrant:*)", ...]}` format
+- **Ansible Integration**: Simple file template deployment with cross-platform support
+- **Verification**: Standard file existence and content checking via ansible
 - **Implementation**: Simple ansible file deployment with immediate effectiveness
+- **Selection Criteria**: Primary fallback if AppArmor spike validation fails
 
 **Blocked Commands**: `ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`
 
@@ -113,6 +119,15 @@ inventories/
 - **Variable Precedence**: all → platform → provider → provider_platform hierarchy
 - **Secret Management**: Encrypted vault variables with automated password handling
 - **Testing Integration**: Unified variable management across production and test environments
+
+## Security Constraints
+
+### sudo Prohibition for AI Agents
+**Critical Constraint**: AI agents MUST NOT execute commands as root via `sudo`.
+
+**Implementation**: Desktop_users accounts (`galadriel`, `legolas`) excluded from sudoers group during provisioning.
+
+**Rationale**: Ensures reproducibility via Infrastructure as Code by limiting AI agents to source-controlled files only.
 
 ## Design Principles
 

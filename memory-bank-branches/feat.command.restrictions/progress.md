@@ -27,12 +27,15 @@
 ### AppArmor Implementation 🔴 IMPLEMENTATION READY
 - **Goal**: Deploy kernel-level command restrictions to Linux target systems via AppArmor
 - **Target Systems**: `hobbiton`, `rivendell` under `desktop_users` accounts (`galadriel`, `legolas`)
-- **Decision Analysis**: ✅ COMPLETED
-  - **Six approaches evaluated** with comprehensive scoring matrix
-  - **AppArmor selected**: 1.2 average score, superior effectiveness tiebreaker
-  - **Decision rationale documented** with collaborative analysis insights
-  - **Implementation strategy defined**: Spike-first validation approach
+- **Implementation Specifications**: ✅ DEFINED
+  - **Profile Path**: `/etc/apparmor.d/ai-agent-block` via ansible templates
+  - **User Targeting**: `/etc/security/pam_apparmor.conf` configuration for desktop_users
+  - **Ansible Integration**: Extend `playbooks/setup-users.yml` workflow
+  - **Verification**: `aa-status` command through ansible tasks
+  - **Fallback**: Claude CLI Native via `~/.claude/settings.json` deployment
+  - **Security Constraint**: AI agents excluded from sudoers group (no `sudo` access)
 - **Current Phase**: Manual configuration spike on fresh rivendell instance
+- **Acceptance Tests**: `bash -c "ansible --version"` fails, `bash -c "ls -la"` succeeds
 - **Success Criteria**: Kernel-level blocking across Claude tool calls, remote verification, reboot persistence
 
 ### Documentation Streamlining ✅ COMPLETED
@@ -58,11 +61,11 @@
 
 ## Next Immediate Actions
 
-1. **AppArmor Spike Implementation**: Manual configuration on fresh rivendell instance
-2. **Validate Kernel-Level Blocking**: Test effectiveness with Claude Code shell sessions
-3. **Decision Point**: Proceed with AppArmor or fallback to Claude CLI Native
-4. **Develop Ansible Automation**: Create AppArmor deployment playbooks
-5. **Integrate with User Provisioning**: Extend existing `playbooks/setup-users.yml` workflow
+1. **Provision Fresh rivendell**: Deploy clean AWS Linux instance for AppArmor spike testing
+2. **AppArmor Manual Configuration**: Install AppArmor, create profile at `/etc/apparmor.d/ai-agent-block`, configure pam_apparmor
+3. **Validation Testing**: Execute acceptance tests (`bash -c "ansible --version"` fails, `bash -c "ls -la"` succeeds)
+4. **Decision Point**: Proceed with AppArmor ansible automation or fallback to Claude CLI Native approach
+5. **Ansible Automation**: Create AppArmor deployment tasks in `playbooks/setup-users.yml` with remote verification
 
 ## Recent Accomplishments
 

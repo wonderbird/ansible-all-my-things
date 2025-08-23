@@ -39,7 +39,15 @@
 - **Decision Rationale**: Kernel-level enforcement provides maximum effectiveness (1.2 average score, tied with Claude CLI Native)
 - **Tiebreaker**: Superior effectiveness on second-highest priority criterion
 - **Implementation Scope**: Linux systems (`hobbiton`, `rivendell`) with Windows (`moria`) deferred
-- **Fallback Option**: Claude CLI Native Restrictions if AppArmor spike fails
+- **Fallback Strategy**: Claude CLI Native Restrictions via `.claude/settings.json` deployment if AppArmor spike fails
+
+**Implementation Specifications**:
+- **AppArmor Profile**: Deploy to `/etc/apparmor.d/ai-agent-block` via ansible templates
+- **User Targeting**: Configure `/etc/security/pam_apparmor.conf` for `galadriel` and `legolas` accounts
+- **Ansible Integration**: Extend `playbooks/setup-users.yml` with AppArmor tasks
+- **Remote Verification**: Use `aa-status` command through ansible tasks
+- **Acceptance Tests**: `bash -c "ansible --version"` must fail, `bash -c "ls -la"` must succeed
+- **Security Constraint**: AI agents MUST NOT execute `sudo` - enforced by excluding desktop_users from sudoers group
 
 ## Current System State
 
