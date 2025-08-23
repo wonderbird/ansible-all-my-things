@@ -110,11 +110,11 @@ Priority-ordered criteria for evaluating solutions:
 
 **Two-phase implementation** with fallback strategy:
 
-1. **Manual AppArmor Spike** (1-2 days) - Validate kernel-level blocking on `rivendell` target system
-2. **Ansible Automation** (1 day) - Deploy via `playbooks/setup-users.yml` with remote verification
-3. **Fallback Available** - Claude CLI Native via `.claude/settings.json` if AppArmor fails
+1. **Manual AppArmor Spike** (1-2 days) - Validate kernel-level blocking on target system
+2. **Ansible Automation** (1 day) - Deploy via ansible Infrastructure-as-Code
+3. **Fallback Available** - Claude CLI Native if AppArmor validation fails
 
-*Detailed implementation timeline provided in Appendix C*
+*Implementation details in memory bank: [activeContext.md](../memory-bank/activeContext.md), [techContext.md](../memory-bank/techContext.md)*
 
 ## Constraints
 
@@ -162,270 +162,26 @@ Priority-ordered criteria for evaluating solutions:
 - **Documentation**: Comprehensive profile syntax documentation and examples
 - **Testing**: Thorough acceptance testing on target systems before production deployment
 
-## Technical Specifications Overview
+## Technical Overview
 
-**How AppArmor Works**: AppArmor is Ubuntu's built-in security system that can prevent specific users from running specific programs. It works at the Linux kernel level, making it nearly impossible for applications to bypass.
+**How It Works**: AppArmor (Ubuntu's kernel-level security) prevents specific users from running specific programs, making it nearly impossible to bypass.
 
-**Our Implementation**:
-- **Security Profile**: Creates rules that block infrastructure commands for AI agent users
-- **User Targeting**: Only applies restrictions to `galadriel` and `legolas` accounts (AI agents)
-- **Ansible Integration**: Deployed automatically during target system provisioning
-- **Remote Management**: Status and updates manageable from control machine
+**Implementation**: Security profiles deployed to target systems block infrastructure commands for AI agent accounts only, while preserving normal development tool access.
 
-**Result**: AI agents get "permission denied" when trying to run `ansible`, `vagrant`, or `docker`, but can still use development tools like `git`, `python`, and `curl` normally.
+**Result**: AI agents get "permission denied" for dangerous commands (`ansible`, `docker`) but can still use development tools (`git`, `python`) normally.
 
-*Complete technical specifications provided in Appendix D*
+*Complete technical specifications in memory bank: [techContext.md](../memory-bank/techContext.md), [systemPatterns.md](../memory-bank/systemPatterns.md)*
 
-### Success Criteria
-- ✅ **Persistent Blocking**: Commands remain blocked across multiple Claude tool calls on target systems
-- ✅ **Cross-Platform Deployment**: Works on AWS Linux, AWS Windows, and Hetzner Cloud systems  
-- ✅ **Ansible Integration**: Deployed automatically during infrastructure provisioning
-- ✅ **Target User Coverage**: Applied to all `desktop_users` (galadriel, legolas) on target systems
-- ✅ **Reboot Persistence**: Restrictions survive system reboots and updates
-- ✅ **Remote Verification**: Status checkable from control machine via ansible
-
-### Claude CLI Native Fallback Specifications
-
-**Fallback Settings Template**:
-```json
-{
-  "permissions": {
-    "deny": [
-      "Bash(ansible:*)",
-      "Bash(vagrant:*)", 
-      "Bash(docker:*)",
-      "Bash(tart:*)",
-      "Bash(aws:*)",
-      "Bash(hcloud:*)"
-    ]
-  }
-}
-```
-
-**Ansible Deployment**:
-```yaml
-- name: Create Claude settings directory
-  file:
-    path: "{{ ansible_user_dir }}/.claude"
-    state: directory
-    mode: '0755'
-    
-- name: Deploy Claude command restrictions
-  template:
-    src: claude-settings.json.j2
-    dest: "{{ ansible_user_dir }}/.claude/settings.json"
-    mode: '0644'
-    
-- name: Verify Claude settings deployment
-  stat:
-    path: "{{ ansible_user_dir }}/.claude/settings.json"
-  register: claude_settings_stat
-```
+*Current implementation status and success criteria in memory bank: [progress.md](../memory-bank/progress.md), [activeContext.md](../memory-bank/activeContext.md)*
 
 ## Future Enhancements
 
-**Beyond MVP Scope**:
-- **Detailed Command Logging**: Log attempted command executions for audit trails
-- **Parameter-Based Filtering**: Allow specific ansible commands while blocking others
-- **Automated Testing**: Continuous verification of command restriction effectiveness
-- **Additional Command Categories**: Extend blocking to other infrastructure tools
-- **Windows Implementation**: Full Claude CLI Native deployment for `moria` target system
-- **Graduated Restrictions**: Different restriction levels based on AI agent trust levels
+*Future enhancements and detailed technical specifications in memory bank: [techContext.md](../memory-bank/techContext.md)*
 
 ## References
 
 - [Ubuntu AppArmor Documentation](https://ubuntu.com/server/docs/security-apparmor)
 - [AppArmor Profile Syntax](https://manpages.ubuntu.com/manpages/focal/man5/apparmor.d.5.html)  
-- [pam_apparmor Configuration](https://wiki.debian.org/AppArmor/HowToUse)
 - [Claude Code Settings Documentation](https://docs.anthropic.com/en/docs/claude-code/settings)
 - Original analysis: `docs/concept-branches/feat.command.restrictions.md`
-
----
-
-## Appendix A: Decision Matrix Scoring Rationale
-
-### Scoring Methodology
-
-**Linux Support**: All solutions work on Linux systems, with varying degrees of native platform integration.
-
-**Effectiveness**: Scored based on reliability and bypass resistance:
-- **Kernel-level enforcement** (AppArmor, fapolicyd): Maximum reliability through mandatory access control
-- **Application-level blocking** (Claude CLI): Good reliability within Claude's architecture  
-- **Custom implementations**: Lower reliability due to development complexity and potential edge cases
-
-**User Level**: Ability to apply restrictions per-user without affecting other accounts:
-- System-wide wrappers can implement user-specific logic by checking current user identity
-- Profile-based and native solutions naturally support per-user deployment
-
-**Maturity**: Professional maintenance vs. custom development:
-- Enterprise security frameworks (AppArmor, fapolicyd, Claude CLI): Professionally maintained
-- Custom implementations: Require development and maintenance from scratch
-
-**Simplicity**: Learning curve and deployment complexity from Ubuntu/Debian perspective:
-- Claude CLI: Familiar JSON configuration
-- AppArmor: Native Ubuntu support but requires profile syntax knowledge  
-- fapolicyd: Fedora-focused tooling adds complexity for Ubuntu environments
-
-## Appendix B: Detailed Option Analysis
-
-### 1. User Profile Integration
-Deploy restriction scripts to desktop_users' profiles (`.bashrc`/`.profile`) on target systems via ansible templates.
-
-**Technical Implementation**: 
-- Deploy restriction scripts to desktop_users' `.bashrc`/`.profile` on Linux target systems
-- Windows: Deploy to PowerShell profiles for desktop_users on Windows target systems
-- Use ansible templates to customize restrictions per user/platform
-- Include in existing `playbooks/setup-users.yml` workflow
-
-**Pros**: User-specific, cross-platform, ansible-integrated, persistent across reboots  
-**Cons**: Profile loading dependency, per-user deployment complexity
-
-### 2. System-Wide Wrappers  
-Deploy global wrapper scripts to `/usr/local/bin/` on target systems, with PATH modification to prioritize wrappers.
-
-**Technical Implementation**:
-- Deploy wrapper scripts to `/usr/local/bin/` (Linux) or `C:\Windows\System32\` (Windows) via ansible
-- Wrapper scripts check current user identity and only block commands for specific accounts (`galadriel`, `legolas`)
-- Modify system PATH during user provisioning to prioritize wrappers
-- Cross-platform ansible tasks for Linux and Windows deployment
-
-**Pros**: System-wide deployment, bulletproof blocking, remotely manageable via ansible  
-**Cons**: System-wide impact, requires elevated privileges during deployment
-
-### 3. Service-Based Blocking
-Deploy systemd services that monitor and block commands on target systems.
-
-**Technical Implementation**:
-- Deploy systemd services (Linux) or Windows services that monitor and block commands
-- Service-based approach survives all session types and reboots
-- Cross-platform ansible deployment with platform-specific implementations
-- Remote monitoring and control capabilities via ansible
-
-**Pros**: Ultimate persistence, service-level blocking, survives all session types  
-**Cons**: Complex implementation, service overhead, platform-specific development
-
-### 4. fapolicyd Integration  
-Use Red Hat's File Access Policy Daemon for application allowlisting on Linux target systems.
-
-**Technical Implementation**:
-- Deploy fapolicyd rules via ansible to block infrastructure commands on Linux target systems
-- Configure user/group-based policies to allow commands for human users but block for AI agent accounts
-- Leverage RPM trust database for application allowlisting
-- Integration with systemd for service-level persistence
-
-**Example Rules**:
-```bash
-# Block ansible for specific user accounts
-deny_audit perm=execute uid=galadriel : path=/usr/bin/ansible
-deny_audit perm=execute uid=legolas : path=/usr/bin/ansible
-
-# Allow for admin users
-allow perm=execute gid=wheel : path=/usr/bin/ansible
-```
-
-**Pros**: Kernel-level enforcement, comprehensive application control, professional maintenance  
-**Cons**: Linux-only (doesn't address Windows target `moria`), overkill for simple command blocking
-
-### 5. AppArmor Integration ⭐ **SELECTED**
-Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems.
-
-**Technical Implementation**: See main Technical Specifications section.
-
-**Pros**: Native Ubuntu support, kernel-level Mandatory Access Control, user-specific targeting via pam_apparmor, shell session resistant  
-**Cons**: Linux-only solution, requires AppArmor profile syntax knowledge
-
-### 6. Claude CLI Native Restrictions ⭐ **FALLBACK**
-Deploy `.claude/settings.json` files to desktop_users' home directories via ansible.
-
-**Technical Implementation**: See Claude CLI Native Fallback Specifications section.
-
-**Pros**: Native Claude architecture, inherently sub-shell resistant, cross-platform, elegant deployment  
-**Cons**: Claude-specific, effectiveness tied to Claude Code tool architecture
-
-## Appendix C: Detailed Implementation Timeline
-
-### Phase 1: Manual AppArmor Spike (1-2 days)
-- Deploy clean `rivendell` AWS Linux instance using existing `provision-aws-linux.yml`
-- Install AppArmor and create comprehensive `/etc/apparmor.d/ai-agent-block` profile  
-- Configure `/etc/security/pam_apparmor.conf` for user-specific targeting
-- Execute acceptance tests: `bash -c "ansible --version"` must fail, `bash -c "ls -la"` must succeed
-- Document spike results for ansible automation decision
-
-### Phase 2: Ansible Automation (1 day)  
-- Create AppArmor deployment tasks in `playbooks/setup-users.yml`
-- Add remote verification via `aa-status` command through ansible tasks
-- Test idempotent deployment across multiple runs
-
-### Fallback Implementation
-If AppArmor spike fails, implement Claude CLI Native via `.claude/settings.json` deployment with cross-platform ansible support.
-
-## Appendix D: Complete Technical Specifications
-
-### AppArmor Profile Structure
-```bash
-# /etc/apparmor.d/ai-agent-block - comprehensive profile blocking infrastructure commands
-#include <tunables/global>
-
-profile ai-agent-block flags=(attach_disconnected) {
-  #include <abstractions/base>
-  
-  # Block infrastructure commands
-  deny /usr/bin/ansible* x,
-  deny /usr/local/bin/vagrant x,
-  deny /usr/bin/docker x,
-  deny /usr/bin/aws x,
-  deny /usr/bin/hcloud x,
-  
-  # Allow normal system operations
-  /bin/** ux,
-  /usr/bin/** ux,
-  /usr/local/bin/** ux,
-}
-```
-
-### User-Specific Targeting
-```bash
-# /etc/security/pam_apparmor.conf - apply profile to specific users
-galadriel default_profile=ai-agent-block  
-legolas default_profile=ai-agent-block
-```
-
-### Ansible Integration Tasks
-```yaml
-- name: Deploy AppArmor profile for AI agent command restrictions
-  template:
-    src: ai-agent-block.profile.j2
-    dest: /etc/apparmor.d/ai-agent-block
-  notify: reload apparmor
-
-- name: Configure pam_apparmor for desktop users
-  template:
-    src: pam_apparmor.conf.j2  
-    dest: /etc/security/pam_apparmor.conf
-  notify: restart ssh
-
-- name: Enable AppArmor profile
-  command: aa-enforce /etc/apparmor.d/ai-agent-block
-
-- name: Verify AppArmor profile status
-  command: aa-status
-  register: apparmor_status
-```
-
-### Comprehensive Acceptance Tests
-```bash
-# These commands must fail on target systems for AI agent accounts
-bash -c "ansible --version"
-bash -c "ansible-playbook --help"
-bash -c "vagrant status" 
-bash -c "docker ps"
-bash -c "aws --version"
-bash -c "hcloud version"
-
-# These commands must continue working normally
-bash -c "ls -la"
-bash -c "git status"
-bash -c "python --version"
-bash -c "curl --version"
-bash -c "ssh -V"
-```
+- **Implementation Details**: See memory bank files [activeContext.md](../memory-bank/activeContext.md), [techContext.md](../memory-bank/techContext.md), [systemPatterns.md](../memory-bank/systemPatterns.md), [progress.md](../memory-bank/progress.md)
