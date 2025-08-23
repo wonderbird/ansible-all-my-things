@@ -102,19 +102,13 @@ Priority-ordered criteria for evaluating solutions:
 
 ## Implementation Strategy
 
-**Phase 1: Manual AppArmor Spike** (1-2 days)
-- Deploy clean `rivendell` AWS Linux instance for testing
-- Install AppArmor and create comprehensive `/etc/apparmor.d/ai-agent-block` profile
-- Configure `/etc/security/pam_apparmor.conf` for user-specific targeting
-- Execute acceptance tests: `bash -c "ansible --version"` must fail, `bash -c "ls -la"` must succeed
-- Document spike results for ansible automation decision
+**Two-phase implementation** with fallback strategy:
 
-**Phase 2: Ansible Automation** (1 day)  
-- Create AppArmor deployment tasks in `playbooks/setup-users.yml`
-- Add remote verification via `aa-status` command through ansible tasks
-- Test idempotent deployment across multiple runs
+1. **Manual AppArmor Spike** (1-2 days) - Validate kernel-level blocking on `rivendell` target system
+2. **Ansible Automation** (1 day) - Deploy via `playbooks/setup-users.yml` with remote verification
+3. **Fallback Available** - Claude CLI Native via `.claude/settings.json` if AppArmor fails
 
-**Fallback Implementation**: If AppArmor spike fails, implement Claude CLI Native via `.claude/settings.json` deployment
+*Detailed implementation timeline provided in Appendix C*
 
 ## Constraints
 
@@ -159,71 +153,17 @@ Priority-ordered criteria for evaluating solutions:
 - **Documentation**: Comprehensive profile syntax documentation and examples
 - **Testing**: Thorough acceptance testing on target systems before production deployment
 
-## Technical Specifications
+## Technical Specifications Overview
 
-### AppArmor Profile Structure
-```bash
-# /etc/apparmor.d/ai-agent-block - comprehensive profile blocking infrastructure commands
-#include <tunables/global>
+**AppArmor Implementation**:
+- **Profile**: `/etc/apparmor.d/ai-agent-block` with deny rules for infrastructure commands
+- **User Targeting**: Via `/etc/security/pam_apparmor.conf` for `galadriel` and `legolas` accounts
+- **Ansible Integration**: Templates deployed through `playbooks/setup-users.yml`
+- **Verification**: Remote status checking via `aa-status` command
 
-profile ai-agent-block flags=(attach_disconnected) {
-  #include <abstractions/base>
-  
-  # Block infrastructure commands
-  deny /usr/bin/ansible* x,
-  deny /usr/local/bin/vagrant x,
-  deny /usr/bin/docker x,
-  deny /usr/bin/aws x,
-  deny /usr/bin/hcloud x,
-  
-  # Allow normal system operations
-  /bin/** ux,
-  /usr/bin/** ux,
-  /usr/local/bin/** ux,
-}
-```
+**Acceptance Criteria**: Infrastructure commands (`ansible`, `vagrant`, `docker`) blocked while system commands (`ls`, `git`) work normally.
 
-### User-Specific Targeting
-```bash
-# /etc/security/pam_apparmor.conf - apply profile to specific users
-galadriel default_profile=ai-agent-block  
-legolas default_profile=ai-agent-block
-```
-
-### Ansible Integration
-```yaml
-- name: Deploy AppArmor profile for AI agent command restrictions
-  template:
-    src: ai-agent-block.profile.j2
-    dest: /etc/apparmor.d/ai-agent-block
-  notify: reload apparmor
-
-- name: Configure pam_apparmor for desktop users
-  template:
-    src: pam_apparmor.conf.j2  
-    dest: /etc/security/pam_apparmor.conf
-  notify: restart ssh
-
-- name: Enable AppArmor profile
-  command: aa-enforce /etc/apparmor.d/ai-agent-block
-
-- name: Verify AppArmor profile status
-  command: aa-status
-  register: apparmor_status
-```
-
-### Acceptance Tests
-```bash
-# These commands must fail on target systems for AI agent accounts
-bash -c "ansible --version"
-bash -c "vagrant status" 
-bash -c "docker ps"
-
-# These commands must continue working
-bash -c "ls -la"
-bash -c "git status"
-bash -c "python --version"
-```
+*Complete technical specifications provided in Appendix D*
 
 ### Success Criteria
 - ✅ **Persistent Blocking**: Commands remain blocked across multiple Claude tool calls on target systems
@@ -390,3 +330,91 @@ Deploy `.claude/settings.json` files to desktop_users' home directories via ansi
 
 **Pros**: Native Claude architecture, inherently sub-shell resistant, cross-platform, elegant deployment  
 **Cons**: Claude-specific, effectiveness tied to Claude Code tool architecture
+
+## Appendix C: Detailed Implementation Timeline
+
+### Phase 1: Manual AppArmor Spike (1-2 days)
+- Deploy clean `rivendell` AWS Linux instance using existing `provision-aws-linux.yml`
+- Install AppArmor and create comprehensive `/etc/apparmor.d/ai-agent-block` profile  
+- Configure `/etc/security/pam_apparmor.conf` for user-specific targeting
+- Execute acceptance tests: `bash -c "ansible --version"` must fail, `bash -c "ls -la"` must succeed
+- Document spike results for ansible automation decision
+
+### Phase 2: Ansible Automation (1 day)  
+- Create AppArmor deployment tasks in `playbooks/setup-users.yml`
+- Add remote verification via `aa-status` command through ansible tasks
+- Test idempotent deployment across multiple runs
+
+### Fallback Implementation
+If AppArmor spike fails, implement Claude CLI Native via `.claude/settings.json` deployment with cross-platform ansible support.
+
+## Appendix D: Complete Technical Specifications
+
+### AppArmor Profile Structure
+```bash
+# /etc/apparmor.d/ai-agent-block - comprehensive profile blocking infrastructure commands
+#include <tunables/global>
+
+profile ai-agent-block flags=(attach_disconnected) {
+  #include <abstractions/base>
+  
+  # Block infrastructure commands
+  deny /usr/bin/ansible* x,
+  deny /usr/local/bin/vagrant x,
+  deny /usr/bin/docker x,
+  deny /usr/bin/aws x,
+  deny /usr/bin/hcloud x,
+  
+  # Allow normal system operations
+  /bin/** ux,
+  /usr/bin/** ux,
+  /usr/local/bin/** ux,
+}
+```
+
+### User-Specific Targeting
+```bash
+# /etc/security/pam_apparmor.conf - apply profile to specific users
+galadriel default_profile=ai-agent-block  
+legolas default_profile=ai-agent-block
+```
+
+### Ansible Integration Tasks
+```yaml
+- name: Deploy AppArmor profile for AI agent command restrictions
+  template:
+    src: ai-agent-block.profile.j2
+    dest: /etc/apparmor.d/ai-agent-block
+  notify: reload apparmor
+
+- name: Configure pam_apparmor for desktop users
+  template:
+    src: pam_apparmor.conf.j2  
+    dest: /etc/security/pam_apparmor.conf
+  notify: restart ssh
+
+- name: Enable AppArmor profile
+  command: aa-enforce /etc/apparmor.d/ai-agent-block
+
+- name: Verify AppArmor profile status
+  command: aa-status
+  register: apparmor_status
+```
+
+### Comprehensive Acceptance Tests
+```bash
+# These commands must fail on target systems for AI agent accounts
+bash -c "ansible --version"
+bash -c "ansible-playbook --help"
+bash -c "vagrant status" 
+bash -c "docker ps"
+bash -c "aws --version"
+bash -c "hcloud version"
+
+# These commands must continue working normally
+bash -c "ls -la"
+bash -c "git status"
+bash -c "python --version"
+bash -c "curl --version"
+bash -c "ssh -V"
+```
