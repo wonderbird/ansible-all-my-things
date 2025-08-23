@@ -29,7 +29,7 @@
 #
 #     This concept has been adopted from
 #     https://docs.cline.bot/features/cline-rules
-/memory-bank/
+memory-bank
 
 # Created by https://www.toptal.com/developers/gitignore/api/linux,macos,ansible,vagrant,windows,visualstudiocode,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,ansible,vagrant,windows,visualstudiocode,python
