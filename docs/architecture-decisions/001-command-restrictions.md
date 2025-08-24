@@ -185,3 +185,103 @@ Priority-ordered criteria for evaluating solutions:
 - [Claude Code Settings Documentation](https://docs.anthropic.com/en/docs/claude-code/settings)
 - Original analysis: `docs/concept-branches/feat.command.restrictions.md`
 - **Implementation Details**: See memory bank files [activeContext.md](../memory-bank/activeContext.md), [techContext.md](../memory-bank/techContext.md), [systemPatterns.md](../memory-bank/systemPatterns.md), [progress.md](../memory-bank/progress.md)
+
+## Appendix A: Decision Matrix Scoring Rationale
+
+### Scoring Methodology
+
+**Linux Support**: All solutions work on Linux systems, with varying degrees of native platform integration.
+
+**Effectiveness**: Scored based on reliability and bypass resistance:
+- **Kernel-level enforcement** (AppArmor, fapolicyd): Maximum reliability through mandatory access control
+- **Application-level blocking** (Claude CLI): Good reliability within Claude's architecture  
+- **Custom implementations**: Lower reliability due to development complexity and potential edge cases
+
+**User Level**: Ability to apply restrictions per-user without affecting other accounts:
+- System-wide wrappers can implement user-specific logic by checking current user identity
+- Profile-based and native solutions naturally support per-user deployment
+
+**Maturity**: Professional maintenance vs. custom development:
+- Enterprise security frameworks (AppArmor, fapolicyd, Claude CLI): Professionally maintained
+- Custom implementations: Require development and maintenance from scratch
+
+**Simplicity**: Learning curve and deployment complexity from Ubuntu/Debian perspective:
+- Claude CLI: Familiar JSON configuration
+- AppArmor: Native Ubuntu support but requires profile syntax knowledge  
+- fapolicyd: Fedora-focused tooling adds complexity for Ubuntu environments
+
+## Appendix B: Detailed Option Analysis
+
+### 1. User Profile Integration
+Deploy restriction scripts to desktop_users' profiles (`.bashrc`/`.profile`) on target systems via ansible templates.
+
+**Technical Implementation**: 
+- Deploy restriction scripts to desktop_users' `.bashrc`/`.profile` on Linux target systems
+- Windows: Deploy to PowerShell profiles for desktop_users on Windows target systems
+- Use ansible templates to customize restrictions per user/platform
+- Include in existing `playbooks/setup-users.yml` workflow
+
+**Pros**: User-specific, cross-platform, ansible-integrated, persistent across reboots  
+**Cons**: Profile loading dependency, per-user deployment complexity
+
+### 2. System-Wide Wrappers  
+Deploy global wrapper scripts to `/usr/local/bin/` on target systems, with PATH modification to prioritize wrappers.
+
+**Technical Implementation**:
+- Deploy wrapper scripts to `/usr/local/bin/` (Linux) or `C:\Windows\System32\` (Windows) via ansible
+- Wrapper scripts check current user identity and only block commands for specific accounts (`galadriel`, `legolas`)
+- Modify system PATH during user provisioning to prioritize wrappers
+- Cross-platform ansible tasks for Linux and Windows deployment
+
+**Pros**: System-wide deployment, bulletproof blocking, remotely manageable via ansible  
+**Cons**: System-wide impact, requires elevated privileges during deployment
+
+### 3. Service-Based Blocking
+Deploy systemd services that monitor and block commands on target systems.
+
+**Technical Implementation**:
+- Deploy systemd services (Linux) or Windows services that monitor and block commands
+- Service-based approach survives all session types and reboots
+- Cross-platform ansible deployment with platform-specific implementations
+- Remote monitoring and control capabilities via ansible
+
+**Pros**: Ultimate persistence, service-level blocking, survives all session types  
+**Cons**: Complex implementation, service overhead, platform-specific development
+
+### 4. fapolicyd Integration  
+Use Red Hat's File Access Policy Daemon for application allowlisting on Linux target systems.
+
+**Technical Implementation**:
+- Deploy fapolicyd rules via ansible to block infrastructure commands on Linux target systems
+- Configure user/group-based policies to allow commands for human users but block for AI agent accounts
+- Leverage RPM trust database for application allowlisting
+- Integration with systemd for service-level persistence
+
+**Example Rules**:
+```bash
+# Block ansible for specific user accounts
+deny_audit perm=execute uid=galadriel : path=/usr/bin/ansible
+deny_audit perm=execute uid=legolas : path=/usr/bin/ansible
+
+# Allow for admin users
+allow perm=execute gid=wheel : path=/usr/bin/ansible
+```
+
+**Pros**: Kernel-level enforcement, comprehensive application control, professional maintenance  
+**Cons**: Linux-only (doesn't address Windows target `moria`), overkill for simple command blocking
+
+### 5. AppArmor Integration ⭐ **SELECTED**
+Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/Debian target systems.
+
+**Technical Implementation**: See main Technical Specifications section.
+
+**Pros**: Native Ubuntu support, kernel-level Mandatory Access Control, user-specific targeting via pam_apparmor, shell session resistant  
+**Cons**: Linux-only solution, requires AppArmor profile syntax knowledge
+
+### 6. Claude CLI Native Restrictions ⭐ **FALLBACK**
+Deploy `.claude/settings.json` files to desktop_users' home directories via ansible.
+
+**Technical Implementation**: See Claude CLI Native Fallback Specifications section.
+
+**Pros**: Native Claude architecture, inherently sub-shell resistant, cross-platform, elegant deployment  
+**Cons**: Claude-specific, effectiveness tied to Claude Code tool architecture
