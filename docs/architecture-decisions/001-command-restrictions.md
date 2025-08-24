@@ -152,6 +152,7 @@ Priority-ordered criteria for evaluating solutions:
 
 ### Negative Consequences  
 - **Linux-Only Solution**: Does not address Windows target system (`moria`) immediately
+- **Container Incompatibility**: Cannot work in Docker-based systems, preventing lightweight container deployments and testing validation
 - **Learning Curve**: Requires AppArmor profile syntax knowledge for maintenance
 - **System-Wide Impact**: Profiles apply at kernel level, though user-targeted
 - **PAM Configuration**: Additional complexity for user-specific profile application
@@ -276,7 +277,7 @@ Deploy AppArmor profiles with user-specific restrictions via ansible for Ubuntu/
 **Technical Implementation**: See main Technical Specifications section.
 
 **Pros**: Native Ubuntu support, kernel-level Mandatory Access Control, user-specific targeting via pam_apparmor, shell session resistant  
-**Cons**: Linux-only solution, requires AppArmor profile syntax knowledge
+**Cons**: Linux-only solution, requires AppArmor profile syntax knowledge, **incompatible with container-based systems** (Docker containers lack kernel security module access, preventing validation and future lightweight deployments)
 
 ### 6. Claude CLI Native Restrictions ⭐ **FALLBACK**
 Deploy `.claude/settings.json` files to desktop_users' home directories via ansible.
