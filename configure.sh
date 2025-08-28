@@ -19,9 +19,13 @@ if [ -z "$HOSTNAME" ]; then
   return 1
 fi
 
-echo -n "hcloud API token: "
-read -rs HCLOUD_TOKEN
-export HCLOUD_TOKEN
+if [ -z "$HCLOUD_TOKEN" ]; then
+    echo "hcloud API token: "
+    stty -echo
+    read -r HCLOUD_TOKEN
+    stty echo
+    export HCLOUD_TOKEN
+fi
 
 AWS_DEFAULT_REGION=$(aws configure get region)
 export AWS_DEFAULT_REGION
