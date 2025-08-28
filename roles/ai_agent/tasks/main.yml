@@ -6,6 +6,12 @@
       - claude
       - nvm
 
+- name: Reload nvm environment
+  win_shell: |
+    $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+    $env:NVM_HOME = [System.Environment]::GetEnvironmentVariable("NVM_HOME","Machine")
+    $env:NVM_SYMLINK = [System.Environment]::GetEnvironmentVariable("NVM_SYMLINK","Machine")
+
 - name: Install Nodejs LTS
   win_shell: nvm install lts
   args:
