@@ -1,5 +1,10 @@
 #SPDX-License-Identifier: MIT-0
 ---
+- name: Windows Updates
+  win_update:
+    category_names: '*'
+    reboot: true
+
 - name: Configure RDP performance
   win_shell: |
     # Configure RDP for 32-bit color depth
