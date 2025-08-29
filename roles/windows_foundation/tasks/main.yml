@@ -1,7 +1,7 @@
 #SPDX-License-Identifier: MIT-0
 ---
 - name: Windows Updates
-  win_update:
+  win_updates:
     category_names: '*'
     reboot: true
 
