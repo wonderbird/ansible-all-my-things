@@ -1,9 +1,9 @@
 #SPDX-License-Identifier: MIT-0
 ---
-- name: Windows Updates
-  win_updates:
-    category_names: '*'
-    reboot: true
+#- name: Windows Updates
+#  win_updates:
+#    category_names: '*'
+#    reboot: true
 
 - name: Configure RDP performance
   win_shell: |
@@ -25,3 +25,11 @@
     name:
       - foxitreader
       - which
+
+- name: Check value for RebootPending
+  win_shell: Test-Path 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending'
+  register: rebootpending
+
+- name: Reboot
+  win_reboot:
+  when: rebootpending.stdout.find("True") != -1

@@ -10,6 +10,12 @@
 # - select your region in the top right corner (e.g., "Europe (Stockholm) eu-north-1")
 # - enter "AMI Catalog" in the search box, then select "AMI Catalog"
 # - enter "Windows Server 2025" in the search box
+# 
+# To locate an AMI by the image id given below:
+#
+# - in the AMI Catalog, activate the "Community-AMIs" tab
+# - Enter the image id into the search box
+# - wait until "Windows_Server-2025-English-Full-Base-2025.06.11" shows
 #
 aws_default_ami_id: "ami-01998fe5b868df6e3"
 

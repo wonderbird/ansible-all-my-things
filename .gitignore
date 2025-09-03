@@ -31,8 +31,8 @@
 #     https://docs.cline.bot/features/cline-rules
 memory-bank
 
-# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,ansible,vagrant,windows,visualstudiocode,python
-# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,ansible,vagrant,windows,visualstudiocode,python
+# Created by https://www.toptal.com/developers/gitignore/api/linux,macos,python,ansible,vagrant,windows,visualstudiocode,vim
+# Edit at https://www.toptal.com/developers/gitignore?templates=linux,macos,python,ansible,vagrant,windows,visualstudiocode,vim
 
 ### Ansible ###
 *.retry
@@ -267,6 +267,26 @@ pyrightconfig.json
 ### Vagrant Patch ###
 *.box
 
+### Vim ###
+# Swap
+[._]*.s[a-v][a-z]
+!*.svg  # comment out if you don't need vector files
+[._]*.sw[a-p]
+[._]s[a-rt-v][a-z]
+[._]ss[a-gi-z]
+[._]sw[a-p]
+
+# Session
+Session.vim
+Sessionx.vim
+
+# Temporary
+.netrwhist
+# Auto-generated tag files
+tags
+# Persistent undo
+[._]*.un~
+
 ### VisualStudioCode ###
 .vscode/*
 !.vscode/settings.json
@@ -312,4 +332,4 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
-# End of https://www.toptal.com/developers/gitignore/api/linux,macos,ansible,vagrant,windows,visualstudiocode,python
+# End of https://www.toptal.com/developers/gitignore/api/linux,macos,python,ansible,vagrant,windows,visualstudiocode,vim
