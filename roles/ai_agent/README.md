@@ -17,7 +17,10 @@ none
 Dependencies
 ------------
 
-Role "Windows Foundation"
+This role depends on the following roles:
+
+- windows_common
+- windows_foundation
 
 Example Playbook
 ----------------

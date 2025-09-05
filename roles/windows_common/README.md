@@ -1,5 +1,5 @@
-Role Name
-=========
+Windows Common
+==============
 
 Tasks shared among windows related roles.
 
@@ -23,10 +23,10 @@ Example Playbook
 
 To include a task from this role in another role:
 
-    - name: Run tasks/other.yaml instead of 'main'
+    - name: Reboot
       ansible.builtin.include_role:
-        name: myrole
-        tasks_from: other
+        name: windows_common
+        tasks_from: reboot-if-pending
 
 See also: https://docs.ansible.com/ansible/latest/collections/ansible/builtin/include_role_module.html
 

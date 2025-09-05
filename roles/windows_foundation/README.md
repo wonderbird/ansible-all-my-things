@@ -16,7 +16,9 @@ none
 Dependencies
 ------------
 
-none
+This role depends on the following roles:
+
+- windows_common
 
 Example Playbook
 ----------------

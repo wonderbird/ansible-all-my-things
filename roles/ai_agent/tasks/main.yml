@@ -12,6 +12,11 @@
     $env:NVM_HOME = [System.Environment]::GetEnvironmentVariable("NVM_HOME","Machine")
     $env:NVM_SYMLINK = [System.Environment]::GetEnvironmentVariable("NVM_SYMLINK","Machine")
 
+- name: Reboot
+  include_role:
+    name: windows_common
+    tasks_from: reboot-if-pending
+
 - name: Install Nodejs LTS
   win_shell: nvm install lts
   args:
