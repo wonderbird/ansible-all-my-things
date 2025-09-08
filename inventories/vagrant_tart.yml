@@ -23,10 +23,10 @@
 all:
   hosts:
     lorien:
-      ansible_host: 192.168.64.51
+      ansible_host: 192.168.64.57
       ansible_port: 22
       ansible_user: 'admin'
-      ansible_ssh_private_key_file: 'test/ssh_user_key/id_ecdsa'
+      ansible_ssh_private_key_file: 'test/tart/.vagrant/machines/lorien/tart/private_key'
 
 linux:
   hosts:
