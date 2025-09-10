@@ -1,0 +1,224 @@
+---
+#####
+# Install and configure Kiro IDE
+#####
+
+# Kiro IDE installation using .deb package for Ubuntu/Debian systems
+# Enhanced with comprehensive error handling and verification
+
+# Check if Kiro is already installed using dpkg
+- name: Check if Kiro package is installed
+  shell: dpkg -l | grep -i kiro | awk '{print $3}' || echo "not_installed"
+  register: kiro_dpkg_version
+  changed_when: false
+  failed_when: false
+
+- name: Set current Kiro version
+  set_fact:
+    kiro_current_version: "{{ kiro_dpkg_version.stdout if kiro_dpkg_version.stdout != 'not_installed' else 'not_installed' }}"
+
+# Set Kiro download information using known working version
+- name: Set Kiro download information
+  set_fact:
+    kiro_latest_version: "0.2.38-1756939173"  # Full Debian package version
+    kiro_download_url: "https://prod.download.desktop.kiro.dev/releases/202509032213--distro-linux-x64-deb/202509032213-distro-linux-x64.deb"
+
+- name: Display version information
+  debug:
+    msg: |
+      Current Kiro version: {{ kiro_current_version }}
+      Latest Kiro version: {{ kiro_latest_version }}
+      Download URL: {{ kiro_download_url }}
+
+# Determine if installation/update is needed
+- name: Check if Kiro installation is needed
+  set_fact:
+    kiro_needs_install: >-
+      {{
+        kiro_current_version == "not_installed" or
+        kiro_current_version != kiro_latest_version
+      }}
+
+- name: Display installation decision
+  debug:
+    msg: "Kiro installation needed: {{ kiro_needs_install }}"
+
+# Check available disk space before installation
+- name: Check available disk space in /tmp
+  shell: df /tmp | tail -1 | awk '{print $4}'
+  register: available_space_kb
+  changed_when: false
+  when: kiro_needs_install
+
+- name: Verify sufficient disk space (minimum 500MB)
+  debug:
+    msg: |
+      Warning: Low disk space for Kiro installation.
+      Available: {{ (available_space_kb.stdout | int / 1024) | round(1) }}MB
+      Required: 500MB recommended
+      Continuing with installation attempt.
+  when: kiro_needs_install and (available_space_kb.stdout | int) < 512000
+
+# Create temporary directory for download
+- name: Create temporary directory for Kiro download
+  file:
+    path: /tmp/kiro-install
+    state: directory
+    mode: '0755'
+  when: kiro_needs_install
+  register: kiro_temp_dir
+  failed_when: false
+
+# Handle temporary directory creation failure
+- name: Handle temporary directory creation failure
+  block:
+    - name: Report temporary directory creation failure
+      debug:
+        msg: |
+          Failed to create temporary directory for Kiro installation.
+          Error: {{ kiro_temp_dir.msg | default('Unknown error') }}
+          Skipping Kiro installation.
+    
+    - name: Set directory creation failure flag
+      set_fact:
+        kiro_dir_failed: true
+  when: kiro_needs_install and kiro_temp_dir.failed
+
+# Download Kiro .deb package with comprehensive error handling
+- name: Download Kiro .deb package
+  block:
+    - name: Attempt Kiro .deb package download
+      get_url:
+        url: "{{ kiro_download_url }}"
+        dest: /tmp/kiro-install/kiro.deb
+        mode: '0644'
+        timeout: 300
+        force: yes
+      register: kiro_download
+      retries: 3
+      delay: 10
+      until: kiro_download is succeeded
+  rescue:
+    - name: Handle network/download failures
+      debug:
+        msg: |
+          Failed to download Kiro .deb package after 3 attempts.
+          URL: {{ kiro_download_url }}
+          Error: {{ kiro_download.msg | default('Unknown error') }}
+          This may be due to network connectivity issues or the download URL being unavailable.
+          Skipping Kiro installation - please check your internet connection and try again later.
+      
+    - name: Set download failure flag
+      set_fact:
+        kiro_download_failed: true
+        
+    - name: Clean up partial download if exists
+      file:
+        path: /tmp/kiro-install/kiro.deb
+        state: absent
+      failed_when: false
+  when: kiro_needs_install and not (kiro_dir_failed | default(false))
+
+# Install Kiro .deb package with permission error handling
+- name: Install Kiro .deb package
+  block:
+    - name: Attempt to install Kiro .deb package
+      apt:
+        deb: /tmp/kiro-install/kiro.deb
+        state: present
+      become: yes
+      register: kiro_install
+  rescue:
+    - name: Handle installation/permission failures
+      debug:
+        msg: |
+          Failed to install Kiro .deb package.
+          This may be due to insufficient permissions, missing dependencies, or package conflicts.
+          Error: {{ ansible_failed_result.msg | default('Unknown error') }}
+          Skipping Kiro installation.
+      
+    - name: Set installation failure flag
+      set_fact:
+        kiro_install_failed: true
+  when: kiro_needs_install and not (kiro_download_failed | default(false)) and not (kiro_dir_failed | default(false))
+
+# Clean up downloaded .deb file
+- name: Remove temporary Kiro .deb file
+  file:
+    path: /tmp/kiro-install/kiro.deb
+    state: absent
+  when: kiro_needs_install
+  failed_when: false
+
+# Verify installation success
+- name: Verify Kiro installation
+  command: kiro --version
+  register: kiro_verify
+  changed_when: false
+  failed_when: false
+  when: kiro_needs_install and not (kiro_download_failed | default(false)) and not (kiro_install_failed | default(false)) and not (kiro_dir_failed | default(false))
+
+# Report installation success
+- name: Display installation success
+  debug:
+    msg: |
+      Kiro successfully installed!
+      Version: {{ kiro_verify.stdout }}
+      Installation method: Debian package
+  when: >
+    kiro_needs_install and 
+    not (kiro_download_failed | default(false)) and
+    not (kiro_dir_failed | default(false)) and
+    not (kiro_install_failed | default(false)) and
+    (kiro_verify.rc | default(1)) == 0
+
+# Report temporary directory creation failure (non-fatal)
+- name: Report temporary directory creation failure
+  debug:
+    msg: |
+      Kiro installation skipped due to temporary directory creation failure.
+      Could not create temporary directory at /tmp/kiro-install.
+      Please check filesystem permissions and available space.
+      The playbook will continue with other tasks.
+  when: kiro_needs_install and (kiro_dir_failed | default(false))
+
+# Report download failure (non-fatal)
+- name: Report download failure
+  debug:
+    msg: |
+      Kiro installation skipped due to download failure.
+      Please check your internet connection and try running the playbook again.
+      The playbook will continue with other tasks.
+  when: kiro_needs_install and (kiro_download_failed | default(false)) and not (kiro_dir_failed | default(false))
+
+# Report installation failure (non-fatal)
+- name: Report installation failure
+  debug:
+    msg: |
+      Kiro installation failed during package installation.
+      This may be due to:
+      - Insufficient permissions (ensure running with sudo/become)
+      - Missing dependencies (try: sudo apt update)
+      - Package conflicts or corrupted download
+      Please check system requirements and try again.
+      The playbook will continue with other tasks.
+  when: kiro_needs_install and (kiro_install_failed | default(false)) and not (kiro_download_failed | default(false)) and not (kiro_dir_failed | default(false))
+
+# Report installation verification failure (non-fatal)
+- name: Report installation verification failure
+  debug:
+    msg: |
+      Kiro installation completed but verification failed.
+      The package was installed but 'kiro --version' command failed.
+      This may be due to:
+      - Missing dependencies or libraries
+      - PATH configuration issues
+      - Package installation issues
+      Please try running 'kiro --version' manually to diagnose.
+      The playbook will continue with other tasks.
+  when: >
+    kiro_needs_install and 
+    not (kiro_download_failed | default(false)) and
+    not (kiro_dir_failed | default(false)) and
+    not (kiro_install_failed | default(false)) and
+    (kiro_verify.rc | default(1)) != 0
