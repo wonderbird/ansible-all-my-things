@@ -12,14 +12,25 @@ vagrant reload
 
 ## Provisioning the Test System
 
+Provision the system
+
 ```shell
-# Provision the system
 vagrant up
+```
 
-# Update the IP address in the inventory file /inventories/vagrant_tart.yml
-# Query the IP address as follows:
+> [!IMPORTANT] Get the IP address from tart
+>
+> If you use `./configure.sh lorien` you will get the wrong IP, because the
+> static inventory contains the old address.
+
+```shell
 tart ip lorien
+```
 
-# Install packages for this particular system type
+Update the IP address in the inventory file [/inventories/vagrant_tart.yml](../../inventories/vagrant_tart.yml)
+
+Install packages for this particular system type
+
+```shell
 ansible-playbook ./configure-linux.yml --skip-tags "not-supported-on-vagrant-arm64"
 ```
