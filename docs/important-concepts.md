@@ -51,10 +51,13 @@ echo -n "New ansible vault password: " \
 
 # Create a new vault.yml file from the template
 cp -v ./inventories/group_vars/all/vault-template.yml ./inventories/group_vars/all/vault.yml \
-&& ansible-vault encrypt --vault-password-file ./ansible-vault-password.txt ./inventories/group_vars/all/vault.yml
+&& ansible-vault encrypt ./inventories/group_vars/all/vault.yml
+
+# Read public key of .pem file
+ssh-keygen -y -f ~/.ssh/YOUR_KEY_FILE.pem
 
 # Replace the placeholders with your secrets
-ansible-vault edit --vault-password-file ./ansible-vault-password.txt ./inventories/group_vars/all/vault.yml
+ansible-vault edit ./inventories/group_vars/all/vault.yml
 ```
 
 ## Admin user on fresh system differs per provider
