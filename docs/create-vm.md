@@ -85,6 +85,36 @@ After about 1 - 2 minutes, you will be asked to add the SSH key of the new serve
 
 After that, the setup will take another 10 - 15 minutes.
 
+### Attention: SSH connection to Windows times out
+
+While provisioning the Windows VM, the provisioning script will wait for SSH to become available. This process will hit a timeout.
+
+I am not sure whether you just need to wait another 1 - 5 minutes or whether you need to connect SSH manually and accept the host key.
+
+>[!IMPORTANT]
+> **Next time just wait**
+>
+> Instead of following the instructions below, try waiting for 5 minutes the next time the problem occurs.
+> If that solves the problem already, then find out the minimum time required until the SSH connection is availble and update the timeout of the provisioning script.
+
+My latest steps to cure the problem where:
+
+1. Log into AWS EC2 console and check the instance IP address
+2. Connect manually:
+
+```shell
+# get the IP address from the provisioner or from AWS EC2 Console
+export IPV4_ADDRESS=56.228.9.179
+ssh-add ~/.ssh/stefan@fangorn.pem
+ssh -L 3389:localhost:3389 -L 8022:localhost:22 Administrator@$IPV4_ADDRESS
+```
+
+After you have accepted the remote host key, you should be connected to a PowerShell on the VM.
+
+3. Exit the PowerShell and re-run the provisioning script.
+
+This time the provisioner will be able to connect via SSH.
+
 ### Note: Windows requires manual setup
 
 The Windows Server provides a clean installation with SSH, RDP access, and the Chocolatey package manager. However, unlike the Linux systems, **it does not include**:
