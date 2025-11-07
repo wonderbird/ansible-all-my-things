@@ -6,10 +6,8 @@
 #
 # Parameters:
 #
-#   HOSTNAME    The hostname of the machine to configure (default: lorien)
+#   HOSTNAME    The hostname of the machine to configure
 #
-SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-
 HOSTNAME=${1}
 export HOSTNAME
 if [ -z "$HOSTNAME" ]; then
