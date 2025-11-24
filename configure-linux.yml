@@ -2,7 +2,7 @@
 - import_playbook: playbooks/setup-users.yml
 - import_playbook: playbooks/setup-basics.yml
 - import_playbook: playbooks/setup-homebrew.yml
-- import_playbook: playbooks/setup-nodejs-typescript.yml
+- import_playbook: playbooks/setup-nodejs.yml
 
 # Setup desktop environment
 #

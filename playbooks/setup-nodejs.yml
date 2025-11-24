@@ -1,0 +1,35 @@
+---
+- hosts: linux
+  become: true
+  
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+
+  tasks:
+    - name: Install NVM
+      shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+      args:
+        creates: "/home/{{ item }}/.nvm/nvm.sh"
+      become_user: "{{ item }}"
+      loop: "{{ desktop_user_names }}"
+
+    - name: Install latest LTS Node.js
+      shell: |
+        . /home/{{ item }}/.nvm/nvm.sh
+        nvm install --lts
+        nvm use --lts
+        nvm alias default lts/*
+      args:
+        executable: /bin/bash
+      become_user: "{{ item }}"
+      loop: "{{ desktop_user_names }}"
+
+    - name: Install TypeScript globally
+      shell: |
+        . /home/{{ item }}/.nvm/nvm.sh
+        npm install -g typescript
+      args:
+        executable: /bin/bash
+      become_user: "{{ item }}"
+      loop: "{{ desktop_user_names }}"
