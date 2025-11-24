@@ -32,5 +32,5 @@ windows_admin_password: "{{ vault_windows_admin_password }}"
 desktop_users:
   - name: "galadriel"
     password: "{{ vault_galadriels_password }}"
-  - name: "legolas"
-    password: "{{ vault_legolas_password }}"
+#  - name: "legolas"
+#    password: "{{ vault_legolas_password }}"
