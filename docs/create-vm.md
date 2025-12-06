@@ -51,8 +51,10 @@ Some prerequisites differ by provider. Refer to the corresponding documentation 
 Once you have configured the prerequisites for both providers, you can set the required environment variables as follows:
 
 ```shell
-source ./configure.sh
+source ./configure.sh HOSTNAME
 ```
+
+Depending on the target system, choose the appropriate hostname from the table in the [README.md](../README.md).
 
 ## Create a Cloud VM
 
@@ -85,26 +87,20 @@ After about 1 - 2 minutes, you will be asked to add the SSH key of the new serve
 
 After that, the setup will take another 10 - 15 minutes.
 
-### Attention: SSH connection to Windows times out
+### Attention: Inventory Refresh Requires Sourced Configuration Script
+
+If refreshing the inventory fails, then you might have forgotten to source the configuration script. Check the section on provider specific prerequisites above.
+
+### Attention: SSH Remote Key to Windows Must be Accepted
 
 While provisioning the Windows VM, the provisioning script will wait for SSH to become available. This process will hit a timeout.
 
-I am not sure whether you just need to wait another 1 - 5 minutes or whether you need to connect SSH manually and accept the host key.
-
->[!IMPORTANT]
-> **Next time just wait**
->
-> Instead of following the instructions below, try waiting for 5 minutes the next time the problem occurs.
-> If that solves the problem already, then find out the minimum time required until the SSH connection is availble and update the timeout of the provisioning script.
-
-My latest steps to cure the problem where:
-
-1. Log into AWS EC2 console and check the instance IP address
+1. The IP address to connect is shown in the output of the provisioning script. As an alternative you can find it in the [AWS EC2 console](https://eu-north-1.console.aws.amazon.com/ec2/home?region=eu-north-1) / instance IP address
 2. Connect manually:
 
 ```shell
 # get the IP address from the provisioner or from AWS EC2 Console
-export IPV4_ADDRESS=56.228.9.179
+export IPV4_ADDRESS=<enter ip address>
 ssh-add ~/.ssh/stefan@fangorn.pem
 ssh -L 3389:localhost:3389 -L 8022:localhost:22 Administrator@$IPV4_ADDRESS
 ```
