@@ -30,6 +30,32 @@ export AWS_DEFAULT_REGION
 echo ""
 echo "Using AWS region: $AWS_DEFAULT_REGION"
 
-IPV4_ADDRESS=$(ansible-inventory --list | jq --raw-output "._meta.hostvars.$HOSTNAME.ansible_host.__ansible_unsafe")
+PROVIDER="undefined"
+case "$HOSTNAME" in
+    "lorien")
+        PROVIDER="tart"
+        ;;
+    "dagorlad")
+        PROVIDER="docker"
+        ;;
+    "moria" | "rivendell")
+        PROVIDER="aws"
+        ;;
+    "hobbiton")
+        PROVIDER="hcloud"
+        ;;
+esac
+export PROVIDER
+echo "Using provider: $PROVIDER"
+
+IPV4_ADDRESS="undefined"
+case "$PROVIDER" in
+    "aws"|"hcloud")
+        IPV4_ADDRESS=$(ansible-inventory --list | jq --raw-output "._meta.hostvars.$HOSTNAME.ansible_host.__ansible_unsafe")
+        ;;
+    *)
+        IPV4_ADDRESS=$(ansible-inventory --list | jq --raw-output "._meta.hostvars.$HOSTNAME.ansible_host")
+        ;;
+esac
 export IPV4_ADDRESS
 echo "IP address of $HOSTNAME: $IPV4_ADDRESS"

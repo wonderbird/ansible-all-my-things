@@ -91,23 +91,32 @@ After that, the setup will take another 10 - 15 minutes.
 
 If refreshing the inventory fails, then you might have forgotten to source the configuration script. Check the section on provider specific prerequisites above.
 
-### Attention: SSH Remote Key to Windows Must be Accepted
+### Attention: SSH Remote Key Must be Accepted
 
-While provisioning the Windows VM, the provisioning script will wait for SSH to become available. This process will hit a timeout.
+While provisioning a cloud VM, the provisioning script will wait for SSH to become available. This process will hit a timeout.
 
-1. The IP address to connect is shown in the output of the provisioning script. As an alternative you can find it in the [AWS EC2 console](https://eu-north-1.console.aws.amazon.com/ec2/home?region=eu-north-1) / instance IP address
+1. The IP address to connect is shown in the output of the provisioning script. As an alternative you can find it in
+   the [AWS EC2 console](https://eu-north-1.console.aws.amazon.com/ec2/home?region=eu-north-1) / instance IP address
+   or [Hetzner Console](https://console.hetzner.com/projects), respectively.
+
 2. Connect manually:
 
 ```shell
+# For Windows, the username is Administrator
+export USER=Administrator
+
+# For Linux, the username is root
+export USER=root
+
 # get the IP address from the provisioner or from AWS EC2 Console
 export IPV4_ADDRESS=<enter ip address>
 ssh-add ~/.ssh/stefan@fangorn.pem
-ssh -L 3389:localhost:3389 -L 8022:localhost:22 Administrator@$IPV4_ADDRESS
+ssh -L 3389:localhost:3389 -L 8022:localhost:22 $USER@$IPV4_ADDRESS
 ```
 
-After you have accepted the remote host key, you should be connected to a PowerShell on the VM.
+After you have accepted the remote host key, you should be connected to a PowerShell (Windows) or a Bash (Linux) on the VM.
 
-3. Exit the PowerShell and re-run the provisioning script.
+3. Exit the shell and re-run the provisioning script.
 
 This time the provisioner will be able to connect via SSH.
 

@@ -19,11 +19,11 @@ plugin: hetzner.hcloud.hcloud
 
 keyed_groups:
   - key: labels.platform
-    prefix: ""
-    separator: ""
-  - key: labels.platform
     prefix: "hcloud"
     separator: "_"
+
+# Note: hobbiton is added to the group hcloud_linux by the static inventory
+#       file ./hcloud_linux.yml
 
 hostnames:
   - name
