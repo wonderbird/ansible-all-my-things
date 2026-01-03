@@ -1,3 +1,6 @@
+# Skip private keys
+*.pem
+
 # Skip secrets and vault password files
 *password*
 *secrets*
