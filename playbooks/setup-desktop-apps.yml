@@ -9,10 +9,12 @@
 
   tasks:
 
-    # Visual Studio Code requires Chromium for key management. Thus, Chromium is
-    # installed first.
+    # Cursor and Visual Studio Code require Chromium for key management.
+    # Thus, Chromium is installed first.
     # See: https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
     - import_tasks: tasks/setup-chromium.yml
+
+    - import_tasks: tasks/setup-cursor.yml
 
     - import_tasks: tasks/setup-vscode.yml
 

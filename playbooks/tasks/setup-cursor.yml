@@ -1,0 +1,49 @@
+---
+#####
+# Install and configure Cursor
+#####
+
+- name: Download Cursor .deb package
+  get_url:
+    url: "https://api2.cursor.sh/updates/download/golden/linux-arm64-deb/cursor/2.3"
+    dest: /tmp/cursor.deb
+    mode: '0644'
+
+- name: Install Cursor .deb package
+  apt:
+    deb: /tmp/cursor.deb
+    state: present
+
+- name: Create .cursor directory
+  file:
+    path: /home/{{ item }}/.cursor
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0775'
+  loop: "{{ desktop_user_names }}"
+
+- name: Create empty .cursor/argv.json
+  copy:
+    src: "{{ playbook_dir }}/../configuration/home/my_desktop_user/.cursor/argv.json"
+    dest: /home/{{ item }}/.cursor/argv.json
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0775'
+  loop: "{{ desktop_user_names }}"
+
+- name: Configure keyring for Cursor
+  become_user: "{{ item }}"
+  blockinfile:
+    path: /home/{{ item }}/.cursor/argv.json
+    insertafter: '^{$'
+    block: "{{ vscode_keyring_configuration | indent(8, True) }}"
+    marker: "// {mark} ANSIBLE MANAGED BLOCK"
+    append_newline: true
+    state: present
+  vars:
+    vscode_keyring_configuration: |
+      // Configure the keyring as described in
+      // https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
+      "password-store": "gnome-libsecret",
+  loop: "{{ desktop_user_names }}"
