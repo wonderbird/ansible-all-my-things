@@ -3,9 +3,17 @@
 # Install and configure Cursor
 #####
 
+- name: Set architecture-specific download URL
+  set_fact:
+    cursor_download_url: "{{ cursor_urls[ansible_architecture] | default(cursor_urls['aarch64']) }}"
+  vars:
+    cursor_urls:
+      x86_64: 'https://api2.cursor.sh/updates/download/golden/linux-x64-deb/cursor/2.3'
+      aarch64: 'https://api2.cursor.sh/updates/download/golden/linux-arm64-deb/cursor/2.3'
+
 - name: Download Cursor .deb package
   get_url:
-    url: "https://api2.cursor.sh/updates/download/golden/linux-arm64-deb/cursor/2.3"
+    url: "{{ cursor_download_url }}"
     dest: /tmp/cursor.deb
     mode: '0644'
 
