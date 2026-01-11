@@ -54,10 +54,14 @@
     #
     # This implements Daniel Davis's suggestion from https://gist.github.com/shirou/6928012?permalink_comment_id=4059919#gistcomment-4059919
     #
-    # Important addition:
-    # ssh-keyscan prints comments to stdout instead of stderr.
-    # The -q option must be used to suppress these comments.
-    # Otherwise the known_hosts module will fail when processing the comments.
+    # Important additions:
+    # 
+    # - ssh-keyscan prints comments to stdout instead of stderr.
+    #   The -q option must be used to suppress these comments.
+    #   Otherwise the known_hosts module will fail when processing the comments.
+    #
+    # - Retries and delay are used to wait for the server to become available.
+    #   Usually the server is available on the 3rd try.
     #
     # I was directed to the correct path by the stack overflow answer by nikobelia: https://stackoverflow.com/a/32338480
     - name: Scan for SSH host keys
@@ -65,6 +69,8 @@
         module: shell
         cmd: ssh-keyscan -q {{ ansible_host }}
       changed_when: False
+      retries: 6
+      delay: 10
       register: ssh_scan
 
     - name: Update known_hosts
@@ -74,6 +80,3 @@
         name: "{{ ansible_host }}"
       with_items: "{{ ssh_scan.stdout_lines }}"
     #####
-
-    - name: Wait for host to become reachable
-      wait_for_connection:
