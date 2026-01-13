@@ -1,7 +1,10 @@
 # Generate dynamic inventory for Hetzner Cloud
 #
-# Note: This file must be named `hcloud.yml` to be recognized by the
-#       Ansible module `hetzner.hcloud.hcloud` (1).
+# ATTENTION
+# =========
+#
+#   This file must be named `hcloud.yml` to be recognized by the
+#   Ansible module `hetzner.hcloud.hcloud` (1).
 #
 # The Hetzner documentation (2) shows more examples of how to use the hcloud
 # inventory plugin. The playbook `provisioners/hcloud.yml` uses the label
@@ -17,13 +20,10 @@
 ---
 plugin: hetzner.hcloud.hcloud
 
-keyed_groups:
-  - key: labels.platform
-    prefix: "hcloud"
-    separator: "_"
+cache: false
+cache_timeout: 1
 
-# Note: hobbiton is added to the group hcloud_linux by the static inventory
-#       file ./hcloud_linux.yml
-
-hostnames:
-  - name
+group: hcloud
+groups:
+  hcloud_linux: inventory_hostname.startswith('hobbiton')
+  linux: inventory_hostname.startswith('hobbiton')
