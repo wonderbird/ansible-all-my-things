@@ -1,5 +1,6 @@
 ---
-- hosts: linux
+- name: Setup Desktop Applications
+  hosts: linux
   tags: not-supported-on-vagrant-docker
   become: true
 
@@ -13,8 +14,6 @@
     # Thus, Chromium is installed first.
     # See: https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
     - import_tasks: tasks/setup-chromium.yml
-
-    - import_tasks: tasks/setup-cursor.yml
 
     - import_tasks: tasks/setup-vscode.yml
 

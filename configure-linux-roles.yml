@@ -1,0 +1,11 @@
+---
+- name: Configure linux roles
+  hosts: linux
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+
+  roles:
+    - cursor_ide

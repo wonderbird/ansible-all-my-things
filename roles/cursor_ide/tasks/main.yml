@@ -1,23 +1,26 @@
+#SPDX-License-Identifier: MIT-0
 ---
-#####
-# Install and configure Cursor
-#####
-
+# The following URL will automatically redirect to the latest version
+# (tested on 2026-01-14)
 - name: Set architecture-specific download URL
   set_fact:
     cursor_download_url: "{{ cursor_urls[ansible_architecture] | default(cursor_urls['aarch64']) }}"
   vars:
     cursor_urls:
-      x86_64: 'https://api2.cursor.sh/updates/download/golden/linux-x64-deb/cursor/2.3'
-      aarch64: 'https://api2.cursor.sh/updates/download/golden/linux-arm64-deb/cursor/2.3'
+      x86_64:  'https://api2.cursor.sh/updates/download/golden/linux-x64-deb/cursor/'
+      aarch64: 'https://api2.cursor.sh/updates/download/golden/linux-arm64-deb/cursor/'
 
-- name: Download Cursor .deb package
+- name: Debug print the download URL
+  debug:
+    msg: "Cursor download URL is {{ cursor_download_url }}"
+
+- name: Download Cursor
   get_url:
     url: "{{ cursor_download_url }}"
     dest: /tmp/cursor.deb
     mode: '0644'
 
-- name: Install Cursor .deb package
+- name: Install Cursor
   apt:
     deb: /tmp/cursor.deb
     state: present
@@ -33,8 +36,9 @@
 
 - name: Create empty .cursor/argv.json
   copy:
-    src: "{{ playbook_dir }}/../configuration/home/my_desktop_user/.cursor/argv.json"
+    src: "{{ playbook_dir }}/configuration/home/my_desktop_user/.cursor/argv.json"
     dest: /home/{{ item }}/.cursor/argv.json
+    force: no
     owner: "{{ item }}"
     group: "{{ item }}"
     mode: '0775'
@@ -55,3 +59,8 @@
       // https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
       "password-store": "gnome-libsecret",
   loop: "{{ desktop_user_names }}"
+
+- name: Remove downloaded Cursor .deb file
+  file:
+    path: /tmp/cursor.deb
+    state: absent

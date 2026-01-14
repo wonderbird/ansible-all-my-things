@@ -14,6 +14,9 @@
 - import_playbook: playbooks/setup-keyring.yml
 - import_playbook: playbooks/setup-desktop-apps.yml
 
+# Apply linux roles
+- import_playbook: configure-linux-roles.yml
+
 # Restore backup
 - import_playbook: ./restore.yml
 
