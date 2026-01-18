@@ -1,0 +1,35 @@
+---
+- name: Restore Cursor settings
+  hosts: linux
+  tags: not-supported-on-vagrant-docker
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+
+  tasks:
+
+    - name: Restore Cursor backup
+      include_tasks: tasks/restore.yml
+      vars:
+        users: "{{ desktop_user_names }}"
+        source_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/cursor-backup.tar.gz"
+        destination_beneath_home: ""
+        delete_before_beneath_home:
+          - ".cursor"
+          - ".config/Cursor/User"
+
+    - name: Install Cursor extensions
+      shell: |
+        EXTENSIONS_FILE="/home/{{ item }}/cursor-extension-list.txt"
+        if [ -f "$EXTENSIONS_FILE" ]; then
+          echo "Installing extensions for user {{ item }}..."
+          cat "$EXTENSIONS_FILE" | xargs -n 1 code --force --install-extension
+          rm -f "$EXTENSIONS_FILE"
+        else
+          echo "No extensions found for user {{ item }}, skipping installation."
+          exit 0
+        fi
+      become_user: "{{ item }}"
+      loop: "{{ desktop_user_names }}"
