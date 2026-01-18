@@ -8,12 +8,12 @@
 # | Server Type | Price per hour | Price per month | vCPUs | RAM   | SSD    |
 # |-------------|----------------|-----------------|-------|-------|--------|
 # | cx23        | 0,0056 €       | 3,49 €          | 2     | 4 GB  | 40 GB  |
-# | cx33        | 0,0061 €       | 3,79 €          | 4     | 8 GB  | 80 GB  |
+# | cx33        | 0,0088 €       | 5,49 €          | 4     | 8 GB  | 80 GB  |
 # | cx43        | 0,0152 €       | 9,49 €          | 8     | 16 GB | 160 GB |
 #
 # Lookup current values at https://www.hetzner.com/cloud
 # or check `hcloud server-type list`.
 #
-hcloud_default_type: "cx23"
+hcloud_default_type: "cx33"
 
 admin_user_on_fresh_system: "root"
