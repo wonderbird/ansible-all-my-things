@@ -124,13 +124,9 @@
           platform: "windows"
       register: ec2_instance
 
-    - name: Wait for SSH to become available
-      ansible.builtin.wait_for:
-        host: "{{ ec2_instance.instances[0].public_ip_address }}"
-        port: 22
-        delay: 30
-        timeout: 600
-        state: started
-
-    - name: Refresh inventory to ensure new host is available
+    - name: "Refresh inventory to ensure new host is available"
       meta: refresh_inventory
+
+    - import_tasks: add-server-to-known-hosts.yml
+      vars:
+        remote_ip: "{{ ec2_instance.instances[0].public_ip_address }}"
