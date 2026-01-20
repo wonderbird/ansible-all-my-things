@@ -37,6 +37,7 @@
         name:
           - build-essential
           - dotnet-sdk-8.0
+          - gh
           - keepassxc
           - dbus-x11
           - libsecret-tools
