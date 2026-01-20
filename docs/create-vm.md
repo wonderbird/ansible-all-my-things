@@ -51,8 +51,10 @@ Some prerequisites differ by provider. Refer to the corresponding documentation 
 Once you have configured the prerequisites for both providers, you can set the required environment variables as follows:
 
 ```shell
-source ./configure.sh HOSTNAME
+. ./configure.sh HOSTNAME
 ```
+
+If you don't have a running host yet, simply use "hobbiton" as the host name. In that case the script will show an empty IP address for hobbiton in the end.
 
 Depending on the target system, choose the appropriate hostname from the table in the [README.md](../README.md).
 

@@ -3,6 +3,7 @@
 
 vault_my_ansible_user_password: "PROVIDE_PASSWORD_HERE"
 
+# This is the key file name without path and without .pem suffix
 vault_my_ssh_key_name: "PROVIDE_SSH_KEY_NAME_HERE"
 
 vault_my_ssh_public_key: "PROVIDE_SSH_PUBLIC_KEY_HERE"
