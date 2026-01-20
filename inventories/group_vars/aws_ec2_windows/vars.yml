@@ -17,7 +17,7 @@
 #   and ending with a date like 2025.08.13
 #
 #
-aws_default_ami_id: "ami-021d3c39a81ecf615"
+aws_default_ami_id: "ami-02d780a7b1609ebca"
 
 # Refer to the pricing table in inventories/group_vars/aws_ec2_linux/vars.yml
 aws_default_instance_type: "t3.large"
