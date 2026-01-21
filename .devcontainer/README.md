@@ -8,16 +8,14 @@ Work in progress:
 
 - [ ] Configure a basic docker container that can run ansible commands.
 
-## Usage
+## Container Configuration
 
 At the moment the docker image is minimal. You'll need to configure and set up everything by hand.
 
-Install the AWS CLI and set up AWS as described in [docs/prerequisistes-aws.md](../docs/prerequisistes-aws.md), which delegates the installation to https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html#getting-started-install-instructions
+### Configure and Run Basic Container Image
 
 ```shell
-# Ignore that the following command shows an empty IP for hobbiton.
-# We only want to configure the HCLOUD_TOKEN
-. ./configure.sh hobbiton
+. ./scripts/configure-hcloud-token.sh
 
 # Build the docker image
 docker build --tag "custom-ansible" .
@@ -25,7 +23,13 @@ docker build --tag "custom-ansible" .
 # Create and run a container, enter container using bash
 # The environment variable HCLOUD
 docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "custom-ansible" -it custom-ansible /bin/bash
+```
 
+### Install AWS CLI
+
+Install the AWS CLI and set up AWS as described in [docs/prerequisistes-aws.md](../docs/prerequisistes-aws.md), which delegates the installation to https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html#getting-started-install-instructions
+
+```shell
 # Install some tools
 apt-get update
 apt-get install -y --no-install-recommends jq vim
@@ -33,6 +37,7 @@ apt-get install -y --no-install-recommends jq vim
 # Install AWS CLI
 export ARCH=aarch64
 # export ARCH=x86_64
+
 mkdir -p /tmp/awscli
 cd /tmp/awscli
 curl "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o "awscliv2.zip"
@@ -44,10 +49,15 @@ unzip awscliv2.zip
 cd ..
 rm -rf /tmp/awscli
 aws --version
+```
 
+### Install hcloud CLI
+
+```shell
 # Install hcloud CLI
 export ARCH=arm64
 # export ARCH=amd64
+
 mkdir -p /root/hcloud
 cd /root/hcloud
 wget https://github.com/hetznercloud/cli/releases/download/v1.60.0/hcloud-linux-$ARCH.tar.gz -O "hcloud.tar.gz"
@@ -56,10 +66,11 @@ rm hcloud.tar.gz
 ln -s /root/hcloud/hcloud /usr/local/bin/hcloud 
 cd ~
 hcloud
+```
 
-# Configure the HCLOUD API token (using hobbiton will not show a valid IP)
-cd ~/ansible-all-my-things
+### Configure SSH Key to Access Created VMs
 
+```shell
 # Copy the SSH private key to the container
 cd ~
 mkdir .ssh
@@ -82,7 +93,11 @@ chmod 600 .ssh/*pem
 ls -la .ssh
 eval $(ssh-agent)
 ssh-add ~/.ssh/YOUR_KEY_FILE.pem
+```
 
+### Configure ansible-all-my-things Repository
+
+```shell
 # If container is not used as the Dev Container for Visual Studio Code, then
 # setup a working directory with the cloned ansible-all-my-things repository
 # Usually the container user is root and we will work in /root.
@@ -92,7 +107,7 @@ cd ~/ansible-all-my-things
 
 Now set up the ansible secrets following the documentation in [docs/important-concepts.md](../docs/important-concepts.md).
 
-Next, install the ansible tools and the dependencies by following the instructions in [docs/create-vm.md](../docs/create-vm.md)
+Next, install the ansible tools and the dependencies by following the instructions in [docs/create-vm.md](../docs/create-vm.md):
 
 ```shell
 cd ~/ansible-all-my-things
@@ -100,10 +115,30 @@ pip3 install --root-user-action=ignore -r requirements.txt
 ansible-galaxy collection install -r requirements.yml
 ```
 
-Finally, create a VM on hcloud:
+## Create a VM on hcloud
 
 ```shell
-cd ~/ansible-all-my-things
-. ./configure.sh hobbiton
 ansible-playbook ./provision.yml --extra-vars "provider=hcloud platform=linux"
+
+# Show the VM ip address
+hcloud server list
+```
+
+More commands and procedure to delete the VM are described in [/docs/create-vm.md](../docs/create-vm.md).
+
+## Leave the Container
+
+Leave the container, but keep the custom configuration for the next use:
+
+```shell
+exit
+```
+
+## Re-start and Enter the Container
+
+The next time you want to interact with the ansible playbooks, you only need to start the container and enter it:
+
+```shell
+docker start custom-ansible
+docker exec -it custom-ansible /bin/bash
 ```
