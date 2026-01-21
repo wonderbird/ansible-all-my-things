@@ -1,9 +1,12 @@
 ---
 # Documentation of the secrets is given in `vars.yml`
 
+# "my_ansible_user" defined in vars.yml
+# Enter the password for that user here
 vault_my_ansible_user_password: "PROVIDE_PASSWORD_HERE"
 
-# This is the key file name without path and without .pem suffix
+# This is the name registered for the key in hcloud and aws
+# Usually the file name of the key without extension is used
 vault_my_ssh_key_name: "PROVIDE_SSH_KEY_NAME_HERE"
 
 vault_my_ssh_public_key: "PROVIDE_SSH_PUBLIC_KEY_HERE"
