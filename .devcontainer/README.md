@@ -24,13 +24,6 @@ docker build --tag "custom-ansible" .
 # Note: This command also works from a shell on a Synology NAS which runs with root privileges
 read -s HCLOUD_TOKEN
 docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "custom-ansible" -it custom-ansible /bin/bash
-
-# Install required tools
-apt-get update
-apt-get install -y --no-install-recommends jq vim
-
-# Clean up the apt cache
-rm -rf /var/lib/apt/lists/*
 ```
 
 ### Configure SSH Key to Access Created VMs
