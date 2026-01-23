@@ -16,6 +16,8 @@ At the moment the docker image is minimal. You'll need to configure and set up e
 
 ### Configure and Run Basic Container Image
 
+The default architecture is Apple Silicon (aarch64). If you want to build the image for an x64 machine, then specify the build argument `--build-arg ARCH=x86_64`.
+
 ```shell
 # Build the docker image
 docker build --tag "custom-ansible" .
@@ -61,27 +63,6 @@ chmod 600 /root/.ssh/*pem
 ls -la /root/.ssh
 eval $(ssh-agent)
 ssh-add /root/.ssh/YOUR_KEY_FILE.pem
-```
-
-### Install AWS CLI
-
-Install the AWS CLI and set up AWS as described in [docs/prerequisistes-aws.md](../docs/prerequisistes-aws.md), which delegates the installation to https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html#getting-started-install-instructions
-
-```shell
-# Install AWS CLI
-export ARCH=aarch64
-# export ARCH=x86_64
-
-mkdir -p /tmp/awscli
-cd /tmp/awscli
-curl "https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip" -o "awscliv2.zip"
-curl -o awscliv2.sig https://awscli.amazonaws.com/awscli-exe-linux-${ARCH}.zip.sig
-gpg --verify awscliv2.sig awscliv2.zip
-unzip awscliv2.zip
-./aws/install
-cd /root 
-rm -rf /tmp/awscli
-aws --version
 ```
 
 ### Install hcloud CLI
