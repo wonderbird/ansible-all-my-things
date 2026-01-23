@@ -16,7 +16,7 @@ At the moment the docker image is minimal. You'll need to configure and set up e
 
 ### Configure and Run Basic Container Image
 
-The default architecture is Apple Silicon (aarch64). If you want to build the image for an x64 machine, then specify the build argument `--build-arg ARCH=x86_64`.
+The default architecture is Apple Silicon (`arm64`). If you want to build the image for an x86_x64 machine, then specify the build argument `--build-arg ARCH=amd64`.
 
 ```shell
 # Build the docker image
@@ -63,23 +63,6 @@ chmod 600 /root/.ssh/*pem
 ls -la /root/.ssh
 eval $(ssh-agent)
 ssh-add /root/.ssh/YOUR_KEY_FILE.pem
-```
-
-### Install hcloud CLI
-
-```shell
-# Install hcloud CLI
-export ARCH=arm64
-# export ARCH=amd64
-
-mkdir -p /root/hcloud
-cd /root/hcloud
-wget https://github.com/hetznercloud/cli/releases/download/v1.60.0/hcloud-linux-$ARCH.tar.gz -O "hcloud.tar.gz"
-tar -xzvf hcloud.tar.gz
-rm hcloud.tar.gz
-ln -s /root/hcloud/hcloud /usr/local/bin/hcloud 
-cd /root
-hcloud
 ```
 
 ### Configure ansible-all-my-things Repository
