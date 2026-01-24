@@ -131,6 +131,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Pull image for testing
+        run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
       - name: Run Structure Tests (${{ matrix.name }})
         uses: plexsystems/container-structure-test-action@v0.3.0
         with:
