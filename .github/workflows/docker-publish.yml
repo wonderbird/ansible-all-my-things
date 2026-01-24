@@ -108,9 +108,6 @@ jobs:
 
     needs: build
     runs-on: ${{ matrix.runner }}
-    permissions:
-      contents: read
-      packages: read
 
     strategy:
       matrix:
@@ -123,13 +120,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Log into registry ${{ env.REGISTRY }}
-        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Pull image for testing
         run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
