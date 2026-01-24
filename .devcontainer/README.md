@@ -28,8 +28,6 @@ docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghc
 
 ### Build and Run Basic Container Image Locally
 
-The default architecture is Apple Silicon (`arm64`). If you want to build the image for an x86_x64 machine, then specify the build argument `--build-arg ARCH=amd64`.
-
 ```shell
 # Build the docker image
 docker build --tag "ansible-toolchain" .
