@@ -124,5 +124,5 @@ jobs:
       - name: Run Structure Tests (${{ matrix.name }})
         uses: plexsystems/container-structure-test-action@v0.3.0
         with:
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
           config: .devcontainer/tests.yaml
