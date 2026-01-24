@@ -116,9 +116,9 @@ jobs:
       matrix:
         include:
           - runner: ubuntu-24.04
-            name: x86_64
+            arch: amd64
           - runner: ubuntu-24.04-arm
-            name: arm64
+            arch: arm64
 
     steps:
       - name: Checkout repository
@@ -134,8 +134,16 @@ jobs:
       - name: Pull image for testing
         run: docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
-      - name: Run Structure Tests (${{ matrix.name }})
-        uses: plexsystems/container-structure-test-action@v0.3.0
-        with:
-          image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          config: .devcontainer/tests.yaml
+      # Install container-structure-test
+      # https://github.com/GoogleContainerTools/container-structure-test
+      - name: Install container-structure-test
+        run: |
+          curl -LO "https://github.com/GoogleContainerTools/container-structure-test/releases/latest/download/container-structure-test-linux-${{ matrix.arch }}"
+          chmod +x container-structure-test-linux-${{ matrix.arch }}
+          sudo mv container-structure-test-linux-${{ matrix.arch }} /usr/local/bin/container-structure-test
+
+      - name: Run Structure Tests (${{ matrix.arch }})
+        run: |
+          container-structure-test test \
+            --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest \
+            --config .devcontainer/tests.yaml
