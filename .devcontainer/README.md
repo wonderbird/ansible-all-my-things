@@ -14,18 +14,30 @@ Work in progress:
 
 At the moment the docker image is minimal. You'll need to configure and set up everything by hand.
 
-### Configure and Run Basic Container Image
+### Pulling Current Image from GitHub Container Registry
+
+Once per week, a new version of the image defined by [Dockerfile](./Dockerfile) is built and published to the [GitHub Container Registry](https://github.com/wonderbird/ansible-all-my-things/pkgs/container/ansible-toolchain).
+
+To pull and run that image:
+
+```shell
+# Create and run a container, enter container using bash
+read -s HCLOUD_TOKEN
+docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghcr.io/wonderbird/ansible-toolchain:main
+```
+
+### Build and Run Basic Container Image Locally
 
 The default architecture is Apple Silicon (`arm64`). If you want to build the image for an x86_x64 machine, then specify the build argument `--build-arg ARCH=amd64`.
 
 ```shell
 # Build the docker image
-docker build --tag "custom-ansible" .
+docker build --tag "ansible-toolchain" .
 
 # Create and run a container, enter container using bash
 # Note: This command also works from a shell on a Synology NAS which runs with root privileges
 read -s HCLOUD_TOKEN
-docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "custom-ansible" -it custom-ansible /bin/bash
+docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ansible-toolchain
 ```
 
 ### Configure SSH Key to Access Created VMs
@@ -39,8 +51,8 @@ mkdir .ssh
 If you can use the `docker cp` command to copy files into the container, then from a shell outside the docker container, copy the SSH private key and the AWS signing key into the container:
 
 ```shell
-docker cp ~/.ssh/YOUR_KEY_FILE.pem custom-ansible:/root/.ssh/
-docker cp .devcontainer/aws* custom-ansible:/root/
+docker cp ~/.ssh/YOUR_KEY_FILE.pem ansible-toolchain:/root/.ssh/
+docker cp .devcontainer/aws* ansible-toolchain:/root/
 ```
 
 As an alternative, you can copy-paste the file contents. Inside the docker container, create the files and copy-paste the contents from your local configuration:
@@ -108,6 +120,6 @@ exit
 The next time you want to interact with the ansible playbooks, you only need to start the container and enter it:
 
 ```shell
-docker start custom-ansible
-docker exec -it custom-ansible /bin/bash
+docker start ansible-toolchain
+docker exec -it ansible-toolchain bash
 ```

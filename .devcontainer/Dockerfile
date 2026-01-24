@@ -62,3 +62,7 @@ RUN mkdir -p /root/hcloud \
     && tar -xvzf hcloud.tar.gz \
     && ln -s /root/hcloud/hcloud /usr/local/bin/hcloud \
     && hcloud version
+
+# Run bash shell by default
+#
+CMD [ "bash" ]
