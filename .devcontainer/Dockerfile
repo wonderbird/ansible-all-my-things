@@ -48,7 +48,8 @@ RUN apt-get update \
     && unzip awscliv2.zip \
     && ./aws/install \
     && cd /root \
-    && rm -rf /tmp/awscli
+    && rm -rf /tmp/awscli \
+    && aws --version
 
 # Install Hetzner hcloud CLI
 #
@@ -59,4 +60,5 @@ RUN mkdir -p /root/hcloud \
     && cd /root/hcloud \
     && wget "https://github.com/hetznercloud/cli/releases/download/v1.60.0/hcloud-linux-${ARCH}.tar.gz" -O "hcloud.tar.gz" \
     && tar -xvzf hcloud.tar.gz \
-    && ln -s /root/hcloud/hcloud /usr/local/bin/hcloud
+    && ln -s /root/hcloud/hcloud /usr/local/bin/hcloud \
+    && hcloud version
