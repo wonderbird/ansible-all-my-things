@@ -23,7 +23,7 @@ To pull and run that image:
 ```shell
 # Create and run a container, enter container using bash
 read -s HCLOUD_TOKEN
-docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghcr.io/wonderbird/ansible-toolchain:main
+docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghcr.io/wonderbird/ansible-toolchain
 ```
 
 ### Build and Run Basic Container Image Locally

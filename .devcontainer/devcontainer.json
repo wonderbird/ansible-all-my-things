@@ -3,10 +3,14 @@
 {
 	"name": "Ansible",
 
-	// Instructions: https://containers.dev/guide/dockerfile
-	"build": {
-		"dockerfile": "Dockerfile"
-	}
+	// Instructions: https://containers.dev/guide/dockerfile	
+	// If you don't want to use the existing image, uncomment this section to build the image from the Dockerfile.
+	//"build": {
+	//	"dockerfile": "Dockerfile"
+	//}
+
+	// As an alternative to building from the Dockerfile, you can use the existing image:
+	"image": "ghcr.io/wonderbird/ansible-toolchain:latest"
 
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
