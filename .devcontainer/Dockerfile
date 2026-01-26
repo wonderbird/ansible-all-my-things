@@ -23,4 +23,7 @@ RUN /bin/sh /tmp/aws/install-aws-cli.sh
 COPY install-hcloud-cli.sh /root/hcloud/
 RUN /bin/sh /root/hcloud/install-hcloud-cli.sh
 
+RUN mkdir -p /root/.ssh \
+    && chmod 700 /root/.ssh
+
 CMD [ "bash" ]
