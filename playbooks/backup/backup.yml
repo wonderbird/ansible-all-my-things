@@ -8,10 +8,15 @@
 #
 #   temp_backup_path: path of a temporary backup target on the remote
 #
-#   dest:             destination path on the local machine
+#   backup_file:      name of the backup file
 #
 #   exclusion_patterns: list of patterns to exclude from the backup
 #
+- name: Calculate helper variables
+  set_fact:
+    backup_dir: "{{ lookup('env', 'BACKUP_DIR') | default(playbook_dir ~ '/../../configuration/home/my_desktop_user/backup', true) }}"
+    dest: "{{ backup_dir ~ '/' ~ backup_file | realpath }}"
+
 - name: "Create tar.gz backup"
   archive:
     path: "{{ path }}"

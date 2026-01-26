@@ -14,21 +14,27 @@ Work in progress:
 
 At the moment the docker image is minimal. You'll need to configure and set up everything by hand.
 
-### Pulling Current Image from GitHub Container Registry
+### Pull and Run Current Image
 
 Once per week, a new version of the image defined by [Dockerfile](./Dockerfile) is built and published to the [GitHub Container Registry](https://github.com/wonderbird/ansible-all-my-things/pkgs/container/ansible-toolchain).
 
-To pull and run that image:
+```shell
+docker pull ghcr.io/wonderbird/ansible-toolchain
+```
+
+The image requires the following environment variables:
+
+- `HCLOUD_TOKEN`: Your Hetzner cloud API token
+- `BACKUP_DIR` (optional): Usually contains the value `/backup` if you want to restore backups to the VMs created. Use a bind mount to mount the actual backup files.
 
 ```shell
-# Create and run a container, enter container using bash
+# Run without explicitly mounting a backup directory
 read -s HCLOUD_TOKEN
-docker pull ghcr.io/wonderbird/ansible-toolchain
 docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghcr.io/wonderbird/ansible-toolchain
 
 # If you have a folder containing backups, then you can bind mount it
 # This allows to configure VMs and restore the backup using /restore.yml
-docker run --mount type=bind,source="/your/backup",target=/root/ansible-all-my-things/configuration/home/my_desktop_user/backup --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghcr.io/wonderbird/ansible-toolchain
+docker run --mount type=bind,source="/your/backup",target=/backup --env BACKUP_DIR=/backup --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghcr.io/wonderbird/ansible-toolchain
 ```
 
 ### Build and Run Basic Container Image Locally

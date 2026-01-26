@@ -25,7 +25,8 @@ RUN /bin/sh /root/hcloud/install-hcloud-cli.sh \
     && rm /root/hcloud/install-hcloud-cli.sh
 
 RUN mkdir -p /root/.ssh \
-    && chmod 700 /root/.ssh
+    && chmod 700 /root/.ssh \
+    && mkdir /backup
 
 COPY install-ansible-all-my-things.sh /root/
 RUN /bin/sh /root/install-ansible-all-my-things.sh \

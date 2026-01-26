@@ -4,7 +4,7 @@
 # Parameters
 #
 #   users:                      List of users to restore backup for
-#   source_path:                Path to the backup file on the local machine
+#   backup_file:                Name of the backup file within the backup directory.
 #   destination_beneath_home:   Destination folder relative to each user's home directory
 #   delete_before_beneath_home: (optional) List of files and directories to delete before restoring,
 #                               relative to each user's home directory. These entries will
@@ -17,7 +17,8 @@
 
 - name: Calculate helper variables
   set_fact:
-    source_path: "{{ source_path | realpath }}"
+    backup_dir: "{{ lookup('env', 'BACKUP_DIR') | default(playbook_dir ~ '/../../configuration/home/my_desktop_user/backup', true) }}"
+    source_path: "{{ backup_dir ~ '/' ~ backup_file | realpath }}"
     remote_temp_path: "/tmp/{{ source_path | basename }}"
     delete_before_beneath_home: "{{ delete_before_beneath_home | default([]) | list }}"
     destinations: "{{ users | map('regex_replace', '^', '/home/') | map('regex_replace', '$', '/' + destination_beneath_home) | list }}"

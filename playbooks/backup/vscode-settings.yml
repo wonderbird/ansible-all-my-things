@@ -15,14 +15,14 @@
       shell: code --list-extensions > "{{ extensions_remote_file }}"
       become_user: "{{ backup_user }}"
 
-    - import_tasks: backup.yml
+    - include_tasks: backup.yml
       vars:
         path:
           - "{{ extensions_remote_file }}"
           - "/home/{{ backup_user }}/.vscode"
           - "/home/{{ backup_user }}/.config/Code/User"
         temp_backup_path: "/home/{{ backup_user }}/vscode-backup.tar.gz"
-        dest: "{{ playbook_dir }}/../../configuration/home/my_desktop_user/backup/vscode-backup.tar.gz"
+        backup_file: "vscode-backup.tar.gz"
         exclusion_patterns:
           - "*extensions*"
 

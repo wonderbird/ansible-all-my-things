@@ -8,6 +8,8 @@
 
 # Skip backup files
 /configuration/**/backup/*
+# ... but keep the folder in git
+!/configuration/**/backup/.gitkeep
 
 # Skip mob.sh configuration file
 .mob

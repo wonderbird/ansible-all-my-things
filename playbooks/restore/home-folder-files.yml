@@ -12,5 +12,5 @@
       include_tasks: restore.yml
       vars:
         users: "{{ desktop_users | map(attribute='name') | list }}"
-        source_path: "{{ playbook_dir }}/../../configuration/home/my_desktop_user/backup/home-folder-files-backup.tar.gz"
+        backup_file: "home-folder-files-backup.tar.gz"
         destination_beneath_home: ""

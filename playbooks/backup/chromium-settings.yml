@@ -9,11 +9,11 @@
     backup_user: "{{ desktop_users[0].name }}"
 
   tasks:
-    - import_tasks: backup.yml
+    - include_tasks: backup.yml
       vars:
         path: "/home/{{ backup_user }}/snap/chromium/common/chromium/Default"
         temp_backup_path: "/home/{{ backup_user }}/chromium-backup.tar.gz"
-        dest: "{{ playbook_dir }}/../../configuration/home/my_desktop_user/backup/chromium-backup.tar.gz"
+        backup_file: "chromium-backup.tar.gz"
         exclusion_patterns:
           - "*Cache*"
           - "*cache*"
