@@ -9,10 +9,10 @@
 
   tasks:
     - name: Restore keyring
-      include_tasks: tasks/restore.yml
+      include_tasks: restore.yml
       vars:
         users: "{{ desktop_users | map(attribute='name') | list }}"
-        source_path: "{{ playbook_dir }}/../configuration/home/my_desktop_user/keyrings-backup.tar.gz"
+        source_path: "{{ playbook_dir }}/../../configuration/home/my_desktop_user/backup/keyrings-backup.tar.gz"
         destination_beneath_home: ".local/share/keyrings"
         delete_before_beneath_home:
           - ".local/share/keyrings"

@@ -25,6 +25,10 @@ To pull and run that image:
 read -s HCLOUD_TOKEN
 docker pull ghcr.io/wonderbird/ansible-toolchain
 docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghcr.io/wonderbird/ansible-toolchain
+
+# If you have a folder containing backups, then you can bind mount it
+# This allows to configure VMs and restore the backup using /restore.yml
+docker run --mount type=bind,source="/your/backup",target=/root/ansible-all-my-things/configuration/home/my_desktop_user/backup --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghcr.io/wonderbird/ansible-toolchain
 ```
 
 ### Build and Run Basic Container Image Locally

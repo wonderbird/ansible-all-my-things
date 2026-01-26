@@ -7,7 +7,7 @@
 /inventories/group_vars/all/vault.yml
 
 # Skip backup files
-*-backup.tar.gz
+/configuration/**/backup/*
 
 # Skip mob.sh configuration file
 .mob

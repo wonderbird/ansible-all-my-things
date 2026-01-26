@@ -1,5 +1,5 @@
 ---
-- name: Backup Visual Studio Code settings
+- name: Backup Cursor settings
   hosts: linux
   tags: not-supported-on-vagrant-docker
   become: true
@@ -7,22 +7,22 @@
   vars:
     ansible_user: "{{ my_ansible_user }}"
     backup_user: "{{ desktop_users[0].name }}"
-    extensions_remote_file: "/home/{{ backup_user }}/vscode-extension-list.txt"
+    extensions_remote_file: "/home/{{ backup_user }}/cursor-extension-list.txt"
 
   tasks:
 
     - name: Export list of extensions
-      shell: code --list-extensions > "{{ extensions_remote_file }}"
+      shell: cursor --list-extensions > "{{ extensions_remote_file }}"
       become_user: "{{ backup_user }}"
 
-    - import_tasks: tasks/backup.yml
+    - import_tasks: backup.yml
       vars:
         path:
           - "{{ extensions_remote_file }}"
-          - "/home/{{ backup_user }}/.vscode"
-          - "/home/{{ backup_user }}/.config/Code/User"
-        temp_backup_path: "/home/{{ backup_user }}/vscode-backup.tar.gz"
-        dest: "{{ playbook_dir }}/../configuration/home/my_desktop_user/vscode-backup.tar.gz"
+          - "/home/{{ backup_user }}/.cursor"
+          - "/home/{{ backup_user }}/.config/Cursor/User"
+        temp_backup_path: "/home/{{ backup_user }}/cursor-backup.tar.gz"
+        dest: "{{ playbook_dir }}/../../configuration/home/my_desktop_user/backup/cursor-backup.tar.gz"
         exclusion_patterns:
           - "*extensions*"
 

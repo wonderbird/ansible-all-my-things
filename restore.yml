@@ -1,6 +1,6 @@
 ---
-- import_playbook: playbooks/restore-home-folder-files.yml
-- import_playbook: playbooks/restore-keyring.yml
-- import_playbook: playbooks/restore-chromium-settings.yml
-- import_playbook: playbooks/restore-cursor-settings.yml
-- import_playbook: playbooks/restore-vscode-settings.yml
+- import_playbook: playbooks/restore/home-folder-files.yml
+- import_playbook: playbooks/restore/keyring.yml
+- import_playbook: playbooks/restore/chromium-settings.yml
+- import_playbook: playbooks/restore/cursor-settings.yml
+- import_playbook: playbooks/restore/vscode-settings.yml
