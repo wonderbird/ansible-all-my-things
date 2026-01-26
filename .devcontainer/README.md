@@ -23,6 +23,7 @@ To pull and run that image:
 ```shell
 # Create and run a container, enter container using bash
 read -s HCLOUD_TOKEN
+docker pull ghcr.io/wonderbird/ansible-toolchain
 docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghcr.io/wonderbird/ansible-toolchain
 ```
 
@@ -56,14 +57,16 @@ Inside the container, fix the permissions of the key:
 ```shell
 chown root:root /root/.ssh/*pem
 chmod 600 /root/.ssh/*pem
+ls -la /root/.ssh
 ```
 
 As an alternative to using `docker cp`, you can copy-paste the file contents. Inside the docker container, create the files and copy-paste the contents from your local configuration:
 
 ```shell
-touch /root.ssh/YOUR_KEY_FILE.pem
+touch /root/.ssh/YOUR_KEY_FILE.pem
 chown root:root /root/.ssh/*pem
 chmod 600 /root/.ssh/*pem
+ls -la /root/.ssh
 
 vi /root/.ssh/YOUR_KEY_FILE.pem
 ```
@@ -73,21 +76,6 @@ vi /root/.ssh/YOUR_KEY_FILE.pem
 ```shell
 eval $(ssh-agent)
 ssh-add /root/.ssh/YOUR_KEY_FILE.pem
-```
-
-### Configure ansible-all-my-things Repository
-
-```shell
-# If container is not used as the Dev Container for Visual Studio Code, then
-# setup a working directory with the cloned ansible-all-my-things repository
-# Usually the container user is root and we will work in /root.
-git clone https://github.com/wonderbird/ansible-all-my-things
-
-# Install the ansible tools and dependencies by following the instructions in
-# ../docs/create-vm.md
-cd /root/ansible-all-my-things
-pip3 install --root-user-action=ignore -r requirements.txt
-ansible-galaxy collection install -r requirements.yml
 ```
 
 ## Configure Secrets

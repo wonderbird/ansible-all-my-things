@@ -21,9 +21,14 @@ COPY awscliv2-public-key.asc install-aws-cli.sh /tmp/aws/
 RUN /bin/sh /tmp/aws/install-aws-cli.sh
 
 COPY install-hcloud-cli.sh /root/hcloud/
-RUN /bin/sh /root/hcloud/install-hcloud-cli.sh
+RUN /bin/sh /root/hcloud/install-hcloud-cli.sh \
+    && rm /root/hcloud/install-hcloud-cli.sh
 
 RUN mkdir -p /root/.ssh \
     && chmod 700 /root/.ssh
+
+COPY install-ansible-all-my-things.sh /root/
+RUN /bin/sh /root/install-ansible-all-my-things.sh \
+    && rm /root/install-ansible-all-my-things.sh
 
 CMD [ "bash" ]
