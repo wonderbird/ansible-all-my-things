@@ -41,9 +41,9 @@ docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ans
 
 ### Configure SSH Key to Access Created VMs
 
-#### Copy the SSH private key to the container
+Follow [/docs/prerequisites-aws.md](../docs/prerequisites-aws.md) to create and download your SSH key.
 
-Your SSH key can be downloaded from AWS as described in [/docs/prerequisites-aws.md](../docs/prerequisites-aws.md).
+#### Copy the SSH private key to the container
 
 If you can use the `docker cp` command to copy files into the container, then from a shell outside the docker container, copy the SSH private key and the AWS signing key into the container:
 

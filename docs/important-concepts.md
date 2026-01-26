@@ -51,7 +51,7 @@ echo -n "New ansible vault password: " \
 
 # Create a new vault.yml file from the template
 cp -v ./inventories/group_vars/all/vault-template.yml ./inventories/group_vars/all/vault.yml \
-&& ansible-vault encrypt ./inventories/group_vars/all/vault.yml
+  && ansible-vault encrypt ./inventories/group_vars/all/vault.yml
 
 # Read public key of .pem file
 ssh-keygen -y -f ~/.ssh/YOUR_KEY_FILE.pem
