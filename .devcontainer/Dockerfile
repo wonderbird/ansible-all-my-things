@@ -1,5 +1,11 @@
 # syntax=docker/dockerfile:1
 
+# BuildKit Cache Mounts
+#
+#   The cache mounts improve build performance by persisting between builds.
+#   Package lists are stored in the cache outside the image layers.
+#   Thus, images stay small even without `rm -rf /var/lib/apt/lists/*` in each layer.
+
 # The latest version of the aws cli v2 is incompatible with alpine.
 # The ansible packages require locale support, which is not available
 # in slim.
@@ -8,28 +14,38 @@
 #
 FROM docker.io/python:trixie
 
-RUN apt-get update \
+# Install base system packages (rarely change)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update \
+    && apt-get install -y --no-install-recommends \
+        locales \
+        locales-all
+
+# Install optional tools (can change independently)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update \
     && apt-get install -y --no-install-recommends \
         iputils-ping \
         jq \
-        locales \
-        locales-all \
-        vim \
-    && rm -rf /var/lib/apt/lists/*
+        vim
 
-COPY awscliv2-public-key.asc install-aws-cli.sh /tmp/aws/
-RUN /bin/sh /tmp/aws/install-aws-cli.sh
-
-COPY install-hcloud-cli.sh /root/hcloud/
-RUN /bin/sh /root/hcloud/install-hcloud-cli.sh \
-    && rm /root/hcloud/install-hcloud-cli.sh
-
+# Setup directories (rarely changes)
 RUN mkdir -p /root/.ssh \
     && chmod 700 /root/.ssh \
     && mkdir /backup
 
-COPY install-ansible-all-my-things.sh /root/
-RUN /bin/sh /root/install-ansible-all-my-things.sh \
-    && rm /root/install-ansible-all-my-things.sh
+COPY awscliv2-public-key.asc install-aws-cli.sh /tmp/installers/
+RUN /bin/sh /tmp/installers/install-aws-cli.sh \
+    && rm -rf /tmp/installers
+
+COPY install-hcloud-cli.sh /tmp/installers/
+RUN /bin/sh /tmp/installers/install-hcloud-cli.sh \
+    && rm -rf /tmp/installers
+
+COPY install-ansible-all-my-things.sh /tmp/installers/
+RUN /bin/sh /tmp/installers/install-ansible-all-my-things.sh \
+    && rm -rf /tmp/installers
 
 CMD [ "bash" ]

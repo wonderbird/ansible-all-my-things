@@ -4,6 +4,9 @@
 # Documentation:
 #   - [hcloud CLI GitHub repository](https://github.com/hetznercloud/cli)
 #
+# Always installs latest version:
+#   For maximum compatibility with Hetzner services, the latest version is always installed.
+#
 set -euxf
 
 ARCH=$(uname -m)
