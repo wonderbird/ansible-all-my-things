@@ -21,7 +21,6 @@
           - "{{ extensions_remote_file }}"
           - "/home/{{ backup_user }}/.cursor"
           - "/home/{{ backup_user }}/.config/Cursor/User"
-        temp_backup_path: "/home/{{ backup_user }}/cursor-backup.tar.gz"
         backup_file: "cursor-backup.tar.gz"
         exclusion_patterns:
           - "*extensions*"

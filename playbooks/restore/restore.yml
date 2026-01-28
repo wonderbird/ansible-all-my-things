@@ -14,21 +14,29 @@
 #                               ATTENTION: This variable is always of type LIST, even if it contains
 #                                          only one entry.
 #
-
-- name: Calculate helper variables
+- name: Calculate backup directory
   set_fact:
     backup_dir: "{{ lookup('env', 'BACKUP_DIR') | default(playbook_dir ~ '/../../configuration/home/my_desktop_user/backup', true) }}"
-    source_path: "{{ backup_dir ~ '/' ~ backup_file | realpath }}"
-    remote_temp_path: "/tmp/{{ source_path | basename }}"
+
+- name: Calculate source path
+  set_fact:
+    source_path: "{{ (backup_dir ~ '/' ~ backup_file) | realpath }}"
+
+- name: Calculate remote temp path
+  set_fact:
+    remote_temp_path: "/tmp/{{ backup_file }}"
+
+- name: Calculate destination directories
+  set_fact:
     delete_before_beneath_home: "{{ delete_before_beneath_home | default([]) | list }}"
     destinations: "{{ users | map('regex_replace', '^', '/home/') | map('regex_replace', '$', '/' + destination_beneath_home) | list }}"
 
-- name: Derive variables from helpers
+- name: Distribute destinations across users
   set_fact:
     user_destinations: "{{ users | zip(destinations) | list }}"
     delete_before: "{{ users | product(delete_before_beneath_home) | map('join', '/') | map('regex_replace', '^', '/home/') | list }}"
 
-- name: Show backup parameters (Debug Message)
+- name: Show backup parameters
   debug:
     msg:
       - "Restoring backup:"
@@ -37,12 +45,12 @@
       - "         Source: {{ source_path }}"
       - "    Remote temp: {{ remote_temp_path }}"
 
-- name: Show destination directories (Debug Message)
+- name: Show destination directories
   debug:
     msg: "- {{ item }}"
   loop: "{{ destinations }}"
 
-- name: Show folders to delete before restoring (Debug Message)
+- name: Show folders to delete before restoring
   debug:
     msg: "- {{ item }}"
   loop: "{{ delete_before }}"

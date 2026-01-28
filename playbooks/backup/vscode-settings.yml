@@ -21,7 +21,6 @@
           - "{{ extensions_remote_file }}"
           - "/home/{{ backup_user }}/.vscode"
           - "/home/{{ backup_user }}/.config/Code/User"
-        temp_backup_path: "/home/{{ backup_user }}/vscode-backup.tar.gz"
         backup_file: "vscode-backup.tar.gz"
         exclusion_patterns:
           - "*extensions*"

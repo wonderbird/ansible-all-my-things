@@ -6,32 +6,46 @@
 #   path:             single file / directory or list of files / directories
 #                     to backup
 #
-#   temp_backup_path: path of a temporary backup target on the remote
-#
 #   backup_file:      name of the backup file
 #
 #   exclusion_patterns: list of patterns to exclude from the backup
 #
-- name: Calculate helper variables
+- name: Calculate backup directory
   set_fact:
     backup_dir: "{{ lookup('env', 'BACKUP_DIR') | default(playbook_dir ~ '/../../configuration/home/my_desktop_user/backup', true) }}"
-    dest: "{{ backup_dir ~ '/' ~ backup_file | realpath }}"
 
-- name: "Create tar.gz backup"
+- name: Calculate dest path
+  set_fact:
+    dest: "{{ (backup_dir ~ '/' ~ backup_file) | realpath }}"
+
+- name: Calculate remote temp path
+  set_fact:
+    remote_temp_path: "/tmp/{{ backup_file }}"
+
+- name: Show backup parameters
+  debug:
+    msg:
+      - "Backing up:"
+      - ""
+      - "           path: {{ path }}"
+      - "    Destination: {{ dest }}"
+      - "    Remote temp: {{ remote_temp_path }}"
+
+- name: Create tar.gz backup
   archive:
     path: "{{ path }}"
-    dest: "{{ temp_backup_path }}"
+    dest: "{{ remote_temp_path }}"
     format: gz
     force_archive: yes
     exclusion_patterns: "{{ exclusion_patterns | default([]) }}"
 
 - name: Fetch backup file
   fetch:
-    src: "{{ temp_backup_path }}"
+    src: "{{ remote_temp_path }}"
     dest: "{{ dest }}"
     flat: yes
 
 - name: Delete backup from remote
   file:
-    path: "{{ temp_backup_path }}"
+    path: "{{ remote_temp_path }}"
     state: absent

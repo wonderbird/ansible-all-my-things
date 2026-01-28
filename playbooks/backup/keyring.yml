@@ -12,5 +12,4 @@
     - include_tasks: backup.yml
       vars:
         path: "/home/{{ backup_user }}/.local/share/keyrings"
-        temp_backup_path: "/home/{{ backup_user }}/keyrings-backup.tar.gz"
         backup_file: "keyrings-backup.tar.gz"

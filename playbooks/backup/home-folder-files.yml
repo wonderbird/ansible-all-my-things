@@ -12,5 +12,4 @@
       vars:
         path:
           - "/home/{{ backup_user }}/.gitconfig"
-        temp_backup_path: "/home/{{ backup_user }}/home-folder-files-backup.tar.gz"
         backup_file: "home-folder-files-backup.tar.gz"
