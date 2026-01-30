@@ -81,13 +81,6 @@ ls -la /root/.ssh
 vi /root/.ssh/YOUR_KEY_FILE.pem
 ```
 
-#### Load private SSH key
-
-```shell
-eval $(ssh-agent)
-ssh-add /root/.ssh/YOUR_KEY_FILE.pem
-```
-
 ## Configure Secrets
 
 Now set up the ansible secrets following the documentation in [docs/important-concepts.md](../docs/important-concepts.md).
@@ -95,6 +88,13 @@ Now set up the ansible secrets following the documentation in [docs/important-co
 ## Create a VM on hcloud
 
 ```shell
+# Ensure that the ssh-key is loaded into the agent
+eval $(ssh-agent) \
+  && ssh-add /root/.ssh/YOUR_KEY_FILE.pem
+
+# Verify that key is loaded
+ssh-add -l
+
 ansible-playbook ./provision.yml --extra-vars "provider=hcloud platform=linux"
 
 # Show the VM ip address
