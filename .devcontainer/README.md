@@ -10,11 +10,7 @@ Work in progress:
 - [ ] aws environment variables need to be configured
 - [ ] Move all documentation from here to Dockerfile and to scripts.
 
-## Container Configuration
-
-At the moment the docker image is minimal. You'll need to configure and set up everything by hand.
-
-### Pull and Run Current Image
+## Pull and Run Current Image
 
 Once per week, a new version of the image defined by [Dockerfile](./Dockerfile) is built and published to the [GitHub Container Registry](https://github.com/wonderbird/ansible-all-my-things/pkgs/container/ansible-toolchain).
 
@@ -22,88 +18,45 @@ Once per week, a new version of the image defined by [Dockerfile](./Dockerfile) 
 docker pull ghcr.io/wonderbird/ansible-toolchain
 ```
 
-The image requires the following environment variables:
+## Image configuration
 
-- `HCLOUD_TOKEN`: Your Hetzner cloud API token
-- `ANSIBLE_VAULT_PASSWORD`: The password to encrypt the secrets in ansible vault
-- `BACKUP_DIR` (optional): Usually contains the value `/backup` if you want to restore backups to the VMs created. Use a bind mount to mount the actual backup files.
+The following environment variables are supported:
+
+- `HCLOUD_TOKEN`: your Hetzner cloud API token
+- `ANSIBLE_VAULT_PASSWORD`: password to encrypt the secrets in ansible vault
+- `BACKUP_DIR` (optional): If this variable is not empty, then your backups are copied into that directory. For example, use  `/backup`
+
+Furthermore the following bind mounts are supported:
+
+- `/root/.ssh/id_rsa.pem`: your private key registered with Hetzner cloud and aws. See [/docs/prerequisites-aws.md](../docs/prerequisites-aws.md).
+- `/root/ansible-all-my-things/inventories/group_vars/all/vault.yml`: encrypted ansible configuration. See [docs/important-concepts.md](../docs/important-concepts.md).
+- `/backup`: folder containing and receiving backups
+
+## Create container
+
+Once you have the sources of the bind mounts ready, you can run the container as follows:
 
 ```shell
-read -p "Enter HCLOUD_TOKEN: " -s HCLOUD_TOKEN; export HCLOUD_TOKEN; \
-read -p "Enter ANSIBLE_VAULT_PASSWORD: " -s ANSIBLE_VAULT_PASSWORD; export ANSIBLE_VAULT_PASSWORD
+read -p "Enter HCLOUD_TOKEN: " -s HCLOUD_TOKEN; export HCLOUD_TOKEN; echo; \
+read -p "Enter ANSIBLE_VAULT_PASSWORD: " -s ANSIBLE_VAULT_PASSWORD; export ANSIBLE_VAULT_PASSWORD; echo
 
-# Run without explicitly mounting a backup directory
-docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" \
-           --env ANSIBLE_VAULT_PASSWORD="$ANSIBLE_VAULT_PASSWORD" \
-           --name "ansible-toolchain" \
-           -it ghcr.io/wonderbird/ansible-toolchain
-
-# If you have a folder containing backups, then you can bind mount it
-# This allows to configure VMs and restore the backup using /restore.yml
-docker run --mount type=bind,source="/your/backup",target=/backup \
-           --env ANSIBLE_VAULT_PASSWORD="$ANSIBLE_VAULT_PASSWORD" \
+docker run --mount type=bind,source="/path/to/backup",target=/backup \
+           --mount type=bind,source="/path/to/YOUR_KEY_FILE.pem",target=/root/.ssh/id_rsa.pem \
+           --mount type=bind,source="/path/to/vault.yml",target=/root/ansible-all-my-things/inventories/group_vars/all/vault.yml \
            --env HCLOUD_TOKEN="$HCLOUD_TOKEN" \
+           --env ANSIBLE_VAULT_PASSWORD="$ANSIBLE_VAULT_PASSWORD" \
+           --env BACKUP_DIR="/backup" \
            --name "ansible-toolchain" \
            -it ghcr.io/wonderbird/ansible-toolchain
 ```
-
-### Build and Run Basic Container Image Locally
-
-```shell
-# Build the docker image
-docker build --tag "ansible-toolchain" .
-
-# Create and run a container, enter container using bash
-# Note: This command also works from a shell on a Synology NAS which runs with root privileges
-read -s HCLOUD_TOKEN
-docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ansible-toolchain
-```
-
-### Configure SSH Key to Access Created VMs
-
-Follow [/docs/prerequisites-aws.md](../docs/prerequisites-aws.md) to create and download your SSH key.
-
-#### Copy the SSH private key to the container
-
-If you can use the `docker cp` command to copy files into the container, then from a shell outside the docker container, copy the SSH private key and the AWS signing key into the container:
-
-```shell
-docker cp ~/.ssh/YOUR_KEY_FILE.pem ansible-toolchain:/root/.ssh/
-docker cp .devcontainer/aws* ansible-toolchain:/root/
-```
-
-Inside the container, fix the permissions of the key:
-
-```shell
-chown root:root /root/.ssh/*pem
-chmod 600 /root/.ssh/*pem
-ls -la /root/.ssh
-```
-
-As an alternative to using `docker cp`, you can copy-paste the file contents. Inside the docker container, create the files and copy-paste the contents from your local configuration:
-
-```shell
-touch /root/.ssh/YOUR_KEY_FILE.pem
-chown root:root /root/.ssh/*pem
-chmod 600 /root/.ssh/*pem
-ls -la /root/.ssh
-
-vi /root/.ssh/YOUR_KEY_FILE.pem
-```
-
-## Configure Secrets
-
-Now set up the ansible secrets following the documentation in [docs/important-concepts.md](../docs/important-concepts.md).
 
 ## Create a VM on hcloud
 
 ```shell
 # Ensure that the ssh-key is loaded into the agent
 eval $(ssh-agent) \
-  && ssh-add /root/.ssh/YOUR_KEY_FILE.pem
-
-# Verify that key is loaded
-ssh-add -l
+  && ssh-add /root/.ssh/id_rsa.pem; \
+  ssh-add -l
 
 ansible-playbook ./provision.yml --extra-vars "provider=hcloud platform=linux"
 
@@ -112,14 +65,6 @@ hcloud server list
 ```
 
 More commands and procedure to delete the VM are described in [/docs/create-vm.md](../docs/create-vm.md).
-
-## Leave the Container
-
-Leave the container, but keep the custom configuration for the next use:
-
-```shell
-exit
-```
 
 ## Re-start and Enter the Container
 
