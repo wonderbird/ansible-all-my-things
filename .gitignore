@@ -4,6 +4,7 @@
 # Skip secrets and vault password files
 *password*
 *secrets*
+.env*
 !/scripts/export-secrets.py
 /inventories/group_vars/all/vault.yml
 
