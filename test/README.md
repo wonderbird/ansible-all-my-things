@@ -70,7 +70,7 @@ vagrant destroy -f
 ### Prerequisites
 
 - Generate fresh SSH keys (see warning above)
-- Ensure vault password file exists: `../ansible-vault-password.txt`
+- Ensure vault password file exists: `../scripts/echo-vault-password-environment-variable.sh`
 - Ensure vault exists: `../inventories/group_vars/all/vault.yml`
 - For AWS tests: Configure AWS credentials and SSH key
 

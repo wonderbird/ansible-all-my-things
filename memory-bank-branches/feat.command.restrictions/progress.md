@@ -71,7 +71,7 @@
 **Scrum Sprint Ready**:
 
 **Story 1: Fresh rivendell Provisioning** (0.5 day)
-- Execute `ansible-playbook provision-aws-linux.yml --vault-password-file ansible-vault-password.txt`
+- Execute `ansible-playbook provision-aws-linux.yml`
 - Verify SSH access: `ssh galadriel@$RIVENDELL_IP`
 - Confirm clean Ubuntu/Debian system ready for AppArmor installation
 

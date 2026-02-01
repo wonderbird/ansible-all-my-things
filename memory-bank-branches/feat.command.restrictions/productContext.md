@@ -27,21 +27,21 @@ A unified, cross-provider automation system that provides automated access to de
 
 **Hetzner Cloud Linux (Persistent Development)**:
 ```bash
-ansible-playbook provision.yml --vault-password-file ansible-vault-password.txt
+ansible-playbook provision.yml
 ssh galadriel@$HOBBITON_IP
 ansible-playbook destroy.yml
 ```
 
 **AWS Linux (On-Demand Development)**:
 ```bash
-ansible-playbook provision-aws-linux.yml --vault-password-file ansible-vault-password.txt
+ansible-playbook provision-aws-linux.yml
 ssh galadriel@$RIVENDELL_IP
 ansible-playbook destroy-aws.yml
 ```
 
 **AWS Windows (Application Access)**:
 ```bash
-ansible-playbook provision-aws-windows.yml --vault-password-file ansible-vault-password.txt
+ansible-playbook provision-aws-windows.yml
 ssh galadriel@$MORIA_IP  # Command-line access
 # RDP connection available for desktop applications
 ansible-playbook destroy-aws.yml

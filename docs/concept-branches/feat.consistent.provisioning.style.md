@@ -12,7 +12,7 @@
 Enable unified provisioning command for Vagrant Docker environment (dagorlad) that matches the AWS Linux pattern (rivendell), improving user experience and code maintainability.
 
 ### Current State Analysis
-- **AWS Linux (rivendell)**: Uses `ansible-playbook provision.yml --extra-vars "provider=aws platform=linux" --vault-password-file ansible-vault-password.txt`
+- **AWS Linux (rivendell)**: Uses `ansible-playbook provision.yml --extra-vars "provider=aws platform=linux"`
 - **Vagrant Docker (dagorlad)**: Uses `vagrant up` + separate `ansible-playbook configure-linux.yml` command
 - **Gap**: Different command patterns create cognitive load and maintenance complexity
 
@@ -20,7 +20,7 @@ Enable unified provisioning command for Vagrant Docker environment (dagorlad) th
 
 **Target Command Pattern** (extending existing provider/platform pattern):
 ```bash
-ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux" --vault-password-file ansible-vault-password.txt
+ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux"
 ```
 
 **Must-Have Deliverables**:
@@ -66,7 +66,7 @@ ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=li
 ### Success Criteria
 
 **Primary Success**: 
-Command `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux" --vault-password-file ansible-vault-password.txt` successfully provisions dagorlad environment from clean state.
+Command `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux"` successfully provisions dagorlad environment from clean state.
 
 **Validation Tests**:
 1. Clean environment → run command → dagorlad accessible via SSH
@@ -98,7 +98,7 @@ Command `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker pl
   - Handle `vagrant up` idempotency (check if already running)
 
 **Task 1.2: Verify Template Routing** (1 hour)
-- **Test**: Run `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux" --vault-password-file ansible-vault-password.txt`
+- **Test**: Run `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux"`
 - **Validation**: 
   - Confirm routing to new provisioner works (`provisioners/vagrant_docker-linux.yml`)
   - Confirm routing to existing configure works (`configure-linux.yml`)
@@ -178,7 +178,7 @@ Command `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker pl
 
 ## Definition of Done
 
-- [ ] `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux" --vault-password-file ansible-vault-password.txt` provisions dagorlad successfully
+- [ ] `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux"` provisions dagorlad successfully
 - [ ] All tests pass (test-first approach followed)
 - [ ] Documentation updated: `docs/create-vm.md` includes vagrant_docker provider option
 - [ ] Documentation updated: `test/docker/README.md` uses unified command

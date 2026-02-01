@@ -13,7 +13,7 @@
 
 **Target Command Pattern**: 
 ```bash
-ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux" --vault-password-file ansible-vault-password.txt
+ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux"
 ```
 
 **Current State Gap**: 

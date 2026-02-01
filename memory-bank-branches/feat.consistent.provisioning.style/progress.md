@@ -46,7 +46,7 @@
 - **Business Driver**: Urgent need for consistent provisioning commands across cloud VMs and Vagrant VMs - reducing cognitive load and maintenance complexity 🎯 ACTIVE
 - **Status**: Scrum team analysis complete, milestone-based development plan ready for implementation 🎯 READY FOR IMPLEMENTATION
 - **Foundation**: Built on existing provider/platform parameter system and mature testing infrastructure 🎯 READY
-- **Target Command**: `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux" --vault-password-file ansible-vault-password.txt` 🎯 TARGET
+- **Target Command**: `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux"` 🎯 TARGET
 
 **Scrum Team Development Plan** (Product Owner confirmed priorities):
 - **Milestone 1**: Core Command Implementation (Day 1 - Priority 1) - Get basic command working
@@ -101,7 +101,7 @@
 
 **Implementation Summary:**
 - Moved secrets from `playbooks/vars-secrets.yml` to `inventories/group_vars/all/vars.yml` (encrypted)
-- Updated `ansible.cfg` to include `vault_password_file = ansible-vault-password.txt` for automated vault access
+- Updated `ansible.cfg` to include `vault_password_file = scripts/echo-vault-password-environment-variable.sh` for automated vault access
 - Removed explicit `vars_files` loading from all playbooks for cleaner, idiomatic configuration
 - Created `vault-template.yml` documenting all required secret variables
 - Fixed Vagrant test configurations (Docker and Tart) to work with new secret handling

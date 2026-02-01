@@ -39,7 +39,7 @@ export AWS_DEFAULT_REGION="eu-north-1"
 export HCLOUD_TOKEN="your-hcloud-token"
 
 # Ansible configuration (automated vault password handling)
-# ansible.cfg includes vault_password_file = ansible-vault-password.txt
+export ANSIBLE_VAULT_PASSWORD_FILE="./scripts/echo-vault-password-environment-variable.sh"
 export ANSIBLE_HOST_KEY_CHECKING=False
 ```
 

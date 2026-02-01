@@ -7,11 +7,14 @@
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 **Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [SSH Key Compatibility](#ssh-key-compatibility)
-- [Secrets are encrypted with Ansible Vault](#secrets-are-encrypted-with-ansible-vault)
-- [Admin user on fresh system differs per provider](#admin-user-on-fresh-system-differs-per-provider)
-- [Same ansible user is set up for each provider](#same-ansible-user-is-set-up-for-each-provider)
-- [Desktop user accounts are used to log in](#desktop-user-accounts-are-used-to-log-in)
+- [Important concepts](#important-concepts)
+  - [SSH Key Compatibility](#ssh-key-compatibility)
+    - [AWS EC2 Key Requirements](#aws-ec2-key-requirements)
+    - [Key Type Recommendations](#key-type-recommendations)
+  - [Secrets are encrypted with Ansible Vault](#secrets-are-encrypted-with-ansible-vault)
+  - [Admin user on fresh system differs per provider](#admin-user-on-fresh-system-differs-per-provider)
+  - [Same ansible user is set up for each provider](#same-ansible-user-is-set-up-for-each-provider)
+  - [Desktop user accounts are used to log in](#desktop-user-accounts-are-used-to-log-in)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -37,9 +40,9 @@ The playbooks create user accounts and register SSH keys for passwordless login.
 
 The required secrets are expected in `/inventories/group_vars/all/vault.yml`. This file shall be encrypted with ansible vault.
 
-The ansible vault password is expected in `/ansible-vault-password.txt`. This way, the Vagrant provisioners in the [/test](../test/) folders can access it.
+The ansible vault password is expected in the environment variable `ANSIBLE_VAULT_PASSWORD`. You can use [direnv](https://direnv.net) and a `.envrc` file to this up. The ansible configuration file [ansible.cfg](../ansible.cfg) will automatically use it by calling the script [echo-vault-password-environment-variable.sh](../scripts/echo-vault-password-environment-variable.sh). This way, the Vagrant provisioners in the [/test](../test/) folders can access it.
 
-Both files are excluded from git via [/.gitignore](../.gitignore), so that secrets are not accidentally committed to the repository.
+The files `/inventories/group_vars/all/vault.yml` and `.envrc` are excluded from git via [/.gitignore](../.gitignore), so that secrets are not accidentally committed to the repository.
 
 Execute the following commands in the repository root to set up the secrets:
 
@@ -47,7 +50,10 @@ Execute the following commands in the repository root to set up the secrets:
 # Create a new ansible vault password file
 echo -n "New ansible vault password: " \
   && read -s ANSIBLE_VAULT_PASSWORD \
-  && echo "$ANSIBLE_VAULT_PASSWORD" > ./ansible-vault-password.txt
+  && echo "export ANSIBLE_VAULT_PASSWORD=$ANSIBLE_VAULT_PASSWORD" >> .envrc
+
+# Load the environment
+. .envrc
 
 # Create a new vault.yml file from the template
 cp -v ./inventories/group_vars/all/vault-template.yml ./inventories/group_vars/all/vault.yml \

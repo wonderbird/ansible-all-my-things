@@ -5,8 +5,9 @@
 *password*
 *secrets*
 .env*
-!/scripts/export-secrets.py
 /inventories/group_vars/all/vault.yml
+!/scripts/export-secrets.py
+!/scripts/echo-vault-password-environment-variable.sh
 
 # Skip backup files
 /configuration/**/backup/*

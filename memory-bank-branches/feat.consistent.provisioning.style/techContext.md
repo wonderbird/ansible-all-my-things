@@ -70,8 +70,8 @@ export AWS_SECRET_ACCESS_KEY="your-aws-secret"
 export AWS_DEFAULT_REGION="eu-north-1"
 
 # Ansible configuration (automated vault password handling)
+export ANSIBLE_VAULT_PASSWORD_FILE="./scripts/echo-vault-password-environment-variable.sh"
 export ANSIBLE_HOST_KEY_CHECKING=False
-# Note: ansible.cfg includes vault_password_file = ansible-vault-password.txt
 
 # Vagrant Testing - no additional credentials needed
 # Uses unified inventory structure and same vault configuration

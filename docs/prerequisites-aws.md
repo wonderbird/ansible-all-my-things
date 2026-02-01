@@ -123,7 +123,7 @@ Create or import an SSH key pair in the AWS EC2 console:
 
 ## 4. Ansible Vault Setup for Encrypted Secrets
 
-Follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in [./ansible-vault-password.txt](./ansible-vault-password.txt) and in [./inventories/group_vars/all/vars.yml](./inventories/group_vars/all/vars.yml).
+Follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in `.envrc` and in [./inventories/group_vars/all/vars.yml](./inventories/group_vars/all/vars.yml).
 
 ---
 

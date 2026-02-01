@@ -39,7 +39,7 @@ export AWS_ACCESS_KEY_ID="your-aws-key"
 export AWS_SECRET_ACCESS_KEY="your-aws-secret"
 export AWS_DEFAULT_REGION="eu-north-1"
 echo -n "hcloud API token: "; read -s HCLOUD_TOKEN; export HCLOUD_TOKEN
-export ANSIBLE_VAULT_PASSWORD_FILE="./ansible-vault-password.txt"
+export ANSIBLE_VAULT_PASSWORD_FILE="./scripts/echo-vault-password-environment-variable.sh"
 export ANSIBLE_HOST_KEY_CHECKING=False
 
 # Assert: No instances are running

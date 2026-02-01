@@ -8,7 +8,7 @@
 
 4. **Configure inventory:** Configure `hcloud` as the default inventory in [/ansible.cfg](../ansible.cfg)
 
-5. **Configure secrets:** Finally, follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in [./ansible-vault-password.txt](./ansible-vault-password.txt) and in [./inventories/group_vars/all/vars.yml](./inventories/group_vars/all/vars.yml).
+5. **Configure secrets:** Finally, follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in `.envrc` and in [./inventories/group_vars/all/vars.yml](./inventories/group_vars/all/vars.yml).
 
 6. **Publish HCLOUD_TOKEN to environment:** Next, publish your API token to the HCLOUD_TOKEN environment variable, which is used by default by the [hetzner.hcloud ansible modules](https://docs.ansible.com/ansible/latest/collections/hetzner/hcloud/).
 

@@ -25,16 +25,26 @@ docker pull ghcr.io/wonderbird/ansible-toolchain
 The image requires the following environment variables:
 
 - `HCLOUD_TOKEN`: Your Hetzner cloud API token
+- `ANSIBLE_VAULT_PASSWORD`: The password to encrypt the secrets in ansible vault
 - `BACKUP_DIR` (optional): Usually contains the value `/backup` if you want to restore backups to the VMs created. Use a bind mount to mount the actual backup files.
 
 ```shell
+read -p "Enter HCLOUD_TOKEN: " -s HCLOUD_TOKEN; export HCLOUD_TOKEN; \
+read -p "Enter ANSIBLE_VAULT_PASSWORD: " -s ANSIBLE_VAULT_PASSWORD; export ANSIBLE_VAULT_PASSWORD
+
 # Run without explicitly mounting a backup directory
-read -s HCLOUD_TOKEN
-docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghcr.io/wonderbird/ansible-toolchain
+docker run --env HCLOUD_TOKEN="$HCLOUD_TOKEN" \
+           --env ANSIBLE_VAULT_PASSWORD="$ANSIBLE_VAULT_PASSWORD" \
+           --name "ansible-toolchain" \
+           -it ghcr.io/wonderbird/ansible-toolchain
 
 # If you have a folder containing backups, then you can bind mount it
 # This allows to configure VMs and restore the backup using /restore.yml
-docker run --mount type=bind,source="/your/backup",target=/backup --env BACKUP_DIR=/backup --env HCLOUD_TOKEN="$HCLOUD_TOKEN" --name "ansible-toolchain" -it ghcr.io/wonderbird/ansible-toolchain
+docker run --mount type=bind,source="/your/backup",target=/backup \
+           --env ANSIBLE_VAULT_PASSWORD="$ANSIBLE_VAULT_PASSWORD" \
+           --env HCLOUD_TOKEN="$HCLOUD_TOKEN" \
+           --name "ansible-toolchain" \
+           -it ghcr.io/wonderbird/ansible-toolchain
 ```
 
 ### Build and Run Basic Container Image Locally
