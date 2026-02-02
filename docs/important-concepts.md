@@ -82,4 +82,14 @@ This `my_ansible_user` is configured in [/inventories/group_vars/all/vars.yml](.
 
 [/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml) defines user names and passwords for the `desktop_users`. These accounts are intended for logging into the (desktop) environment.
 
-The corresponding template file shows the structure of the secrets file: [/inventories/group_vars/all/vault-template.yml](../inventories/group_vars/all/vault-template.yml).
+Desktop user passwords use a nested structure in the vault file. For example:
+
+```yaml
+vault_galadriel:
+  password: "YOUR_PASSWORD_HERE"
+
+vault_legolas:
+  password: "YOUR_PASSWORD_HERE"
+```
+
+The corresponding template file shows the complete structure of the secrets file: [/inventories/group_vars/all/vault-template.yml](../inventories/group_vars/all/vault-template.yml).

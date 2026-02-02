@@ -15,6 +15,10 @@ vault_gnome_keyring_password: "PROVIDE_GNOME_KEYRING_PASSWORD_HERE"
 
 vault_windows_admin_password: "PROVIDE_STRONG_WINDOWS_PASSWORD_HERE"
 
-vault_galadriels_password: "PROVIDE_GALADRIELS_PASSWORD_HERE"
+# Desktop user passwords
+vault_galadriel:
+  password: "PROVIDE_GALADRIELS_PASSWORD_HERE"
 
-vault_legolas_password: "PROVIDE_LEGOLAS_PASSWORD_HERE"
+vault_legolas:
+  password: "PROVIDE_LEGOLAS_PASSWORD_HERE"
+

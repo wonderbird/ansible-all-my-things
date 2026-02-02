@@ -44,7 +44,7 @@ COPY install-hcloud-cli.sh /tmp/installers/
 RUN /bin/sh /tmp/installers/install-hcloud-cli.sh \
     && rm -rf /tmp/installers
 
-COPY install-ansible-all-my-things.sh /tmp/installers/
+COPY install-ansible-all-my-things.sh touch_to_force_repo_update.txt /tmp/installers/
 RUN /bin/sh /tmp/installers/install-ansible-all-my-things.sh \
     && rm -rf /tmp/installers
 

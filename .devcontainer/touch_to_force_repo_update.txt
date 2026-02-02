@@ -1,0 +1,2 @@
+Change the timestamp of this file to force docker build to pull the latest
+version of the ansible-all-my-things repository.

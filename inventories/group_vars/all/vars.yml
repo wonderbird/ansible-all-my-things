@@ -31,6 +31,6 @@ windows_admin_password: "{{ vault_windows_admin_password }}"
 # Add as many users as you like. There should be at least one user.
 desktop_users:
   - name: "galadriel"
-    password: "{{ vault_galadriels_password }}"
+    password: "{{ vault_galadriel.password }}"
 #  - name: "legolas"
-#    password: "{{ vault_legolas_password }}"
+#    password: "{{ vault_legolas.password }}"
