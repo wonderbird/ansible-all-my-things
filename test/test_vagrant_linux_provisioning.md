@@ -32,10 +32,10 @@ Provision either a Docker or Tart VM following the corresponding README file:
 2. **Load your SSH key into the agent:**
 
    ```shell
-   ssh-add ~/.ssh/user@host.pem
+   ssh-add ~/.ssh/YOUR_KEY_FILE.pem
    ```
 
-   - Replace `user@host.pem` with your actual private key filename.
+   - Replace `YOUR_KEY_FILE.pem` with your actual private key filename.
 
 3. **Check connectivity and user:**
 

@@ -28,7 +28,7 @@ The following environment variables are supported:
 
 Furthermore the following bind mounts are supported:
 
-- `/root/.ssh/id_rsa.pem`: your private key registered with Hetzner cloud and aws. See [/docs/prerequisites-aws.md](../docs/prerequisites-aws.md).
+- `/root/.ssh/YOUR_KEY_FILE.pem`: your private key registered with Hetzner cloud and aws. See [/docs/prerequisites-aws.md](../docs/prerequisites-aws.md).
 - `/root/ansible-all-my-things/inventories/group_vars/all/vault.yml`: encrypted ansible configuration. See [docs/important-concepts.md](../docs/important-concepts.md).
 - `/backup`: folder containing and receiving backups
 
@@ -41,7 +41,7 @@ read -p "Enter HCLOUD_TOKEN: " -s HCLOUD_TOKEN; export HCLOUD_TOKEN; echo; \
 read -p "Enter ANSIBLE_VAULT_PASSWORD: " -s ANSIBLE_VAULT_PASSWORD; export ANSIBLE_VAULT_PASSWORD; echo
 
 docker run --mount type=bind,source="/path/to/backup",target=/backup \
-           --mount type=bind,source="/path/to/YOUR_KEY_FILE.pem",target=/root/.ssh/id_rsa.pem \
+           --mount type=bind,source="/path/to/YOUR_KEY_FILE.pem",target=/root/.ssh/YOUR_KEY_FILE.pem \
            --mount type=bind,source="/path/to/vault.yml",target=/root/ansible-all-my-things/inventories/group_vars/all/vault.yml \
            --env HCLOUD_TOKEN="$HCLOUD_TOKEN" \
            --env ANSIBLE_VAULT_PASSWORD="$ANSIBLE_VAULT_PASSWORD" \
@@ -55,7 +55,7 @@ docker run --mount type=bind,source="/path/to/backup",target=/backup \
 ```shell
 # Ensure that the ssh-key is loaded into the agent
 eval $(ssh-agent) \
-  && ssh-add /root/.ssh/id_rsa.pem; \
+  && ssh-add /root/.ssh/YOUR_KEY_FILE.pem; \
   ssh-add -l
 
 ansible-playbook ./provision.yml --extra-vars "provider=hcloud platform=linux"

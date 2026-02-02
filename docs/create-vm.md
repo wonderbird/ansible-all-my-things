@@ -118,7 +118,7 @@ The inventory will show the host name for the provisioned instance. The host nam
 Before executing the other commands in this section, load the configured key into your SSH agent:
 
 ```shell
-ssh-add ~/.ssh/user@host.pem
+ssh-add ~/.ssh/YOUR_KEY_FILE.pem
 ```
 
 Then run the following commands to verify the setup:
