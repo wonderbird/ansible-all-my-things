@@ -6,4 +6,4 @@
 
   roles:
     - windows_foundation
-    - ai_agent
+    - win_ai_agent

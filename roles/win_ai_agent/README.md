@@ -1,7 +1,7 @@
 AI Agent
 ========
 
-A brief description of the role goes here.
+Run AI agents like Claude Code on Windows (incomplete).
 
 Requirements
 ------------
@@ -28,7 +28,7 @@ Example Playbook
     - hosts: moria
       roles:
          - windows_foundation
-         - ai_agent
+         - win_ai_agent
 
 License
 -------
