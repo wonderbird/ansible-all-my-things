@@ -21,7 +21,7 @@
   blockinfile:
     path: /home/{{ item }}/.bashrc
     block: "export PATH=\"$HOME/.local/bin:$PATH\""
-    marker: "# {mark} ANSIBLE MANAGED BLOCK"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Claude Code PATH"
     append_newline: true
     state: present
   become: true
