@@ -1,0 +1,34 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Installation instructions can be found in the quickstart guide at
+# https://code.claude.com/docs/en/quickstart
+- name: Download Claude Code installer
+  get_url:
+    url: https://claude.ai/install.sh
+    dest: /tmp/claude_code_install.sh
+    mode: '0755'
+
+- name: Run Claude Code installer
+  shell: /tmp/claude_code_install.sh
+  args:
+    executable: /bin/bash
+    creates: /home/{{ item }}/.local/bin/claude
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+
+- name: Add claude to PATH in .bashrc
+  blockinfile:
+    path: /home/{{ item }}/.bashrc
+    block: "export PATH=\"$HOME/.local/bin:$PATH\""
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Claude Code PATH"
+    append_newline: true
+    state: present
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+
+- name: Remove Claude Code installer
+  file:
+    path: /tmp/claude_code_install.sh
+    state: absent

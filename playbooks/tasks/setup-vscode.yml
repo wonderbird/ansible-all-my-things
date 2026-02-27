@@ -108,7 +108,7 @@
     path: /home/{{ item }}/.vscode/argv.json
     insertafter: '^{$'
     block: "{{ vscode_keyring_configuration | indent(8, True) }}"
-    marker: "// {mark} ANSIBLE MANAGED BLOCK"
+    marker: "// {mark} ANSIBLE MANAGED BLOCK - Visual Studio Code keyring configuration"
     append_newline: true
     state: present
   vars:

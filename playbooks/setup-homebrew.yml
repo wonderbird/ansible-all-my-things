@@ -80,6 +80,15 @@
         state: present
       become: true
       loop: "{{ all_users }}"
+    
+    - name: .bash_profile must belong to the user
+      file:
+        path: "/home/{{ item }}/.bash_profile"
+        owner: "{{ item }}"
+        group: "{{ item }}"
+        state: file
+      become: true
+      loop: "{{ all_users }}"
 
     - name: Install brew packages
       homebrew:
