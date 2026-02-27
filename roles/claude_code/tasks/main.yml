@@ -12,10 +12,56 @@
   shell: /tmp/claude_code_install.sh
   args:
     executable: /bin/bash
-    creates: /home/{{ item }}/.local/bin/claude
   become: true
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
+
+- name: Verify Claude Code binary integrity
+  block:
+    - name: Get latest Claude Code version from GitHub Releases
+      uri:
+        url: https://api.github.com/repos/anthropics/claude-code/releases/latest
+        headers:
+          Accept: "application/vnd.github+json"
+        return_content: yes
+      register: claude_code_github_release
+
+    - name: Extract Claude Code version number from GitHub release tag
+      set_fact:
+        claude_code_version: "{{ claude_code_github_release.json.tag_name | regex_replace('^v', '') }}"
+
+    - name: Fetch Claude Code release manifest
+      uri:
+        url: "{{ claude_code_manifest_base_url }}/{{ claude_code_version }}/manifest.json"
+        return_content: yes
+      register: claude_code_manifest
+
+    - name: Compute SHA256 of installed Claude Code binary
+      stat:
+        path: /home/{{ item }}/.local/bin/claude
+        checksum_algorithm: sha256
+      loop: "{{ desktop_user_names }}"
+      register: claude_code_binary_stat
+
+    - name: Extract expected Claude Code checksum from release manifest
+      set_fact:
+        claude_code_expected_checksum: "{{ claude_code_manifest.json.platforms[claude_code_platform_map[ansible_architecture]].checksum }}"
+
+    - name: Remove Claude Code binary on checksum mismatch
+      file:
+        path: /home/{{ item.item }}/.local/bin/claude
+        state: absent
+      loop: "{{ claude_code_binary_stat.results }}"
+      when: item.stat.checksum != claude_code_expected_checksum
+
+    - name: Fail on Claude Code binary checksum mismatch
+      fail:
+        msg: >
+          Claude Code binary integrity check failed for user {{ item.item }}.
+          Expected checksum: {{ claude_code_expected_checksum }}.
+          Actual checksum:   {{ item.stat.checksum }}.
+      loop: "{{ claude_code_binary_stat.results }}"
+      when: item.stat.checksum != claude_code_expected_checksum
 
 - name: Add claude to PATH in .bashrc
   blockinfile:

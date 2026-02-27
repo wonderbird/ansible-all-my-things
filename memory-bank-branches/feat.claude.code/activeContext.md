@@ -2,7 +2,11 @@
 
 ## Current state
 
-The `claude_code` role exists and installs Claude Code without integrity verification. A code review has been completed. Findings 2–4 are resolved. Finding 1 (HIGH: no checksum verification) is the remaining work item.
+Binary checksum verification (Stage 1) has been implemented. All code review findings are resolved.
+
+Committed as `2ca5349`. Files changed:
+- `roles/claude_code/defaults/main.yml` — created with `claude_code_manifest_base_url` and `claude_code_platform_map`
+- `roles/claude_code/tasks/main.yml` — verification block added after install task; `creates` guard removed so installer always runs; version and expected checksum each extracted into a dedicated `set_fact` task for readability
 
 Feature concept and PRD are written and approved:
 - `docs/features/claude-code/concept.md`
@@ -10,20 +14,18 @@ Feature concept and PRD are written and approved:
 
 ## Immediate next action
 
-Implement binary checksum verification. Concrete steps:
+Stage 2: test, debug, and safety checks.
 
-1. Create `roles/claude_code/defaults/main.yml` with variables `claude_code_manifest_base_url` and `claude_code_platform_map`
-2. Add task: run `claude --version` per user, register result, parse version from stdout
-3. Add task: fetch manifest JSON via `uri` module using the parsed version
-4. Add task: compute SHA256 of `/home/{{ item }}/.local/bin/claude` via `stat` module
-5. Add task: extract expected checksum from manifest JSON using platform mapping
-6. Add `block`/`rescue`: compare checksums; on mismatch delete binary and `fail` with both checksums
-7. Ensure verification tasks only run when the installer actually ran (chain off the install task's `changed` state)
+1. Run role on a test VM — confirm verification passes on a clean install
+2. Truncate binary and re-run — confirm deletion and failure message
+3. Set wrong manifest URL — confirm failure message includes URL
+4. Re-run on already-installed machine — confirm installer and verification both run cleanly
+5. Confirm no secrets appear in task output
 
 ## Key decisions made
 
 - Verify post-installation (not pre-installation) — the manifest covers the binary, not the installer script
-- Use `claude --version` for dynamic version discovery — no version pinning
+- Use GitHub Releases API for version discovery (not `claude --version`) — avoids executing an unverified binary; the GitHub release is Anthropic's public, documented release contract
 - Manifest base URL and platform mapping go into `roles/claude_code/defaults/main.yml`
 - Variable names: `claude_code_manifest_base_url`, `claude_code_platform_map`
 - On checksum mismatch: delete binary, then fail with both expected and actual checksums

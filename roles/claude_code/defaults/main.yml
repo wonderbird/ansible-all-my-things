@@ -1,0 +1,8 @@
+#SPDX-License-Identifier: MIT-0
+---
+# The base URL for the Claude Code manifest file has been taken from
+# https://code.claude.com/docs/en/setup#binary-integrity-and-code-signing
+claude_code_manifest_base_url: "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases"
+claude_code_platform_map:
+  x86_64: linux-x64
+  aarch64: linux-arm64

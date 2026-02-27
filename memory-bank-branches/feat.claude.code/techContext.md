@@ -18,11 +18,17 @@ Example manifest structure (abbreviated):
 {"version": "2.1.59", "platforms": {"linux-arm64": {"binary": "claude", "checksum": "78b0ea5a...", "size": 224884646}}}
 ```
 
+## Version discovery
+
+- GitHub Releases API: `https://api.github.com/repos/anthropics/claude-code/releases/latest`
+- No authentication required (public repo); unauthenticated rate limit is 60 req/hour per IP (non-issue for single-machine playbook runs)
+- Returns JSON; relevant field: `tag_name` (e.g. `"v2.1.62"`)
+- Strip leading `v` with: `result.json.tag_name | regex_replace('^v', '')`
+- Running `claude --version` is intentionally avoided — the binary must not be executed before its integrity is confirmed
+
 ## Binary location
 
 - Installed to `/home/{user}/.local/bin/claude`
-- `claude --version` outputs the version string on stdout, e.g. `2.1.59`
-- Parse with: `result.stdout | trim`
 
 ## Architecture mapping
 
@@ -33,8 +39,7 @@ Example manifest structure (abbreviated):
 
 ## Ansible modules relevant to this feature
 
-- `uri` — fetch manifest JSON
+- `uri` — fetch GitHub Releases API response and manifest JSON
 - `stat` with `checksum_algorithm: sha256` — compute binary checksum
 - `file` with `state: absent` — delete binary on mismatch
 - `fail` — abort playbook with error message
-- `shell` / `command` — run `claude --version`
