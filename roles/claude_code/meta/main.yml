@@ -1,7 +1,7 @@
 #SPDX-License-Identifier: MIT-0
 galaxy_info:
   author: Stefan Boos
-  description: Open Source Developer
+  description: Install Anthropic's Claude code on Linux
   company: n.a.
   issue_tracker_url: http://github.com/wonderbird/ansible-all-my-things/issues
   license: MIT
