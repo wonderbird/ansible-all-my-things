@@ -78,3 +78,5 @@ Scenario: Unsupported architecture
 4. Verify idempotency: re-run the playbook when Claude Code is already installed and verify it skips installation but still verifies (or skips verification appropriately)
 5. Validate architecture mapping on both `x86_64` and `aarch64` targets if available
 6. Confirm no secrets or tokens appear in task output or logs
+
+All Stage 2 steps were executed on 2026-02-28 and passed.
