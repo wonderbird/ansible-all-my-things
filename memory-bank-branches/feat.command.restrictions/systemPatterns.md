@@ -34,7 +34,7 @@ Production-ready cross-provider infrastructure automation with unified managemen
 
 ### Command Restriction Implementation
 
-**Architecture Decision**: AppArmor Integration selected for kernel-level command blocking on Linux target systems. See [ADR-001: Command Restriction Mechanism](../docs/architecture-decisions/001-command-restrictions.md) for complete decision rationale.
+**Architecture Decision**: AppArmor Integration selected for kernel-level command blocking on Linux target systems. See [ADR-001: Command Restriction Mechanism](../docs/architecture/decisions/001-command-restrictions.md) for complete decision rationale.
 
 **Implementation Architecture Patterns**:
 

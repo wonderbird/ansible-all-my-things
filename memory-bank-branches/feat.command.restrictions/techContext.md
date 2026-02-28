@@ -103,7 +103,7 @@ ansible-all-my-things/
 
 #### AppArmor Integration (Ubuntu/Debian Linux Systems) ✅ SELECTED
 
-**Technical Specifications**: See [ADR-001 Command Restriction Decision](../docs/architecture-decisions/001-command-restrictions.md) for decision rationale.
+**Technical Specifications**: See [ADR-001 Command Restriction Decision](../docs/architecture/decisions/001-command-restrictions.md) for decision rationale.
 
 **AppArmor Profile Structure**:
 ```bash

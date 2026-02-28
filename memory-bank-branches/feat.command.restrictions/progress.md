@@ -89,7 +89,7 @@
 
 ## Recent Accomplishments
 
-**Architecture Decision Record Created**: ✅ [ADR-001: Command Restriction Mechanism](../docs/architecture-decisions/001-command-restrictions.md) documenting complete decision rationale
+**Architecture Decision Record Created**: ✅ [ADR-001: Command Restriction Mechanism](../docs/architecture/decisions/001-command-restrictions.md) documenting complete decision rationale
 
 **Decision Analysis Completed**: 
 - **AppArmor Learning Completed**: ✅ Stand-Alone Profiling mastered with hands-on wget security profile creation
