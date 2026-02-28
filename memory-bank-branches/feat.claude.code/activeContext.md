@@ -2,15 +2,16 @@
 
 ## Current state
 
-Binary checksum verification (Stage 1) has been implemented. All code review findings are resolved.
+Implementation is complete and has passed code review. All findings resolved.
 
-Committed as `2ca5349`. Files changed:
-- `roles/claude_code/defaults/main.yml` — created with `claude_code_manifest_base_url` and `claude_code_platform_map`
-- `roles/claude_code/tasks/main.yml` — verification block added after install task; `creates` guard removed so installer always runs; version and expected checksum each extracted into a dedicated `set_fact` task for readability
+Files in final state:
 
-Feature concept and PRD are written and approved:
-- `docs/features/claude-code/concept.md`
-- `docs/features/claude-code/prd.md`
+- `roles/claude_code/defaults/main.yml` — `claude_code_manifest_base_url` and `claude_code_platform_map`
+- `roles/claude_code/tasks/main.yml` — flat task list: assert architecture → fetch manifest → install → verify checksum → add PATH
+- `docs/features/claude-code/concept.md` — updated to reflect final design
+- `docs/features/claude-code/prd.md` — updated to reflect final design and implementation steps
+- `docs/features/claude-code/acceptance-tests.feature` — Gherkin acceptance tests derived from code review scenarios
+- `docs/architecture/technical_debt.md` — created; TD-001 records the accepted risk of unverified `install.sh`
 
 ## Immediate next action
 
@@ -18,15 +19,19 @@ Stage 2: test, debug, and safety checks.
 
 1. Run role on a test VM — confirm verification passes on a clean install
 2. Truncate binary and re-run — confirm deletion and failure message
-3. Set wrong manifest URL — confirm failure message includes URL
-4. Re-run on already-installed machine — confirm installer and verification both run cleanly
+3. Set wrong manifest URL — confirm failure before installer runs
+4. Re-run on already-installed machine — confirm idempotent behaviour
 5. Confirm no secrets appear in task output
 
 ## Key decisions made
 
-- Verify post-installation (not pre-installation) — the manifest covers the binary, not the installer script
-- Use GitHub Releases API for version discovery (not `claude --version`) — avoids executing an unverified binary; the GitHub release is Anthropic's public, documented release contract
-- Manifest base URL and platform mapping go into `roles/claude_code/defaults/main.yml`
-- Variable names: `claude_code_manifest_base_url`, `claude_code_platform_map`
-- On checksum mismatch: delete binary, then fail with both expected and actual checksums
+- Manifest is fetched **before** the installer runs — if the manifest is unreachable the system remains unmodified
+- Architecture assertion is the first task — fails fast before any network requests
+- Use GitHub Releases API for version discovery (not `claude --version`) — avoids executing an unverified binary
+- Flat task structure — no `block`/`rescue`; infrastructure failures surface as raw Ansible errors with clear task names
+- `stat` uses `follow: true` — checksum is computed on the target file even if the binary is a symlink
+- `when` condition guards `item.stat.checksum` with `not item.stat.exists` — avoids undefined variable error if binary is absent
+- PATH is added to `.bashrc` only after successful verification — no PATH entry for a deleted binary
+- Manifest base URL and platform mapping in `roles/claude_code/defaults/main.yml`
+- On checksum mismatch or absent binary: delete, then `fail` with expected and actual checksums
 - musl-based distros are out of scope for now

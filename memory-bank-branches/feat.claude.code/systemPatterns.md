@@ -13,12 +13,14 @@ Each software installation has a dedicated Ansible role under `roles/`. Roles ar
 
 ## Verification flow
 
-1. Installer runs unconditionally (no `creates` guard) → produces `/home/{user}/.local/bin/claude`
+1. `assert` → verify `ansible_architecture` is in `claude_code_platform_map`
 2. `uri` → GitHub Releases API → `set_fact: claude_code_version` (tag stripped of leading `v`)
 3. `uri` → fetch `{manifest_base_url}/{claude_code_version}/manifest.json`
 4. `set_fact: claude_code_expected_checksum` from `manifest.json.platforms[platform].checksum`
-5. `stat` → SHA256 of each user's binary
-6. On mismatch → delete binary → `fail` with both checksums
+5. Installer runs unconditionally (no `creates` guard) → produces `/home/{user}/.local/bin/claude`
+6. `stat` with `follow: true` → SHA256 of each user's binary
+7. On `not item.stat.exists` or mismatch → delete binary → `fail` with both checksums
+8. `PATH` is added to `.bashrc` only after successful verification
 
 Architecture mapping and manifest details are in `techContext.md`.
 

@@ -8,8 +8,9 @@ Verify the SHA256 checksum of the installed Claude Code binary against Anthropic
 
 ### In scope
 
-- Determine installed version via `claude --version`
-- Fetch the release manifest for that version
+- Assert that the host architecture is in the platform map before any network requests
+- Determine the latest released version via the GitHub Releases API before running the installer
+- Fetch the release manifest for that version before running the installer
 - Map `ansible_architecture` to manifest platform keys (`linux-arm64`, `linux-x64`)
 - Compare SHA256 checksums; on mismatch delete the binary and fail
 - Extract the manifest base URL into a role variable for maintainability
@@ -28,22 +29,31 @@ Verify the SHA256 checksum of the installed Claude Code binary against Anthropic
 
 ```gherkin
 Scenario: Successful verification
-  Given the Claude Code installer has completed for a user
+  Given the host architecture is supported
+  And the manifest is reachable
+  And the Claude Code installer completes for a user
   When the playbook verifies the binary checksum
-  Then it fetches the manifest for the installed version
-  And the SHA256 of the local binary matches the manifest
+  Then the SHA256 of the local binary matches the manifest
   And the playbook continues without error
 
 Scenario: Checksum mismatch
-  Given the Claude Code installer has completed for a user
+  Given the manifest has been fetched successfully
+  And the Claude Code installer has completed for a user
   When the SHA256 of the local binary does not match the manifest
   Then the binary is deleted from the user's ~/.local/bin/claude
   And the playbook fails with a message containing the expected and actual checksums
 
 Scenario: Manifest unreachable
-  Given the Claude Code installer has completed for a user
+  Given the host architecture is supported
   When the release manifest cannot be fetched
-  Then the playbook fails with a message indicating the manifest URL and HTTP status
+  Then the playbook fails before running the installer
+  And the system remains unmodified
+
+Scenario: Unsupported architecture
+  Given the host architecture is not in the platform map
+  When the role is applied
+  Then the playbook fails immediately before any network requests
+  And the failure message lists the supported architectures
 ```
 
 ## Implementation Plan
@@ -51,12 +61,14 @@ Scenario: Manifest unreachable
 ### Stage 1: Functionality
 
 1. Add default variables to `roles/claude_code/defaults/main.yml`: manifest base URL, architecture-to-platform mapping dict
-2. Add task: get installed version via `claude --version` (as each user), register result
-3. Add task: fetch manifest JSON using `uri` module with the registered version
-4. Add task: compute SHA256 of the binary using `stat` module with `checksum_algorithm: sha256`
+2. Add task: assert that `ansible_architecture` is in the platform map
+3. Add task: fetch latest version from GitHub Releases API; extract version number via `regex_replace`
+4. Add task: fetch manifest JSON using `uri` module with the resolved version
 5. Add task: extract expected checksum from manifest JSON using the platform mapping
-6. Add task in `block`/`rescue`: compare checksums; on mismatch delete binary and `fail` with both checksums
-7. Verify the verification tasks only run when the installer actually ran (respect the `creates` guard on the install task)
+6. Run installer unconditionally for each user (no `creates` guard)
+7. Add task: compute SHA256 of the binary using `stat` module with `checksum_algorithm: sha256` and `follow: true`
+8. Add task: on mismatch or missing binary (`not item.stat.exists`), delete binary and `fail` with both checksums
+9. Add claude to PATH only after successful verification
 
 ### Stage 2: Test, Debug, and Safety Checks
 

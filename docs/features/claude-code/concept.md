@@ -6,7 +6,7 @@ Post-installation checksum verification for the Claude Code binary.
 
 ## Description
 
-After the Claude Code installer completes, the playbook automatically verifies the integrity of the installed binary. It determines the installed version via `claude --version`, fetches the official release manifest from Anthropic's distribution server, and compares the SHA256 checksum of the local binary against the published checksum for the current platform. If the checksum does not match, the playbook deletes the binary and fails with a clear error message.
+Before running the installer, the playbook asserts that the host architecture is supported, fetches the latest release version from the GitHub Releases API, and retrieves the official release manifest from Anthropic's distribution server. Fetching the manifest first ensures that if it is unreachable, the installer never runs and the system remains unmodified. After the installer completes, the playbook computes the SHA256 checksum of the installed binary and compares it against the published checksum for the current platform. If the checksum does not match, the playbook deletes the binary and fails with a clear error message.
 
 ## User Value
 

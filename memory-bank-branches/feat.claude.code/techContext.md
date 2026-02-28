@@ -39,7 +39,8 @@ Example manifest structure (abbreviated):
 
 ## Ansible modules relevant to this feature
 
+- `assert` — verify supported processor architecture before any network requests
 - `uri` — fetch GitHub Releases API response and manifest JSON
-- `stat` with `checksum_algorithm: sha256` — compute binary checksum
+- `stat` with `checksum_algorithm: sha256` and `follow: true` — compute binary checksum
 - `file` with `state: absent` — delete binary on mismatch
 - `fail` — abort playbook with error message

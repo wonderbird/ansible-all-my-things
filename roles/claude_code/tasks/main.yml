@@ -1,5 +1,45 @@
 #SPDX-License-Identifier: MIT-0
 ---
+# Only ansible platforms listed in claude_code_platform_map are supported.
+- name: "Verify supported processor architecture"
+  assert:
+    that: "ansible_architecture in claude_code_platform_map"
+    fail_msg: >
+     Unsupported processor architecture: {{ ansible_architecture }}.
+     Supported architectures are: {{ claude_code_platform_map.keys() | list }}.
+
+# -----
+# Get checksums for claude binaries by architecture from the release manifest
+# -----
+
+- name: Get latest Claude Code version from GitHub Releases
+  uri:
+    url: https://api.github.com/repos/anthropics/claude-code/releases/latest
+    headers:
+      Accept: "application/vnd.github+json"
+    validate_certs: true
+    return_content: true
+  register: claude_code_github_release
+
+- name: Extract Claude Code version number from GitHub release tag
+  set_fact:
+    claude_code_version: "{{ claude_code_github_release.json.tag_name | regex_replace('^v', '') }}"
+
+- name: Fetch Claude Code release manifest
+  uri:
+    url: "{{ claude_code_manifest_base_url }}/{{ claude_code_version }}/manifest.json"
+    validate_certs: true
+    return_content: true
+  register: claude_code_manifest
+
+- name: Extract expected Claude Code checksum from release manifest
+  set_fact:
+    claude_code_expected_checksum: "{{ claude_code_manifest.json.platforms[claude_code_platform_map[ansible_architecture]].checksum }}"
+
+# -----
+# Install Claude Code for each desktop user
+# -----
+
 # Installation instructions can be found in the quickstart guide at
 # https://code.claude.com/docs/en/quickstart
 - name: Download Claude Code installer
@@ -16,52 +56,48 @@
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
 
-- name: Verify Claude Code binary integrity
-  block:
-    - name: Get latest Claude Code version from GitHub Releases
-      uri:
-        url: https://api.github.com/repos/anthropics/claude-code/releases/latest
-        headers:
-          Accept: "application/vnd.github+json"
-        return_content: yes
-      register: claude_code_github_release
+- name: Remove Claude Code installer
+  file:
+    path: /tmp/claude_code_install.sh
+    state: absent
 
-    - name: Extract Claude Code version number from GitHub release tag
-      set_fact:
-        claude_code_version: "{{ claude_code_github_release.json.tag_name | regex_replace('^v', '') }}"
+# -----
+# Verify Claude Code binary integrity
+# -----
 
-    - name: Fetch Claude Code release manifest
-      uri:
-        url: "{{ claude_code_manifest_base_url }}/{{ claude_code_version }}/manifest.json"
-        return_content: yes
-      register: claude_code_manifest
+- name: Compute SHA256 of installed Claude Code binary
+  stat:
+    path: /home/{{ item }}/.local/bin/claude
+    checksum_algorithm: sha256
+    follow: true
+  loop: "{{ desktop_user_names }}"
+  register: claude_code_binary_stat
 
-    - name: Compute SHA256 of installed Claude Code binary
-      stat:
-        path: /home/{{ item }}/.local/bin/claude
-        checksum_algorithm: sha256
-      loop: "{{ desktop_user_names }}"
-      register: claude_code_binary_stat
+- name: Remove Claude Code binary on checksum mismatch
+  file:
+    path: /home/{{ item.item }}/.local/bin/claude
+    state: absent
+  loop: "{{ claude_code_binary_stat.results }}"
+  when: >
+    not item.stat.exists
+    or item.stat.checksum != claude_code_expected_checksum
 
-    - name: Extract expected Claude Code checksum from release manifest
-      set_fact:
-        claude_code_expected_checksum: "{{ claude_code_manifest.json.platforms[claude_code_platform_map[ansible_architecture]].checksum }}"
+- name: Fail on Claude Code binary checksum mismatch
+  fail:
+    msg: >
+      Claude Code binary integrity check failed for user {{ item.item }}.
+      Expected checksum: {{ claude_code_expected_checksum }}.
+      Actual checksum:   {{ item.stat.checksum | default('N/A') }}.
+  loop: "{{ claude_code_binary_stat.results }}"
+  when: >
+    not item.stat.exists
+    or item.stat.checksum != claude_code_expected_checksum
 
-    - name: Remove Claude Code binary on checksum mismatch
-      file:
-        path: /home/{{ item.item }}/.local/bin/claude
-        state: absent
-      loop: "{{ claude_code_binary_stat.results }}"
-      when: item.stat.checksum != claude_code_expected_checksum
-
-    - name: Fail on Claude Code binary checksum mismatch
-      fail:
-        msg: >
-          Claude Code binary integrity check failed for user {{ item.item }}.
-          Expected checksum: {{ claude_code_expected_checksum }}.
-          Actual checksum:   {{ item.stat.checksum }}.
-      loop: "{{ claude_code_binary_stat.results }}"
-      when: item.stat.checksum != claude_code_expected_checksum
+# -----
+# Ensure Claude Code is in PATH for each desktop user
+#
+# This is deliberately done only after the binary has been verified
+# -----
 
 - name: Add claude to PATH in .bashrc
   blockinfile:
@@ -73,8 +109,3 @@
   become: true
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
-
-- name: Remove Claude Code installer
-  file:
-    path: /tmp/claude_code_install.sh
-    state: absent
