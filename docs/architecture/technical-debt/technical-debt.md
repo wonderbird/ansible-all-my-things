@@ -50,6 +50,12 @@ Additionally, the subsequent binary checksum verification (comparing the install
 against the manifest published by Anthropic) limits the damage a compromised installer
 could do to the binary itself.
 
+### Ideas for solution
+
+Use VirusTotal:
+
+- [VirusTotal: URL Scan of https://claude.ai/install.sh](https://www.virustotal.com/gui/url/128ceb81537736671e63bc2d1c028b5cd6cf1749c4a940fcc0646e41be7e0aec/details)
+
 ### Status
 
 Open — accepted risk. Revisit if Anthropic publishes installer checksums.
