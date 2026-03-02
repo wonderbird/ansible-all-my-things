@@ -101,8 +101,8 @@ ansible-all-my-things/
 │   ├── requirements.txt          # Python dependencies ✅ NEW
 │   └── requirements.yml          # Ansible collections ✅ NEW
 ├── Documentation:
-│   ├── docs/aws/ & docs/hcloud/  # Provider-specific guides ✅ UPDATED
-│   └── docs/create-vm.md         # Unified entry point ✅ UPDATED
+│   ├── docs/user-manual/aws/ & docs/user-manual/hcloud/  # Provider-specific guides ✅ UPDATED
+│   └── docs/user-manual/create-vm.md         # Unified entry point ✅ UPDATED
 └── memory-bank/                  # Cross-provider documentation ✅ CURRENT
 ```
 

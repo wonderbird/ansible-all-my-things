@@ -17,7 +17,7 @@ However, be careful not to allow feature creep!
 
 - [ ] (large increment) **Consistent provisioning style:** To provision Vagrant VMs, use the same `--extra-vars "provider=hcloud platform=linux"` mechanism as for cloud instances. The mechanism is described in [./create-vm.md](./create-vm.md). I assume that we can move the vagrant commands into a provisioner specific playbook and then provision and destroy the VMs like for the cloud instances.
 
-- [ ] **docs/update**: Transfer insights from memory bank to user facing documentation and to developer facing documentation.
+- [ ] **memory-bank-branches/improvement.documentation.updates**: Transfer insights from memory bank to user facing documentation and to developer facing documentation.
 
 ## Backlog of large increments
 

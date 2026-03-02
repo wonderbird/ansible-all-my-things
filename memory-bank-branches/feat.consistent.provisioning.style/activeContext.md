@@ -24,7 +24,7 @@ ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=li
 **MVP Deliverables**:
 1. **Vagrant Provisioner Module** (`provisioners/vagrant_docker-linux.yml`) - Handle `vagrant up` execution via Ansible
 2. **Provider Extension** (Update `provision.yml`) - Support `provider=vagrant_docker platform=linux` parameters
-3. **Documentation Updates** (`docs/create-vm.md`, `test/docker/README.md`) - Include vagrant_docker as provider option
+3. **Documentation Updates** (`docs/user-manual/create-vm.md`, `test/docker/README.md`) - Include vagrant_docker as provider option
 4. **Test Suite** - Test-first approach with comprehensive validation
 
 **Success Criteria**: Single command provisions dagorlad environment from clean state with same pattern as AWS Linux

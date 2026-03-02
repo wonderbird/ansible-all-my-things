@@ -128,23 +128,23 @@ This document contains an analysis of the differences between the memory bank (c
 ## Recommended Documentation Structure
 
 ### New Documents to Create
-1. `docs/windows-server.md` - Comprehensive Windows Server documentation
-2. `docs/inventory-system.md` - Enhanced inventory system documentation
-3. `docs/multi-provider-comparison.md` - Provider comparison and selection guide
-4. `docs/cost-analysis.md` - Detailed cost breakdown by provider/platform
+1. `docs/user-manual/windows-server.md` - Comprehensive Windows Server documentation
+2. `docs/user-manual/inventory-system.md` - Enhanced inventory system documentation
+3. `docs/user-manual/multi-provider-comparison.md` - Provider comparison and selection guide
+4. `docs/user-manual/cost-analysis.md` - Detailed cost breakdown by provider/platform
 
 ### Documents to Update
-1. `docs/create-vm.md` - Update with streamlined dependency management and new command structure
-2. `docs/prerequisites-aws.md` - Add Windows Server specific requirements
-3. `docs/important-concepts.md` - Add enhanced inventory concepts
-4. `docs/work-with-vm.md` - Add Windows Server usage patterns
+1. `docs/user-manual/create-vm.md` - Update with streamlined dependency management and new command structure
+2. `docs/user-manual/prerequisites-aws.md` - Add Windows Server specific requirements
+3. `docs/user-manual/important-concepts.md` - Add enhanced inventory concepts
+4. `docs/user-manual/work-with-vm.md` - Add Windows Server usage patterns
 
 ## Progress Update (January 2025)
 
 ### Completed Documentation Updates ✅
 
 #### 1. Primary Setup Documentation ✅ COMPLETED
-**File**: `docs/create-vm.md`  
+**File**: `docs/user-manual/create-vm.md`  
 **Status**: Fully updated and production-ready
 
 **Key Improvements Made**:
@@ -168,7 +168,7 @@ This document contains an analysis of the differences between the memory bank (c
 ### In Progress Documentation Updates
 
 #### 3. Windows Server Documentation 🔄 IN PROGRESS
-**File**: `docs/windows-server.md` (to be created)
+**File**: `docs/user-manual/windows-server.md` (to be created)
 **Status**: Analyzed and planned, ready for implementation
 
 **Planned Sections**:

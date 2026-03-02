@@ -38,7 +38,7 @@ ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=li
    - Maintain backward compatibility with existing providers
 
 3. **Documentation Updates** (enable easy extension of create-vm.md)
-   - Update `docs/create-vm.md` to include `vagrant_docker` as provider option
+   - Update `docs/user-manual/create-vm.md` to include `vagrant_docker` as provider option
    - Update `test/docker/README.md` with new unified command
    - Document `provider=vagrant_docker platform=linux` parameter usage
    - Add Vagrant-specific prerequisites and limitations
@@ -133,7 +133,7 @@ Command `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker pl
 **Goal**: Complete the MVP with documentation
 
 **Task 3.1: Documentation Updates** (2 hours)
-- Update `docs/create-vm.md` to include `vagrant_docker` as provider option
+- Update `docs/user-manual/create-vm.md` to include `vagrant_docker` as provider option
 - Update `test/docker/README.md` with unified command usage
 - Document `provider=vagrant_docker platform=linux` parameter pattern
 
@@ -180,7 +180,7 @@ Command `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker pl
 
 - [ ] `ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux"` provisions dagorlad successfully
 - [ ] All tests pass (test-first approach followed)
-- [ ] Documentation updated: `docs/create-vm.md` includes vagrant_docker provider option
+- [ ] Documentation updated: `docs/user-manual/create-vm.md` includes vagrant_docker provider option
 - [ ] Documentation updated: `test/docker/README.md` uses unified command
 - [ ] Code follows existing patterns and conventions
 - [ ] Memory bank updated with current state

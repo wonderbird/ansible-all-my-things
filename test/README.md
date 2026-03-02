@@ -49,7 +49,7 @@ Because the playbook works for the Tart provider, it is tagged with
 
 The individual files [tart/README.md](./tart/README.md) and [docker/README.md](./docker/README.mde) describe how to provision the corresponding VM.
 
-The section **Verify the Setup** in [/docs/create-vm.md](../docs/create-vm.md) describes how to use the VMs.
+The section **Verify the Setup** in [/docs/user-manual/create-vm.md](../docs/user-manual/create-vm.md) describes how to use the VMs.
 
 ## Stopping or Destroying a Vagrant VM
 
@@ -74,7 +74,7 @@ vagrant destroy -f
 - Ensure vault exists: `../inventories/group_vars/all/vault.yml`
 - For AWS tests: Configure AWS credentials and SSH key
 
-Refer to the file [/docs/create-vm.md](../docs/create-vm.md) for more instructions.
+Refer to the file [/docs/user-manual/create-vm.md](../docs/user-manual/create-vm.md) for more instructions.
 
 ### Running Tests
 

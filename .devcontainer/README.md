@@ -28,8 +28,8 @@ The following environment variables are supported:
 
 Furthermore the following bind mounts are supported:
 
-- `/root/.ssh/YOUR_KEY_FILE.pem`: your private key registered with Hetzner cloud and aws. See [/docs/prerequisites-aws.md](../docs/prerequisites-aws.md).
-- `/root/ansible-all-my-things/inventories/group_vars/all/vault.yml`: encrypted ansible configuration. See [docs/important-concepts.md](../docs/important-concepts.md).
+- `/root/.ssh/YOUR_KEY_FILE.pem`: your private key registered with Hetzner cloud and aws. See [/docs/user-manual/prerequisites-aws.md](../docs/user-manual/prerequisites-aws.md).
+- `/root/ansible-all-my-things/inventories/group_vars/all/vault.yml`: encrypted ansible configuration. See [docs/user-manual/important-concepts.md](../docs/user-manual/important-concepts.md).
 - `/backup`: folder containing and receiving backups
 
 ## Create container
@@ -64,7 +64,7 @@ ansible-playbook ./provision.yml --extra-vars "provider=hcloud platform=linux"
 hcloud server list
 ```
 
-More commands and procedure to delete the VM are described in [/docs/create-vm.md](../docs/create-vm.md).
+More commands and procedure to delete the VM are described in [/docs/user-manual/create-vm.md](../docs/user-manual/create-vm.md).
 
 ## Re-start and Enter the Container
 

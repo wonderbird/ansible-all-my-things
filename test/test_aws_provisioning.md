@@ -8,7 +8,7 @@ Provision an Ubuntu Linux VM and a Windows VM on AWS, verify they are reachable 
 
 ### Prerequisite: Configure AWS Instance Size
 
-- This test requires valid AWS credentials, a configured SSH key, and a populated vault file. See [/docs/prerequisites-aws.md](../docs/create-vm.md) for more details.
+- This test requires valid AWS credentials, a configured SSH key, and a populated vault file. See [/docs/user-manual/prerequisites-aws.md](../docs/user-manual/create-vm.md) for more details.
 - For the **Linux** instance, select `t3.micro` as `aws_default_instance_type` in [/inventories/group_vars/aws_ec2_linux/vars.yml](../inventories/group_vars/aws_ec2_linux/vars.yml). This instance type is free tier eligible. However, this is subject to AWS account limits.
 - For the **Windows** instance, select `t3.large` as `aws_default_instance_type` in [/inventories/group_vars/aws_ec2_windows/vars.yml](../inventories/group_vars/aws_ec2_windows/vars.yml).
 

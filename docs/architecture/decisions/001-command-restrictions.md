@@ -184,7 +184,7 @@ Priority-ordered criteria for evaluating solutions:
 - [Ubuntu AppArmor Documentation](https://ubuntu.com/server/docs/security-apparmor)
 - [AppArmor Profile Syntax](https://manpages.ubuntu.com/manpages/focal/man5/apparmor.d.5.html)  
 - [Claude Code Settings Documentation](https://docs.anthropic.com/en/docs/claude-code/settings)
-- Original analysis: `docs/concept-branches/feat.command.restrictions.md`
+- Original analysis: `docs/features/command-restrictions/concept.md`
 - **Implementation Details**: See memory bank files [activeContext.md](../memory-bank/activeContext.md), [techContext.md](../memory-bank/techContext.md), [systemPatterns.md](../memory-bank/systemPatterns.md), [progress.md](../memory-bank/progress.md)
 
 ## Appendix A: Decision Matrix Scoring Rationale

@@ -14,7 +14,7 @@
 **Target**: Comprehensive user documentation that matches the mature implementation state.
 
 **Current Progress**:
-- **docs/create-vm.md ✅ COMPLETED**: Updated with streamlined dependencies, provider selection guidelines, consistent SSH user references, and proper instance name context
+- **docs/user-manual/create-vm.md ✅ COMPLETED**: Updated with streamlined dependencies, provider selection guidelines, consistent SSH user references, and proper instance name context
 - **README.md ✅ COMPLETED**: Enhanced table structure with platform column for clearer infrastructure overview
 - **docs/next-steps.md ✅ UPDATED**: Comprehensive progress tracking and remaining documentation priorities
 - **Windows Server Documentation**: Priority reassessed - infrastructure documentation less critical due to manual setup requirements

@@ -18,10 +18,10 @@ This repository defines virtual machine configurations for software developers. 
 
 Follow setup instructions in
 
-- [Create Virtual Machines](./docs/create-vm.md)
-- [Important Concepts](./docs/important-concepts.md)
-- [Work with a VM](./docs/work-with-vm.md)
-- [Synchronize Git Repositories with a VM](./docs/synchronize-repos-with-vm.md)
+- [Create Virtual Machines](./docs/user-manual/create-vm.md)
+- [Important Concepts](./docs/user-manual/important-concepts.md)
+- [Work with a VM](./docs/user-manual/work-with-vm.md)
+- [Synchronize Git Repositories with a VM](./docs/user-manual/synchronize-repos-with-vm.md)
 
 ## Documentation
 
