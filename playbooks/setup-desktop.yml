@@ -25,6 +25,7 @@
         state: restarted
 
   tasks:
+    # TODO: smell - wrong category / separation of concerns: console utilities are not desktop related.
     - name: Install console utilities
       apt:
         name:
@@ -36,6 +37,7 @@
       apt:
         name:
           - build-essential
+          - direnv
           - dotnet-sdk-8.0
           - gh
           - keepassxc
