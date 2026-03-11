@@ -1,6 +1,10 @@
 ---
+# Per user configuration
 - import_playbook: playbooks/backup/home-folder-files.yml
 - import_playbook: playbooks/backup/keyring.yml
+
+# Applications
 - import_playbook: playbooks/backup/chromium-settings.yml
+- import_playbook: playbooks/backup/claude-settings.yml
 - import_playbook: playbooks/backup/cursor-settings.yml
 - import_playbook: playbooks/backup/vscode-settings.yml

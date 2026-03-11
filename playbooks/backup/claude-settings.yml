@@ -1,0 +1,24 @@
+---
+- name: Backup Claude settings
+  hosts: lorien
+  tags: not-supported-on-vagrant-docker
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    backup_user: "{{ desktop_users[0].name }}"
+
+  tasks:
+    - name: Backup Claude settings
+      include_tasks: backup.yml
+      vars:
+        path:
+          - "/home/{{ backup_user }}/.claude"
+          - "/home/{{ backup_user }}/.claude.json"
+        backup_file: "claude-backup.tar.gz"
+        exclusion_patterns:
+          - "*file-history*"
+          - "*history.json*"
+          - "*backups*"
+          - "*cache*"
+          - "*paste-cache*"
