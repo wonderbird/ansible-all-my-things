@@ -18,6 +18,10 @@ Afterwards, identify the applicable rules and read them.
 
 Finally, confirm readiness as described in .cursor/rules/general/900-confirm-readiness.mdc.
 
+## Git command line tool usage
+
+When requesting git history information, ALWAYS use the `--no-pager` flag as the very first option to git (e.g. `git --no-pager log`). This avoids blocking git commands waiting for the user to terminate the pager.
+
 ## LS tool does not show hidden files
 
 When you want to check whether a hidden file or directory exists, then you MUST use a tool native to the operating system you are running on. The LS tool does not handle hidden files.
