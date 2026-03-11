@@ -56,3 +56,16 @@
         line: 'PasswordAuthentication no'
         state: present
       notify: Restart SSH
+
+    - name: Load .bashrc for SSH login
+      no_log: true # Prevent logging the passwords
+      blockinfile:
+        path: /home/{{ item.name }}/.bash_profile
+        insertafter: '^{$'
+        block: |
+          if [ -f ~/.bashrc ]; then
+              . ~/.bashrc
+          fi
+        marker: "# {mark} ANSIBLE MANAGED BLOCK - Load .bashrc for non-login shells"
+        state: present
+      loop: "{{ all_users }}"
