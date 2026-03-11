@@ -82,7 +82,19 @@ Commit messages MUST represent a small, coherent, working increment.
 **AI agent co-authorship:**
 
 AI coding agents MUST be credited using a `Co-authored-by:` trailer on every
-commit they help produce, using the agent name and email from `.cursor/rules/`.
+commit they help produce. Use the agent name and email from the table below:
+
+| Agent | Email |
+|---|---|
+| Claude Code | `noreply@anthropic.com` |
+| Cursor Agent | `cursoragent@cursor.com` |
+| GitHub Copilot | `175728472+Copilot@users.noreply.github.com` |
+
+If a commit has a body, also add the following line at the end of the body:
+
+```text
+🤖 Generated with [MODEL_NAME](MODEL_VENDOR_URL)
+```
 
 **Rationale**: Consistent commit messages make history machine-readable and
 auditable; co-authorship credits are required by the collaboration agreement.
@@ -135,7 +147,7 @@ introduces uncontrolled changes and makes root-cause analysis impossible.
 - **Local test VMs**: Vagrant + Tart (macOS ARM64), Vagrant + Docker (Linux)
 - **Cloud targets**: AWS EC2 (Linux + Windows Server 2025), Hetzner Cloud (Linux)
 - **Guest OS**: Ubuntu Linux (primary), Windows Server 2025 (secondary)
-- **Configuration**: `ansible.cfg`, group\_vars, host\_vars, `inventories/`
+- **Configuration**: `ansible.cfg`, `group_vars`, `host_vars`, `inventories/`
 - **Dependencies**: `requirements.yml` (Ansible Galaxy roles/collections),
   `requirements.txt` (Python packages)
 - **Scripting**: Bash (`configure.sh`, `scripts/`)
