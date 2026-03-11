@@ -1,6 +1,6 @@
 ---
 - name: Backup Chromium settings
-  hosts: linux
+  hosts: lorien
   tags: not-supported-on-vagrant-docker
   become: true
 

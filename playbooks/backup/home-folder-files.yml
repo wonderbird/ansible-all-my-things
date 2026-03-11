@@ -1,6 +1,6 @@
 ---
 - name: Backup files in home directory
-  hosts: linux
+  hosts: lorien
   become: true
 
   vars:
