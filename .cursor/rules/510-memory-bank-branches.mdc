@@ -10,15 +10,15 @@ default `memory-bank/` folder described in rule `500-cline-memory-bank.mdc`.
 ## Structure
 
 Each subdirectory of `memory-bank-branches/` corresponds to one planned feature and
-acts as the complete memory bank for work on that feature:
+acts as the complete memory bank for work on that feature. The following depicts an
+example structure:
 
 ```text
 memory-bank-branches/
 ├── feat.command.restrictions/
 ├── feat.consistent.provisioning.style/
 ├── feat.install.kiro.ide/
-├── feat.port.kiro.enhancements/
-└── improvement.documentation.updates/
+└── feat.port.kiro.enhancements/
 ```
 
 Each subdirectory contains the standard memory bank files (`projectbrief.md`,
