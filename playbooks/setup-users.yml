@@ -57,6 +57,19 @@
         state: present
       notify: Restart SSH
 
+    - name: .bash_profile must exist
+      no_log: true # Prevent logging the passwords
+      file:
+        path: "/home/{{ item.name }}/.bash_profile"
+        owner: "{{ item.name }}"
+        group: "{{ item.name }}"
+        mode: '0644'
+        state: touch
+        modification_time: preserve
+        access_time: preserve
+      become: true
+      loop: "{{ all_users }}"
+
     - name: Load .bashrc for SSH login
       no_log: true # Prevent logging the passwords
       blockinfile:
