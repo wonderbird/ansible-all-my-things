@@ -59,3 +59,46 @@ Use VirusTotal:
 ### Status
 
 Open — accepted risk. Revisit if Anthropic publishes installer checksums.
+
+---
+
+## TD-002 — Playbooks contain implementation logic instead of only orchestrating roles
+
+- **Category:** Technical Debt
+- **Severity:** High
+- **Affected file(s):**
+  - [playbooks/reboot-if-required.yml](../../playbooks/reboot-if-required.yml)
+  - [playbooks/setup-basics.yml](../../playbooks/setup-basics.yml)
+  - [playbooks/setup-desktop-apps.yml](../../playbooks/setup-desktop-apps.yml)
+  - [playbooks/setup-desktop.yml](../../playbooks/setup-desktop.yml)
+  - [playbooks/setup-homebrew.yml](../../playbooks/setup-homebrew.yml)
+  - [playbooks/setup-keyring.yml](../../playbooks/setup-keyring.yml)
+  - [playbooks/setup-nodejs.yml](../../playbooks/setup-nodejs.yml)
+  - [playbooks/setup-users.yml](../../playbooks/setup-users.yml)
+- **Date added:** 2026-03-12
+
+### Description
+
+Constitution Principle II (Role-First Organisation) requires that playbooks only
+orchestrate roles and must not contain implementation logic (tasks, handlers, or
+templates) directly. All eight playbooks listed above pre-date the ratification of
+the constitution (2026-03-11) and contain direct task lists.
+
+When the constitution was ratified, no refactoring migration was performed. New
+work continued to follow the pre-existing pattern: commit `85acad9` added the
+`.bash_profile must exist` task directly to `playbooks/setup-users.yml` — the first
+post-ratification addition that violates Principle II. Every subsequent task added
+directly to a playbook will compound this debt.
+
+### Mitigation
+
+The playbooks are functional and tested. The debt does not affect correctness today;
+it affects modularity, reusability, and independent testability of capabilities.
+No new playbook-level tasks should be added until the affected playbook is refactored
+into a role.
+
+### Status
+
+Open — to be addressed as part of a dedicated refactoring effort. Each playbook
+should be migrated to a corresponding role in `roles/` one at a time, following the
+testing procedure in `CONTRIBUTING.md`.

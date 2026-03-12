@@ -2,10 +2,10 @@
 
 This file provides guidance to coding agents when working with projects in this folder.
 
-## Rules are stored in .specify/constitution and in .cursor/rules
+## Rules are stored in .specify/memory/constitution.md and in .cursor/rules
 
 This project uses spec-kit for guiding the coding agent. Thus, rules important
-for developing the project are stored in `.specify/constitution.md`. This file is the source of truth for the project and must be read and followed carefully.
+for developing the project are stored in `.specify/memory/constitution.md`. This file is the source of truth for the project and must be read and followed carefully.
 
 Rules describing the interaction between the coding agent and the user are stored in the .cursor/rules directory and in contained subdirectories.
 
@@ -19,7 +19,9 @@ If there is no memory bank, then you MUST ask the user for clarification before 
 
 Then read the memory bank and identify the immediate next action.
 
-Afterwards, identify the applicable rules and read them.
+Afterwards, read the project constitution at `.specify/memory/constitution.md` and verify that your plan complies with each principle.
+
+Then identify the applicable rules and read them.
 
 Finally, confirm readiness as described in .cursor/rules/general/900-confirm-readiness.mdc.
 
