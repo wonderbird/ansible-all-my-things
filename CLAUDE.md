@@ -2,15 +2,20 @@
 
 This file provides guidance to coding agents when working with projects in this folder.
 
-## Rules are stored in .cursor/rules
+## Rules are stored in .specify/constitution and in .cursor/rules
 
-Rules are stored in the .cursor/rules directory.
+This project uses spec-kit for guiding the coding agent. Thus, rules important
+for developing the project are stored in `.specify/constitution.md`. This file is the source of truth for the project and must be read and followed carefully.
 
-Note that .cursor/rules/general is a symbolic link. The rules insided that directory are also applicable.
+Rules describing the interaction between the coding agent and the user are stored in the .cursor/rules directory and in contained subdirectories.
+
+If rules conflict, then you MUST ask the user for clarification before proceeding.
 
 ## How to follow your custom instructions
 
 Whenever the user says "follow your custom instructions", then you must read .cursor/rules/general/500-cline-memory-bank.mdc.
+
+If there is no memory bank, then you MUST ask the user for clarification before proceeding.
 
 Then read the memory bank and identify the immediate next action.
 
