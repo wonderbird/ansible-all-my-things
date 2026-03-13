@@ -174,14 +174,6 @@ tasks in the `google_chrome` role are skipped and the playbook completes success
 A new entry must be added to `docs/architecture/technical-debt/technical-debt.md`
 covering all package installation roles in the project, not only `google_chrome`.
 
-**Architecture guard inconsistency across roles**: The `google_chrome` role uses the
-tag-based skip mechanism (`not-supported-on-vagrant-arm64`) as its sole architecture
-guard, matching the `setup-homebrew.yml` pattern. The `claude_code` role uses a hard
-assert task instead. These two approaches are inconsistent: the tag-based approach
-silently skips on wrong architectures (only effective when the operator uses the skip
-tag), while the assert approach fails loudly regardless. A future consolidation should
-pick one pattern and apply it uniformly across all architecture-constrained roles.
-
 All package installation roles (including `google_chrome`, `cursor_ide`, and
 `claude_code`) install the **latest available** version of each package rather than a
 pinned version. This means re-running the playbook after a new upstream release will
@@ -195,7 +187,7 @@ machines becomes a requirement.
 
 ### Session 2026-03-13
 
-- Q: When the playbook runs on a non-AMD64 machine without the skip tag applied, should the architecture guard cause a hard failure or silently skip via tags? → A: Tag-based skip only — every task carries `not-supported-on-vagrant-arm64` and the role entry in `configure-linux-roles.yml` is also tagged, matching the `setup-homebrew.yml` pattern. No assert task. NOTE: this deviates from the `claude_code` role, which uses a hard assert; that deviation must be documented as technical debt during implementation.
+- Q: When the playbook runs on a non-AMD64 machine without the skip tag applied, should the architecture guard cause a hard failure or silently skip via tags? → A: Tag-based skip only — every task carries `not-supported-on-vagrant-arm64` and the role entry in `configure-linux-roles.yml` is also tagged, matching the `setup-homebrew.yml` pattern. No assert task. The `claude_code` role uses a hard assert because it supports both AMD64 and ARM64; any other architecture there is a genuine operator error. For `google_chrome`, ARM64 is a known, expected limitation (Google does not publish Chrome for ARM64 Linux) and ARM64 Vagrant VMs on Apple Silicon are a normal operating condition — skipping gracefully is correct, not failing. The two patterns serve different purposes and are both intentional.
 - Q: Should the role handle machines where Chrome was previously installed via a manually downloaded `.deb`, leaving a conflicting apt source entry? → A: Out of scope — operator must remove conflicting manually created apt source entries before running the playbook.
 
 ## Out of Scope

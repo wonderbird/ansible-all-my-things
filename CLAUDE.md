@@ -32,3 +32,9 @@ When requesting git history information, ALWAYS use the `--no-pager` flag as the
 ## LS tool does not show hidden files
 
 When you want to check whether a hidden file or directory exists, then you MUST use a tool native to the operating system you are running on. The LS tool does not handle hidden files.
+
+## Active Technologies
+- Ansible 2.19+ (YAML) + `ansible.builtin.stat`, `ansible.builtin.get_url`, (001-google-chrome-role)
+
+## Recent Changes
+- 001-google-chrome-role: Added Ansible 2.19+ (YAML) + `ansible.builtin.stat`, `ansible.builtin.get_url`,
