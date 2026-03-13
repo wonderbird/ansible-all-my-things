@@ -79,8 +79,9 @@ tasks in the `google_chrome` role are skipped and the playbook completes success
 
 ### Edge Cases
 
-- What happens when Chrome was previously installed via a manually downloaded `.deb`
-  file, leaving behind a conflicting apt source entry?
+- Chrome previously installed via a manually downloaded `.deb` leaving a conflicting
+  apt source entry is **out of scope** — the operator must remove such entries before
+  running the playbook.
 - What happens if the Google signing key URL is unreachable during the playbook run?
 - How does Chrome's own post-install script interact with the apt source file created
   by the role, and does that interaction cause conflicts on subsequent runs?
@@ -107,8 +108,13 @@ tasks in the `google_chrome` role are skipped and the playbook completes success
 - **FR-004**: All tasks in the role MUST carry the tag `not-supported-on-vagrant-arm64`
   so they are skipped on ARM64 hosts.
 
-- **FR-005**: The role MUST execute only on AMD64 hosts. An architecture guard MUST
-  prevent execution on any other architecture.
+- **FR-005**: The role MUST execute only on AMD64 hosts. The architecture guard is
+  the tag-based skip mechanism: every task in the role carries the
+  `not-supported-on-vagrant-arm64` tag (see FR-004), and the role entry in
+  `configure-linux-roles.yml` also carries that tag so that
+  `--skip-tags not-supported-on-vagrant-arm64` skips all role tasks at once. No
+  separate assert task is used. This is consistent with the pattern established in
+  `playbooks/setup-homebrew.yml`.
 
 - **FR-006**: The installation MUST be system-wide. No per-user Chrome configuration
   is performed by this role.
@@ -168,6 +174,14 @@ tasks in the `google_chrome` role are skipped and the playbook completes success
 A new entry must be added to `docs/architecture/technical-debt/technical-debt.md`
 covering all package installation roles in the project, not only `google_chrome`.
 
+**Architecture guard inconsistency across roles**: The `google_chrome` role uses the
+tag-based skip mechanism (`not-supported-on-vagrant-arm64`) as its sole architecture
+guard, matching the `setup-homebrew.yml` pattern. The `claude_code` role uses a hard
+assert task instead. These two approaches are inconsistent: the tag-based approach
+silently skips on wrong architectures (only effective when the operator uses the skip
+tag), while the assert approach fails loudly regardless. A future consolidation should
+pick one pattern and apply it uniformly across all architecture-constrained roles.
+
 All package installation roles (including `google_chrome`, `cursor_ide`, and
 `claude_code`) install the **latest available** version of each package rather than a
 pinned version. This means re-running the playbook after a new upstream release will
@@ -177,6 +191,13 @@ accepted for developer workstation tooling, where staying current outweighs stri
 version pinning, but it should be revisited if version consistency across a fleet of
 machines becomes a requirement.
 
+## Clarifications
+
+### Session 2026-03-13
+
+- Q: When the playbook runs on a non-AMD64 machine without the skip tag applied, should the architecture guard cause a hard failure or silently skip via tags? → A: Tag-based skip only — every task carries `not-supported-on-vagrant-arm64` and the role entry in `configure-linux-roles.yml` is also tagged, matching the `setup-homebrew.yml` pattern. No assert task. NOTE: this deviates from the `claude_code` role, which uses a hard assert; that deviation must be documented as technical debt during implementation.
+- Q: Should the role handle machines where Chrome was previously installed via a manually downloaded `.deb`, leaving a conflicting apt source entry? → A: Out of scope — operator must remove conflicting manually created apt source entries before running the playbook.
+
 ## Out of Scope
 
 - Google Chrome for ARM64, i386, or any architecture other than AMD64.
@@ -184,3 +205,4 @@ machines becomes a requirement.
 - Google Chrome Beta or Unstable channels.
 - Pinned Chrome version installation.
 - Chrome uninstallation or downgrade automation.
+- Cleanup of apt source entries created by a prior manual `.deb` installation.
