@@ -1,32 +1,43 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# T004: Idempotency guard — check whether the role-managed apt sources file already exists.
-# Chrome's daily cron manages google-chrome.list; google-chrome.sources is role-owned and stable.
-- name: Check if Google Chrome apt sources file exists
+# Installs Google Chrome stable via the official Google apt repository.
+#
+# Algorithm:
+#   1. Check whether the role-managed apt sources file already exists.
+#      If it does, the repository is registered — skip steps 2-5.
+#   2. Download and convert Google's signing key into binary GPG format.
+#   3. Register the Google apt repository in DEB822 format (.sources file).
+#   4. Remove temporary key files.
+#   5. Install google-chrome-stable (idempotent — no-op if already present).
+#   6. Remove google-chrome.list if Chrome's cron recreated it, to prevent
+#      a duplicate repository entry on subsequent runs.
+#
+# Idempotency: the .sources file is the role's footprint. Chrome's daily cron
+# only manages .list files, so .sources is stable across runs.
+
+# The .sources file is the role's footprint — its presence means the repository
+# is already registered and steps 2-5 can be skipped entirely.
+- name: Check if Google Chrome apt repository is already registered
   ansible.builtin.stat:
     path: /etc/apt/sources.list.d/google-chrome.sources
   register: google_chrome_sources_file
-  tags: [not-supported-on-vagrant-arm64]
 
-# T005: Download the ASCII-armored signing key (guarded — only on first run)
-- name: Download Google Chrome Linux signing key
+# Google publishes an ASCII-armored key; apt requires a binary keyring.
+- name: Download Google signing key
   ansible.builtin.get_url:
     url: https://dl-ssl.google.com/linux/linux_signing_key.pub
     dest: /tmp/google-linux-signing-key.pub
     mode: '0644'
   when: not google_chrome_sources_file.stat.exists
-  tags: [not-supported-on-vagrant-arm64]
 
-# T006: Convert ASCII-armored key to binary GPG format (guarded — only on first run)
-- name: Convert Google Chrome signing key to GPG binary format
-  ansible.builtin.shell:
-    cmd: cat /tmp/google-linux-signing-key.pub | gpg --dearmor > /tmp/google-chrome.gpg
+- name: Convert signing key to binary GPG format
+  ansible.builtin.command:
+    cmd: gpg --dearmor --output /tmp/google-chrome.gpg /tmp/google-linux-signing-key.pub
+    creates: /tmp/google-chrome.gpg
   changed_when: false
   when: not google_chrome_sources_file.stat.exists
-  tags: [not-supported-on-vagrant-arm64]
 
-# T007: Install the binary keyring to the system keyrings directory (guarded — only on first run)
-- name: Install Google Chrome GPG keyring
+- name: Install signing key into system keyring
   ansible.builtin.copy:
     src: /tmp/google-chrome.gpg
     dest: /etc/apt/keyrings/google-chrome.gpg
@@ -35,12 +46,10 @@
     mode: '0644'
     remote_src: true
   when: not google_chrome_sources_file.stat.exists
-  tags: [not-supported-on-vagrant-arm64]
 
-# T008: Create the DEB822 apt sources file (guarded — only on first run)
-# Using deb822_repository (requires Ansible 2.15+; project minimum is 2.19).
-# google-chrome.sources is never touched by Chrome's daily cron, ensuring idempotency.
-- name: Add Google Chrome apt repository (DEB822 format)
+# DEB822 format (.sources) is used because Chrome's daily cron only recreates
+# .list files — using .sources avoids conflicts on subsequent runs.
+- name: Register Google apt repository
   ansible.builtin.deb822_repository:
     name: google-chrome
     types: deb
@@ -51,10 +60,8 @@
     signed_by: /etc/apt/keyrings/google-chrome.gpg
     state: present
   when: not google_chrome_sources_file.stat.exists
-  tags: [not-supported-on-vagrant-arm64]
 
-# T009: Remove temporary files left by key conversion (guarded — only on first run)
-- name: Remove temporary Google Chrome signing key files
+- name: Remove temporary signing key files
   ansible.builtin.file:
     path: "{{ item }}"
     state: absent
@@ -62,30 +69,23 @@
     - /tmp/google-linux-signing-key.pub
     - /tmp/google-chrome.gpg
   when: not google_chrome_sources_file.stat.exists
-  tags: [not-supported-on-vagrant-arm64]
 
-# T010: Ensure apt-transport-https is available (always runs — no guard)
 - name: Ensure apt-transport-https is installed
   ansible.builtin.apt:
     name: apt-transport-https
     state: present
-  tags: [not-supported-on-vagrant-arm64]
 
-# T011+T012: Update apt cache and install Google Chrome Stable (always runs — no guard).
-# update_cache is merged here so the combined task reports "ok" on re-runs when the
-# package is already present, avoiding a spurious "changed" on the standalone cache task.
-- name: Install Google Chrome Stable
+# update_cache is merged into the install task so that a second run reports
+# "ok" rather than "changed" when the package is already present.
+- name: Install Google Chrome stable
   ansible.builtin.apt:
     name: google-chrome-stable
     state: present
     update_cache: true
-  tags: [not-supported-on-vagrant-arm64]
 
-# T013: Remove the legacy apt source file that Chrome's daily cron recreates (always runs).
-# state: absent is a no-op when the file does not exist, so this task reports "ok" on
-# consecutive runs and removes the file only when Chrome's cron has recreated it.
-- name: Remove Google Chrome legacy apt source file created by Chrome daily cron
+# Chrome's daily cron recreates google-chrome.list, which would duplicate the
+# role-managed .sources entry. Removing it here keeps the repository list clean.
+- name: Remove repository file managed by Chrome's daily cron
   ansible.builtin.file:
     path: /etc/apt/sources.list.d/google-chrome.list
     state: absent
-  tags: [not-supported-on-vagrant-arm64]
