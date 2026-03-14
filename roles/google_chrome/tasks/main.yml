@@ -70,11 +70,6 @@
     - /tmp/google-chrome.gpg
   when: not google_chrome_sources_file.stat.exists
 
-- name: Ensure apt-transport-https is installed
-  ansible.builtin.apt:
-    name: apt-transport-https
-    state: present
-
 # update_cache is merged into the install task so that a second run reports
 # "ok" rather than "changed" when the package is already present.
 - name: Install Google Chrome stable
