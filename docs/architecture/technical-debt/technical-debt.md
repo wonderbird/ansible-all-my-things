@@ -139,3 +139,105 @@ justified for this use case.
 ### Status
 
 Open — accepted risk for developer workstation tooling.
+
+---
+
+## TD-004 — setup-vscode.yml uses outdated apt source and shell patterns
+
+- **Category:** Technical Debt
+- **Severity:** Medium
+- **Affected file(s):**
+  - [playbooks/tasks/setup-vscode.yml](../../playbooks/tasks/setup-vscode.yml)
+- **Date added:** 2026-03-14
+
+### Description
+
+`setup-vscode.yml` predates the patterns established in `roles/google_chrome` and has
+several issues:
+
+- Uses `apt_repository` (writes a deprecated one-liner `.list` file) instead of
+  `ansible.builtin.deb822_repository`. The VS Code installer then renames the file to
+  `.sources` — the role relies on this installer side-effect rather than managing the
+  format directly.
+- The `shell` task that converts the GPG key has no `changed_when: false`, causing it
+  to report "changed" on every run where the guard condition is true.
+- A standalone `apt: update_cache: yes` task always reports "changed", violating
+  idempotency on consecutive runs.
+- Uses bare module names (`stat`, `get_url`, `shell`, `copy`, `apt`) instead of FQCN
+  (`ansible.builtin.*`), which is required by current Ansible best practices and linting.
+
+### Mitigation
+
+The playbook is functional. The idempotency issues only manifest before VS Code is
+installed (first run). Subsequent runs are unaffected by the `update_cache` issue
+because the stat guard skips the problematic tasks.
+
+### Status
+
+Open — to be addressed when `setup-vscode.yml` is migrated to a role (see TD-002).
+
+---
+
+## TD-005 — cursor_ide role uses bare module names and downloads on every run
+
+- **Category:** Technical Debt
+- **Severity:** Medium
+- **Affected file(s):**
+  - [roles/cursor_ide/tasks/main.yml](../../roles/cursor_ide/tasks/main.yml)
+- **Date added:** 2026-03-14
+
+### Description
+
+The `cursor_ide` role has two issues:
+
+- Uses bare module names (`get_url`, `apt`, `file`, `copy`, `debug`, `set_fact`,
+  `blockinfile`) instead of FQCN (`ansible.builtin.*`).
+- `get_url` downloads `cursor.deb` on every playbook run with no idempotency guard.
+  The subsequent `apt: deb:` install is idempotent, but the network download is not —
+  it hits the Cursor API endpoint unnecessarily on every run.
+
+### Mitigation
+
+The role is functional. The redundant download is a minor inefficiency rather than a
+correctness issue. FQCN is a style concern with no runtime impact.
+
+### Status
+
+Open — address FQCN and download guard in a dedicated refactor.
+
+---
+
+## TD-006 — No ansible-lint configured
+
+- **Category:** Technical Debt
+- **Severity:** Medium
+- **Affected file(s):** entire repository
+- **Date added:** 2026-03-14
+
+### Description
+
+The project has no `ansible-lint` setup. Several issues found during manual review of
+`setup-vscode.yml` and `roles/cursor_ide` (bare module names, missing `changed_when`,
+deprecated modules, spurious "changed" on idempotent runs) would have been caught
+automatically by `ansible-lint` at commit time.
+
+Without linting, code quality regressions in new roles and playbooks are only caught
+during manual review or test runs.
+
+### Mitigation
+
+None currently. Issues are caught through manual review only.
+
+### Ideas for solution
+
+- Add `ansible-lint` to the Python `requirements.txt`.
+- Add a `.ansible-lint` config file with a suitable profile (`basic` to start,
+  tightening over time).
+- Wire it into a pre-commit hook or a CI step so it runs automatically on every commit.
+
+### Status
+
+Open — introducing ansible-lint will initially produce findings against existing
+playbooks. Recommended approach: start with the `basic` profile and suppress existing
+violations with `# noqa` annotations or profile relaxation until they are fixed as
+part of TD-002, TD-004, and TD-005.
