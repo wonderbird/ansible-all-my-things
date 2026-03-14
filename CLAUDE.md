@@ -44,9 +44,3 @@ target to use), check it explicitly with `uname -m` before proceeding. Only chec
 it is relevant — not on every task.
 
 The known test hosts and their architectures are listed in [README.md](README.md#overview).
-
-## Active Technologies
-- Ansible 2.19+ (YAML) + `ansible.builtin.stat`, `ansible.builtin.get_url`, (001-google-chrome-role)
-
-## Recent Changes
-- 001-google-chrome-role: Added Ansible 2.19+ (YAML) + `ansible.builtin.stat`, `ansible.builtin.get_url`,

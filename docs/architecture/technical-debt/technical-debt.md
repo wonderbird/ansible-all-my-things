@@ -165,6 +165,10 @@ several issues:
   idempotency on consecutive runs.
 - Uses bare module names (`stat`, `get_url`, `shell`, `copy`, `apt`) instead of FQCN
   (`ansible.builtin.*`), which is required by current Ansible best practices and linting.
+- Installs `apt-transport-https`, a legacy transitional package that has been a no-op
+  since Ubuntu 18.04 (apt has built-in HTTPS support). The `roles/google_chrome` role
+  does not install this package; `setup-vscode.yml` should follow the same approach when
+  migrated to a role.
 
 ### Mitigation
 
@@ -241,3 +245,46 @@ Open — introducing ansible-lint will initially produce findings against existi
 playbooks. Recommended approach: start with the `basic` profile and suppress existing
 violations with `# noqa` annotations or profile relaxation until they are fixed as
 part of TD-002, TD-004, and TD-005.
+
+---
+
+## TD-007 — No integrity check on the Google signing key download
+
+- **Category:** Accepted Risk
+- **Severity:** Medium
+- **Affected file(s):** [roles/google_chrome/tasks/main.yml](../../roles/google_chrome/tasks/main.yml)
+- **Date added:** 2026-03-14
+
+### Description
+
+The Google apt signing key is fetched from `https://dl-ssl.google.com/linux/linux_signing_key.pub`
+via `ansible.builtin.get_url` without a `checksum:` parameter. This key is installed into the
+system-wide apt keyring and subsequently authenticates all packages delivered from the Google apt
+repository. A compromise of Google's CDN or a TLS bypass could deliver a tampered key, enabling
+installation of malicious packages on every future `apt` run.
+
+This is the same class of risk as TD-001 (Claude Code installer script without checksum), but the
+artifact differs: TD-001 concerns an executable script that runs under the user's account; this
+entry concerns a GPG public key that controls apt package trust. The blast radius and resolution
+path are independent.
+
+### Mitigation
+
+HTTPS transport provides the primary protection: the TLS connection to `dl-ssl.google.com`
+prevents in-transit modification and authenticates the server's identity. This is the same trust
+model used by the official Chrome installation instructions published by Google.
+
+Additionally, the key is only downloaded once — the `.sources` file footprint guard
+(`when: not google_chrome_sources_file.stat.exists`) prevents re-downloading on subsequent runs.
+
+### Ideas for solution
+
+- Add a `checksum:` parameter to the `get_url` task once Google publishes a stable checksum
+  for the signing key file.
+- Alternatively, verify the GPG key fingerprint after import using `gpg --fingerprint` and
+  fail the play if it does not match the expected value.
+
+### Status
+
+Open — accepted risk. Revisit if Google publishes a checksum for the signing key, or if a
+key fingerprint verification step is added to the role.

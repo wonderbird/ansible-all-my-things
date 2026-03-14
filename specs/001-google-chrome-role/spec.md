@@ -105,16 +105,22 @@ tasks in the `google_chrome` role are skipped and the playbook completes success
   planning and the role MUST avoid creating duplicate or conflicting apt source entries
   on re-runs regardless of that behaviour.
 
-- **FR-004**: All tasks in the role MUST carry the tag `not-supported-on-vagrant-arm64`
-  so they are skipped on ARM64 hosts.
+- **FR-004**: The role MUST be skippable on ARM64 hosts via the tag
+  `not-supported-on-vagrant-arm64`. The tag is applied at the role entry level in
+  `configure-linux-roles.yml`; individual tasks inside the role do NOT carry the tag.
+  This keeps `tasks/main.yml` readable and avoids per-task tag repetition.
 
 - **FR-005**: The role MUST execute only on AMD64 hosts. The architecture guard is
-  the tag-based skip mechanism: every task in the role carries the
-  `not-supported-on-vagrant-arm64` tag (see FR-004), and the role entry in
-  `configure-linux-roles.yml` also carries that tag so that
-  `--skip-tags not-supported-on-vagrant-arm64` skips all role tasks at once. No
+  the tag-based skip mechanism: the role entry in `configure-linux-roles.yml` carries
+  `tags: not-supported-on-vagrant-arm64`, and Ansible propagates that tag to all tasks
+  within the role at parse time (equivalent to a static `import_role` with tags). Running
+  `--skip-tags not-supported-on-vagrant-arm64` therefore skips all role tasks. No
   separate assert task is used. This is consistent with the pattern established in
   `playbooks/setup-homebrew.yml`.
+
+  **Caveat**: if the role is ever invoked via `ansible.builtin.include_role` (dynamic
+  include), the caller MUST use the `apply: tags:` parameter to propagate the tag to
+  inner tasks, otherwise the skip will not reach them.
 
 - **FR-006**: The installation MUST be system-wide. No per-user Chrome configuration
   is performed by this role.

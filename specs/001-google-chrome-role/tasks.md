@@ -19,7 +19,7 @@ tasks use manual playbook runs per Constitution §III.
 **Purpose**: Create the standard Ansible role directory structure.
 
 - [x] T001 [P] Create `roles/google_chrome/meta/main.yml` with SPDX header and galaxy_info (author, description, license MIT, min_ansible_version 2.19, empty dependencies)
-- [x] T002 [P] Create `roles/google_chrome/defaults/main.yml` with SPDX header and `---` only (no role variables needed)
+- [~] T002 [P] ~~Create `roles/google_chrome/defaults/main.yml`~~ — deliberately not created. The role has no variables, so an empty `defaults/main.yml` would add a file with no content or purpose. Deleted in favour of the "minimum number of elements" principle (Constitution §IV).
 - [x] T003 [P] Create `roles/google_chrome/tasks/main.yml` with SPDX header and `---` only (empty task skeleton)
 
 **Checkpoint**: Role directory structure exists at `roles/google_chrome/` with `meta/`, `defaults/`, `tasks/`
@@ -83,7 +83,7 @@ with no failures, satisfying SC-003.
 
 ### Implementation for User Story 3
 
-- [x] T014 [US3] Add `tags: [not-supported-on-vagrant-arm64]` to every task in `roles/google_chrome/tasks/main.yml` (all 10 tasks: T004 through T013)
+- [~] T014 [US3] ~~Add `tags: [not-supported-on-vagrant-arm64]` to every task in `roles/google_chrome/tasks/main.yml`~~ — deliberately not implemented. Per-task tags were dropped in favour of the role-level tag in `configure-linux-roles.yml` (see FR-004/FR-005 in spec.md). Ansible propagates the tag statically to all inner tasks; per-task repetition was judged to harm readability without meaningful benefit.
 - [x] T015 [P] [US3] Add `google_chrome` role entry to `configure-linux-roles.yml` after `claude_code`, with `tags: not-supported-on-vagrant-arm64`
 
 **Checkpoint**: Run playbook with `--skip-tags not-supported-on-vagrant-arm64`
