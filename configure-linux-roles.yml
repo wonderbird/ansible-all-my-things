@@ -10,3 +10,5 @@
   roles:
     - cursor_ide
     - claude_code
+    - role: google_chrome
+      tags: not-supported-on-vagrant-arm64

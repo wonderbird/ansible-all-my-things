@@ -33,6 +33,18 @@ When requesting git history information, ALWAYS use the `--no-pager` flag as the
 
 When you want to check whether a hidden file or directory exists, then you MUST use a tool native to the operating system you are running on. The LS tool does not handle hidden files.
 
+## Test environment host architecture
+
+**Do not assume the architecture of the machine running Claude Code.** `Platform: linux`
+in the environment info does not imply AMD64. Docker containers also do not imply AMD64 —
+on Apple Silicon they run ARM64 by default.
+
+When a task requires knowing the current host's architecture (e.g. deciding which test
+target to use), check it explicitly with `uname -m` before proceeding. Only check when
+it is relevant — not on every task.
+
+The known test hosts and their architectures are listed in [README.md](README.md#overview).
+
 ## Active Technologies
 - Ansible 2.19+ (YAML) + `ansible.builtin.stat`, `ansible.builtin.get_url`, (001-google-chrome-role)
 

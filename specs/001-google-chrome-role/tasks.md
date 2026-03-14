@@ -18,9 +18,9 @@ tasks use manual playbook runs per Constitution §III.
 
 **Purpose**: Create the standard Ansible role directory structure.
 
-- [ ] T001 [P] Create `roles/google_chrome/meta/main.yml` with SPDX header and galaxy_info (author, description, license MIT, min_ansible_version 2.19, empty dependencies)
-- [ ] T002 [P] Create `roles/google_chrome/defaults/main.yml` with SPDX header and `---` only (no role variables needed)
-- [ ] T003 [P] Create `roles/google_chrome/tasks/main.yml` with SPDX header and `---` only (empty task skeleton)
+- [x] T001 [P] Create `roles/google_chrome/meta/main.yml` with SPDX header and galaxy_info (author, description, license MIT, min_ansible_version 2.19, empty dependencies)
+- [x] T002 [P] Create `roles/google_chrome/defaults/main.yml` with SPDX header and `---` only (no role variables needed)
+- [x] T003 [P] Create `roles/google_chrome/tasks/main.yml` with SPDX header and `---` only (empty task skeleton)
 
 **Checkpoint**: Role directory structure exists at `roles/google_chrome/` with `meta/`, `defaults/`, `tasks/`
 
@@ -38,15 +38,14 @@ plus `/etc/apt/sources.list.d/google-chrome.sources` both exist.
 
 ### Implementation for User Story 1
 
-- [ ] T004 [US1] Add stat task to `roles/google_chrome/tasks/main.yml`: check existence of `/etc/apt/sources.list.d/google-chrome.sources`, register result as `google_chrome_sources_file`
-- [ ] T005 [US1] Add get_url task to `roles/google_chrome/tasks/main.yml`: download `https://dl-ssl.google.com/linux/linux_signing_key.pub` to `/tmp/google-linux-signing-key.pub` (mode 0644); guard with `when: not google_chrome_sources_file.stat.exists`
-- [ ] T006 [US1] Add shell task to `roles/google_chrome/tasks/main.yml`: convert ASCII-armored key via `cat /tmp/google-linux-signing-key.pub | gpg --dearmor > /tmp/google-chrome.gpg`; guard with `when: not google_chrome_sources_file.stat.exists`
-- [ ] T007 [US1] Add copy task to `roles/google_chrome/tasks/main.yml`: install binary keyring to `/etc/apt/keyrings/google-chrome.gpg` (owner root, group root, mode 0644, remote_src yes); guard with `when: not google_chrome_sources_file.stat.exists`
-- [ ] T008 [US1] Add deb822_repository task to `roles/google_chrome/tasks/main.yml`: create `google-chrome.sources` (types: deb, uris: `https://dl-ssl.google.com/linux/chrome/deb/`, suites: stable, components: main, architectures: amd64, signed_by: `/etc/apt/keyrings/google-chrome.gpg`, state: present); guard with `when: not google_chrome_sources_file.stat.exists`
-- [ ] T009 [US1] Add file loop task to `roles/google_chrome/tasks/main.yml`: remove `/tmp/google-linux-signing-key.pub` and `/tmp/google-chrome.gpg` (state: absent); guard with `when: not google_chrome_sources_file.stat.exists`
-- [ ] T010 [US1] Add apt task to `roles/google_chrome/tasks/main.yml`: ensure `apt-transport-https` is present (state: present); no guard — always runs
-- [ ] T011 [US1] Add apt task to `roles/google_chrome/tasks/main.yml`: update apt package index (`update_cache: yes`); no guard — always runs
-- [ ] T012 [US1] Add apt task to `roles/google_chrome/tasks/main.yml`: install `google-chrome-stable` (state: present); no guard — always runs
+- [x] T004 [US1] Add stat task to `roles/google_chrome/tasks/main.yml`: check existence of `/etc/apt/sources.list.d/google-chrome.sources`, register result as `google_chrome_sources_file`
+- [x] T005 [US1] Add get_url task to `roles/google_chrome/tasks/main.yml`: download `https://dl-ssl.google.com/linux/linux_signing_key.pub` to `/tmp/google-linux-signing-key.pub` (mode 0644); guard with `when: not google_chrome_sources_file.stat.exists`
+- [x] T006 [US1] Add shell task to `roles/google_chrome/tasks/main.yml`: convert ASCII-armored key via `cat /tmp/google-linux-signing-key.pub | gpg --dearmor > /tmp/google-chrome.gpg`; guard with `when: not google_chrome_sources_file.stat.exists`
+- [x] T007 [US1] Add copy task to `roles/google_chrome/tasks/main.yml`: install binary keyring to `/etc/apt/keyrings/google-chrome.gpg` (owner root, group root, mode 0644, remote_src yes); guard with `when: not google_chrome_sources_file.stat.exists`
+- [x] T008 [US1] Add deb822_repository task to `roles/google_chrome/tasks/main.yml`: create `google-chrome.sources` (types: deb, uris: `https://dl-ssl.google.com/linux/chrome/deb/`, suites: stable, components: main, architectures: amd64, signed_by: `/etc/apt/keyrings/google-chrome.gpg`, state: present); guard with `when: not google_chrome_sources_file.stat.exists`
+- [x] T009 [US1] Add file loop task to `roles/google_chrome/tasks/main.yml`: remove `/tmp/google-linux-signing-key.pub` and `/tmp/google-chrome.gpg` (state: absent); guard with `when: not google_chrome_sources_file.stat.exists`
+- [x] T010 [US1] Add apt task to `roles/google_chrome/tasks/main.yml`: ensure `apt-transport-https` is present (state: present); no guard — always runs
+- [x] T011+T012 [US1] Add apt task to `roles/google_chrome/tasks/main.yml`: install `google-chrome-stable` (state: present, update_cache: true); no guard — always runs. Note: T011 (standalone update_cache) was merged into T012 during validation — standalone `update_cache: true` always reports `changed`, breaking SC-002.
 
 **Checkpoint**: Run playbook against a clean AMD64 VM. `google-chrome-stable` must
 be installed, launchable, and SC-001 satisfied.
@@ -65,7 +64,7 @@ all `google_chrome` role tasks.
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Add file task to `roles/google_chrome/tasks/main.yml`: ensure `/etc/apt/sources.list.d/google-chrome.list` is absent (state: absent); no guard — always runs (no-op when file does not exist; removes file created by Chrome's daily cron when it does exist)
+- [x] T013 [US2] Add file task to `roles/google_chrome/tasks/main.yml`: ensure `/etc/apt/sources.list.d/google-chrome.list` is absent (state: absent); no guard — always runs (no-op when file does not exist; removes file created by Chrome's daily cron when it does exist)
 
 **Checkpoint**: Run playbook twice consecutively. Second run must report
 `changed=0 failed=0`, satisfying SC-002.
@@ -84,8 +83,8 @@ with no failures, satisfying SC-003.
 
 ### Implementation for User Story 3
 
-- [ ] T014 [US3] Add `tags: [not-supported-on-vagrant-arm64]` to every task in `roles/google_chrome/tasks/main.yml` (all 10 tasks: T004 through T013)
-- [ ] T015 [P] [US3] Add `google_chrome` role entry to `configure-linux-roles.yml` after `claude_code`, with `tags: not-supported-on-vagrant-arm64`
+- [x] T014 [US3] Add `tags: [not-supported-on-vagrant-arm64]` to every task in `roles/google_chrome/tasks/main.yml` (all 10 tasks: T004 through T013)
+- [x] T015 [P] [US3] Add `google_chrome` role entry to `configure-linux-roles.yml` after `claude_code`, with `tags: not-supported-on-vagrant-arm64`
 
 **Checkpoint**: Run playbook with `--skip-tags not-supported-on-vagrant-arm64`
 on ARM64 VM. All `google_chrome` tasks must show as skipped, satisfying SC-003.
@@ -96,7 +95,7 @@ on ARM64 VM. All `google_chrome` tasks must show as skipped, satisfying SC-003.
 
 **Purpose**: Documentation updates that apply across the whole codebase.
 
-- [ ] T016 [P] Add `TD-003` entry to `docs/architecture/technical-debt/technical-debt.md`: unpinned package versions across all installation roles (`google_chrome`, `cursor_ide`, `claude_code`) — latest-available version installs violate package-level idempotency; accepted risk for developer workstation tooling
+- [x] T016 [P] Add `TD-003` entry to `docs/architecture/technical-debt/technical-debt.md`: unpinned package versions across all installation roles (`google_chrome`, `cursor_ide`, `claude_code`) — latest-available version installs violate package-level idempotency; accepted risk for developer workstation tooling
 
 ---
 

@@ -6,13 +6,13 @@ Automated setup and updates for my IT system.
 
 This repository defines virtual machine configurations for software developers. The following infrastructure is defined:
 
-| Provider        | Platform | Operating System    | Host name |
-| --------------- | -------- | ------------------- | --------- |
-| AWS EC2         | Windows  | Windows Server 2025 | moria     |
-| AWS EC2         | Linux    | Ubuntu Linux        | rivendell |
-| Hetzner Cloud   | Linux    | Ubuntu Linux        | hobbiton  |
-| Vagrant, Tart   | Linux    | Ubuntu Linux        | lorien    |
-| Vagrant, Docker | Linux    | Ubuntu Linux        | dagorlad  |
+| Provider        | Platform | Operating System    | Architecture | Host name |
+| --------------- | -------- | ------------------- | ------------ | --------- |
+| AWS EC2         | Windows  | Windows Server 2025 | AMD64        | moria     |
+| AWS EC2         | Linux    | Ubuntu Linux        | AMD64        | rivendell |
+| Hetzner Cloud   | Linux    | Ubuntu Linux        | AMD64        | hobbiton  |
+| Vagrant, Tart   | Linux    | Ubuntu Linux        | ARM64        | lorien    |
+| Vagrant, Docker | Linux    | Ubuntu Linux        | ARM64        | dagorlad  |
 
 ## Quick Start
 

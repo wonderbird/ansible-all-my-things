@@ -15,6 +15,15 @@ The test systems use Vagrant.
 - [docker](docker/README.md): Vagrant with Docker Provider
 - [tart](tart/README.md): Vagrant with Tart Provider
 
+### Host architecture map
+
+For the architecture and provider of each host, see the infrastructure table in
+[README.md](../README.md#overview).
+
+ARM64 hosts (`lorien`, `dagorlad`) skip AMD64-only roles via
+`--skip-tags not-supported-on-vagrant-arm64`. AMD64 hosts (`hobbiton`, `rivendell`)
+are required for validating roles that only support AMD64 (e.g. `google_chrome`).
+
 ## Warning: Refresh SSH Keys after cloning this repository
 
 The SSH keys in [./docker/ssh_host_keys/](./docker/ssh_host_keys/) and [./ssh_user_key/](./ssh_user_key/) are published on GitHub. Thus, they are known to the entire world! If you use these keys, you risk being hacked.

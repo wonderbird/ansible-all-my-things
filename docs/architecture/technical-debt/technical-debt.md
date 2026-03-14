@@ -102,3 +102,40 @@ into a role.
 Open — to be addressed as part of a dedicated refactoring effort. Each playbook
 should be migrated to a corresponding role in `roles/` one at a time, following the
 testing procedure in `CONTRIBUTING.md`.
+
+---
+
+## TD-003 — Unpinned package versions across installation roles
+
+- **Category:** Accepted Risk
+- **Severity:** Low
+- **Affected file(s):**
+  - [roles/google_chrome/tasks/main.yml](../../roles/google_chrome/tasks/main.yml)
+  - [roles/cursor_ide/tasks/main.yml](../../roles/cursor_ide/tasks/main.yml)
+  - [roles/claude_code/tasks/main.yml](../../roles/claude_code/tasks/main.yml)
+- **Date added:** 2026-03-13
+
+### Description
+
+All three installation roles install the latest available version of their
+respective package (`google-chrome-stable`, Cursor IDE, Claude Code) rather
+than a pinned, reproducible version. A package update that introduces a
+breaking change or regression will be silently applied on the next playbook
+run, and a re-run on the same machine will install a different version than
+the original run.
+
+This violates strict package-level idempotency: running the playbook twice
+against the same machine at different points in time may produce different
+installed versions.
+
+### Mitigation
+
+Developer workstation tooling is expected to track the latest stable release.
+The risk of a breaking update is low and recovery is fast (re-run with the
+previous version pinned or wait for a patch release). Pinning would require
+a maintenance process to update pinned versions regularly, which is not
+justified for this use case.
+
+### Status
+
+Open — accepted risk for developer workstation tooling.
