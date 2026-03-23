@@ -39,6 +39,7 @@
           - build-essential
           - direnv
           - dotnet-sdk-8.0
+          - entr
           - gh
           - keepassxc
           - dbus-x11
