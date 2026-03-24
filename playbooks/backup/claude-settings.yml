@@ -1,6 +1,6 @@
 ---
 - name: Backup Claude settings
-  hosts: lorien
+  hosts: "{{ backup_from_host }}"
   tags: not-supported-on-vagrant-docker
   become: true
 

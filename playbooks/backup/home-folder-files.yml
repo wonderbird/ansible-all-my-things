@@ -1,6 +1,6 @@
 ---
 - name: Backup files in home directory
-  hosts: lorien
+  hosts: "{{ backup_from_host }}"
   become: true
 
   vars:

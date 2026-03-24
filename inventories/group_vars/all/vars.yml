@@ -27,6 +27,10 @@ gnome_keyring_password: "{{ vault_gnome_keyring_password }}"
 # Windows Server Administrator password (for AWS Windows instances)
 windows_admin_password: "{{ vault_windows_admin_password }}"
 
+# Default host for backup playbooks (playbooks/backup/).
+# Override at runtime with: -e backup_from_host=hobbiton
+backup_from_host: "lorien"
+
 # The following users will be created on the desktop system.
 # Add as many users as you like. There should be at least one user.
 desktop_users:
