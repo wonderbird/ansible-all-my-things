@@ -5,6 +5,7 @@
   vars:
     ansible_user: "{{ my_ansible_user }}"
     desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    first_desktop_user: "{{ desktop_user_names[0] }}"
 
   tasks:
     - name: Install NVM
@@ -25,11 +26,27 @@
       become_user: "{{ item }}"
       loop: "{{ desktop_user_names }}"
 
-    - name: Install TypeScript globally
+    - name: Identify current Node.js version
       shell: |
-        . /home/{{ item }}/.nvm/nvm.sh
-        npm install -g typescript
+        . /home/{{ first_desktop_user }}/.nvm/nvm.sh
+        nvm current
       args:
         executable: /bin/bash
+      become_user: "{{ first_desktop_user }}"
+      register: nvm_current_output
+
+    - name: Install frequently used global npm packages
+      shell: |
+        . /home/{{ item }}/.nvm/nvm.sh
+        npm install --global \
+          eslint \
+          markdownlint-cli \
+          prettier \
+          typescript
+      # Note: Last package is used in the `creates` check below for idempotency. 
+      args:
+        executable: /bin/bash
+        creates: "/home/{{ item }}/.nvm/versions/node/{{ nvm_current_output.stdout_lines[0] }}/lib/node_modules/typescript"
       become_user: "{{ item }}"
       loop: "{{ desktop_user_names }}"
+
