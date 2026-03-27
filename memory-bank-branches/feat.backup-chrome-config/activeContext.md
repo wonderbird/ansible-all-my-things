@@ -2,25 +2,25 @@
 
 ## Current focus
 
-Branch `002-backup-chrome-config`. tasks.md is complete and
-markdownlint-clean. The immediate next action is implementing US1 (MVP):
-create the backup playbook and add its import to `backup.yml`, then verify
-the backup manually before proceeding to US2.
+Branch `002-backup-chrome-config`. US1 (T001 + T002) is implemented and under
+manual testing. During testing a new requirement was discovered: the backup
+playbook must check whether the Chrome profile directory exists and emit a
+clear operator-visible message when it does not. This requirement must be
+persisted in `spec.md` before resuming testing.
 
 ## Next immediate action
 
-**T001** — Create `playbooks/backup/google-chrome-settings.yml` (US1, MVP).
-Then **T002** — add the import line to `backup.yml`. After both are done, run
-the manual backup verification (quickstart.md steps 1–3) before starting US2.
+**Update `spec.md`** — add the missing-profile graceful-skip behaviour as a
+new functional requirement and update the relevant edge case entry. Once
+spec.md is committed, resume manual backup verification (quickstart.md steps
+1–3).
 
 ## Pending tasks (in execution order)
 
 Tasks are defined in `specs/002-backup-chrome-config/tasks.md`.
 
-- **T001** *(start here)* — Create
-  `playbooks/backup/google-chrome-settings.yml` (US1)
-- **T002** — Update `backup.yml`: insert import between `cursor-settings.yml`
-  and `vscode-settings.yml` (US1)
+- **spec.md update** *(start here)* — persist the missing-profile requirement:
+  add an FR for the `stat` guard + `debug` message in the backup playbook
 - **Manual verification** — Run backup on `hobbiton`, verify archive exists
   and excludes ephemeral data (US1 checkpoint before US2)
 - **T003** — Create `playbooks/restore/google-chrome-settings.yml` (US2)
@@ -48,8 +48,16 @@ Tasks are defined in `specs/002-backup-chrome-config/tasks.md`.
 - The backup/restore pattern (playbooks, not roles) is an open question (T10).
   Do not refactor until T10 is resolved.
 - `.markdownlint.json` was created at repo root:
-  `MD013: { tables: false, code_blocks: false }`
+  `MD013: { tables: false, code_blocks: false }`. MD024 and headings exceptions
+  are NOT in the config — subheadings in technical-debt.md are made unique with
+  TD-ID prefixes (e.g. `### TD-001: Description`) instead.
 - `markdownlint` is installed globally; use `markdownlint <file>` directly.
+- The missing-profile requirement discovered during testing: the backup
+  playbook must use `stat` to check whether
+  `~/.config/google-chrome/Default` exists, emit a clear `debug` message
+  when absent, and skip the backup tasks. This is already implemented in
+  `playbooks/backup/google-chrome-settings.yml` but not yet in `spec.md`.
+  TD-008 records the same gap for the Chromium playbook.
 
 ## Important patterns learned this session
 
@@ -59,8 +67,11 @@ Tasks are defined in `specs/002-backup-chrome-config/tasks.md`.
 - Memory bank is the correct place for session state and task tracking.
 - After any constitution amendment, run `markdownlint` on it and check
   propagation to `.specify/templates/`.
-- MD060 table separator rows must use: `| --- | --- |` not `|---|---|`.
+- MD024 must be satisfied by making headings unique, not by suppressing the
+  rule. Use TD-ID prefixes for repeated subheadings in technical-debt.md.
 - Fenced code blocks inside ordered list items need blank lines before and
   after the fence (MD031).
-- tasks.md tag note: Chrome tags are a YAML list; Chromium uses a scalar —
-  this is intentional and must not be "fixed" to match Chromium.
+- Chrome backup tags are a YAML list; Chromium uses a scalar — intentional,
+  must not be "corrected" to match Chromium.
+- New requirements discovered during testing must be persisted in `spec.md`
+  before resuming testing or moving to the next story.
