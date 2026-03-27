@@ -1,0 +1,38 @@
+---
+- name: Backup Google Chrome settings
+  hosts: "{{ backup_from_host }}"
+  tags:
+    - not-supported-on-vagrant-docker
+    - not-supported-on-vagrant-arm64
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    backup_user: "{{ desktop_users[0].name }}"
+
+  tasks:
+    - name: Check if Chrome profile exists
+      stat:
+        path: "/home/{{ backup_user }}/.config/google-chrome/Default"
+      register: chrome_profile
+
+    - name: Notify that no Chrome profile was found
+      debug:
+        msg: "No Chrome profile found at /home/{{ backup_user }}/.config/google-chrome/Default — skipping backup."
+      when: not chrome_profile.stat.exists
+
+    - include_tasks: backup.yml
+      when: chrome_profile.stat.exists
+      vars:
+        path: "/home/{{ backup_user }}/.config/google-chrome/Default"
+        backup_file: "google-chrome-backup.tar.gz"
+        exclusion_patterns:
+          - "*Cache*"
+          - "*cache*"
+          - "*History*"
+          - "*Local Storage*"
+          - "*Session Storage*"
+          - "*SharedStorage*"
+          - "*WebStorage*"
+          - "*blob_storage*"
+          - "*Favicons*"

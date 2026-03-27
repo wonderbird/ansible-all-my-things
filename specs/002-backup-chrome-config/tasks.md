@@ -64,14 +64,14 @@ is created and excludes cache/history/storage/favicons.
 
 ### Implementation for User Story 1
 
-- [ ] T001 [P] [US1] Create `playbooks/backup/google-chrome-settings.yml`
+- [x] T001 [P] [US1] Create `playbooks/backup/google-chrome-settings.yml`
   mirroring `playbooks/backup/chromium-settings.yml` with: `name: Backup
   Google Chrome settings`, `path:
   /home/{{ backup_user }}/.config/google-chrome/Default`, `backup_file:
   google-chrome-backup.tar.gz`, and tags as a YAML list:
   `not-supported-on-vagrant-docker` and `not-supported-on-vagrant-arm64`
   (identical exclusion_patterns to Chromium)
-- [ ] T002 [US1] Add import line to `backup.yml` under `# Applications`,
+- [x] T002 [US1] Add import line to `backup.yml` under `# Applications`,
   alphabetically between `cursor-settings.yml` and `vscode-settings.yml`:
   `- import_playbook: playbooks/backup/google-chrome-settings.yml`
 
