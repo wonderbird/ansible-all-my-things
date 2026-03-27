@@ -3,44 +3,42 @@
 ## What works
 
 - **spec.md** — complete and committed (commit `5a2c1b7` on remote)
-- **plan.md** — complete and markdownlint-clean (uncommitted, working tree);
-  long lines wrapped, duplicate section header renamed from "4" to "A2"
-- **research.md** — complete and markdownlint-clean (uncommitted, working tree);
-  long lines wrapped
+- **plan.md** — complete and markdownlint-clean (uncommitted, working tree)
+- **research.md** — complete and markdownlint-clean (uncommitted, working tree)
 - **quickstart.md** — complete and markdownlint-clean (uncommitted, working
-  tree); blank lines added around fenced code blocks inside list items
+  tree)
+- **tasks.md** — complete and markdownlint-clean (uncommitted, working tree);
+  7 tasks across US1 (T001–T002), US2 (T003–T004), US3 (T005), and polish
+  (T006–T007)
 - **docs/architecture/solution-strategy.md** — arc42 Section 4, complete and
-  markdownlint-clean (uncommitted, working tree); restructured for readability
-  (T12): orientation paragraph added, Repository Structure moved before
-  Technology Choices, Backup and Restore Pattern extracted to own section,
-  Platform Constraints intro sentence added, YAGNI and idempotency explained
-  inline for first-time readers
+  markdownlint-clean (uncommitted, working tree)
 - **.markdownlint.json** — created at repo root:
   `MD013: { tables: false, code_blocks: false }`
 - **.specify/memory/constitution.md** — updated to v1.1.1 (uncommitted);
   markdownlint passes
 - **.specify/templates/agent-file-template.md** — updated: Active Technologies
   points to `solution-strategy.md`; Recent Changes section retained in
-  position 4 (after Commands, before Code Style)
-- **CLAUDE.md** — updated with rule file references (020, 310, 330, 400,
-  510-memory-bank-branches), architecture documentation pointers, no-pager
-  deduplication; session state section removed; markdownlint passes
+  position 4
+- **CLAUDE.md** — updated with rule file references and architecture pointers;
+  markdownlint passes
 - **.cursor/rules/general/330-git-usage.mdc** (symlink source) — fixed `test:`
   typo, added `ci:` and `build(deps):` prefixes
 - **memory-bank-branches/feat.backup-chrome-config/** — all 6 files written
 
 ## What is left to build
 
-All items are tracked in `activeContext.md`. Summary:
+Tasks are tracked in `specs/002-backup-chrome-config/tasks.md`.
 
-- **Implementation** (START HERE) — write
-  `playbooks/backup/google-chrome-settings.yml`,
-  `playbooks/restore/google-chrome-settings.yml`, update `backup.yml` and
-  `restore.yml`
-- **T10** — deferred: Ansible expert consult on backup/restore playbooks
-  vs. roles
+- **T001** *(START HERE)* — Create
+  `playbooks/backup/google-chrome-settings.yml` (US1)
+- **T002** — Update `backup.yml` with import (US1)
+- **Manual verification** — Verify backup archive before US2
+- **T003** — Create `playbooks/restore/google-chrome-settings.yml` (US2)
+- **T004** — Update `restore.yml` with import (US2)
+- **T005** — Full E2E acceptance test on AMD64 host (US3, manual)
+- **T006–T007** — Memory bank update and commit
 
 ## Known issues
 
 None. All changes in the working tree are intentional and consistent with
-each other. A WIP commit is used to protect in-progress work from data loss.
+each other.
