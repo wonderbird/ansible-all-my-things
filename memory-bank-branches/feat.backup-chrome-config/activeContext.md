@@ -2,38 +2,27 @@
 
 ## Current focus
 
-Branch `002-backup-chrome-config`. T7 (Windows OS rationale), T8 (Python
-rationale), T9 (technical debt section), T11 (markdownlint all staged `.md`
-files), and T12 (first-time reader review of `solution-strategy.md`) are
-complete. The immediate next action is T2: commit all changes.
+Branch `002-backup-chrome-config`. T2 (commit all changes), T3 (sync CLAUDE.md
+to ai-agent-workspace), and T4 (commit in ai-agent-workspace) are complete.
+The immediate next action is the feature implementation.
 
 ## Next immediate action
 
-**T2** — Commit all changes in `ansible-all-my-things` on branch
-`002-backup-chrome-config`.
+**Implementation** — Create `playbooks/backup/google-chrome-settings.yml`,
+`playbooks/restore/google-chrome-settings.yml`, and update root `backup.yml`
+and `restore.yml` (alphabetical insertion between cursor and vscode entries).
 
 ## Pending tasks (in execution order)
 
-**T2** *(start here)* — Commit all changes in `ansible-all-my-things` on
-branch `002-backup-chrome-config`.
-
-**T3** — Sync updated `CLAUDE.md` to
-`/home/galadriel/Documents/Cline/ai-agent-workspace/`. Copy the rule-file
-references (020, 310, 330, 400, memory-bank-branches pointer), architecture
-links, and removal of --no-pager. Do NOT copy the session state section.
-
-**T4** — Commit in `ai-agent-workspace`: `330-git-usage.mdc` fix + CLAUDE.md
-sync from T3.
+**Implementation** *(start here)* — Create
+`playbooks/backup/google-chrome-settings.yml`,
+`playbooks/restore/google-chrome-settings.yml`, update `backup.yml` and
+`restore.yml` (alphabetical insertion between cursor and vscode).
 
 **T10** *(deferred)* — Consult an Ansible expert: is the backup/restore
 playbook pattern (no roles) a deliberate "operational tasks → playbooks"
 convention, or technical debt? Answer shapes whether to add an ADR or a
 TD entry.
-
-*(After T2)* — Implement feature: create
-`playbooks/backup/google-chrome-settings.yml`,
-`playbooks/restore/google-chrome-settings.yml`, update `backup.yml` and
-`restore.yml` (alphabetical insertion between cursor and vscode).
 
 ## Active decisions and considerations
 

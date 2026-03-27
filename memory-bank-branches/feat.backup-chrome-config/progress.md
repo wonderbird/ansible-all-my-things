@@ -33,16 +33,12 @@
 
 All items are tracked in `activeContext.md`. Summary:
 
-- **T2** (START HERE) — commit all changes in this repo
-- **T3** — sync updated CLAUDE.md to `ai-agent-workspace`
-- **T4** — commit in `ai-agent-workspace`: `330-git-usage.mdc` fix +
-  CLAUDE.md sync from T3
-- **T10** — deferred: Ansible expert consult on backup/restore playbooks
-  vs. roles
-- **Implementation** (after T2) — write
+- **Implementation** (START HERE) — write
   `playbooks/backup/google-chrome-settings.yml`,
   `playbooks/restore/google-chrome-settings.yml`, update `backup.yml` and
   `restore.yml`
+- **T10** — deferred: Ansible expert consult on backup/restore playbooks
+  vs. roles
 
 ## Known issues
 
