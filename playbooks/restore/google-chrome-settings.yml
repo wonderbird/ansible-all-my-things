@@ -1,0 +1,22 @@
+---
+- name: Restore Google Chrome settings
+  hosts: linux
+  tags:
+    - not-supported-on-vagrant-docker
+    - not-supported-on-vagrant-arm64
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    restore_user: "{{ desktop_users[0].name }}"
+
+  tasks:
+
+    - name: Restore Google Chrome settings
+      include_tasks: restore.yml
+      vars:
+        users: "{{ [restore_user] }}"
+        backup_file: "google-chrome-backup.tar.gz"
+        destination_beneath_home: ".config/google-chrome/Default"
+        delete_before_beneath_home:
+          - ".config/google-chrome/Default"
