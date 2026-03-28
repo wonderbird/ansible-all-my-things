@@ -2,30 +2,21 @@
 
 ## Current focus
 
-Branch `002-backup-chrome-config`. US1 (T001 + T002) is implemented and
-committed. spec.md, plan.md, tasks.md, and quickstart.md have been updated
-to capture FR-009 (missing-profile graceful-skip) and align all artifacts.
-The spec is now consistent with the implementation. Ready for manual
-verification on `hobbiton`.
+Branch `002-backup-chrome-config`. All implementation tasks complete and
+tested. US1 (backup), US2 (restore), US3 (E2E acceptance test), and the
+FR-009 Missing-Profile Smoke Test have all passed on `hobbiton` (AMD64).
+Ready for final commit (T007) and PR to main.
 
 ## Next immediate action
 
-**Manual verification** — Run backup on `hobbiton` and confirm the archive
-exists and excludes ephemeral data (quickstart.md steps 1–3, US1 checkpoint).
+**T007** — Final commit with `feat:` prefix and `Co-authored-by` trailer,
+then open PR to main.
 
 ## Pending tasks (in execution order)
 
 Tasks are defined in `specs/002-backup-chrome-config/tasks.md`.
 
-- **Manual verification** *(start here)* — quickstart.md steps 1–3: run
-  backup, verify archive exists and excludes ephemeral data
-- **T003** — Create `playbooks/restore/google-chrome-settings.yml` (US2)
-- **T004** — Update `restore.yml`: insert import between `cursor-settings.yml`
-  and `vscode-settings.yml` (US2)
-- **T005** — Full E2E acceptance test per `quickstart.md` on AMD64 host (US3),
-  including the Missing-Profile Smoke Test (FR-009 verification)
-- **T006** — Update memory bank (activeContext.md, progress.md)
-- **T007** — Commit with `feat:` prefix and `Co-authored-by` trailer
+- **T007** *(start here)* — Final commit and PR to main
 - **T10** *(deferred)* — Ansible expert consult on backup/restore playbooks
   vs. roles
 
@@ -51,8 +42,11 @@ Tasks are defined in `specs/002-backup-chrome-config/tasks.md`.
 - `markdownlint` is installed globally; use `markdownlint <file>` directly.
   If not found, fall back to `npx markdownlint-cli <file>`.
 - FR-009 is implemented in `playbooks/backup/google-chrome-settings.yml` and
-  now fully documented in spec.md (FR-009, US1 scenario 4), tasks.md (T001,
-  T005), quickstart.md (Missing-Profile Smoke Test), and plan.md (Summary).
+  fully verified via the Missing-Profile Smoke Test.
+- The first-run configuration dialog did not appear when Chrome was launched
+  with no `Default` profile — Chrome tracks first-run state outside of
+  `~/.config/google-chrome/Default`. The home button absence/presence is the
+  reliable E2E indicator.
 
 ## Important patterns learned this session
 
@@ -72,3 +66,5 @@ Tasks are defined in `specs/002-backup-chrome-config/tasks.md`.
   before resuming testing or moving to the next story.
 - spec.md has pre-existing MD013 (line-length) violations throughout — do not
   reflow the whole file as part of unrelated edits.
+- Chrome's first-run dialog state is stored outside `Default/`; home button
+  visibility is the correct E2E restore indicator.
