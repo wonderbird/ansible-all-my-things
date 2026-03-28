@@ -6,13 +6,16 @@
 
 ## Summary
 
-Add Google Chrome backup and restore playbooks that are structurally identical
-to the existing Chromium equivalents, differing only in source path
+Add Google Chrome backup and restore playbooks that are structurally similar
+to the existing Chromium equivalents, differing in: source path
 (`~/.config/google-chrome/Default`), archive name
-(`google-chrome-backup.tar.gz`), and the addition of the
-`not-supported-on-vagrant-arm64` tag alongside
-`not-supported-on-vagrant-docker`. Both playbooks are expected to delegate to
-the existing generic `backup.yml` and `restore.yml` task files.
+(`google-chrome-backup.tar.gz`), the addition of the
+`not-supported-on-vagrant-arm64` tag alongside `not-supported-on-vagrant-docker`,
+and a `stat` guard in the backup playbook that checks for the profile directory,
+emits an operator-visible debug message when absent, and skips backup tasks
+without error (FR-009; Chromium lacks this guard — see TD-008). Both playbooks
+are expected to delegate to the existing generic `backup.yml` and
+`restore.yml` task files.
 
 ## Technical Context
 

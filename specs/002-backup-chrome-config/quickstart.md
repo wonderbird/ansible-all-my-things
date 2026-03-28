@@ -82,6 +82,34 @@ ansible-playbook playbooks/restore/google-chrome-settings.yml --limit hobbiton
    - The first-run configuration dialog does **not** appear.
    - The home button is visible in the toolbar.
 
+## Missing-Profile Smoke Test (optional)
+
+Verify FR-009: the backup playbook handles an absent profile directory gracefully.
+
+1. Temporarily move the Chrome profile aside:
+
+   ```shell
+   mv ~/.config/google-chrome/Default ~/.config/google-chrome/Default.bak
+   ```
+
+2. Run the backup:
+
+   ```shell
+   ansible-playbook playbooks/backup/google-chrome-settings.yml -e backup_from_host=hobbiton
+   ```
+
+3. Verify:
+   - The playbook completes with no error.
+   - The Ansible output contains a debug message indicating the profile directory
+     is absent.
+   - No new archive is created (or the existing archive is unchanged).
+
+4. Restore the profile:
+
+   ```shell
+   mv ~/.config/google-chrome/Default.bak ~/.config/google-chrome/Default
+   ```
+
 ## Notes
 
 - These playbooks carry the `not-supported-on-vagrant-docker` and

@@ -2,31 +2,28 @@
 
 ## Current focus
 
-Branch `002-backup-chrome-config`. US1 (T001 + T002) is implemented and under
-manual testing. During testing a new requirement was discovered: the backup
-playbook must check whether the Chrome profile directory exists and emit a
-clear operator-visible message when it does not. This requirement must be
-persisted in `spec.md` before resuming testing.
+Branch `002-backup-chrome-config`. US1 (T001 + T002) is implemented and
+committed. spec.md, plan.md, tasks.md, and quickstart.md have been updated
+to capture FR-009 (missing-profile graceful-skip) and align all artifacts.
+The spec is now consistent with the implementation. Ready for manual
+verification on `hobbiton`.
 
 ## Next immediate action
 
-**Update `spec.md`** — add the missing-profile graceful-skip behaviour as a
-new functional requirement and update the relevant edge case entry. Once
-spec.md is committed, resume manual backup verification (quickstart.md steps
-1–3).
+**Manual verification** — Run backup on `hobbiton` and confirm the archive
+exists and excludes ephemeral data (quickstart.md steps 1–3, US1 checkpoint).
 
 ## Pending tasks (in execution order)
 
 Tasks are defined in `specs/002-backup-chrome-config/tasks.md`.
 
-- **spec.md update** *(start here)* — persist the missing-profile requirement:
-  add an FR for the `stat` guard + `debug` message in the backup playbook
-- **Manual verification** — Run backup on `hobbiton`, verify archive exists
-  and excludes ephemeral data (US1 checkpoint before US2)
+- **Manual verification** *(start here)* — quickstart.md steps 1–3: run
+  backup, verify archive exists and excludes ephemeral data
 - **T003** — Create `playbooks/restore/google-chrome-settings.yml` (US2)
 - **T004** — Update `restore.yml`: insert import between `cursor-settings.yml`
   and `vscode-settings.yml` (US2)
-- **T005** — Full E2E acceptance test per `quickstart.md` on AMD64 host (US3)
+- **T005** — Full E2E acceptance test per `quickstart.md` on AMD64 host (US3),
+  including the Missing-Profile Smoke Test (FR-009 verification)
 - **T006** — Update memory bank (activeContext.md, progress.md)
 - **T007** — Commit with `feat:` prefix and `Co-authored-by` trailer
 - **T10** *(deferred)* — Ansible expert consult on backup/restore playbooks
@@ -52,12 +49,10 @@ Tasks are defined in `specs/002-backup-chrome-config/tasks.md`.
   are NOT in the config — subheadings in technical-debt.md are made unique with
   TD-ID prefixes (e.g. `### TD-001: Description`) instead.
 - `markdownlint` is installed globally; use `markdownlint <file>` directly.
-- The missing-profile requirement discovered during testing: the backup
-  playbook must use `stat` to check whether
-  `~/.config/google-chrome/Default` exists, emit a clear `debug` message
-  when absent, and skip the backup tasks. This is already implemented in
-  `playbooks/backup/google-chrome-settings.yml` but not yet in `spec.md`.
-  TD-008 records the same gap for the Chromium playbook.
+  If not found, fall back to `npx markdownlint-cli <file>`.
+- FR-009 is implemented in `playbooks/backup/google-chrome-settings.yml` and
+  now fully documented in spec.md (FR-009, US1 scenario 4), tasks.md (T001,
+  T005), quickstart.md (Missing-Profile Smoke Test), and plan.md (Summary).
 
 ## Important patterns learned this session
 
@@ -75,3 +70,5 @@ Tasks are defined in `specs/002-backup-chrome-config/tasks.md`.
   must not be "corrected" to match Chromium.
 - New requirements discovered during testing must be persisted in `spec.md`
   before resuming testing or moving to the next story.
+- spec.md has pre-existing MD013 (line-length) violations throughout — do not
+  reflow the whole file as part of unrelated edits.

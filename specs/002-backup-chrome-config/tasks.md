@@ -70,7 +70,10 @@ is created and excludes cache/history/storage/favicons.
   /home/{{ backup_user }}/.config/google-chrome/Default`, `backup_file:
   google-chrome-backup.tar.gz`, and tags as a YAML list:
   `not-supported-on-vagrant-docker` and `not-supported-on-vagrant-arm64`
-  (identical exclusion_patterns to Chromium)
+  (identical exclusion_patterns to Chromium). Unlike Chromium, this playbook
+  MUST also include a `stat` guard (FR-009): check whether the profile
+  directory exists, emit an operator-visible `debug` message when absent, and
+  skip all backup tasks without raising an error.
 - [x] T002 [US1] Add import line to `backup.yml` under `# Applications`,
   alphabetically between `cursor-settings.yml` and `vscode-settings.yml`:
   `- import_playbook: playbooks/backup/google-chrome-settings.yml`
@@ -124,6 +127,8 @@ and must display the home button after restore.
   `specs/002-backup-chrome-config/quickstart.md` on `hobbiton` (AMD64): enable
   home button → backup → remove config → verify first-run dialog → close Chrome
   → remove config again → restore → verify no dialog and home button visible.
+  Also run the Missing-Profile Smoke Test in `quickstart.md` to verify FR-009
+  (absent profile → no error, debug message emitted, no archive created).
   This task is verification only — no code changes.
 
 **Checkpoint**: US3 is complete when all 9 quickstart steps pass on the AMD64

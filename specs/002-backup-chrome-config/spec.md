@@ -14,6 +14,12 @@
 - Q: Are there additional Ansible tags beyond `not-supported-on-vagrant-docker`? → A: Yes — `not-supported-on-vagrant-arm64` also applies (see configure-linux-roles.yml).
 - Q: Are the assumptions about config directory, single desktop user, and reuse of generic task files confirmed? → A: All three confirmed.
 
+### Session 2026-03-28
+
+- Q: Should a new FR be added that fully specifies the missing-profile graceful-skip behavior (stat check + operator-visible debug message + skip tasks, no error raised)? → A: Yes — add FR-009.
+- Q: Should an acceptance scenario be added to US1 for the missing-profile case? → A: Yes — add scenario 4; profile directory may be absent whether or not Chrome is installed.
+- Q: Does the restore side's missing-archive edge case need a new FR, or is the generic restore task's existing behavior sufficient? → A: Defer to implementation — generic restore task governs; no new FR needed.
+
 ## User Scenarios & Testing *(mandatory)*
 
 ### User Story 1 - Back Up Google Chrome Settings (Priority: P1)
@@ -29,6 +35,7 @@ As a desktop user, when I run the backup playbook, my Google Chrome browser conf
 1. **Given** the desktop user has configured Google Chrome to show the home button, **When** the backup playbook runs, **Then** a compressed archive `google-chrome-backup.tar.gz` is created at the backup destination.
 2. **Given** the backup playbook has run, **When** the resulting archive is inspected, **Then** it does not contain cache files, history, local/session/shared/web storage, blob storage, or favicons.
 3. **Given** the backup playbook runs, **When** it completes successfully, **Then** the Google Chrome backup is performed as part of the same backup run that backs up Chromium and other applications.
+4. **Given** `~/.config/google-chrome/Default` does not exist on the host (whether or not Chrome is installed), **When** the backup playbook runs, **Then** no error is raised, an operator-visible debug message is emitted indicating the profile directory is absent, and no archive is created.
 
 ---
 
@@ -67,8 +74,8 @@ As a desktop user, I can verify that the full backup-and-restore cycle preserves
 
 ### Edge Cases
 
-- What happens when Google Chrome is not installed and the config directory does not exist? The backup task must handle a missing source path gracefully, consistent with how Chromium backup handles this.
-- What happens if the archive is missing during restore? The restore task must handle a missing archive gracefully, consistent with existing restore behavior.
+- What happens when `~/.config/google-chrome/Default` does not exist (whether or not Chrome is installed)? See FR-009: the backup playbook checks for directory existence with `stat`, emits an operator-visible `debug` message when absent, and skips all backup tasks without raising an error.
+- What happens if the archive is missing during restore? The behavior is governed by the existing generic `playbooks/restore/restore.yml` task file, which is reused as-is (see Assumptions). No additional FR is required.
 - After Chrome's first-run dialog creates new default config files, those files must be removed before the restore is run to prevent a dirty restore state (covered in User Story 3, scenario 3).
 
 ## Requirements *(mandatory)*
@@ -83,6 +90,7 @@ As a desktop user, I can verify that the full backup-and-restore cycle preserves
 - **FR-006**: The Google Chrome restore playbook MUST be imported into the main `restore.yml` orchestration file, alongside the Chromium restore.
 - **FR-007**: Both the backup and restore playbooks MUST carry both the `not-supported-on-vagrant-docker` and `not-supported-on-vagrant-arm64` tags.
 - **FR-008**: The backup playbook MUST operate on the `backup_from_host` host group; the restore playbook MUST operate on the `linux` host group — consistent with the Chromium pattern.
+- **FR-009**: When the backup playbook runs and `~/.config/google-chrome/Default` does not exist on the target host, the playbook MUST use `stat` to check for the directory's existence, emit an operator-visible `debug` message indicating the profile is absent, and skip all backup tasks without raising an error.
 
 ### Key Entities
 
