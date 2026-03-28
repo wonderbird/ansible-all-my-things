@@ -57,44 +57,11 @@ If the correct prefix is unclear, ask the user before committing.
 
 Commit messages MUST represent a small, coherent, working increment.
 
-**Headline conventions by type:**
-
-- `feat:` — describes the new capability (what the project can now do), not
-  what was implemented. Write "feat: backup claude configuration", not
-  "feat: implement backup script".
-- `fix:` — describes the most important symptom of the problem in past tense.
-  The commit body describes the root cause and major fix steps.
-- `test:` — describes the capability under test as a BDD-style requirement
-  ("test: playbook runs idempotently on Ubuntu 24.04").
-- `docs:` — used for commits that change only documentation files. MUST NOT
-  use `refactor:` for documentation-only changes.
-- `ci:` — describes the new capability added to the CI/CD pipeline.
-- `build(deps):` — describes dependency updates in `requirements.yml`,
-  `requirements.txt`, or similar files.
-
-**Body rules:**
-
-- Subject, body and trailers MUST each be separated by a blank line.
-- The commit body MUST NOT exceed 50 words.
-- Version history MUST NOT be embedded in documents — git is the sole source
-  of version and author information.
-
-**AI agent co-authorship:**
-
-AI coding agents MUST be credited using a `Co-authored-by:` trailer on every
-commit they help produce. Use the agent name and email from the table below:
-
-| Agent | Email |
-|---|---|
-| Claude Code | `noreply@anthropic.com` |
-| Cursor Agent | `cursoragent@cursor.com` |
-| GitHub Copilot | `175728472+Copilot@users.noreply.github.com` |
-
-If a commit has a body, also add the following line at the end of the body:
-
-```text
-🤖 Generated with [MODEL_NAME](MODEL_VENDOR_URL)
-```
+**Commit format, headline conventions, co-authorship requirements, and the
+AI agent co-author table are defined in
+`.cursor/rules/general/330-git-usage.mdc`, which is the authoritative source
+of truth for all commit formatting. All agents MUST read and follow that file
+before creating any commit.**
 
 **Rationale**: Consistent commit messages make history machine-readable and
 auditable; co-authorship credits are required by the collaboration agreement.
@@ -113,6 +80,11 @@ All Markdown files in this repository (`.md`, `.mdc`) MUST comply with:
 - Every file MUST end with exactly one newline character.
 - Heading hierarchy MUST be consistent throughout the file (H1 → H2 → H3;
   no skipped levels).
+
+**The full linting ruleset, tool invocation, and installation instructions are
+defined in `.cursor/rules/general/400-markdown-formatting.mdc`, which is the
+authoritative source of truth. All agents MUST read and follow that file
+whenever creating or modifying a Markdown file.**
 
 **Rationale**: Consistent formatting ensures readability across editors and
 rendering tools, and makes diffs easier to review.
@@ -162,13 +134,23 @@ at runtime via the `ANSIBLE_VAULT_PASSWORD_FILE` environment variable.
 
 ## Documentation Standards
 
-Documentation is organised in three tiers:
+**The documentation strategy, folder structure, and migration policy are
+defined in `.cursor/rules/general/600-documentation-strategy.mdc`, which is
+the authoritative source of truth. All agents MUST read and follow that file
+when creating or updating documentation.**
 
-| Location | Purpose |
-|---|---|
-| `README.md` | Minimal developer onboarding — quick start, prerequisites, links only. No duplication of content held elsewhere. |
-| `specs/<feature>/` | Working context per feature: spec, plan, research, tasks (managed by spec-kit). Promoted to `docs/` when stable and feature-agnostic. |
-| `docs/` | Stable reference material — architecture (arc42-inspired), user manual, long-term decisions. |
+This project extends the base strategy with one additional documentation tier:
+
+- `specs/<feature>/` — Working context per feature: spec, plan, research,
+  and tasks (managed by spec-kit). Promoted to `docs/` when stable and
+  feature-agnostic.
+
+Technology decisions, platform constraints, and the top-level decomposition
+strategy are documented in `docs/architecture/solution-strategy.md`
+(arc42 Section 4). Detailed Architecture Decision Records are kept in
+`docs/architecture/decisions/`. These are the canonical locations for
+architectural decisions; they MUST NOT be recorded in `CLAUDE.md` or
+agent-specific context files.
 
 **Migration policy**: content moves from `specs/` to `docs/` when it becomes
 stable, reusable across features, and no longer tied to a single increment.
@@ -215,4 +197,4 @@ All agents working in this repository MUST read this constitution at the start
 of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `CLAUDE.md` and `.cursor/rules/`.
 
-**Version**: 1.0.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-03-11
+**Version**: 1.1.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-03-26

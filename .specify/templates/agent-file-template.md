@@ -4,7 +4,8 @@ Auto-generated from all feature plans. Last updated: [DATE]
 
 ## Active Technologies
 
-[EXTRACTED FROM ALL PLAN.MD FILES]
+For an overview of the technology stack and key architectural decisions, read
+[`docs/architecture/solution-strategy.md`](docs/architecture/solution-strategy.md).
 
 ## Project Structure
 
