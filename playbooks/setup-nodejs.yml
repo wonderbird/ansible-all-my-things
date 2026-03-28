@@ -15,12 +15,12 @@
       become_user: "{{ item }}"
       loop: "{{ desktop_user_names }}"
 
-    - name: Install latest LTS Node.js
+    - name: Install LTS/Jod Node.js
       shell: |
         . /home/{{ item }}/.nvm/nvm.sh
-        nvm install --lts
-        nvm use --lts
-        nvm alias default lts/*
+        nvm install lts/jod
+        nvm use lts/jod
+        nvm alias default lts/jod
       args:
         executable: /bin/bash
       become_user: "{{ item }}"
