@@ -3,20 +3,19 @@
 ## Current focus
 
 Branch `002-backup-chrome-config`. All implementation tasks complete and
-tested. US1 (backup), US2 (restore), US3 (E2E acceptance test), and the
-FR-009 Missing-Profile Smoke Test have all passed on `hobbiton` (AMD64).
-Ready for final commit (T007) and PR to main.
+committed. Spec artifacts (spec.md, plan.md, tasks.md, quickstart.md)
+corrected to use home button visibility as the E2E test indicator (commit
+`587a99a`). Ready for PR to main.
 
 ## Next immediate action
 
-**T007** — Final commit with `feat:` prefix and `Co-authored-by` trailer,
-then open PR to main.
+**PR to main** — open pull request for branch `002-backup-chrome-config`.
 
 ## Pending tasks (in execution order)
 
 Tasks are defined in `specs/002-backup-chrome-config/tasks.md`.
 
-- **T007** *(start here)* — Final commit and PR to main
+- **PR to main** *(start here)*
 - **T10** *(deferred)* — Ansible expert consult on backup/restore playbooks
   vs. roles
 

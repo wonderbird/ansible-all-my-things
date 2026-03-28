@@ -2,14 +2,15 @@
 
 ## What works
 
-- **spec.md** — complete and committed; includes FR-009 (missing-profile
-  graceful-skip), US1 scenario 4, and Session 2026-03-28 clarifications
-- **plan.md** — complete and committed; Summary updated to reflect stat guard
-  as a structural difference from Chromium (references TD-008)
-- **quickstart.md** — complete and committed; includes Missing-Profile Smoke
-  Test section for FR-009 verification
-- **tasks.md** — complete and committed; T001 description extended to require
-  FR-009 stat guard; T005 extended to reference Missing-Profile Smoke Test
+- **spec.md** — complete and committed (`587a99a`); includes FR-009,
+  Session 2026-03-28 clarifications, and corrected E2E indicator (home button
+  visibility replaces first-run dialog throughout)
+- **plan.md** — complete and committed (`587a99a`); Constraints updated to
+  reflect correct E2E indicator
+- **quickstart.md** — complete and committed (`587a99a`); step 5 and step 9
+  corrected to use home button visibility as the test indicator
+- **tasks.md** — complete and committed (`587a99a`); US2/US3 independent
+  tests and T005 corrected to use home button visibility
 - **research.md** — complete and markdownlint-clean (committed)
 - **docs/architecture/solution-strategy.md** — arc42 Section 4, complete
   (committed)
@@ -45,7 +46,7 @@
 
 ## What is left to build
 
-- **T007** — Final commit (memory bank update) and PR to main
+- **PR to main** — open pull request for branch `002-backup-chrome-config`
 - **T10** *(deferred)* — Ansible expert consult on backup/restore playbooks
   vs. roles
 
