@@ -92,7 +92,8 @@ the primary desktop user.
 **Independent Test**: Remove `~/.config/google-chrome/Default` on the target
 host, run
 `ansible-playbook playbooks/restore/google-chrome-settings.yml --limit hobbiton`,
-and verify Chrome opens without the first-run dialog.
+and verify previously configured settings (e.g., home button visible) are
+present after launch.
 
 ### Implementation for User Story 2
 
@@ -118,15 +119,16 @@ the import appears in `restore.yml`.
 an AMD64 desktop host.
 
 **Independent Test**: Execute the full 9-step procedure in `quickstart.md` on
-the AMD64 desktop host (`hobbiton`). Chrome must not show the first-run dialog
-and must display the home button after restore.
+the AMD64 desktop host (`hobbiton`). The home button must be visible after
+restore (Chrome does not show a first-run dialog when `Default/` is absent;
+home button visibility is the reliable indicator).
 
 ### Implementation for User Story 3
 
 - [ ] T005 [US3] Follow the manual acceptance test in
   `specs/002-backup-chrome-config/quickstart.md` on `hobbiton` (AMD64): enable
-  home button → backup → remove config → verify first-run dialog → close Chrome
-  → remove config again → restore → verify no dialog and home button visible.
+  home button → backup → remove config → verify home button not visible →
+  close Chrome → remove config again → restore → verify home button visible.
   Also run the Missing-Profile Smoke Test in `quickstart.md` to verify FR-009
   (absent profile → no error, debug message emitted, no archive created).
   This task is verification only — no code changes.

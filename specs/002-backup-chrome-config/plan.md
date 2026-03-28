@@ -31,9 +31,12 @@ and `playbooks/restore/restore.yml` (existing, unchanged)
 **Performance Goals**: N/A — file archival, no latency target
 **Constraints**: Chrome is AMD64-only. The `not-supported-on-vagrant-arm64`
 tag means the playbooks are skipped on Tart (ARM64) VMs. The end-to-end
-acceptance test (enable home button → backup → remove config → verify dialog
-→ restore → verify no dialog) **must be executed manually on an AMD64 desktop
-host**; it cannot be automated via the local VM test workflow.
+acceptance test (enable home button → backup → remove config → verify home
+button not visible → restore → verify home button visible) **must be executed
+manually on an AMD64 desktop host**; it cannot be automated via the local VM
+test workflow. Note: Chrome does not show a first-run dialog when
+`~/.config/google-chrome/Default` is absent; home button visibility is the
+reliable indicator.
 **Scale/Scope**: Single desktop user, single host
 
 ## Constitution Check

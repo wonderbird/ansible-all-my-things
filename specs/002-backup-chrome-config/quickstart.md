@@ -63,8 +63,9 @@ ansible-playbook playbooks/restore/google-chrome-settings.yml --limit hobbiton
    rm -rf ~/.config/google-chrome/Default
    ```
 
-5. Launch Google Chrome — confirm it shows the first-run configuration dialog
-   (Chrome has no profile to load).
+5. Launch Google Chrome — confirm the home button is **not** visible (Chrome
+   has no profile to load). Note: Chrome does not show a first-run dialog in
+   this state; home button absence is the reliable indicator.
 6. Close Google Chrome.
 7. Remove the configuration again (Chrome recreated default files on launch):
 
@@ -78,9 +79,8 @@ ansible-playbook playbooks/restore/google-chrome-settings.yml --limit hobbiton
    ansible-playbook playbooks/restore/google-chrome-settings.yml --limit hobbiton
    ```
 
-9. Launch Google Chrome — confirm:
-   - The first-run configuration dialog does **not** appear.
-   - The home button is visible in the toolbar.
+9. Launch Google Chrome — confirm the home button is visible in the toolbar
+   (confirming the profile was faithfully restored).
 
 ## Missing-Profile Smoke Test (optional)
 
