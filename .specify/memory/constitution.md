@@ -197,30 +197,4 @@ All agents working in this repository MUST read this constitution at the start
 of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `CLAUDE.md` and `.cursor/rules/`.
 
-<!-- Sync Impact Report 1.1.1 (2026-03-26)
-  Principle VI: Added delegation pointer to
-  `.cursor/rules/general/400-markdown-formatting.mdc` as the authoritative
-  source for the full linting ruleset, tool invocation, and installation
-  instructions. Agents must now read that file whenever creating or modifying
-  a Markdown file. The inline semantic rules in Principle VI are retained as
-  a concise summary; the rule file is definitive.
-  Propagation: CLAUDE.md updated to reference 400-markdown-formatting.mdc
-  for markdown formatting guidance.
--->
-<!-- Sync Impact Report 1.1.0 (2026-03-25)
-  Principle V: Removed redundant co-authorship table, headline conventions,
-  and body-rule details. `.cursor/rules/general/330-git-usage.mdc` is now
-  the authoritative source for all commit formatting; the constitution retains
-  only the prefix list and the high-level coherence requirement.
-  Documentation Standards: Added pointer to
-  `.cursor/rules/general/600-documentation-strategy.mdc` as authoritative
-  source. Named `docs/architecture/solution-strategy.md` (arc42 Section 4)
-  and `docs/architecture/decisions/` as canonical locations for architectural
-  decisions; prohibited recording these in CLAUDE.md or agent context files.
-  Re-added migration policy. Retained project-specific `specs/<feature>/`
-  tier extension.
-  Propagation: `.specify/templates/agent-file-template.md` updated — "Active
-  Technologies" section now points agents to `docs/architecture/solution-strategy.md`
-  instead of inlining technology lists; "Recent Changes" section retained.
--->
 **Version**: 1.1.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-03-26

@@ -17,13 +17,13 @@ For an overview of the technology stack and key architectural decisions, read
 
 [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES]
 
-## Recent Changes
-
-[LAST 3 FEATURES AND WHAT THEY ADDED]
-
 ## Code Style
 
 [LANGUAGE-SPECIFIC, ONLY FOR LANGUAGES IN USE]
+
+## Recent Changes
+
+[LAST 3 FEATURES AND WHAT THEY ADDED]
 
 <!-- MANUAL ADDITIONS START -->
 <!-- MANUAL ADDITIONS END -->
