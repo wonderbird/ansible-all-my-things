@@ -88,3 +88,9 @@ constraints are documented in
 
 Architecture Decision Records are in
 [`docs/architecture/decisions/`](docs/architecture/decisions/).
+
+## Active Technologies
+- YAML (Ansible 2.19+) + No new collections — `ansible.builtin.command` (003-android-studio-role)
+
+## Recent Changes
+- 003-android-studio-role: Added YAML (Ansible 2.19+) + No new collections — `ansible.builtin.command`

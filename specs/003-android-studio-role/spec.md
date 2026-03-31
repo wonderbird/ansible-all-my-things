@@ -85,7 +85,9 @@ completes successfully.
 - If network access is unavailable during provisioning, the snap install
   fails and the playbook aborts with an error. No special handling is
   performed.
-- What happens if disk space is insufficient to complete the installation?
+- If disk space is insufficient, the snap install fails and the playbook
+  aborts with an error. No special handling is performed (consistent with
+  the network-failure edge case).
 
 ## Requirements *(mandatory)*
 
@@ -127,7 +129,10 @@ completes successfully.
   automation placed under `roles/android_studio/` that encapsulates all
   tasks, files, templates, and variables needed to install Android Studio.
 - **`configure-linux.yml`**: The top-level playbook that orchestrates all
-  provisioning steps; the `android_studio` role will be referenced here.
+  provisioning steps by importing sub-playbooks including
+  `configure-linux-roles.yml`.
+- **`configure-linux-roles.yml`**: The roles playbook where the
+  `android_studio` role entry will be added, consistent with existing roles.
 - **Target Host**: A virtual machine running a supported Linux distribution
   where Android Studio will be installed.
 
@@ -164,8 +169,6 @@ completes successfully.
 - Q: What is the verifiable definition of "launchable" for acceptance
   testing? → A: `snap list android-studio` exits successfully (snap is
   installed and active).
-  (`snap install android-studio --classic`), consistent with the official
-  Ubuntu install instructions.
 
 ## Assumptions
 
