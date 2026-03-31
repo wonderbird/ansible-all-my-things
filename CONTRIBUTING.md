@@ -1,4 +1,12 @@
-# Easily adding and testing a new role
+# Developer Setup
+
+## Prerequisites: Spec-Kit
+
+[GitHub Spec Kit](https://github.com/github/spec-kit) and [Claude Code](https://claude.ai)
+can be used to extend this application. Consider installing the corresponding
+tools as described in the [Spec Kit Getting Started Guide](https://github.com/github/spec-kit).
+
+## Easily adding and testing a new role
 
 To test your new role:
 
