@@ -5,32 +5,30 @@
 
 ## Decision 1 — Snap module vs. command module
 
-**Decision**: Use `ansible.builtin.command` with a `creates:` guard rather
-than `community.general.snap`.
+**Decision**: Use `community.general.snap` with `state: present`.
 
-**Rationale**: `community.general` is not listed in `requirements.yml`. Adding
-a full collection for a single snap install task violates Constitution §IV
-(Simplicity/YAGNI). The `ansible.builtin.command` approach achieves identical
-idempotency with no new dependency:
+**Rationale**: Official collection modules are preferred over raw
+`ansible.builtin.command` for maintainability and faster upstream fixes.
+`community.general.snap` expresses intent declaratively and handles
+idempotency natively — it reports `changed` on first install and `ok` on
+subsequent runs without a manual guard:
 
 ```yaml
 - name: Install Android Studio via snap
-  ansible.builtin.command:
-    cmd: snap install android-studio --classic
-    creates: /snap/android-studio/current
-  become: true
+  community.general.snap:
+    name: android-studio
+    classic: true
+    state: present
 ```
 
-`/snap/android-studio/current` is the canonical symlink that snapd creates
-for every installed classic snap and points to the active revision. Its
-presence is a reliable, stable footprint for the `creates:` guard.
+`community.general` must be added to `requirements.yml` to satisfy this
+dependency.
 
 **Alternatives considered**:
 
-- `community.general.snap` with `state: present` — rejected; requires adding
-  `community.general` to `requirements.yml` for a single task. The module
-  also reports `changed` on first install and `ok` on subsequent runs, which
-  is the same behaviour as the `creates:` guard approach.
+- `ansible.builtin.command` with a `creates:` guard — rejected; custom guards
+  are harder to maintain than a purpose-built module, and any bugs must be
+  fixed in-repo rather than relying on upstream fixes.
 
 ## Decision 2 — Role file layout
 
@@ -45,21 +43,17 @@ no files to distribute. Adding empty directories is noise.
 **Alternatives considered**: Full scaffold with all directories — rejected;
 Constitution §IV prohibits speculative structure.
 
-## Decision 3 — Idempotency guard path
+## Decision 3 — Idempotency
 
-**Decision**: `creates: /snap/android-studio/current`
+**Decision**: Rely on `community.general.snap` native idempotency; no manual
+guard path needed.
 
-**Rationale**: `snapd` creates `/snap/<snap-name>/current` as a symlink to
-the active revision for every installed snap. This path is present after any
-successful `snap install android-studio` (classic or otherwise) and absent
-otherwise. It is stable across snap refreshes (the symlink target changes;
-the symlink itself remains). Using it as the `creates:` guard means the
-install task is skipped on every subsequent run, regardless of which revision
-is active.
+**Rationale**: The module checks snap state before acting and reports `ok`
+when the snap is already installed. A `creates:` guard is unnecessary and
+would duplicate logic the module already encapsulates.
 
 **Alternatives considered**:
 
-- `creates: /snap/bin/android-studio` — snap also creates command wrappers
-  in `/snap/bin/`; equally valid but less canonical than `current`.
-- Checking `/usr/bin/android-studio` — not applicable; classic snaps do not
-  write to `/usr/bin/`.
+- `creates: /snap/android-studio/current` — valid guard path for
+  `ansible.builtin.command`, but not applicable now that the snap module is
+  used (see Decision 1).

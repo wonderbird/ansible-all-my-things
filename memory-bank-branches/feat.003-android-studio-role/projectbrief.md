@@ -19,9 +19,9 @@
 
 ## Key Constraints
 
-- Install via `snap install android-studio --classic`; idempotency via
-  `creates: /snap/android-studio/current`
-- No new Ansible collections — use `ansible.builtin.command`
+- Install via `community.general.snap` (`name: android-studio`, `classic: true`,
+  `state: present`); idempotency handled natively by the module
+- Requires adding `community.general` to `requirements.yml`
 - Tag `not-supported-on-vagrant-arm64` at role-entry level in
   `configure-linux-roles.yml` only (not on individual tasks)
 - Mirror two-file layout of `roles/google_chrome/` (`meta/` + `tasks/` only)

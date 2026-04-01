@@ -39,14 +39,14 @@ begin.
 **Goal**: A developer adds the `android_studio` role to the playbook and
 runs it; Android Studio is installed via snap and launchable on the VM.
 
-**Independent Test**: Run `ansible-playbook configure-linux.yml` against
-a fresh AMD64 Vagrant VM (roles-only) and verify `snap list android-studio`
+**Independent Test**: Run `ansible-playbook configure-linux.yml --limit hobbiton`
+against a fresh AMD64 Vagrant VM (roles-only) and verify `snap list android-studio`
 returns a single active row. See `quickstart.md` — Isolated role test.
 
 ### Implementation for User Story 1
 
 - [ ] T002 [P] [US1] Create `roles/android_studio/meta/main.yml` with SPDX header and galaxy_info matching plan.md §meta/main.yml fields
-- [ ] T003 [P] [US1] Create `roles/android_studio/tasks/main.yml` with a single snap-install task: `ansible.builtin.command` cmd `snap install android-studio --classic` with `creates: /snap/android-studio/current`; do NOT add `become: true` to the task — the play in `configure-linux-roles.yml` already sets it (see research.md Decision 1 for the module choice; ignore the `become: true` shown in that snippet)
+- [ ] T003 [P] [US1] Create `roles/android_studio/tasks/main.yml` with a single snap-install task using `community.general.snap` (`name: android-studio`, `classic: true`, `state: present`); do NOT add `become: true` to the task — the play in `configure-linux-roles.yml` already sets it (see research.md Decision 1)
 - [ ] T004 [US1] Add `android_studio` role entry to `configure-linux-roles.yml` with `tags: not-supported-on-vagrant-arm64` after the `google_chrome` entry (matching existing tag pattern)
 
 **Checkpoint**: US1 is complete when `snap list android-studio` exits
@@ -67,8 +67,9 @@ test.
 ### Implementation for User Story 2
 
 No additional code changes are required. Idempotency is fully implemented
-by the `creates: /snap/android-studio/current` guard in T003 (`tasks/main.yml`):
-the install task is skipped on every run where the snap symlink already exists.
+by `community.general.snap` natively in T003 (`tasks/main.yml`): the module
+checks snap state before acting and reports `ok` when the snap is already
+installed.
 
 **Checkpoint**: US2 is verified when the second playbook run reports no
 `changed` tasks for the `android_studio` role.
@@ -80,7 +81,7 @@ the install task is skipped on every run where the snap symlink already exists.
 **Goal**: Running the playbook against an ARM64 machine skips all
 `android_studio` role tasks without errors.
 
-**Independent Test**: Run `ansible-playbook configure-linux.yml
+**Independent Test**: Run `ansible-playbook configure-linux.yml --limit hobbiton
 --skip-tags not-supported-on-vagrant-arm64` against an ARM64 Vagrant VM.
 All `android_studio` tasks must be skipped; the playbook must complete
 without errors. See `quickstart.md` — ARM64 skip test.
@@ -105,7 +106,7 @@ tasks inside `tasks/main.yml` do NOT carry the tag.
 **Purpose**: Update technical debt register to reflect `android_studio`
 following the same unpinned-version pattern as existing roles.
 
-- [ ] T005 Update `docs/architecture/technical-debt/technical-debt.md` TD-003: add `roles/android_studio/tasks/main.yml` to the affected files list and note that snap-based idempotency (creates: guard) differs from apt-based idempotency in that the installed revision may differ across machines provisioned at different times
+- [ ] T005 Update `docs/architecture/technical-debt/technical-debt.md` TD-003: add `roles/android_studio/tasks/main.yml` to the affected files list and note that snap-based idempotency (module native) differs from apt-based idempotency in that the installed revision may differ across machines provisioned at different times
 - [ ] T006 Add an inline comment to the `android_studio` role entry in `configure-linux-roles.yml` noting FR-008: if the role is ever invoked via `ansible.builtin.include_role`, the caller MUST pass `apply: tags: [not-supported-on-vagrant-arm64]` to propagate the skip tag to inner tasks
 
 ---
@@ -123,7 +124,7 @@ following the same unpinned-version pattern as existing roles.
 ### User Story Dependencies
 
 - **US1 (P1)**: Depends only on Phase 1 (setup)
-- **US2 (P2)**: Implemented within US1 (creates: guard in T003) — verification only
+- **US2 (P2)**: Implemented within US1 (module native idempotency in T003) — verification only
 - **US3 (P3)**: Implemented within US1 (tag on role entry in T004) — verification only
 
 ### Within User Story 1

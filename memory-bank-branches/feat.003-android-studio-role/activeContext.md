@@ -2,8 +2,8 @@
 
 ## Current Focus
 
-Implement the `android_studio` Ansible role. Tasks and analysis are done;
-ready to run `/speckit.implement`.
+Implement the `android_studio` Ansible role. Spec artefacts reviewed and
+corrected; ready to run `/speckit.implement`.
 
 ## Next Steps
 

@@ -14,9 +14,10 @@ roles/android_studio/
 #SPDX-License-Identifier: MIT-0
 ---
 - name: Install Android Studio via snap
-  ansible.builtin.command:
-    cmd: snap install android-studio --classic
-    creates: /snap/android-studio/current
+  community.general.snap:
+    name: android-studio
+    classic: true
+    state: present
 ```
 
 ## configure-linux-roles.yml entry pattern (mirrors google_chrome)
@@ -39,5 +40,5 @@ absent before install; stable across snap refreshes.
 
 ## Research decisions
 
-`specs/003-android-studio-role/research.md` — why `ansible.builtin.command`
-over `community.general.snap`, two-file layout rationale, guard path choice.
+`specs/003-android-studio-role/research.md` — why `community.general.snap`
+over `ansible.builtin.command`, two-file layout rationale, native idempotency.

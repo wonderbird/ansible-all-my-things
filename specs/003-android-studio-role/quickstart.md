@@ -20,7 +20,7 @@ roles:
 Then run the playbook:
 
 ```bash
-ansible-playbook configure-linux.yml -i inventories/<your-inventory>
+ansible-playbook configure-linux.yml --limit hobbiton
 ```
 
 Verify on the target VM:
@@ -42,7 +42,7 @@ Run with the skip tag active:
 
 ```bash
 ansible-playbook configure-linux.yml \
-  -i inventories/<your-inventory> \
+  --limit hobbiton \
   --skip-tags not-supported-on-vagrant-arm64
 ```
 

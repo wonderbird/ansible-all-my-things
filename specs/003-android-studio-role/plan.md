@@ -8,15 +8,14 @@
 
 Install Android Studio (stable) system-wide on AMD64 Ubuntu VMs via the
 official snap package (`android-studio --classic`). The role is idempotent
-via a `creates:` guard on the snap installation path. ARM64 hosts are skipped
+via `community.general.snap`'s native idempotency. ARM64 hosts are skipped
 gracefully using the existing `not-supported-on-vagrant-arm64` tag pattern.
 
 ## Technical Context
 
 **Language/Version**: YAML (Ansible 2.19+)
-**Primary Dependencies**: No new collections — `ansible.builtin.command`
-with a `creates:` guard replaces `community.general.snap` to avoid adding
-a collection dependency (see research.md).
+**Primary Dependencies**: `community.general.snap` — requires adding
+`community.general` to `requirements.yml` (see research.md).
 **Storage**: N/A
 **Testing**: Manual — `ansible-playbook` against a local Vagrant AMD64 VM;
 see quickstart.md
@@ -34,14 +33,14 @@ one line in `configure-linux-roles.yml`
 
 | Principle | Status | Notes |
 | --------- | ------ | ----- |
-| §I Idempotency | PASS | `creates: /snap/android-studio/current` guards |
-| | | the install task; second run skips it entirely |
+| §I Idempotency | PASS | `community.general.snap` handles idempotency |
+| | | natively; second run reports `ok`, never `changed` |
 | §II Role-First | PASS | New role in `roles/android_studio/`; no logic |
 | | | added to playbooks directly |
 | §III Test Locally | PASS | Must test on AMD64 Vagrant VM before cloud |
 | | | (see quickstart.md) |
-| §IV Simplicity | PASS | Minimal two-file role; no new collections; |
-| | | no speculative parameterisation |
+| §IV Simplicity | PASS | Minimal two-file role; `community.general` added |
+| | | for snap support; no speculative parameterisation |
 | §V Conventional Commits | PASS | `feat:` prefix; co-authored-by trailer |
 | §VI Markdown Quality | PASS | markdownlint passes on all spec artefacts |
 
@@ -67,7 +66,7 @@ directory (internal automation, no external interfaces).
 ```text
 roles/android_studio/
 ├── meta/main.yml        # Role metadata (author, license, Ansible version)
-└── tasks/main.yml       # Snap install task with creates: guard
+└── tasks/main.yml       # Snap install task using community.general.snap
 
 configure-linux-roles.yml   # Add android_studio role entry with tag
 docs/architecture/technical-debt/technical-debt.md   # Update TD-003

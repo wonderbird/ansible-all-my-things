@@ -1,7 +1,7 @@
 # Tech Context
 
 - **Language**: YAML, Ansible 2.19+
-- **Collections**: None new — `ansible.builtin.command` only
+- **Collections**: `community.general` (for `community.general.snap`) — must be added to `requirements.yml`
 - **Target OS**: Ubuntu Linux, AMD64 only
 - **snapd**: Pre-installed (standard Ubuntu); role does NOT set it up
 - **Internet**: Required on first run (snap downloads from Snap Store)
