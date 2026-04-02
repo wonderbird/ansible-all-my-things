@@ -1,0 +1,7 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Install Android Studio via snap
+  community.general.snap:
+    name: android-studio
+    classic: true
+    state: present

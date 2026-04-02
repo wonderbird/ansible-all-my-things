@@ -22,7 +22,7 @@ implementation and testing of each story.
 **Purpose**: Create the role directory layout matching the `google_chrome`
 two-file convention.
 
-- [ ] T001 Create role directory structure `roles/android_studio/meta/` and `roles/android_studio/tasks/`
+- [x] T001 Create role directory structure `roles/android_studio/meta/` and `roles/android_studio/tasks/`
 
 ---
 
@@ -45,9 +45,9 @@ returns a single active row. See `quickstart.md` — Isolated role test.
 
 ### Implementation for User Story 1
 
-- [ ] T002 [P] [US1] Create `roles/android_studio/meta/main.yml` with SPDX header and galaxy_info matching plan.md §meta/main.yml fields
-- [ ] T003 [P] [US1] Create `roles/android_studio/tasks/main.yml` with a single snap-install task using `community.general.snap` (`name: android-studio`, `classic: true`, `state: present`); do NOT add `become: true` to the task — the play in `configure-linux-roles.yml` already sets it (see research.md Decision 1)
-- [ ] T004 [US1] Add `android_studio` role entry to `configure-linux-roles.yml` with `tags: not-supported-on-vagrant-arm64` after the `google_chrome` entry (matching existing tag pattern)
+- [x] T002 [P] [US1] Create `roles/android_studio/meta/main.yml` with SPDX header and galaxy_info matching plan.md §meta/main.yml fields
+- [x] T003 [P] [US1] Create `roles/android_studio/tasks/main.yml` with a single snap-install task using `community.general.snap` (`name: android-studio`, `classic: true`, `state: present`); do NOT add `become: true` to the task — the play in `configure-linux-roles.yml` already sets it (see research.md Decision 1)
+- [x] T004 [US1] Add `android_studio` role entry to `configure-linux-roles.yml` with `tags: not-supported-on-vagrant-arm64` after the `google_chrome` entry (matching existing tag pattern)
 
 **Checkpoint**: US1 is complete when `snap list android-studio` exits
 successfully on the target VM after the first playbook run.
@@ -106,8 +106,8 @@ tasks inside `tasks/main.yml` do NOT carry the tag.
 **Purpose**: Update technical debt register to reflect `android_studio`
 following the same unpinned-version pattern as existing roles.
 
-- [ ] T005 Update `docs/architecture/technical-debt/technical-debt.md` TD-003: add `roles/android_studio/tasks/main.yml` to the affected files list and note that snap-based idempotency (module native) differs from apt-based idempotency in that the installed revision may differ across machines provisioned at different times
-- [ ] T006 Add an inline comment to the `android_studio` role entry in `configure-linux-roles.yml` noting FR-008: if the role is ever invoked via `ansible.builtin.include_role`, the caller MUST pass `apply: tags: [not-supported-on-vagrant-arm64]` to propagate the skip tag to inner tasks
+- [x] T005 Update `docs/architecture/technical-debt/technical-debt.md` TD-003: add `roles/android_studio/tasks/main.yml` to the affected files list and note that snap-based idempotency (module native) differs from apt-based idempotency in that the installed revision may differ across machines provisioned at different times
+- [x] T006 Add an inline comment to the `android_studio` role entry in `configure-linux-roles.yml` noting FR-008: if the role is ever invoked via `ansible.builtin.include_role`, the caller MUST pass `apply: tags: [not-supported-on-vagrant-arm64]` to propagate the skip tag to inner tasks
 
 ---
 

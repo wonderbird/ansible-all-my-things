@@ -113,20 +113,30 @@ the testing procedure in `CONTRIBUTING.md`.
   - [roles/google_chrome/tasks/main.yml](../../roles/google_chrome/tasks/main.yml)
   - [roles/cursor_ide/tasks/main.yml](../../roles/cursor_ide/tasks/main.yml)
   - [roles/claude_code/tasks/main.yml](../../roles/claude_code/tasks/main.yml)
+  - [roles/android_studio/tasks/main.yml](../../roles/android_studio/tasks/main.yml)
 - **Date added:** 2026-03-13
 
 ### TD-003: Description
 
-All three installation roles install the latest available version of their
-respective package (`google-chrome-stable`, Cursor IDE, Claude Code) rather
-than a pinned, reproducible version. A package update that introduces a
-breaking change or regression will be silently applied on the next playbook
-run, and a re-run on the same machine will install a different version than
-the original run.
+All four installation roles install the latest available version of their
+respective package (`google-chrome-stable`, Cursor IDE, Claude Code,
+`android-studio`) rather than a pinned, reproducible version. A package update
+that introduces a breaking change or regression will be silently applied on the
+next playbook run, and a re-run on the same machine will install a different
+version than the original run.
 
 This violates strict package-level idempotency: running the playbook twice
 against the same machine at different points in time may produce different
 installed versions.
+
+The `android_studio` role uses `community.general.snap` which provides
+native idempotency: a second run against the same machine reports `ok` (never
+`changed`) when the snap is already installed at any revision. However, fresh
+machines provisioned at different times may receive different snap revisions,
+as snap version pinning is not supported by this role. Additionally, snapd
+automatically refreshes installed snaps in the background, so the installed
+Android Studio version can change on any machine at any time without a
+playbook run.
 
 ### TD-003: Mitigation
 
