@@ -129,8 +129,8 @@ dependencies: []
 #   https://developer.android.com/studio/index.html#command-line-tools-only
 # Download URL pattern:
 #   https://dl.google.com/android/repository/commandlinetools-linux-{build}_latest.zip
-android_cmdlinetools_build: "<set during implementation>"
-android_cmdlinetools_sha256: "<set during implementation>"
+android_cmdlinetools_build: "11076708"
+android_cmdlinetools_sha256: "2d2d50857e4eb553af5a6dc3ad507a17adf43d115264b1afc116f95c92e5e258"
 ```
 
 ### SDK Pre-Provisioning Design (User Story 4)
@@ -143,21 +143,36 @@ each developer's SDK directory.
 
 1. **Download cmdline-tools** — `ansible.builtin.get_url` fetches
    `commandlinetools-linux-{{ android_cmdlinetools_build }}_latest.zip`
-   to a shared temp location with
-   `checksum: "sha256:{{ android_cmdlinetools_sha256 }}"`.
+   to `/tmp/commandlinetools-linux-{{ android_cmdlinetools_build }}_latest.zip`
+   with `checksum: "sha256:{{ android_cmdlinetools_sha256 }}"`.
    Idempotent via `creates:`.
 
 **Per user in `desktop_user_names`:**
 
 1. **Create ANDROID_HOME** — `ansible.builtin.file` ensures
    `~/Android/Sdk` exists, owned by the user.
-2. **Extract cmdline-tools** — `ansible.builtin.unarchive` extracts to
-   `~/Android/Sdk/cmdline-tools/latest/`. Idempotent via `creates:`.
-3. **Install SDK components** — `community.general.android_sdk` installs
-   `platform-tools`, `platforms;android-<latest>`, `build-tools;<latest>`,
-   `emulator`, and `sources;android-<latest>` with
-   `accept_licenses: true`. The module uses the snap-bundled JBR at
-   `/snap/android-studio/current/android-studio/jbr/bin/java`.
+2. **Extract cmdline-tools** — The ZIP contains a top-level
+   `cmdline-tools/` directory. Extracting directly to
+   `~/Android/Sdk/cmdline-tools/latest/` would produce double-nesting
+   (`…/latest/cmdline-tools/`). Instead:
+   - `ansible.builtin.unarchive` extracts to
+     `~/Android/Sdk/cmdline-tools/` (creates
+     `~/Android/Sdk/cmdline-tools/cmdline-tools/`).
+   - `ansible.builtin.command` renames `cmdline-tools/cmdline-tools/`
+     to `cmdline-tools/latest/` with
+     `creates: ~/Android/Sdk/cmdline-tools/latest/bin/sdkmanager`.
+3. **Detect latest API level** — `ansible.builtin.shell` runs
+   `sdkmanager --list` and parses the output to find the highest
+   `platforms;android-XX` API level. Also detects the latest
+   `build-tools` version. Uses `changed_when: false`. Requires
+   `JAVA_HOME` set to the snap-bundled JBR at
+   `/snap/android-studio/current/android-studio/jbr`.
+4. **Install SDK components** — `community.general.android_sdk` installs
+   `platform-tools`, `platforms;android-{{ latest_api }}`,
+   `build-tools;{{ latest_buildtools }}`, `emulator`, and
+   `sources;android-{{ latest_api }}` with `accept_licenses: true`
+   and `sdk_root: ~/Android/Sdk`. The module requires `sdkmanager`
+   (provided by step 2) and Java 17+ (snap-bundled JBR).
 
 Per-user tasks use `become_user: "{{ item }}"` to ensure correct file
 ownership (see research.md Decision 6).

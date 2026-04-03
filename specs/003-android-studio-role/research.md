@@ -65,6 +65,18 @@ cmdline-tools), `ansible.builtin.unarchive` (extract), and
 `community.general.android_sdk` (install SDK components + accept
 licenses) per user in `desktop_user_names`.
 
+**Verified** (2026-04-03): `community.general.android_sdk` confirmed
+present via `ansible-doc community.general.android_sdk`. Module wraps
+`sdkmanager`, supports `accept_licenses: true`, `sdk_root`, `state:
+latest`, and `check_mode`. Requires `sdkmanager` and Java 17+ on the
+managed node (both provided by cmdline-tools bootstrap and the
+snap-bundled JBR respectively).
+
+**Key constraint**: Package names require explicit versions (e.g.,
+`platforms;android-35`). There is no symbolic `latest` token. The
+latest API level must be detected at runtime by parsing
+`sdkmanager --list` output.
+
 **Rationale**: `community.general.android_sdk` handles license
 acceptance (`accept_licenses: true`) and SDK component installation
 declaratively. cmdline-tools must be bootstrapped first because the

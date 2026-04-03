@@ -121,26 +121,33 @@ start to completion. See `quickstart.md` — SDK validation test.
 
 - [ ] T007 [US4] Create
   `roles/android_studio/defaults/main.yml` with SPDX header,
-  `android_cmdlinetools_build` and
-  `android_cmdlinetools_sha256` variables
+  `android_cmdlinetools_build: "11076708"` and
+  `android_cmdlinetools_sha256: "2d2d50857e4eb553af5a6dc3ad507a17adf43d115264b1afc116f95c92e5e258"`
 - [ ] T008 [US4] Add task to download cmdline-tools ZIP once
-  to a shared temp location using `ansible.builtin.get_url`
+  to `/tmp/commandlinetools-linux-{{ android_cmdlinetools_build }}_latest.zip`
+  using `ansible.builtin.get_url`
   with `checksum: "sha256:{{ android_cmdlinetools_sha256 }}"`;
   idempotent via `creates:` guard
 - [ ] T009 [US4] Add task to create `~/Android/Sdk` directory
   per user in `desktop_user_names` using
   `ansible.builtin.file`
-- [ ] T010 [US4] Add task to extract cmdline-tools to
-  `~/Android/Sdk/cmdline-tools/latest/` per user using
-  `ansible.builtin.unarchive`; idempotent via `creates:`
-  guard
+- [ ] T010 [US4] Add tasks to extract cmdline-tools per user:
+  (a) `ansible.builtin.unarchive` extracts ZIP to
+  `~/Android/Sdk/cmdline-tools/` (creates nested
+  `cmdline-tools/cmdline-tools/`); (b) `ansible.builtin.command`
+  renames `cmdline-tools/cmdline-tools/` to `cmdline-tools/latest/`
+  with `creates: ~/Android/Sdk/cmdline-tools/latest/bin/sdkmanager`
+- [ ] T010a [US4] Add task to detect latest Android API level
+  and build-tools version by parsing `sdkmanager --list` output;
+  `changed_when: false`; set `JAVA_HOME` to snap-bundled JBR
+  (`/snap/android-studio/current/android-studio/jbr`)
 - [ ] T011 [US4] Add task to install SDK components
-  (`platform-tools`, `platforms;android-<latest>`,
-  `build-tools;<latest>`, `emulator`,
-  `sources;android-<latest>`) using
+  (`platform-tools`, `platforms;android-{{ latest_api }}`,
+  `build-tools;{{ latest_buildtools }}`, `emulator`,
+  `sources;android-{{ latest_api }}`) using
   `community.general.android_sdk` with
-  `accept_licenses: true` per user, using snap-bundled
-  JBR for Java
+  `accept_licenses: true` and `sdk_root: ~/Android/Sdk`
+  per user, using snap-bundled JBR for Java
 - [ ] T012 [US4] Verify idempotency: second run reports `ok`
   for all SDK tasks (FR-012)
 
@@ -200,8 +207,10 @@ following the same unpinned-version pattern as existing roles.
 
 - T007 (`defaults/main.yml`) must complete first (variable definition)
 - T008 (download cmdline-tools) runs once, no per-user dependency
-- T009 (create ANDROID_HOME) → T010 (extract) → T011 (install SDK)
-  — sequential per-user chain; T010 depends on T008
+- T009 (create ANDROID_HOME) → T010 (extract + rename) → T010a
+  (detect latest API) → T011 (install SDK) — sequential per-user
+  chain; T010 depends on T008; T010a depends on T010 (needs
+  sdkmanager); T011 depends on T010a (needs version variables)
 - T012 (idempotency verification) runs after T011
 
 ---

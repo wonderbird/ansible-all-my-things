@@ -1,35 +1,23 @@
 # Tech Context
 
-- **Language**: YAML, Ansible 2.19+
-- **Collections**: `community.general` (for `community.general.snap` and `community.general.android_sdk`) — already in `requirements.yml`
-- **Target OS**: Ubuntu Linux, AMD64 only
-- **snapd**: Pre-installed (standard Ubuntu); role does NOT set it up
-- **Internet**: Required on first run (snap downloads from Snap Store; cmdline-tools and SDK components also downloaded)
-- **Testing**: Manual via `ansible-playbook` on AMD64 Vagrant VM
-  (see `specs/003-android-studio-role/quickstart.md`)
-- **Lint**: markdownlint must pass on all spec artefacts
+- **Stack**: YAML, Ansible 2.19+, `community.general`
+  collection (already in `requirements.yml`)
+- **Target**: Ubuntu Linux, AMD64 only; snapd pre-installed
+- **Testing**: Manual on AMD64 Vagrant VM (`--limit hobbiton`);
+  see `specs/003-android-studio-role/quickstart.md`
+- **Lint**: markdownlint on all spec artefacts and memory bank
 
-## Android SDK automation — technical facts
+## SDK automation — key technical facts
 
-- **ANDROID_HOME**: `~/Android/Sdk` (per user, not system-wide)
-- **SDK must be set up for**: all users in `desktop_user_names` (user decision)
-- **Java**: Snap bundles JetBrains Runtime (JBR) at
-  `/snap/android-studio/current/android-studio/jbr/bin/java` — covers the Java 17+ requirement for sdkmanager
-- **sdkmanager bootstrap**: The snap does NOT expose `sdkmanager` at a known path.
-  Standalone cmdline-tools must be downloaded from Google and extracted to
-  `~/Android/Sdk/cmdline-tools/latest/` before sdkmanager can be used.
-- **cmdline-tools URL**: `https://dl.google.com/android/repository/commandlinetools-linux-{{ android_cmdlinetools_build }}_latest.zip`
-  Build number and SHA-256 checksum are role variables in
-  `defaults/main.yml`. Both values are listed at
-  <https://developer.android.com/studio/index.html#command-line-tools-only>.
-  Downloaded once (shared across users), then extracted per user.
-- **"Latest" SDK detection**: `"platforms;android-latest"` is NOT a valid sdkmanager package name.
-  The latest API level must be detected by parsing `sdkmanager --list` output at runtime.
-- **Ansible module**: `community.general.android_sdk` supports `accept_licenses: true`,
-  removing the need for `yes | sdkmanager --licenses`.
-- **Minimal SDK component set** (what the Standard setup wizard downloads):
-  - `platform-tools`
-  - `platforms;android-<latest>`
-  - `build-tools;<latest>`
-  - `emulator`
-  - `sources;android-<latest>` (platform sources)
+Details in plan.md SDK Design and research.md Decisions 4–6.
+Only non-obvious facts listed here:
+
+- Snap-bundled JBR provides Java 17+ at
+  `/snap/android-studio/current/android-studio/jbr`
+- Snap does NOT expose `sdkmanager`; cmdline-tools must be
+  bootstrapped separately
+- cmdline-tools ZIP has a top-level `cmdline-tools/` dir —
+  extract + rename needed (see plan.md)
+- `community.general.android_sdk` requires explicit package
+  versions — no symbolic `latest` token; detect via
+  `sdkmanager --list` at runtime
