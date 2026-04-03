@@ -26,8 +26,10 @@
 - [x] Idempotency test — android_studio task reported `ok` on second full playbook run
 - [x] ARM64 skip test — android_studio tasks absent from output (skipped by tag); playbook failure was unrelated `.envrc` bug
 - [x] configure-linux-roles.yml restored — roles sorted alphabetically (android_studio, claude_code, google_chrome)
-- [ ] Run markdownlint on `specs/003-android-studio-role/spec.md` once markdownlint is available in the shell PATH used by Claude Code (skipped this session — tool not found)
-- [ ] SDK automation: extend role to install Android SDK for all desktop users (spec updated; plan next)
+- [x] markdownlint — all five spec artefacts pass (NVM sourcing required; see `.cursor/rules/general/400-markdown-formatting.mdc`)
+- [x] SDK automation design — spec clarifications added, research decisions 4–6, plan updated with SDK design section + complexity tracking, tasks T007–T012 created, quickstart SDK validation steps added
+- [ ] SDK automation implementation (T007–T012)
+- [ ] SDK validation on Vagrant VM (SC-005: wizard ≤ 30 s)
 - [ ] Open PR (after SDK automation is implemented and validated)
 
 ## Known Issues / Decisions

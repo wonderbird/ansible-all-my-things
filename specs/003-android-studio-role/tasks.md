@@ -34,7 +34,7 @@ begin.
 
 ---
 
-## Phase 3: User Story 1 — Install Android Studio via Ansible (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 — Install Android Studio (P1) 🎯 MVP
 
 **Goal**: A developer adds the `android_studio` role to the playbook and
 runs it; Android Studio is installed via snap and launchable on the VM.
@@ -45,9 +45,15 @@ returns a single active row. See `quickstart.md` — Isolated role test.
 
 ### Implementation for User Story 1
 
-- [x] T002 [P] [US1] Create `roles/android_studio/meta/main.yml` with SPDX header and galaxy_info matching plan.md §meta/main.yml fields
-- [x] T003 [P] [US1] Create `roles/android_studio/tasks/main.yml` with a single snap-install task using `community.general.snap` (`name: android-studio`, `classic: true`, `state: present`); do NOT add `become: true` to the task — the play in `configure-linux-roles.yml` already sets it (see research.md Decision 1)
-- [x] T004 [US1] Add `android_studio` role entry to `configure-linux-roles.yml` with `tags: not-supported-on-vagrant-arm64` after the `google_chrome` entry (matching existing tag pattern)
+- [x] T002 [P] [US1] Create `roles/android_studio/meta/main.yml`
+  with SPDX header and galaxy_info matching plan.md
+- [x] T003 [P] [US1] Create `roles/android_studio/tasks/main.yml`
+  with a single snap-install task using `community.general.snap`
+  (`name: android-studio`, `classic: true`, `state: present`);
+  do NOT add `become: true` (see research.md Decision 1)
+- [x] T004 [US1] Add `android_studio` role entry to
+  `configure-linux-roles.yml` with tag
+  `not-supported-on-vagrant-arm64`
 
 **Checkpoint**: US1 is complete when `snap list android-studio` exits
 successfully on the target VM after the first playbook run.
@@ -101,13 +107,59 @@ tasks inside `tasks/main.yml` do NOT carry the tag.
 
 ---
 
+## Phase 5b: User Story 4 — SDK Pre-Provisioned at First Launch (Priority: P2)
+
+**Goal**: After provisioning, the Android Studio first-launch wizard
+completes within 30 seconds because all required SDK components are
+already present.
+
+**Independent Test**: Launch Android Studio on a freshly provisioned VM
+and step through the Standard setup wizard. Measure time from wizard
+start to completion. See `quickstart.md` — SDK validation test.
+
+### Implementation for User Story 4
+
+- [ ] T007 [US4] Create
+  `roles/android_studio/defaults/main.yml` with SPDX header
+  and `android_cmdlinetools_build` variable
+- [ ] T008 [US4] Add task to create `~/Android/Sdk` directory
+  per user in `desktop_user_names` using
+  `ansible.builtin.file`
+- [ ] T009 [US4] Add task to download cmdline-tools ZIP using
+  `ansible.builtin.get_url` per user; idempotent via
+  `creates:` guard on
+  `~/Android/Sdk/cmdline-tools/latest/bin/sdkmanager`
+- [ ] T010 [US4] Add task to extract cmdline-tools to
+  `~/Android/Sdk/cmdline-tools/latest/` per user using
+  `ansible.builtin.unarchive`; idempotent via `creates:`
+  guard
+- [ ] T011 [US4] Add task to install SDK components
+  (`platform-tools`, `platforms;android-<latest>`,
+  `build-tools;<latest>`, `emulator`,
+  `sources;android-<latest>`) using
+  `community.general.android_sdk` with
+  `accept_licenses: true` per user, using snap-bundled
+  JBR for Java
+- [ ] T012 [US4] Verify idempotency: second run reports `ok`
+  for all SDK tasks (FR-012)
+
+**Checkpoint**: US4 is complete when SC-005 passes (wizard ≤ 30 s).
+
+---
+
 ## Phase 6: Polish & Cross-Cutting Concerns
 
 **Purpose**: Update technical debt register to reflect `android_studio`
 following the same unpinned-version pattern as existing roles.
 
-- [x] T005 Update `docs/architecture/technical-debt/technical-debt.md` TD-003: add `roles/android_studio/tasks/main.yml` to the affected files list and note that snap-based idempotency (module native) differs from apt-based idempotency in that the installed revision may differ across machines provisioned at different times
-- [x] T006 Add an inline comment to the `android_studio` role entry in `configure-linux-roles.yml` noting FR-008: if the role is ever invoked via `ansible.builtin.include_role`, the caller MUST pass `apply: tags: [not-supported-on-vagrant-arm64]` to propagate the skip tag to inner tasks
+- [x] T005 Update
+  `docs/architecture/technical-debt/technical-debt.md` TD-003:
+  add `roles/android_studio/tasks/main.yml` to affected files
+  and note snap-based vs. apt-based idempotency difference
+- [x] T006 Add inline comment to `android_studio` role entry
+  in `configure-linux-roles.yml` noting FR-008:
+  `include_role` callers MUST pass
+  `apply: tags: [not-supported-on-vagrant-arm64]`
 
 ---
 
@@ -119,19 +171,36 @@ following the same unpinned-version pattern as existing roles.
 - **User Story 1 (Phase 3)**: Depends on Phase 1 (directory structure must exist)
 - **User Story 2 (Phase 4)**: No new implementation; verify after US1 is complete
 - **User Story 3 (Phase 5)**: No new implementation; verify after US1 is complete
-- **Polish (Phase 6)**: Can proceed once US1 implementation tasks (T002–T004) are done
+- **User Story 4 (Phase 5b)**: Depends on Phase 3 (snap must be
+  installed for JBR Java path)
+- **Polish (Phase 6)**: Can proceed once US1 implementation tasks
+  (T002–T004) are done
 
 ### User Story Dependencies
 
 - **US1 (P1)**: Depends only on Phase 1 (setup)
-- **US2 (P2)**: Implemented within US1 (module native idempotency in T003) — verification only
-- **US3 (P3)**: Implemented within US1 (tag on role entry in T004) — verification only
+- **US2 (P2)**: Implemented within US1 (module native idempotency
+  in T003) — verification only
+- **US3 (P3)**: Implemented within US1 (tag on role entry in T004)
+  — verification only
+- **US4 (P2)**: Depends on US1 (snap install provides JBR); T007
+  must precede T008–T011; T008–T010 are sequential
+  (directory → download → extract); T011 depends on T010
+  (sdkmanager must exist)
 
 ### Within User Story 1
 
 - T001 (directory structure) must complete before T002 and T003
 - T002 (`meta/main.yml`) and T003 (`tasks/main.yml`) can run in parallel [P]
-- T004 (`configure-linux-roles.yml`) depends on T003 (role must exist before being referenced)
+- T004 (`configure-linux-roles.yml`) depends on T003 (role must
+  exist before being referenced)
+
+### Within User Story 4
+
+- T007 (`defaults/main.yml`) must complete first (variable definition)
+- T008 (create ANDROID_HOME) → T009 (download cmdline-tools) →
+  T010 (extract) → T011 (install SDK) — sequential chain
+- T012 (idempotency verification) runs after T011
 
 ---
 
@@ -173,8 +242,9 @@ Task T004: "Add android_studio entry to configure-linux-roles.yml"
 - Do NOT add `become: true` to the snap install task in `tasks/main.yml`.
   The play in `configure-linux-roles.yml` already sets `become: true`; the
   task inherits privilege escalation from the play.
-- Both YAML files MUST begin with `#SPDX-License-Identifier: MIT-0`
-- Match `google_chrome` role exactly for header, galaxy_info shape, and
+- All YAML files MUST begin with `#SPDX-License-Identifier: MIT-0`
+- Match `google_chrome` role for header, galaxy_info shape, and
   tag placement
-- No `defaults/`, `vars/`, `handlers/`, or `templates/` directories — two
-  files only (Constitution §IV)
+- `defaults/main.yml` added for cmdline-tools build number
+  variable; no `vars/`, `handlers/`, or `templates/`
+  directories (Constitution §IV; see Complexity Tracking)

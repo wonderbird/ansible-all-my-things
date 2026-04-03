@@ -1,11 +1,12 @@
 # System Patterns
 
-## Role structure (mirrors `roles/google_chrome/`)
+## Role structure
 
 ```text
 roles/android_studio/
-├── meta/main.yml   # galaxy_info + dependencies: []
-└── tasks/main.yml  # single install task
+├── defaults/main.yml  # android_cmdlinetools_build variable
+├── meta/main.yml      # galaxy_info + dependencies: []
+└── tasks/main.yml     # snap install + SDK pre-provisioning
 ```
 
 ## tasks/main.yml pattern

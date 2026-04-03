@@ -57,3 +57,45 @@ would duplicate logic the module already encapsulates.
 - `creates: /snap/android-studio/current` — valid guard path for
   `ansible.builtin.command`, but not applicable now that the snap module is
   used (see Decision 1).
+
+## Decision 4 — SDK automation approach
+
+**Decision**: Use a combination of `ansible.builtin.get_url` (download
+cmdline-tools), `ansible.builtin.unarchive` (extract), and
+`community.general.android_sdk` (install SDK components + accept
+licenses) per user in `desktop_user_names`.
+
+**Rationale**: `community.general.android_sdk` handles license
+acceptance (`accept_licenses: true`) and SDK component installation
+declaratively. cmdline-tools must be bootstrapped first because the
+snap does not expose `sdkmanager` at a known path.
+
+**Alternatives considered**:
+
+- Pure shell (`command`/`shell`) with `sdkmanager` — rejected; requires
+  manual idempotency guards and license piping.
+
+## Decision 5 — cmdline-tools build number
+
+**Decision**: Expose the build number as a role variable
+`android_cmdlinetools_build` in `defaults/main.yml`. The URL is
+constructed as
+`https://dl.google.com/android/repository/commandlinetools-linux-{build}_latest.zip`.
+
+**Rationale**: There is no stable "latest" URL from Google. A role
+variable is the simplest approach (§IV); the value is bumped manually
+when a new version is needed.
+
+**Alternatives considered**:
+
+- Dynamic resolution from Google's repository XML — rejected; fragile,
+  depends on undocumented endpoint, violates §IV Simplicity.
+
+## Decision 6 — Per-user SDK provisioning
+
+**Decision**: Loop over `desktop_user_names` using `loop:` at the task
+level. Each SDK task runs as `become_user: "{{ item }}"` to ensure
+files are owned by the correct user under `~/Android/Sdk`.
+
+**Rationale**: ANDROID_HOME is per-user (`~/Android/Sdk`), not
+system-wide. Each user needs their own SDK copy.

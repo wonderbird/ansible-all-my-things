@@ -12,6 +12,7 @@
 
 | File | Action |
 | ---- | ------ |
+| `roles/android_studio/defaults/main.yml` | Create |
 | `roles/android_studio/meta/main.yml` | Create |
 | `roles/android_studio/tasks/main.yml` | Create |
 | `configure-linux-roles.yml` | Add role entry |

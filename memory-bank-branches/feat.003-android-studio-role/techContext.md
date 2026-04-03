@@ -25,9 +25,9 @@
   The latest API level must be detected by parsing `sdkmanager --list` output at runtime.
 - **Ansible module**: `community.general.android_sdk` supports `accept_licenses: true`,
   removing the need for `yes | sdkmanager --licenses`.
-- **Minimal SDK component set** (what a developer needs immediately):
+- **Minimal SDK component set** (what the Standard setup wizard downloads):
   - `platform-tools`
   - `platforms;android-<latest>`
   - `build-tools;<latest>`
   - `emulator`
-  - `system-images;android-<latest>;google_apis;x86_64`
+  - `sources;android-<latest>` (platform sources)

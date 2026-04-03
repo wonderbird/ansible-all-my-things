@@ -214,6 +214,17 @@ completion.
   30 seconds, used as an indicator that no major downloads are pending.
 - Q: Should the SDK version be pinned? → A: No. The role always installs
   the latest stable SDK components available at provisioning time.
+- Q: Where is `desktop_user_names` defined? → A: In `group_vars/` or
+  `host_vars/` for the target host. The role iterates over this list
+  but does not define or validate it.
+- Q: How is the matching build-tools version determined? → A: The role
+  installs the latest available build-tools version; it does not
+  attempt to match the build-tools version to the platform API level.
+- Q: How are cmdline-tools acquired? → A: The download URL contains a
+  build number that changes per release. The build number is exposed as
+  a role variable (`android_cmdlinetools_build` in `defaults/main.yml`)
+  and bumped manually when a new version is needed. There is no stable
+  "latest" URL from Google.
 
 ### Session 2026-03-31
 
