@@ -82,14 +82,14 @@
 - name: Assert detected API level is a valid version
   ansible.builtin.assert:
     that:
-      - item.stdout | trim | regex_search('^[0-9]+(\.[0-9]+)?$') is not none
+      - item.stdout | trim is match('^[0-9]+(\.[0-9]+)?$')
     fail_msg: "Detected API level '{{ item.stdout | trim }}' is not a valid version for user '{{ item.item }}'."
   loop: "{{ detected_api_levels.results }}"
 
 - name: Assert detected build-tools version matches X.Y.Z
   ansible.builtin.assert:
     that:
-      - item.stdout | trim | regex_search('^[0-9]+\.[0-9]+\.[0-9]+$') is not none
+      - item.stdout | trim is match('^[0-9]+\.[0-9]+\.[0-9]+$')
     fail_msg: "Detected build-tools version '{{ item.stdout | trim }}' does not match X.Y.Z for user '{{ item.item }}'."
   loop: "{{ detected_buildtools_versions.results }}"
 
