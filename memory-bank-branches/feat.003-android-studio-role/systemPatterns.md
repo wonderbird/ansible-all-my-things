@@ -29,6 +29,8 @@ roles/android_studio/
 
 Tag at role-entry level only — individual tasks carry no tags.
 
+Roles in `configure-linux-roles.yml` are sorted alphabetically.
+
 ## meta/main.yml pattern (mirrors `roles/google_chrome/meta/main.yml`)
 
 See `specs/003-android-studio-role/plan.md` for the exact fields.

@@ -22,7 +22,11 @@
 
 ## Remaining
 
-- [ ] Validate on AMD64 Vagrant VM (install, idempotency, ARM64 skip)
+- [x] Install test — `snap list android-studio` returned rev 209, `latest/stable`, `snapcrafters✪`
+- [x] Idempotency test — android_studio task reported `ok` on second full playbook run
+- [x] ARM64 skip test — android_studio tasks absent from output (skipped by tag); playbook failure was unrelated `.envrc` bug
+- [x] configure-linux-roles.yml restored — roles sorted alphabetically (android_studio, claude_code, google_chrome)
+- [ ] Open PR (after additional features are implemented)
 
 ## Known Issues / Decisions
 

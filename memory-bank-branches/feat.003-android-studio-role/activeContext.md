@@ -2,15 +2,14 @@
 
 ## Current Focus
 
-Implementation complete and committed (`6330042`). Ready for manual validation
-on AMD64 Vagrant VM per `specs/003-android-studio-role/quickstart.md`.
+All Vagrant validation tests passed. configure-linux-roles.yml restored (roles alphabetically sorted).
+More features to be added before opening PR.
 
 ## Next Steps
 
-1. Validate on AMD64 Vagrant VM per `specs/003-android-studio-role/quickstart.md`
-   - Install test: `snap list android-studio` returns a single active row
-   - Idempotency test: second run reports no `changed` tasks
-   - ARM64 skip test: `--skip-tags not-supported-on-vagrant-arm64` skips all tasks
+1. Implement additional features (TBD by user).
+2. Open PR.
+3. Fix `.envrc` bug (separate issue — see Known Issues below).
 
 ## Status
 
@@ -21,4 +20,14 @@ on AMD64 Vagrant VM per `specs/003-android-studio-role/quickstart.md`.
 - `configure-linux-roles.yml` update: **done**
 - `requirements.yml` update: **done** (`community.general` added with `>=1.0.0`)
 - Technical-debt update: **done** (TD-003 updated with android_studio + snapd auto-refresh note)
-- Validation on Vagrant VM: **not started**
+- Validation on Vagrant VM:
+  - Install test: **passed** (rev 209, `latest/stable`, `snapcrafters✪`)
+  - Idempotency test: **passed** (android_studio task reported `ok` on second run)
+  - ARM64 skip test: **passed** (android_studio tasks absent from output; failure was unrelated `.envrc` bug)
+
+## Known Issues
+
+- **Bug (unrelated to android_studio)**: `PLAY [Restore home folder files]` fails with
+  `file (/home/galadriel/.envrc) is absent, cannot continue` when `.envrc` does not exist
+  on the target VM. Needs a separate fix — workaround is to create `.envrc` manually before
+  running the full playbook.
