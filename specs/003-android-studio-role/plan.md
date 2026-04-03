@@ -33,7 +33,7 @@ see quickstart.md
 **Constraints**: snapd must be pre-installed (standard Ubuntu); requires
 outbound internet access on first provisioning run (snap + SDK downloads);
 snap bundles JetBrains Runtime (JBR) at
-`/snap/android-studio/current/android-studio/jbr/bin/java` — covers the
+`/snap/android-studio/current/jbr/bin/java` — covers the
 Java 17+ requirement for sdkmanager
 **Scale/Scope**: Single role, three files (`meta/main.yml`,
 `tasks/main.yml`, `defaults/main.yml`), one entry in
@@ -166,7 +166,7 @@ each developer's SDK directory.
    `platforms;android-XX` API level. Also detects the latest
    `build-tools` version. Uses `changed_when: false`. Requires
    `JAVA_HOME` set to the snap-bundled JBR at
-   `/snap/android-studio/current/android-studio/jbr`.
+   `/snap/android-studio/current/jbr`.
 4. **Install SDK components** — `community.general.android_sdk` installs
    `platform-tools`, `platforms;android-{{ latest_api }}`,
    `build-tools;{{ latest_buildtools }}`, `emulator`, and

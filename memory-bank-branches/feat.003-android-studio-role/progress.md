@@ -14,7 +14,7 @@
 ## Remaining
 
 - [ ] User review and commit of T007–T011 implementation
-- [ ] T012 — Validate idempotency on Vagrant VM
+- [ ] T012 — Validate idempotency on Hetzner Cloud VM hobbiton (AMD64)
 - [ ] SC-005 — Manual wizard test (wizard <= 30 s)
 - [ ] Open PR
 

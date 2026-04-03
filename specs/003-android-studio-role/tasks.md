@@ -140,7 +140,7 @@ start to completion. See `quickstart.md` — SDK validation test.
 - [x] T010a [US4] Add task to detect latest Android API level
   and build-tools version by parsing `sdkmanager --list` output;
   `changed_when: false`; set `JAVA_HOME` to snap-bundled JBR
-  (`/snap/android-studio/current/android-studio/jbr`)
+  (`/snap/android-studio/current/jbr`)
 - [x] T011 [US4] Add task to install SDK components
   (`platform-tools`, `platforms;android-{{ latest_api }}`,
   `build-tools;{{ latest_buildtools }}`, `emulator`,

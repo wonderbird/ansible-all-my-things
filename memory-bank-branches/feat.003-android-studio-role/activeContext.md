@@ -21,7 +21,7 @@ user review before committing.
 
 1. User review of implemented code.
 2. Commit the implementation.
-3. Validate on Vagrant VM — T012 idempotency + SC-005 wizard test.
+3. Validate on Hetzner Cloud VM hobbiton (AMD64) — T012 idempotency + SC-005 wizard test.
 4. Open PR.
 
 ## Open Issues — Address During Implementation
