@@ -78,6 +78,36 @@ completes successfully.
 
 ---
 
+### User Story 4 - SDK Pre-Provisioned at First Launch (Priority: P2)
+
+A developer provisions a virtual machine using this Ansible project. When
+they launch Android Studio for the first time, the first-launch setup wizard
+completes quickly — within 30 seconds — because all required SDK components
+are already present on the machine.
+
+**Why this priority**: Without SDK pre-provisioning, the wizard triggers
+large downloads that can take 10–30 minutes, blocking the developer from
+starting work. Pre-provisioning eliminates this wait.
+
+**Independent Test**: On a freshly provisioned VM, launch Android Studio and
+step through the Standard setup wizard. Measure time from wizard start to
+completion.
+
+**Acceptance Scenarios**:
+
+1. **Given** a freshly provisioned VM, **When** Android Studio is launched
+   for the first time and the Standard setup wizard is followed, **Then** the
+   wizard completes within 30 seconds, indicating no major downloads are
+   pending.
+2. **Given** a VM where SDK pre-provisioning has already run, **When** the
+   playbook runs again, **Then** the SDK pre-provisioning tasks report `ok`
+   or `skipped`, never `changed`.
+3. **Given** the target machine is ARM64, **When** the playbook runs,
+   **Then** all SDK pre-provisioning tasks are also skipped (consistent with
+   User Story 3).
+
+---
+
 ### Edge Cases
 
 - If an older version of Android Studio is already installed, the role takes
@@ -85,9 +115,11 @@ completes successfully.
 - If network access is unavailable during provisioning, the snap install
   fails and the playbook aborts with an error. No special handling is
   performed.
-- If disk space is insufficient, the snap install fails and the playbook
-  aborts with an error. No special handling is performed (consistent with
-  the network-failure edge case).
+- If network access is unavailable during SDK pre-provisioning, the
+  playbook aborts with an error. No special handling is performed
+  (consistent with the snap-install network-failure edge case).
+- If disk space is insufficient, the snap install or SDK download fails and
+  the playbook aborts with an error. No special handling is performed.
 
 ## Requirements *(mandatory)*
 
@@ -122,6 +154,19 @@ completes successfully.
 - **FR-008**: If the role is ever invoked via `ansible.builtin.include_role`
   (dynamic include), the caller MUST use the `apply: tags:` parameter to
   propagate the tag to inner tasks; otherwise the skip will not reach them.
+- **FR-009**: The role MUST pre-provision the Android SDK for every user
+  listed in `desktop_user_names` so that the Android Studio first-launch
+  wizard requires no additional downloads.
+- **FR-010**: The SDK components to pre-provision are those the Standard
+  setup wizard would download: platform tools, the latest stable SDK
+  platform, matching build tools, the emulator binary, and platform sources.
+  Emulator system images are excluded; they are downloaded on-demand when
+  the user creates a virtual device (AVD).
+- **FR-011**: The role MUST always install the latest stable SDK components
+  available at provisioning time. SDK version pinning is out of scope.
+- **FR-012**: SDK pre-provisioning MUST be idempotent: re-running the role
+  on a machine where the SDK is already present MUST produce no `changed`
+  tasks.
 
 ### Key Entities
 
@@ -149,8 +194,26 @@ completes successfully.
   errors, with all `android_studio` role tasks skipped.
 - **SC-004**: Adding the role to the provisioning playbook requires no more
   than a single line or block entry to apply it to the appropriate host group.
+- **SC-005**: A manual test on a freshly provisioned VM shows that the
+  Android Studio first-launch wizard (Standard setup) completes within
+  30 seconds, indicating no major downloads are pending.
 
 ## Clarifications
+
+### Session 2026-04-03
+
+- Q: What SDK components must be pre-provisioned so that the first-launch
+  wizard has nothing significant left to download? → A: Exactly the
+  components the Standard setup wizard would download: platform-tools, the
+  latest stable SDK platform, matching build tools, the emulator binary, and
+  platform sources. System images are out of scope — downloaded on-demand
+  when the user creates a virtual device (AVD).
+- Q: Should emulator system images be included? → A: No — see above.
+- Q: What is the acceptance criterion for SDK pre-provisioning? → A: A
+  manual test showing that the first-launch wizard completes within
+  30 seconds, used as an indicator that no major downloads are pending.
+- Q: Should the SDK version be pinned? → A: No. The role always installs
+  the latest stable SDK components available at provisioning time.
 
 ### Session 2026-03-31
 
@@ -183,7 +246,9 @@ completes successfully.
 - The provisioned user account is already created by the `setup-users.yml`
   playbook before this role runs.
 - The snap package bundles all required dependencies (including a Java
-  runtime); no separate dependency installation is needed.
+  runtime); no separate dependency installation is needed for the IDE itself.
+- SDK pre-provisioning downloads components from Google's servers during
+  provisioning; outbound internet access is required.
 - snapd is assumed to be pre-installed on all target machines (standard
   Ubuntu); the role performs no snapd setup.
 - Only AMD64 architecture is in scope; ARM64 and other architectures are
@@ -212,10 +277,10 @@ impact is weaker for snap-based roles than for apt-based ones.
 
 - Android Studio for ARM64, i386, or any architecture other than AMD64.
 - Android Studio Beta or Canary channels; only the stable release is in scope.
-- Per-user configuration: SDK paths, AVD (emulator) setup, and IDE preferences
-  are out of scope. The role performs a system-wide installation only.
-- Android SDK component management: downloading or pre-configuring SDK
-  platforms, build tools, or emulator images is a separate concern.
+- IDE preferences and per-user IDE configuration are out of scope.
+- AVD (emulator) creation and system image downloads are out of scope.
+  System images are downloaded on-demand when the user creates a virtual
+  device through Android Studio.
 - Pinned version installation; the role installs the latest available stable
   release. Version pinning is deferred.
 - Android Studio uninstallation or downgrade automation.

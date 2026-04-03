@@ -2,14 +2,17 @@
 
 ## Current Focus
 
-All Vagrant validation tests passed. configure-linux-roles.yml restored (roles alphabetically sorted).
-More features to be added before opening PR.
+Designing SDK automation extension for the `android_studio` role.
+Research complete; one open design question before implementation begins.
 
 ## Next Steps
 
-1. Implement additional features (TBD by user).
-2. Open PR.
-3. Fix `.envrc` bug (separate issue — see Known Issues below).
+1. Run `/speckit.plan` to design the SDK automation implementation.
+2. Implement SDK automation tasks in `roles/android_studio/tasks/main.yml`.
+3. Validate on Vagrant VM (SC-005: wizard completes within 30 seconds).
+4. Run markdownlint on spec.md (skipped this session — not in PATH).
+5. Open PR.
+6. Fix `.envrc` bug (separate issue — see Known Issues below).
 
 ## Status
 
