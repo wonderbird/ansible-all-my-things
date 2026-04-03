@@ -8,6 +8,11 @@
     desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
 
   roles:
+    # FR-008: if this role is ever invoked via ansible.builtin.include_role,
+    # the caller MUST pass apply: {tags: [not-supported-on-vagrant-arm64]}
+    # to propagate the skip tag to inner tasks.
+    - role: android_studio
+      tags: not-supported-on-vagrant-arm64
     - claude_code
     - role: google_chrome
       tags: not-supported-on-vagrant-arm64

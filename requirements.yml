@@ -1,5 +1,7 @@
 # Ansible Collections for Multi-Provider Infrastructure
 collections:
+  - name: community.general
+    version: ">=1.0.0"
   - name: amazon.aws
     version: ">=7.0.0"
   - name: hetzner.hcloud

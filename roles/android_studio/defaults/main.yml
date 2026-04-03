@@ -1,0 +1,10 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Build number and SHA-1 checksum for Android SDK command-line tools.
+# Both values are listed at:
+#   https://developer.android.com/studio#command-line-tools-only
+# Download URL pattern:
+#   https://dl.google.com/android/repository/commandlinetools-linux-{build}_latest.zip
+# Note: Google publishes SHA-1 checksums for cmdline-tools (see TD-009).
+android_cmdlinetools_build: "14742923"
+android_cmdlinetools_sha1: "48833c34b761c10cb20bcd16582129395d121b27"

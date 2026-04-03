@@ -113,20 +113,30 @@ the testing procedure in `CONTRIBUTING.md`.
   - [roles/google_chrome/tasks/main.yml](../../roles/google_chrome/tasks/main.yml)
   - [roles/cursor_ide/tasks/main.yml](../../roles/cursor_ide/tasks/main.yml)
   - [roles/claude_code/tasks/main.yml](../../roles/claude_code/tasks/main.yml)
+  - [roles/android_studio/tasks/main.yml](../../roles/android_studio/tasks/main.yml)
 - **Date added:** 2026-03-13
 
 ### TD-003: Description
 
-All three installation roles install the latest available version of their
-respective package (`google-chrome-stable`, Cursor IDE, Claude Code) rather
-than a pinned, reproducible version. A package update that introduces a
-breaking change or regression will be silently applied on the next playbook
-run, and a re-run on the same machine will install a different version than
-the original run.
+All four installation roles install the latest available version of their
+respective package (`google-chrome-stable`, Cursor IDE, Claude Code,
+`android-studio`) rather than a pinned, reproducible version. A package update
+that introduces a breaking change or regression will be silently applied on the
+next playbook run, and a re-run on the same machine will install a different
+version than the original run.
 
 This violates strict package-level idempotency: running the playbook twice
 against the same machine at different points in time may produce different
 installed versions.
+
+The `android_studio` role uses `community.general.snap` which provides
+native idempotency: a second run against the same machine reports `ok` (never
+`changed`) when the snap is already installed at any revision. However, fresh
+machines provisioned at different times may receive different snap revisions,
+as snap version pinning is not supported by this role. Additionally, snapd
+automatically refreshes installed snaps in the background, so the installed
+Android Studio version can change on any machine at any time without a
+playbook run.
 
 ### TD-003: Mitigation
 
@@ -349,3 +359,108 @@ Apply the same `stat` + `when:` + `debug` pattern used in
 
 Open — to be fixed in a dedicated commit or as part of a future backup
 hardening pass.
+
+---
+
+## TD-009 — Google publishes SHA-1 for cmdline-tools, not SHA-256
+
+- **Category:** Accepted Risk
+- **Severity:** Medium
+- **Affected file(s):**
+  - [roles/android_studio/defaults/main.yml](../../roles/android_studio/defaults/main.yml)
+  - [roles/android_studio/tasks/main.yml](../../roles/android_studio/tasks/main.yml)
+- **Date added:** 2026-04-03
+
+### TD-009: Description
+
+Google's official download page
+(`https://developer.android.com/studio#command-line-tools-only`) publishes
+a 40-character hex checksum for the cmdline-tools ZIP. This is a SHA-1
+digest, not SHA-256. SHA-1 is cryptographically broken for collision
+resistance: a motivated attacker who can influence Google's CDN could in
+theory produce a malicious ZIP with the same SHA-1 checksum as the
+legitimate one.
+
+The `android_studio` role uses `checksum: "sha1:…"` in the `get_url`
+task, matching the only checksum Google publishes. There is no SHA-256
+alternative available from the trusted source.
+
+### TD-009: Mitigation
+
+HTTPS transport to `dl.google.com` provides the primary protection against
+in-transit substitution. The SHA-1 checksum guards against storage
+corruption only. This is the same trust model accepted in TD-001 and
+TD-007.
+
+The risk is further constrained by the developer-workstation threat model:
+exploiting a SHA-1 collision against Google's CDN is a nation-state-level
+capability and outside the realistic threat model for a personal workstation
+provisioning tool.
+
+### TD-009: Ideas for solution
+
+- Monitor whether Google publishes a SHA-256 checksum for future
+  cmdline-tools builds and switch to it when available.
+- Alternatively, verify the ZIP contents against a known-good manifest
+  after extraction (e.g., compare `sdkmanager --version` output against an
+  expected value).
+
+### TD-009: Status
+
+Open — accepted risk. Revisit when Google publishes SHA-256 checksums for
+cmdline-tools downloads.
+
+---
+
+## TD-010 — home-folder-files restore fails when .envrc is absent
+
+- **Category:** Technical Debt
+- **Severity:** Low
+- **Affected file(s):** [playbooks/restore/home-folder-files.yml](../../playbooks/restore/home-folder-files.yml)
+- **Date added:** 2026-04-03
+
+### TD-010: Description
+
+The final task in `playbooks/restore/home-folder-files.yml` sets permissions
+on `/home/{{ restore_user }}/.envrc` unconditionally. When `.envrc` is absent
+— for example, on a fresh VM where the file has not yet been created, or when
+the backup archive does not include it — Ansible fails with:
+
+```text
+file (/home/galadriel/.envrc) is absent, cannot continue
+```
+
+This happens because `ansible.builtin.file` with the default `state: file`
+requires the target path to exist. The restore play stops at this task, and
+any subsequent plays are not executed.
+
+### TD-010: Mitigation
+
+Create `.envrc` manually on the target VM before running the full playbook.
+The file content does not need to be correct — its presence is sufficient to
+let the permission task succeed. The real content is restored by the archive
+extraction in the same play.
+
+### TD-010: Ideas for solution
+
+Add a `stat` guard before the permission task and skip it when the file is
+absent:
+
+```yaml
+- name: Check if .envrc was restored
+  ansible.builtin.stat:
+    path: "/home/{{ restore_user }}/.envrc"
+  register: envrc_stat
+
+- name: Set permissions for secrets correctly
+  ansible.builtin.file:
+    path: "/home/{{ restore_user }}/.envrc"
+    owner: "{{ restore_user }}"
+    group: "{{ restore_user }}"
+    mode: '0600'
+  when: envrc_stat.stat.exists
+```
+
+### TD-010: Status
+
+Open — to be fixed in a dedicated commit.
