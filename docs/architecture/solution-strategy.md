@@ -75,8 +75,8 @@ mark these exceptions so they can be skipped selectively:
   so desktop application roles and their backup/restore playbooks must be
   skipped on Docker targets.
 - **`not-supported-on-vagrant-arm64`**: Applied to AMD64-only software (e.g.,
-  Google Chrome, which has no ARM64 Linux package). Skips those playbooks on
-  Tart (ARM64) VMs.
+  Google Chrome and Android Studio, which have no ARM64 Linux package or snap).
+  Skips those playbooks on Tart (ARM64) VMs.
 
 ## Known Technical Debt
 

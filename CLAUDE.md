@@ -51,9 +51,10 @@ hidden files.
 
 ## Rule index
 
-The table below lists every rule file in `.cursor/rules/general/` with the
-description from its frontmatter. Use it to decide which rules to read for
-your current task.
+The table below lists every rule file in `.cursor/rules/general/` and
+project-specific rules in `.cursor/rules/` with the description from
+their frontmatter. Use it to decide which rules to read for your current
+task.
 
 | Rule | When to read |
 | --- | --- |
@@ -64,6 +65,7 @@ your current task.
 | [400-markdown-formatting.mdc](.cursor/rules/general/400-markdown-formatting.mdc) | Use after creating or modifying a markdown file (`*.md`, `*.mdc`) |
 | [500-cline-memory-bank.mdc](.cursor/rules/general/500-cline-memory-bank.mdc) | Use when following 'follow your custom instructions' to understand the memory bank concept |
 | [600-documentation-strategy.mdc](.cursor/rules/general/600-documentation-strategy.mdc) | Use when creating and updating documentation |
+| [610-project-specific-documentation-strategy.mdc](.cursor/rules/610-project-specific-documentation-strategy.mdc) | Read immediately after 600-documentation-strategy.mdc; project-specific documentation structure |
 | [900-confirm-readiness.mdc](.cursor/rules/general/900-confirm-readiness.mdc) | Use when responding to the "follow your custom instructions" command |
 
 ## Test environment host architecture
