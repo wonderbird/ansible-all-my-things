@@ -359,3 +359,53 @@ Apply the same `stat` + `when:` + `debug` pattern used in
 
 Open — to be fixed in a dedicated commit or as part of a future backup
 hardening pass.
+
+---
+
+## TD-009 — Google publishes SHA-1 for cmdline-tools, not SHA-256
+
+- **Category:** Accepted Risk
+- **Severity:** Medium
+- **Affected file(s):**
+  - [roles/android_studio/defaults/main.yml](../../roles/android_studio/defaults/main.yml)
+  - [roles/android_studio/tasks/main.yml](../../roles/android_studio/tasks/main.yml)
+- **Date added:** 2026-04-03
+
+### TD-009: Description
+
+Google's official download page
+(`https://developer.android.com/studio#command-line-tools-only`) publishes
+a 40-character hex checksum for the cmdline-tools ZIP. This is a SHA-1
+digest, not SHA-256. SHA-1 is cryptographically broken for collision
+resistance: a motivated attacker who can influence Google's CDN could in
+theory produce a malicious ZIP with the same SHA-1 checksum as the
+legitimate one.
+
+The `android_studio` role uses `checksum: "sha1:…"` in the `get_url`
+task, matching the only checksum Google publishes. There is no SHA-256
+alternative available from the trusted source.
+
+### TD-009: Mitigation
+
+HTTPS transport to `dl.google.com` provides the primary protection against
+in-transit substitution. The SHA-1 checksum guards against storage
+corruption only. This is the same trust model accepted in TD-001 and
+TD-007.
+
+The risk is further constrained by the developer-workstation threat model:
+exploiting a SHA-1 collision against Google's CDN is a nation-state-level
+capability and outside the realistic threat model for a personal workstation
+provisioning tool.
+
+### TD-009: Ideas for solution
+
+- Monitor whether Google publishes a SHA-256 checksum for future
+  cmdline-tools builds and switch to it when available.
+- Alternatively, verify the ZIP contents against a known-good manifest
+  after extraction (e.g., compare `sdkmanager --version` output against an
+  expected value).
+
+### TD-009: Status
+
+Open — accepted risk. Revisit when Google publishes SHA-256 checksums for
+cmdline-tools downloads.

@@ -2,16 +2,26 @@
 
 ## Current Focus
 
-Implement SDK pre-provisioning (tasks T007–T012 in
-`specs/003-android-studio-role/tasks.md`). All blockers
-resolved — see research.md Decisions 4–6 and plan.md SDK
-Design for the agreed approach.
+SDK pre-provisioning tasks T007–T011 are implemented in
+`roles/android_studio/tasks/main.yml` and
+`roles/android_studio/defaults/main.yml`. Code is pending
+user review before committing.
+
+## Recent Changes
+
+- Created `defaults/main.yml` with cmdline-tools build number
+  and SHA-256 checksum (T007). User updated values to
+  build `14742923`.
+- Added 8 tasks to `tasks/main.yml` for SDK pre-provisioning:
+  download, create dirs, extract, rename, detect API/build-tools
+  versions, install SDK components (T008–T011).
+- Marked T007–T011 as complete in tasks.md.
 
 ## Next Steps
 
-1. Implement T007–T012 (T010a included) in order.
-2. Validate idempotency (T012 / quickstart.md).
-3. Run SC-005 manual wizard test (wizard <= 30 s).
+1. User review of implemented code.
+2. Commit the implementation.
+3. Validate on Vagrant VM — T012 idempotency + SC-005 wizard test.
 4. Open PR.
 
 ## Open Issues — Address During Implementation

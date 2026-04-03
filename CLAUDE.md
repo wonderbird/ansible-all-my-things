@@ -90,7 +90,5 @@ Architecture Decision Records are in
 [`docs/architecture/decisions/`](docs/architecture/decisions/).
 
 ## Active Technologies
-- YAML (Ansible 2.19+) + `community.general` collection — `community.general.snap` (003-android-studio-role)
 
-## Recent Changes
-- 003-android-studio-role: Switched to `community.general.snap` for Android Studio installation, limited to hobbiton host
+- YAML (Ansible 2.19+) + `community.general` collection

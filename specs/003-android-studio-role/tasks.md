@@ -119,29 +119,29 @@ start to completion. See `quickstart.md` — SDK validation test.
 
 ### Implementation for User Story 4
 
-- [ ] T007 [US4] Create
+- [x] T007 [US4] Create
   `roles/android_studio/defaults/main.yml` with SPDX header,
   `android_cmdlinetools_build: "11076708"` and
   `android_cmdlinetools_sha256: "2d2d50857e4eb553af5a6dc3ad507a17adf43d115264b1afc116f95c92e5e258"`
-- [ ] T008 [US4] Add task to download cmdline-tools ZIP once
+- [x] T008 [US4] Add task to download cmdline-tools ZIP once
   to `/tmp/commandlinetools-linux-{{ android_cmdlinetools_build }}_latest.zip`
   using `ansible.builtin.get_url`
   with `checksum: "sha256:{{ android_cmdlinetools_sha256 }}"`;
   idempotent via `creates:` guard
-- [ ] T009 [US4] Add task to create `~/Android/Sdk` directory
+- [x] T009 [US4] Add task to create `~/Android/Sdk` directory
   per user in `desktop_user_names` using
   `ansible.builtin.file`
-- [ ] T010 [US4] Add tasks to extract cmdline-tools per user:
+- [x] T010 [US4] Add tasks to extract cmdline-tools per user:
   (a) `ansible.builtin.unarchive` extracts ZIP to
   `~/Android/Sdk/cmdline-tools/` (creates nested
   `cmdline-tools/cmdline-tools/`); (b) `ansible.builtin.command`
   renames `cmdline-tools/cmdline-tools/` to `cmdline-tools/latest/`
   with `creates: ~/Android/Sdk/cmdline-tools/latest/bin/sdkmanager`
-- [ ] T010a [US4] Add task to detect latest Android API level
+- [x] T010a [US4] Add task to detect latest Android API level
   and build-tools version by parsing `sdkmanager --list` output;
   `changed_when: false`; set `JAVA_HOME` to snap-bundled JBR
   (`/snap/android-studio/current/android-studio/jbr`)
-- [ ] T011 [US4] Add task to install SDK components
+- [x] T011 [US4] Add task to install SDK components
   (`platform-tools`, `platforms;android-{{ latest_api }}`,
   `build-tools;{{ latest_buildtools }}`, `emulator`,
   `sources;android-{{ latest_api }}`) using
