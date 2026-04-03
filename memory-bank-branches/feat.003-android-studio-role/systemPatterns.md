@@ -4,7 +4,7 @@
 
 ```text
 roles/android_studio/
-├── defaults/main.yml  # android_cmdlinetools_build variable
+├── defaults/main.yml  # android_cmdlinetools_build + sha256
 ├── meta/main.yml      # galaxy_info + dependencies: []
 └── tasks/main.yml     # snap install + SDK pre-provisioning
 ```
@@ -43,5 +43,7 @@ absent before install; stable across snap refreshes.
 
 ## Research decisions
 
-`specs/003-android-studio-role/research.md` — why `community.general.snap`
-over `ansible.builtin.command`, two-file layout rationale, native idempotency.
+`specs/003-android-studio-role/research.md` — Decisions 1–3: snap module,
+two-file layout, native idempotency. Decisions 4–6: SDK automation
+approach, cmdline-tools build number as role variable, per-user
+provisioning via `become_user` loop.

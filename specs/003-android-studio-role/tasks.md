@@ -107,7 +107,7 @@ tasks inside `tasks/main.yml` do NOT carry the tag.
 
 ---
 
-## Phase 5b: User Story 4 — SDK Pre-Provisioned at First Launch (Priority: P2)
+## Phase 6: User Story 4 — SDK Pre-Provisioned at First Launch (Priority: P2)
 
 **Goal**: After provisioning, the Android Studio first-launch wizard
 completes within 30 seconds because all required SDK components are
@@ -120,15 +120,16 @@ start to completion. See `quickstart.md` — SDK validation test.
 ### Implementation for User Story 4
 
 - [ ] T007 [US4] Create
-  `roles/android_studio/defaults/main.yml` with SPDX header
-  and `android_cmdlinetools_build` variable
-- [ ] T008 [US4] Add task to create `~/Android/Sdk` directory
+  `roles/android_studio/defaults/main.yml` with SPDX header,
+  `android_cmdlinetools_build` and
+  `android_cmdlinetools_sha256` variables
+- [ ] T008 [US4] Add task to download cmdline-tools ZIP once
+  to a shared temp location using `ansible.builtin.get_url`
+  with `checksum: "sha256:{{ android_cmdlinetools_sha256 }}"`;
+  idempotent via `creates:` guard
+- [ ] T009 [US4] Add task to create `~/Android/Sdk` directory
   per user in `desktop_user_names` using
   `ansible.builtin.file`
-- [ ] T009 [US4] Add task to download cmdline-tools ZIP using
-  `ansible.builtin.get_url` per user; idempotent via
-  `creates:` guard on
-  `~/Android/Sdk/cmdline-tools/latest/bin/sdkmanager`
 - [ ] T010 [US4] Add task to extract cmdline-tools to
   `~/Android/Sdk/cmdline-tools/latest/` per user using
   `ansible.builtin.unarchive`; idempotent via `creates:`
@@ -147,7 +148,7 @@ start to completion. See `quickstart.md` — SDK validation test.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Update technical debt register to reflect `android_studio`
 following the same unpinned-version pattern as existing roles.
@@ -171,9 +172,9 @@ following the same unpinned-version pattern as existing roles.
 - **User Story 1 (Phase 3)**: Depends on Phase 1 (directory structure must exist)
 - **User Story 2 (Phase 4)**: No new implementation; verify after US1 is complete
 - **User Story 3 (Phase 5)**: No new implementation; verify after US1 is complete
-- **User Story 4 (Phase 5b)**: Depends on Phase 3 (snap must be
+- **User Story 4 (Phase 6)**: Depends on Phase 3 (snap must be
   installed for JBR Java path)
-- **Polish (Phase 6)**: Can proceed once US1 implementation tasks
+- **Polish (Phase 7)**: Can proceed once US1 implementation tasks
   (T002–T004) are done
 
 ### User Story Dependencies
@@ -198,8 +199,9 @@ following the same unpinned-version pattern as existing roles.
 ### Within User Story 4
 
 - T007 (`defaults/main.yml`) must complete first (variable definition)
-- T008 (create ANDROID_HOME) → T009 (download cmdline-tools) →
-  T010 (extract) → T011 (install SDK) — sequential chain
+- T008 (download cmdline-tools) runs once, no per-user dependency
+- T009 (create ANDROID_HOME) → T010 (extract) → T011 (install SDK)
+  — sequential per-user chain; T010 depends on T008
 - T012 (idempotency verification) runs after T011
 
 ---
@@ -231,7 +233,8 @@ Task T004: "Add android_studio entry to configure-linux-roles.yml"
 1. Phase 1 + Phase 3 → Role installs Android Studio (MVP)
 2. Run idempotency test (Phase 4 verification) → Confirm second run is clean
 3. Run ARM64 skip test (Phase 5 verification) → Confirm skip behaviour
-4. Phase 6 → Update technical debt register
+4. Phase 6 → SDK pre-provisioning (T007–T012)
+5. Phase 7 → Update technical debt register
 
 ---
 

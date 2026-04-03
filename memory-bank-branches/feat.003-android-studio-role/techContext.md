@@ -18,9 +18,11 @@
 - **sdkmanager bootstrap**: The snap does NOT expose `sdkmanager` at a known path.
   Standalone cmdline-tools must be downloaded from Google and extracted to
   `~/Android/Sdk/cmdline-tools/latest/` before sdkmanager can be used.
-- **cmdline-tools URL**: `https://dl.google.com/android/repository/commandlinetools-linux-{BUILD}_latest.zip`
-  The build number changes with every release; there is no static "latest" alias.
-  Open design question: make the build number a role variable?
+- **cmdline-tools URL**: `https://dl.google.com/android/repository/commandlinetools-linux-{{ android_cmdlinetools_build }}_latest.zip`
+  Build number and SHA-256 checksum are role variables in
+  `defaults/main.yml`. Both values are listed at
+  <https://developer.android.com/studio/index.html#command-line-tools-only>.
+  Downloaded once (shared across users), then extracted per user.
 - **"Latest" SDK detection**: `"platforms;android-latest"` is NOT a valid sdkmanager package name.
   The latest API level must be detected by parsing `sdkmanager --list` output at runtime.
 - **Ansible module**: `community.general.android_sdk` supports `accept_licenses: true`,

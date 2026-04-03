@@ -62,7 +62,7 @@ Java 17+ requirement for sdkmanager
 
 | Item | Justification |
 | ---- | ------------- |
-| SDK pre-provisioning (US4, FR-009–FR-012) | Expands role from two to three files and adds multiple tasks (cmdline-tools download, extraction, SDK install per user). Justified by US4: without pre-provisioning, first-launch wizard takes 10–30 minutes. Complexity is bounded — all new tasks use declarative Ansible modules, no custom scripts. |
+| SDK pre-provisioning (US4, FR-009–FR-012) | Expands role from two to three files and adds multiple tasks (cmdline-tools download, extraction, SDK install per user). Justified by US4: without pre-provisioning, first-launch wizard takes 2–5 minutes downloading SDK components. Complexity is bounded — all new tasks use declarative Ansible modules, no custom scripts. |
 
 ## Project Structure
 
@@ -83,7 +83,7 @@ directory (internal automation, no external interfaces).
 
 ```text
 roles/android_studio/
-├── defaults/main.yml    # Role variables (android_cmdlinetools_build)
+├── defaults/main.yml    # Role variables (build number + SHA-256)
 ├── meta/main.yml        # Role metadata (author, license, Ansible version)
 └── tasks/main.yml       # Snap install + SDK pre-provisioning tasks
 
@@ -124,28 +124,40 @@ dependencies: []
 ```yaml
 #SPDX-License-Identifier: MIT-0
 ---
-# Build number for Android SDK command-line tools.
-# URL: https://dl.google.com/android/repository/commandlinetools-linux-{build}_latest.zip
-# Update this value when a new cmdline-tools version is needed.
+# Build number and SHA-256 checksum for Android SDK command-line tools.
+# Both values are listed at:
+#   https://developer.android.com/studio/index.html#command-line-tools-only
+# Download URL pattern:
+#   https://dl.google.com/android/repository/commandlinetools-linux-{build}_latest.zip
 android_cmdlinetools_build: "<set during implementation>"
+android_cmdlinetools_sha256: "<set during implementation>"
 ```
 
 ### SDK Pre-Provisioning Design (User Story 4)
 
-SDK pre-provisioning runs after the snap install task and executes per
-user in `desktop_user_names`. The task sequence for each user:
+SDK pre-provisioning runs after the snap install task. The cmdline-tools
+ZIP is downloaded once (shared across users), then per-user tasks set up
+each developer's SDK directory.
+
+**Once (system-wide):**
+
+1. **Download cmdline-tools** — `ansible.builtin.get_url` fetches
+   `commandlinetools-linux-{{ android_cmdlinetools_build }}_latest.zip`
+   to a shared temp location with
+   `checksum: "sha256:{{ android_cmdlinetools_sha256 }}"`.
+   Idempotent via `creates:`.
+
+**Per user in `desktop_user_names`:**
 
 1. **Create ANDROID_HOME** — `ansible.builtin.file` ensures
    `~/Android/Sdk` exists, owned by the user.
-2. **Download cmdline-tools** — `ansible.builtin.get_url` fetches the
-   ZIP to a temp location. Idempotent via `checksum` or `creates:`.
-3. **Extract cmdline-tools** — `ansible.builtin.unarchive` extracts to
+2. **Extract cmdline-tools** — `ansible.builtin.unarchive` extracts to
    `~/Android/Sdk/cmdline-tools/latest/`. Idempotent via `creates:`.
-4. **Install SDK components** — `community.general.android_sdk` installs
+3. **Install SDK components** — `community.general.android_sdk` installs
    `platform-tools`, `platforms;android-<latest>`, `build-tools;<latest>`,
    `emulator`, and `sources;android-<latest>` with
    `accept_licenses: true`. The module uses the snap-bundled JBR at
    `/snap/android-studio/current/android-studio/jbr/bin/java`.
 
-All tasks use `become_user: "{{ item }}"` to ensure correct file
+Per-user tasks use `become_user: "{{ item }}"` to ensure correct file
 ownership (see research.md Decision 6).

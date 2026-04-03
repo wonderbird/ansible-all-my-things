@@ -221,10 +221,11 @@ completion.
   installs the latest available build-tools version; it does not
   attempt to match the build-tools version to the platform API level.
 - Q: How are cmdline-tools acquired? → A: The download URL contains a
-  build number that changes per release. The build number is exposed as
-  a role variable (`android_cmdlinetools_build` in `defaults/main.yml`)
-  and bumped manually when a new version is needed. There is no stable
-  "latest" URL from Google.
+  build number that changes per release. The build number and SHA-256
+  checksum are exposed as role variables in `defaults/main.yml` and
+  bumped manually when a new version is needed. Both values are listed
+  at
+  <https://developer.android.com/studio/index.html#command-line-tools-only>.
 
 ### Session 2026-03-31
 

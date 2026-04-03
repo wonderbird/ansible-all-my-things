@@ -27,7 +27,13 @@
 - [x] ARM64 skip test — android_studio tasks absent from output (skipped by tag); playbook failure was unrelated `.envrc` bug
 - [x] configure-linux-roles.yml restored — roles sorted alphabetically (android_studio, claude_code, google_chrome)
 - [x] markdownlint — all five spec artefacts pass (NVM sourcing required; see `.cursor/rules/general/400-markdown-formatting.mdc`)
-- [x] SDK automation design — spec clarifications added, research decisions 4–6, plan updated with SDK design section + complexity tracking, tasks T007–T012 created, quickstart SDK validation steps added
+- [x] SDK automation design — spec clarifications added, research
+  decisions 4–6, plan updated with SDK design section + complexity
+  tracking, tasks T007–T012 created (Phase 6), quickstart SDK
+  validation steps merged into existing tests
+- [x] User review of SDK design — applied: wizard time corrected to
+  2–5 min, cmdline-tools reference URL added, download once (shared),
+  SHA-256 checksum validation added, phases renumbered (1–7)
 - [ ] SDK automation implementation (T007–T012)
 - [ ] SDK validation on Vagrant VM (SC-005: wizard ≤ 30 s)
 - [ ] Open PR (after SDK automation is implemented and validated)

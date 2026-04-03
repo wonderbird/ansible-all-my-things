@@ -77,14 +77,19 @@ snap does not expose `sdkmanager` at a known path.
 
 ## Decision 5 — cmdline-tools build number
 
-**Decision**: Expose the build number as a role variable
-`android_cmdlinetools_build` in `defaults/main.yml`. The URL is
+**Decision**: Expose the build number and SHA-256 checksum as role
+variables `android_cmdlinetools_build` and
+`android_cmdlinetools_sha256` in `defaults/main.yml`. The URL is
 constructed as
 `https://dl.google.com/android/repository/commandlinetools-linux-{build}_latest.zip`.
+The download task validates the checksum via
+`checksum: "sha256:{{ android_cmdlinetools_sha256 }}"`.
 
-**Rationale**: There is no stable "latest" URL from Google. A role
-variable is the simplest approach (§IV); the value is bumped manually
-when a new version is needed.
+**Rationale**: There is no stable "latest" URL from Google. Role
+variables are the simplest approach (§IV); values are bumped manually
+when a new version is needed. Both the build number and SHA-256
+checksum are listed at
+<https://developer.android.com/studio/index.html#command-line-tools-only>.
 
 **Alternatives considered**:
 
