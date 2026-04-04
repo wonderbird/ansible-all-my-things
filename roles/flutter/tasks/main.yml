@@ -27,7 +27,7 @@
 # -----
 - name: Check Flutter version file
   ansible.builtin.stat:
-    path: "/home/{{ item }}/flutter/version"
+    path: "/home/{{ item }}/flutter/.ansible_installed_version"
   loop: "{{ desktop_user_names }}"
   register: flutter_version_stat
 
@@ -36,7 +36,7 @@
 # -----
 - name: Read installed Flutter version
   ansible.builtin.slurp:
-    src: "/home/{{ item.item }}/flutter/version"
+    src: "/home/{{ item.item }}/flutter/.ansible_installed_version"
   loop: "{{ flutter_version_stat.results }}"
   when: item.stat.exists
   register: flutter_version_slurp
@@ -83,6 +83,22 @@
     dest: "/home/{{ item }}/"
     remote_src: true
   become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+  when: >
+    flutter_installed_versions is not defined
+    or item not in flutter_installed_versions
+    or flutter_installed_versions[item] != flutter_version
+
+# -----
+# T012b: Write stamp file so idempotency guard can detect installed version
+# -----
+- name: Write Flutter version stamp file
+  ansible.builtin.copy:
+    content: "{{ flutter_version }}\n"
+    dest: "/home/{{ item }}/flutter/.ansible_installed_version"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: "0644"
   loop: "{{ desktop_user_names }}"
   when: >
     flutter_installed_versions is not defined
