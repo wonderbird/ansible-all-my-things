@@ -3,6 +3,7 @@
 ## Role Structure Convention
 
 All roles follow `roles/android_studio/` as the canonical template:
+
 ```
 roles/flutter/
 ├── defaults/main.yml     # flutter_version, flutter_sha256
@@ -28,15 +29,18 @@ CRITICAL: if role is ever invoked via `ansible.builtin.include_role`, the
 caller MUST pass `apply: {tags: [not-supported-on-vagrant-arm64]}` or the
 skip will not propagate to inner tasks.
 
-## Idempotency Pattern (Version-File Guard)
+## Idempotency Pattern (Stamp File Guard)
 
-Flutter uses a version-file guard (not `state: present` like snap roles):
-1. `stat` → `/home/{{ item }}/flutter/version` — does it exist?
+Flutter 3.x does NOT ship a `version` file at the SDK root. Use a stamp
+file written by Ansible instead:
+
+1. `stat` → `/home/{{ item }}/flutter/.ansible_installed_version` — exists?
 2. `slurp` → read the version string if file exists
 3. `set_fact` → build `flutter_installed_versions` dict keyed by username
 4. `file: state=absent` → remove old SDK dir if version mismatches
 5. `unarchive` → extract only when version mismatches
-6. `blockinfile` → PATH setup (always runs; idempotent via marker)
+6. `copy` → write `flutter_version` to stamp file after extraction
+7. `blockinfile` → PATH setup (always runs; idempotent via marker)
 
 The `get_url` task runs unconditionally — `get_url` checksum idempotency
 prevents re-download if the archive already exists in `/tmp/` with correct

@@ -1,6 +1,6 @@
 # Progress: feat.flutter.role
 
-## Status: Implementation Complete — Pending Acceptance Test
+## Status: Acceptance Test Passed — Ready for PR
 
 ## What Works
 
@@ -11,32 +11,30 @@
 - 10 code review findings all resolved
 - Markdownlint passes on all modified files
 - `home-folder-files.yml` idempotency fix also committed (F-003)
+- Acceptance test on `hobbiton` passed:
+  - `flutter doctor`: Chrome/web target `[✓]`
+  - `flutter build web`: `✓ Built build/web`
+  - Second run: `changed=0` for all flutter tasks
 
 ## What Is Left
 
 | Task | Description |
 | --- | --- |
-| T013a | **MANUAL**: Run acceptance test on hobbiton (see activeContext.md) |
-| T022 | Delete `specs/005-flutter-role/` stale directory before merge |
-| — | Open PR: `004-flutter-role` → `main` after acceptance test passes |
+| — | Open PR: `004-flutter-role` → `main` (user review pending) |
 
 ## spec.md Task Completion
 
 All 22 tasks (T001–T022) in `specs/004-flutter-role/tasks.md` are marked
-`[X]` — but T013a is a manual validation gate, not an automated check.
+`[X]`. T013a (manual validation gate) is now verified on real hardware.
 
 ## Known Issues / Risks
 
-- Acceptance test is manual and untested at time of commit
-- `specs/005-flutter-role/` stale directory may still exist (check before
-  opening PR)
-- Flutter 3.41.6 checksum sourced from research.md — verify against
-  official manifest if time has passed:
-  `https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json`
+- None. All acceptance criteria verified on `hobbiton`.
 
 ## Commits on Branch
 
 ```
+90e64d1 fix: flutter role re-installed SDK on every playbook run
 eecc8ef feat: provision Flutter SDK for Chrome/web development
 e8e9e50 docs: flutter role specification, plan, and task breakdown
 81b81a8 fix: home-folder-files restore failed when .envrc is absent  ← also on branch
@@ -50,3 +48,6 @@ e8e9e50 docs: flutter role specification, plan, and task breakdown
   manual install guide
 - Version upgrade: operator-driven via `flutter_version` bump (not
   automatic) — deliberate tradeoff for strict idempotency
+- Idempotency guard: originally used `flutter/version` (expected SDK file);
+  fixed to use Ansible-written stamp file after discovering Flutter 3.x
+  does not ship that file
