@@ -15,11 +15,3 @@
         users: "{{ [restore_user] }}"
         backup_file: "home-folder-files-backup.tar.gz"
         destination_beneath_home: ""
-
-    - name: Set permissions for secrets correctly
-      file:
-        path: "/home/{{ restore_user }}/.envrc"
-        owner: "{{ restore_user }}"
-        group: "{{ restore_user }}"
-        mode: '0600'
-        state: "touch"
