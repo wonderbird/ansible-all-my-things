@@ -17,7 +17,7 @@ Before implementing, confirm:
 ## Key Reference Files
 
 | File | Purpose |
-|------|---------|
+| --- | --- |
 | `roles/android_studio/tasks/main.yml` | Template for task structure and `get_url` + `unarchive` patterns |
 | `roles/android_studio/defaults/main.yml` | Template for checksum variable naming |
 | `roles/android_studio/meta/main.yml` | Template for `meta/main.yml` with `dependencies: []` |

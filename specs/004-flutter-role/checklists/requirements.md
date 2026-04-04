@@ -1,6 +1,7 @@
 # Specification Quality Checklist: Flutter Ansible Role
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning
+**Purpose**: Validate specification completeness and quality before
+proceeding to planning
 **Created**: 2026-04-04
 **Feature**: [spec.md](../spec.md)
 
@@ -13,7 +14,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain
+- [x] No [NEEDS CLARIFICATION] markers remain
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details)
@@ -31,12 +32,5 @@
 
 ## Notes
 
-- Two [NEEDS CLARIFICATION] markers remain and require resolution before
-  `/speckit.clarify` or `/speckit.plan`:
-  - FR-011: Flutter installation method (apt, sdkmanager, archive download,
-    or combination). This is the highest-priority clarification as it
-    determines the entire implementation approach and affects idempotency
-    strategy.
-  - Edge case / FR (implicit): Whether the role should upgrade an existing
-    Flutter installation or leave it untouched. This affects idempotency
-    guarantees and re-run behaviour.
+All [NEEDS CLARIFICATION] markers were resolved. See the Clarifications
+table in spec.md (Q1–Q5).

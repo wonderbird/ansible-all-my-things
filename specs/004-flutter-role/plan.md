@@ -36,7 +36,7 @@ users on one host
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 | Principle | Status | Notes |
-|-----------|--------|-------|
+| --------- | ------ | ----- |
 | I. Idempotency | PASS | Version guard skips download/extract when installed version matches `flutter_version`; `blockinfile` and `apt` are idempotent by default |
 | II. Role-First Organisation | PASS | Implemented as `roles/flutter/`; playbook entry in `configure-linux-roles.yml` only |
 | III. Test Locally Before Cloud | PASS | Must be tested on local Vagrant AMD64 VM before applying to `hobbiton` |

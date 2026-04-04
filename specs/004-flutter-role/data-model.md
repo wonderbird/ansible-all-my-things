@@ -7,20 +7,20 @@
 ### `defaults/main.yml`
 
 | Variable | Type | Default | Description |
-|----------|------|---------|-------------|
+| --- | --- | --- | --- |
 | `flutter_version` | string | `"3.41.6"` | Pinned Flutter stable release. Bump to trigger an upgrade. |
 | `flutter_sha256` | string | `"503b3e6b7d352fca5d21b6474eca95ad544d8fc3b053782eab63a360c7fc7569"` | SHA-256 of the `.tar.xz` archive for `flutter_version`. Must be updated when `flutter_version` changes. |
 
 ### Inventory Variables (consumed, not defined by this role)
 
 | Variable | Source | Description |
-|----------|--------|-------------|
+| --- | --- | --- |
 | `desktop_user_names` | `group_vars/` or `host_vars/` | List of Linux usernames for whom the Flutter SDK is installed and PATH is configured. |
 
 ## Derived Values (computed at runtime)
 
 | Derived value | Expression |
-|---------------|------------|
+| --- | --- |
 | Archive URL | `https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_{{ flutter_version }}-stable.tar.xz` |
 | Archive dest (tmp) | `/tmp/flutter_linux_{{ flutter_version }}-stable.tar.xz` |
 | SDK root per user | `/home/{{ item }}/flutter` |

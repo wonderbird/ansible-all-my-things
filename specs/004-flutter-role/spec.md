@@ -175,7 +175,7 @@ confirm Flutter is installed without editing any other file.
 - **FR-011**: The Flutter SDK MUST be installed by downloading the official
   stable release archive (`.tar.xz`) from `flutter.dev` as described in the
   Flutter manual installation guide
-  (https://docs.flutter.dev/install/manual). The role MUST NOT use `apt`,
+  (<https://docs.flutter.dev/install/manual>). The role MUST NOT use `apt`,
   `snap`, or `sdkmanager` for the Flutter SDK itself.
 - **FR-012**: The role MUST configure the Flutter environment for every user
   listed in `desktop_user_names` by adding `$HOME/flutter/bin` to `$PATH`
@@ -213,7 +213,7 @@ confirm Flutter is installed without editing any other file.
 - **FR-020**: *(merged into FR-010)*
 - **FR-021**: A role variable `flutter_version` in `defaults/main.yml`
   MUST control which version of the Flutter SDK is installed. The default
-  value MUST be a specific, pinned stable release (e.g. `3.29.2`).
+  value MUST be a specific, pinned stable release (e.g. `3.41.6`).
 - **FR-022**: The role MUST be idempotent with respect to version: if the
   installed Flutter version matches `flutter_version`, all download and
   extraction tasks MUST be skipped. If the versions differ, the role MUST
@@ -263,7 +263,7 @@ The following questions were raised during specification and have been
 resolved by the user.
 
 | # | Question | Decision |
-|---|----------|----------|
+| - | -------- | -------- |
 | Q1 | PATH configuration method for desktop users | **Option A — `blockinfile` in each user's `~/.bashrc`.** Same pattern as the `claude_code` role. The block adds `$HOME/flutter/bin` to `$PATH`. |
 | Q2 | Flutter SDK install directory per user | **Option A — `/home/{{ item }}/flutter` per user.** Consistent with `android_studio` placing its SDK under `~/Android/Sdk`. |
 | Q3 | System apt packages required as Flutter dependencies | **Custom — install exactly:** `clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev`, `mesa-utils`. Also run `systemctl daemon-reload` after package installation. This is a proven list from the user's manual installation experience. |

@@ -1,0 +1,11 @@
+#SPDX-License-Identifier: MIT-0
+galaxy_info:
+  author: Stefan Boos
+  description: Install Flutter SDK (Stable) on AMD64 Ubuntu Linux via tarball download
+  company: n.a.
+  issue_tracker_url: https://github.com/wonderbird/ansible-all-my-things/issues
+  license: MIT
+  min_ansible_version: 2.19
+  galaxy_tags: []
+
+dependencies: []

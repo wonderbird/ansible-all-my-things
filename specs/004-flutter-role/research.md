@@ -19,7 +19,7 @@ requirement to pin a specific version.
 ### Archive details
 
 | Field | Value |
-|-------|-------|
+| ----- | ----- |
 | Version | `3.41.6` |
 | Archive | `flutter_linux_3.41.6-stable.tar.xz` |
 | SHA-256 | `503b3e6b7d352fca5d21b6474eca95ad544d8fc3b053782eab63a360c7fc7569` |
