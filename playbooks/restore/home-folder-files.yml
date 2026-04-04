@@ -22,3 +22,4 @@
         owner: "{{ restore_user }}"
         group: "{{ restore_user }}"
         mode: '0600'
+        state: "touch"
