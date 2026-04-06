@@ -1,8 +1,5 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# -----
-# T006: Install Flutter system dependencies via apt
-# -----
 - name: Install Flutter apt dependencies
   ansible.builtin.apt:
     name:
@@ -14,26 +11,17 @@
       - mesa-utils
     state: present
 
-# -----
-# T007: Reload systemd after apt package installation (FR-018)
-# -----
 - name: Reload systemd daemon after apt installation
   ansible.builtin.systemd:
     daemon_reload: true
   changed_when: false
 
-# -----
-# T008: Check whether the Flutter version file exists per user
-# -----
 - name: Check Flutter version file
   ansible.builtin.stat:
     path: "/home/{{ item }}/flutter/.ansible_installed_version"
   loop: "{{ desktop_user_names }}"
   register: flutter_version_stat
 
-# -----
-# T009: Read the installed Flutter version when the version file exists
-# -----
 - name: Read installed Flutter version
   ansible.builtin.slurp:
     src: "/home/{{ item.item }}/flutter/.ansible_installed_version"
@@ -52,18 +40,20 @@
   loop: "{{ flutter_version_slurp.results }}"
   when: not item.skipped | default(false)
 
-# -----
-# T010: Download Flutter SDK archive when version does not match
-# -----
 - name: Download Flutter SDK archive
   ansible.builtin.get_url:
     url: "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_{{ flutter_version }}-stable.tar.xz"
     dest: "/tmp/flutter_linux_{{ flutter_version }}-stable.tar.xz"
     checksum: "sha256:{{ flutter_sha256 }}"
+  when: >
+    desktop_user_names | difference(
+      (flutter_installed_versions | default({}))
+      | dict2items
+      | selectattr('value', 'equalto', flutter_version)
+      | map(attribute='key')
+      | list
+    ) | length > 0
 
-# -----
-# T011: Remove old Flutter SDK directory when version does not match
-# -----
 - name: Remove old Flutter SDK directory
   ansible.builtin.file:
     path: "/home/{{ item }}/flutter"
@@ -74,9 +64,6 @@
     or item not in flutter_installed_versions
     or flutter_installed_versions[item] != flutter_version
 
-# -----
-# T012: Extract Flutter SDK archive per user
-# -----
 - name: Extract Flutter SDK archive
   ansible.builtin.unarchive:
     src: "/tmp/flutter_linux_{{ flutter_version }}-stable.tar.xz"
@@ -89,9 +76,6 @@
     or item not in flutter_installed_versions
     or flutter_installed_versions[item] != flutter_version
 
-# -----
-# T012b: Write stamp file so idempotency guard can detect installed version
-# -----
 - name: Write Flutter version stamp file
   ansible.builtin.copy:
     content: "{{ flutter_version }}\n"
@@ -105,9 +89,11 @@
     or item not in flutter_installed_versions
     or flutter_installed_versions[item] != flutter_version
 
-# -----
-# T013: Add Flutter bin to PATH in each user's ~/.bashrc
-# -----
+- name: Delete Flutter SDK archive from /tmp
+  ansible.builtin.file:
+    path: "/tmp/flutter_linux_{{ flutter_version }}-stable.tar.xz"
+    state: absent
+
 - name: Add Flutter to PATH in .bashrc
   ansible.builtin.blockinfile:
     path: "/home/{{ item }}/.bashrc"
