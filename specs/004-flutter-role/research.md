@@ -124,6 +124,55 @@ about `apply: tags:` when using `include_role`.
 manifest (unlike the Android cmdline-tools which only publish SHA-1).
 This mirrors the `android_studio` checksum pattern structurally.
 
+## Android SDK Components: NDK, CMake, and Latest SDK Platform
+
+**Decision**: Do **not** install NDK (Side by Side), Android SDK CMake, or
+any additional `platforms;android-N` package beyond what the
+`android_studio` role already provisions.
+
+**Context**: A question arose (2026-04-06) about whether three Android SDK
+components visible in Android Studio under *Languages & Frameworks > Android
+SDK* were required for the declared use case:
+
+- *SDK Platforms* — Android latest stable, API Level latest stable
+- *SDK Tools* — NDK (Side by Side)
+- *SDK Tools* — CMake (from the Android SDK, not the system apt package)
+
+**Rationale**:
+
+- **Target platform is Chrome/web only.** `flutter build web` compiles Dart
+  to JavaScript/WebAssembly via `dart2js`/`dart2wasm`. No native Android
+  toolchain is invoked at any point in this pipeline.
+- **`flutter doctor` Chrome check is independent of the Android SDK.** The
+  `[✓] Chrome` check verifies only that a `google-chrome` binary is
+  executable. NDK, CMake, and SDK Platform entries are invisible to it.
+- **`platforms;android-N` already covered.** The `android_studio` role
+  dynamically detects and installs the latest stable API level via
+  `sdkmanager --list --channel=0`. Installing the same package again via the
+  `flutter` role would be redundant.
+- **NDK and Android SDK CMake do not affect `flutter doctor` output.** The
+  Android toolchain check in `flutter doctor` validates `platform-tools`,
+  `build-tools`, `platforms`, `cmdline-tools/latest`, and a JDK — none of
+  which include NDK or Android SDK CMake. All those items are already
+  satisfied by the `android_studio` role.
+- **Both components are inert for this use case.** NDK lives under
+  `$ANDROID_HOME/ndk/<version>/` and is invoked only for native JNI code.
+  Android SDK CMake lives under `$ANDROID_HOME/cmake/<version>/bin/cmake`
+  and is invoked only by Android Gradle builds. Neither shadows system
+  binaries nor interacts with system `cmake` or `clang`.
+
+**Alternatives considered**: Installing NDK and Android SDK CMake — rejected
+for three reasons:
+
+1. **No requirement, no gain**: they provide no benefit for the Chrome/web
+   target; the existing provisioning already produces a clean `flutter doctor`
+   output without them.
+2. **Provisioning cost**: each component adds download and installation time
+   (NDK alone is ~500 MB–1 GB), slowing every VM provision and re-provision.
+3. **Maintenance overhead**: each additional SDK component requires version
+   tracking, checksum updates, and its own troubleshooting surface — all cost
+   without corresponding value for this use case.
+
 ## No `contracts/` Directory Needed
 
 **Decision**: Skip the `contracts/` directory.
@@ -132,11 +181,3 @@ This mirrors the `android_studio` checksum pattern structurally.
 machine-readable interface contract. Its only interface is the Ansible
 variable contract (`flutter_version`, `flutter_sha256`,
 `desktop_user_names`) documented in `README.md` and `data-model.md`.
-
-## Stale `005-flutter-role` Directory
-
-**Note**: The setup script auto-incremented the spec counter and created
-`specs/005-flutter-role/` with a copy of the plan template and an empty
-`spec.md`. This directory is an artefact of calling the setup script
-against the pre-existing `specs/004-flutter-role/spec.md`. The
-`005-flutter-role` directory should be deleted before merging.
