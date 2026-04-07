@@ -1,0 +1,26 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Download sdkman installer
+  ansible.builtin.get_url:
+    url: "https://get.sdkman.io/download"
+    dest: "/tmp/sdkman-install.sh"
+    mode: "0755"
+    force: false
+
+- name: Install sdkman per user
+  ansible.builtin.shell:
+    cmd: bash /tmp/sdkman-install.sh
+    creates: "/home/{{ item }}/.sdkman/bin/sdkman-init.sh"
+  environment:
+    SDKMAN_DIR: "/home/{{ item }}/.sdkman"
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+
+- name: Install Temurin JDK per user
+  ansible.builtin.shell:
+    cmd: >
+      bash -c 'source /home/{{ item }}/.sdkman/bin/sdkman-init.sh &&
+      sdk install java {{ java_sdkman_identifier }}'
+    creates: "/home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}/bin/java"
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"

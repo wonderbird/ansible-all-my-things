@@ -1,0 +1,11 @@
+#SPDX-License-Identifier: MIT-0
+galaxy_info:
+  author: Stefan Boos
+  description: Install sdkman and Temurin JDK for every user in desktop_user_names
+  company: n.a.
+  issue_tracker_url: https://github.com/wonderbird/ansible-all-my-things/issues
+  license: MIT
+  min_ansible_version: 2.19
+  galaxy_tags: []
+
+dependencies: []
