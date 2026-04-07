@@ -1,0 +1,105 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Install Flutter apt dependencies
+  ansible.builtin.apt:
+    name:
+      - clang
+      - cmake
+      - ninja-build
+      - pkg-config
+      - libgtk-3-dev
+      - mesa-utils
+    state: present
+
+- name: Reload systemd daemon after apt installation
+  ansible.builtin.systemd:
+    daemon_reload: true
+  changed_when: false
+
+- name: Check Flutter version file
+  ansible.builtin.stat:
+    path: "/home/{{ item }}/flutter/.ansible_installed_version"
+  loop: "{{ desktop_user_names }}"
+  register: flutter_version_stat
+
+- name: Read installed Flutter version
+  ansible.builtin.slurp:
+    src: "/home/{{ item.item }}/flutter/.ansible_installed_version"
+  loop: "{{ flutter_version_stat.results }}"
+  when: item.stat.exists
+  register: flutter_version_slurp
+
+- name: Set flutter_installed_versions fact
+  ansible.builtin.set_fact:
+    flutter_installed_versions: >-
+      {{
+        flutter_installed_versions | default({}) | combine(
+          {item.item.item: (item.content | b64decode | trim)}
+        )
+      }}
+  loop: "{{ flutter_version_slurp.results }}"
+  when: not item.skipped | default(false)
+
+- name: Download Flutter SDK archive
+  ansible.builtin.get_url:
+    url: "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_{{ flutter_version }}-stable.tar.xz"
+    dest: "/tmp/flutter_linux_{{ flutter_version }}-stable.tar.xz"
+    checksum: "sha256:{{ flutter_sha256 }}"
+  when: >
+    desktop_user_names | difference(
+      (flutter_installed_versions | default({}))
+      | dict2items
+      | selectattr('value', 'equalto', flutter_version)
+      | map(attribute='key')
+      | list
+    ) | length > 0
+
+- name: Remove old Flutter SDK directory
+  ansible.builtin.file:
+    path: "/home/{{ item }}/flutter"
+    state: absent
+  loop: "{{ desktop_user_names }}"
+  when: >
+    flutter_installed_versions is not defined
+    or item not in flutter_installed_versions
+    or flutter_installed_versions[item] != flutter_version
+
+- name: Extract Flutter SDK archive
+  ansible.builtin.unarchive:
+    src: "/tmp/flutter_linux_{{ flutter_version }}-stable.tar.xz"
+    dest: "/home/{{ item }}/"
+    remote_src: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+  when: >
+    flutter_installed_versions is not defined
+    or item not in flutter_installed_versions
+    or flutter_installed_versions[item] != flutter_version
+
+- name: Write Flutter version stamp file
+  ansible.builtin.copy:
+    content: "{{ flutter_version }}\n"
+    dest: "/home/{{ item }}/flutter/.ansible_installed_version"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: "0644"
+  loop: "{{ desktop_user_names }}"
+  when: >
+    flutter_installed_versions is not defined
+    or item not in flutter_installed_versions
+    or flutter_installed_versions[item] != flutter_version
+
+- name: Delete Flutter SDK archive from /tmp
+  ansible.builtin.file:
+    path: "/tmp/flutter_linux_{{ flutter_version }}-stable.tar.xz"
+    state: absent
+
+- name: Add Flutter to PATH in .bashrc
+  ansible.builtin.blockinfile:
+    path: "/home/{{ item }}/.bashrc"
+    block: 'export PATH="$HOME/flutter/bin:$PATH"'
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Flutter PATH"
+    append_newline: true
+    state: present
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"

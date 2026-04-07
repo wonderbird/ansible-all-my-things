@@ -1,0 +1,10 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Version and SHA-256 checksum for the Flutter SDK stable release.
+# Both values must be updated together when upgrading Flutter.
+# Download URL pattern:
+#   https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_{{ flutter_version }}-stable.tar.xz
+# SHA-256 checksums are listed in the Flutter release manifest:
+#   https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json
+flutter_version: "3.41.6"
+flutter_sha256: "503b3e6b7d352fca5d21b6474eca95ad544d8fc3b053782eab63a360c7fc7569"
