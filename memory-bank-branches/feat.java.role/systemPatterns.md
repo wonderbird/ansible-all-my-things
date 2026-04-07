@@ -1,5 +1,7 @@
 # System Patterns: Java Role
 
+**Primary source of truth**: [`specs/005-java-role/`](../../../../specs/005-java-role/)
+
 ## Role Structure
 
 ```text
@@ -10,79 +12,31 @@ roles/java/
 └── DESIGN.md            # Non-obvious design decisions
 ```
 
-No `handlers/`, `templates/`, `files/`, or `vars/` directories — the role
-is pure-task with one default variable.
+No `handlers/`, `templates/`, `files/`, or `vars/` directories.
 
-## Task Sequence (per user in `desktop_user_names`)
+## Task Sequence and Data Model
 
-```text
-Task 1: Download sdkman installer (runs as root — no become_user)
-  module: ansible.builtin.get_url
-  url:    https://get.sdkman.io/download
-  dest:   /tmp/sdkman-install.sh
-  guard:  force: false (skips if dest already exists)
+Full task sequence, variable definitions, file-system entities, and
+idempotency state transitions are in
+[`specs/005-java-role/data-model.md`](../../../../specs/005-java-role/data-model.md).
 
-Task 2: Run sdkman installer per user
-  module:      ansible.builtin.shell
-  cmd:         bash /tmp/sdkman-install.sh
-  creates:     /home/{{ item }}/.sdkman/bin/sdkman-init.sh
-  become_user: {{ item }}
-  loop:        desktop_user_names
-  env:         SDKMAN_DIR: /home/{{ item }}/.sdkman
+## Design Decisions
 
-Task 3: Install Temurin JDK per user
-  module:      ansible.builtin.shell
-  cmd:         bash -c 'source /home/{{ item }}/.sdkman/bin/sdkman-init.sh
-               && sdk install java {{ java_sdkman_identifier }}'
-  creates:     /home/{{ item }}/.sdkman/candidates/java/
-               {{ java_sdkman_identifier }}/bin/java
-  become_user: {{ item }}
-  loop:        desktop_user_names
-```
+All key design decisions (version-specific idempotency guard path, inline
+sdkman sourcing, no task-level `become`, no PATH modification, ARM64
+compatibility) with rationale and rejected alternatives are in
+[`specs/005-java-role/research.md`](../../../../specs/005-java-role/research.md).
 
-## Key Design Decisions
-
-### Version-Specific Idempotency Guard
-
-The `creates:` path for Task 3 uses the version-specific path
-`/home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}/bin/java`,
-NOT the `current/` symlink. This ensures that bumping `java_sdkman_identifier`
-causes the new version to be installed (the old `creates:` guard is still
-satisfied; only the new version's task runs).
-
-### Inline sdkman Sourcing
-
-Task 3 uses `bash -c 'source ... && sdk install ...'` because Ansible
-`shell` tasks spawn a non-interactive shell that does not source `.bashrc`.
-The `sdk` command is a shell function, not a binary, so sourcing
-`sdkman-init.sh` inline is the only reliable approach.
-
-### No Task-Level `become`
-
-`configure-linux-roles.yml` sets `become: true` at play level. The role
-inherits it. Per-user tasks use `become_user: "{{ item }}"` only (no
-redundant `become: true` at task level). This matches the `android_studio`
-and `flutter` reference roles.
-
-### sdkman Handles PATH Automatically
-
-The sdkman installer appends `source ~/.sdkman/bin/sdkman-init.sh` to
-`~/.bashrc` and `~/.profile`. No `blockinfile` task is needed — unlike
-the `flutter` role, which must modify PATH explicitly.
-
-### No Architecture Branching
-
-sdkman and Temurin both publish ARM64 artifacts and detect the host
-architecture at runtime. The role needs no `when: ansible_architecture`
-guards and carries no `not-supported-on-vagrant-arm64` tag.
+Non-obvious decisions are also captured close to the code in
+[`roles/java/DESIGN.md`](../../../../roles/java/DESIGN.md).
 
 ## Playbook Integration
 
-The `java` role is registered in `configure-linux-roles.yml` line 22
-(after `flutter`) with no special tags — it runs on all architectures.
+The `java` role is registered in `configure-linux-roles.yml` after `flutter`
+with no architecture tags (ARM64 is supported natively).
 
-## Conventions (from Constitution)
+## Conventions
 
 - All YAML files begin with `#SPDX-License-Identifier: MIT-0`.
 - All module references use FQCN (`ansible.builtin.*`).
-- Commit prefix: `feat:` for implementation, `docs:` for documentation.
+- No task-level `become: true` — play-level `become` is inherited.
