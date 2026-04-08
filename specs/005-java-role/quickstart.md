@@ -1,4 +1,4 @@
-#SPDX-License-Identifier: MIT-0
+<!-- SPDX-License-Identifier: MIT-0 -->
 
 # Quickstart: Java Role (sdkman + Temurin JDK)
 
@@ -58,7 +58,7 @@ Every YAML file must begin with `#SPDX-License-Identifier: MIT-0`.
 ## Acceptance Criteria Summary
 
 | Criterion | How to verify |
-|-----------|--------------|
+| --------- | ------------- |
 | SC-001: `java -version` succeeds and contains "Temurin" | Run `java -version` as each provisioned user |
 | SC-002: Zero changed tasks on second run | Re-run playbook; inspect Ansible output |
 | SC-003: Works on AMD64 and ARM64 | Run against both Vagrant targets |

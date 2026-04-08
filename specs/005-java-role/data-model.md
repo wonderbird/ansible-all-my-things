@@ -1,4 +1,4 @@
-#SPDX-License-Identifier: MIT-0
+<!-- SPDX-License-Identifier: MIT-0 -->
 
 # Data Model: Java Role (sdkman + Temurin JDK)
 
@@ -13,7 +13,7 @@ them.
 ### `java_sdkman_identifier` (role default)
 
 | Attribute | Value |
-|-----------|-------|
+| ----------- | ------- |
 | Source | `roles/java/defaults/main.yml` |
 | Type | String |
 | Default | `"21.0.7-tem"` |
@@ -28,7 +28,7 @@ task with an informative error message.
 ### `desktop_user_names` (consumed from playbook)
 
 | Attribute | Value |
-|-----------|-------|
+| ----------- | ------- |
 | Source | `configure-linux-roles.yml` → derived from `desktop_users` group var |
 | Type | List of strings |
 | Example | `["alice", "bob"]` |
@@ -39,7 +39,7 @@ task with an informative error message.
 ### sdkman Installer Script (temporary)
 
 | Attribute | Value |
-|-----------|-------|
+| ----------- | ------- |
 | Path | `/tmp/sdkman-install.sh` |
 | Owner | root (Ansible connection user) |
 | Created by | `ansible.builtin.get_url` task |
@@ -49,7 +49,7 @@ task with an informative error message.
 ### sdkman Installation (per user)
 
 | Attribute | Value |
-|-----------|-------|
+| ----------- | ------- |
 | Root path | `/home/<user>/.sdkman/` |
 | Owner | `<user>` |
 | Created by | sdkman installer script |
@@ -59,7 +59,7 @@ task with an informative error message.
 ### Temurin JDK Candidate (per user, per version)
 
 | Attribute | Value |
-|-----------|-------|
+| ----------- | ------- |
 | Path | `/home/<user>/.sdkman/candidates/java/{{ java_sdkman_identifier }}/` |
 | Binary | `/home/<user>/.sdkman/candidates/java/{{ java_sdkman_identifier }}/bin/java` |
 | Owner | `<user>` |
@@ -117,7 +117,7 @@ State: sdkman installed, but different JDK identifier requested
 ## Role Files
 
 | File | Purpose |
-|------|---------|
+| ---- | ------- |
 | `roles/java/defaults/main.yml` | `java_sdkman_identifier` default |
 | `roles/java/meta/main.yml` | `galaxy_info` block |
 | `roles/java/tasks/main.yml` | All provisioning tasks |

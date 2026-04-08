@@ -1,9 +1,4 @@
-#SPDX-License-Identifier: MIT-0
-
----
-
-description: "Task list for Java Ansible Role (sdkman + Temurin JDK) implementation"
----
+<!-- SPDX-License-Identifier: MIT-0 -->
 
 # Tasks: Java Ansible Role (sdkman + Temurin JDK)
 
@@ -79,7 +74,8 @@ in the output.
   `become_user: "{{ item }}"`, and `loop: "{{ desktop_user_names }}"` (FR-010)
 - [ ] T007 [US1] Add per-user Temurin JDK install task to
   `roles/java/tasks/main.yml`: `ansible.builtin.shell` running
-  `bash -c 'source /home/{{ item }}/.sdkman/bin/sdkman-init.sh && sdk install java {{ java_sdkman_identifier }}'`
+  `bash -c 'source /home/{{ item }}/.sdkman/bin/sdkman-init.sh`
+  `&& sdk install java {{ java_sdkman_identifier }}'`
   with
   `creates: /home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}/bin/java`,
   `become_user: "{{ item }}"`, and `loop: "{{ desktop_user_names }}"` (FR-002, FR-005)

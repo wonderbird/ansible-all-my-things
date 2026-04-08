@@ -1,11 +1,12 @@
-#SPDX-License-Identifier: MIT-0
+<!-- SPDX-License-Identifier: MIT-0 -->
 
 # Implementation Plan: Java Role (sdkman + Temurin JDK)
 
 **Branch**: `005-java-role` | **Date**: 2026-04-07 | **Spec**: [spec.md](spec.md)
 **Input**: Feature specification from `/specs/005-java-role/spec.md`
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
+**Note**: This template is filled in by the `/speckit.plan` command. See
+`.specify/templates/plan-template.md` for the execution workflow.
 
 ## Summary
 
@@ -38,7 +39,7 @@ installation
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 | Principle | Status | Notes |
-|-----------|--------|-------|
+| --------- | ------ | ----- |
 | I. Idempotency | PASS | All `shell`/`command` tasks use `creates:` guards referencing version-specific paths. |
 | II. Role-First | PASS | Implemented as `roles/java/`; no implementation logic in playbooks. |
 | III. Test Locally Before Cloud | PASS | Vagrant test is the acceptance criterion (SC-005); role isolated in `configure-linux-roles.yml`. |

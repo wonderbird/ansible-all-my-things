@@ -3,7 +3,9 @@
 **Feature Branch**: `005-java-role`
 **Created**: 2026-04-07
 **Status**: Draft
-**Input**: User description: "Install sdkman and use it to provision the current LTS version of the Temurin JDK for every user listed in `desktop_user_names`."
+**Input**: User description: "Install sdkman and use it to provision the
+current LTS version of the Temurin JDK for every user listed in
+`desktop_user_names`."
 
 ## User Scenarios & Testing
 
