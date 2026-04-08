@@ -4,11 +4,9 @@
 
 ## Current Status
 
-**Phase**: Acceptance Testing
+**Phase**: Complete — open pull request to merge into `main`.
 
-Implementation is **complete and reviewed**. All role files are in place and
-the role is integrated into `configure-linux-roles.yml`. The next step is to
-run the acceptance tests against a local Vagrant VM.
+Implementation is complete, all acceptance tests passed, all commits done.
 
 ## What Is Done
 
@@ -18,27 +16,36 @@ run the acceptance tests against a local Vagrant VM.
 - `roles/java/DESIGN.md` — design decisions documented
 - `configure-linux-roles.yml` — `java` role added (after `flutter`)
 - All spec artifacts in `specs/005-java-role/`
+- Markdownlint fixes applied to all `specs/005-java-role/*.md` and
+  `.markdownlint.json`
+
+## Acceptance Test Results
+
+| Task | Criterion | Result |
+| ---- | --------- | ------ |
+| T008 | SC-001: `java -version` shows "Temurin" (AMD64, hobbiton) | PASS |
+| T010/T014 | SC-002: zero changed on second run (hobbiton) | PASS |
+| T012 | SC-004: version override installs new version | PASS |
+| T015 | SC-003: ARM64 (lorien) — `java -version` shows "Temurin" | PASS |
+| T016 | Markdownlint clean on all modified `.md` files | PASS |
 
 ## Immediate Next Action
 
-Run acceptance tests following
-[`specs/005-java-role/quickstart.md`](../../../../specs/005-java-role/quickstart.md).
-
-Outstanding validation tasks (T008, T010, T012, T014, T015, T016) are tracked
-in [`specs/005-java-role/tasks.md`](../../../../specs/005-java-role/tasks.md).
+Open a pull request to merge `005-java-role` into `main`.
 
 ## Active Decisions and Considerations
 
-- The sdkman download URL is `https://get.sdkman.io/download` (direct endpoint;
-  the bare `https://get.sdkman.io` redirects).
-- `SDKMAN_DIR` environment variable is set on the sdkman install task to ensure
-  the correct target directory.
+- The sdkman download URL is `https://get.sdkman.io` — the `/download`
+  endpoint returned 404 in production; corrected to match `research.md`.
 - No `no_log: true` anywhere in the role (per spec Assumptions).
+- SPDX license header `#SPDX-License-Identifier: MIT-0` applies to YAML
+  files only (FR-008). Markdown files use
+  `<!-- SPDX-License-Identifier: MIT-0 -->` to avoid MD018/MD041 errors.
 
 ## Patterns to Preserve
 
-- `creates:` guard for the JDK task MUST reference the version-specific path,
-  not `current/` — see
+- `creates:` guard for the JDK task MUST reference the version-specific
+  path, not `current/` — see
   [`specs/005-java-role/research.md`](../../../../specs/005-java-role/research.md).
 - No `become: true` at task level — play-level `become` is inherited.
 - All YAML files start with `#SPDX-License-Identifier: MIT-0`.

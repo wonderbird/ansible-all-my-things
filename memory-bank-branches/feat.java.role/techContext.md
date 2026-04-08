@@ -8,7 +8,7 @@
 | --- | --- |
 | Ansible | 2.19+ |
 | Ansible modules | `ansible.builtin.*` only (no community.general needed) |
-| sdkman | Installer from `https://get.sdkman.io/download` |
+| sdkman | Installer from `https://get.sdkman.io` (`/download` returns 404) |
 | Eclipse Temurin JDK | Default `21.0.7-tem` (OpenJDK 21 LTS, Adoptium) |
 | Target OS | Ubuntu Linux — AMD64 and ARM64 |
 
