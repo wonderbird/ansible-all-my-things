@@ -13,4 +13,4 @@
 #
 # For a list of available locations, check `hcloud location list`.
 #
-hcloud_default_location: "hel1"
+hcloud_default_location: "fsn1"
