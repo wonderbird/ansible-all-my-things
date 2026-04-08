@@ -2,7 +2,7 @@
 ---
 - name: Download sdkman installer
   ansible.builtin.get_url:
-    url: "https://get.sdkman.io/download"
+    url: "https://get.sdkman.io"
     dest: "/tmp/sdkman-install.sh"
     mode: "0755"
     force: false
