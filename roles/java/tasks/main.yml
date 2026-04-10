@@ -16,6 +16,11 @@
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
 
+- name: Remove sdkman installer
+  ansible.builtin.file:
+    path: /tmp/sdkman-install.sh
+    state: absent
+
 - name: Install Temurin JDK per user
   ansible.builtin.shell:
     cmd: >
