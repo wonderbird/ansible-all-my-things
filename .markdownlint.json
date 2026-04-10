@@ -1,7 +1,6 @@
 {
   "MD013": {
     "tables": false,
-    "code_blocks": false,
-    "headings": false
+    "code_blocks": false
   }
 }
