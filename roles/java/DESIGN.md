@@ -13,9 +13,13 @@ The role performs two jobs per user in `desktop_user_names`:
 2. **Temurin JDK installation** — sources `~/.sdkman/bin/sdkman-init.sh` and
    runs `sdk install java {{ java_sdkman_identifier }}` for each user.
 
+The sdkman installer is fetched from `https://get.sdkman.io`. The URL
+`https://get.sdkman.io/download` returns HTTP 404 and must not be used.
+
 The installer download (Task 1) runs once as root (no `become_user`), writing
 to `/tmp/sdkman-install.sh`, which is world-readable. Tasks 2 and 3 loop over
-`desktop_user_names` using `become_user: "{{ item }}"`.
+`desktop_user_names` using `become_user: "{{ item }}"`. A cleanup task after
+the loop deletes `/tmp/sdkman-install.sh`.
 
 ## Version-Specific Idempotency Guard Path
 

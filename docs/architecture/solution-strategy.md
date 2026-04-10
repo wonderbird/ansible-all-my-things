@@ -35,6 +35,7 @@ backup/restore pattern described in the
 | Local test VMs — Linux host | Vagrant + Docker | Docker-based Vagrant boxes start faster than full VMs on Linux; sufficient for most role tests. |
 | Cloud targets | AWS EC2, Hetzner Cloud | Existing provider choice; not changed by automation tooling. |
 | Guest OS | Ubuntu Linux (primary), Windows Server 2025 (secondary) | Ubuntu is the dominant desktop/server target; Windows Server added to run applications that are only available on Windows. |
+| Java runtime | sdkman + Eclipse Temurin JDK | Per-user self-service JDK management; avoids system-wide Java conflicts; ARM64 and AMD64 artifacts published by Adoptium. |
 | Secret management | Ansible Vault | Native Ansible integration; avoids third-party secret stores for a single-person project. |
 | Scripting — simple | Bash | Minimal dependency; used only for bootstrap and helper scripts not suited to Ansible. |
 | Scripting — complex | Python | Required for Ansible AWS modules; enables structured programming and unit testing for scripts too complex for Bash. |
