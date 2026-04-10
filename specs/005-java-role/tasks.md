@@ -21,7 +21,7 @@ implementation and testing of each story. No test tasks are generated
 **Purpose**: Create the `roles/java/` directory structure before any
 content tasks begin.
 
-- [ ] T001 Create role directory tree `roles/java/` with subdirectories
+- [x] T001 Create role directory tree `roles/java/` with subdirectories
   `defaults/`, `meta/`, `tasks/`
 
 ---
@@ -34,11 +34,11 @@ DESIGN.md must exist before it can be edited.
 
 **Note**: No user-story work can begin until this phase is complete.
 
-- [ ] T002 [P] Write `roles/java/defaults/main.yml` with SPDX header and
+- [x] T002 [P] Write `roles/java/defaults/main.yml` with SPDX header and
   `java_sdkman_identifier: "21.0.7-tem"` per data-model.md
-- [ ] T003 [P] Write `roles/java/meta/main.yml` with SPDX header and
+- [x] T003 [P] Write `roles/java/meta/main.yml` with SPDX header and
   `galaxy_info` block following the `android_studio` meta template (FR-011)
-- [ ] T004 [P] Create `roles/java/DESIGN.md` documenting non-obvious design
+- [x] T004 [P] Create `roles/java/DESIGN.md` documenting non-obvious design
   decisions: version-specific idempotency guard path, sdkman init.sh inline
   sourcing, no PATH modification needed, no task-level `become`, ARM64
   compatibility (FR-012)
@@ -59,7 +59,7 @@ in the output.
 
 ### Implementation — US1
 
-- [ ] T005 [US1] Write `roles/java/tasks/main.yml` with SPDX header and the
+- [x] T005 [US1] Write `roles/java/tasks/main.yml` with SPDX header and the
   download task: `ansible.builtin.get_url` fetching `https://get.sdkman.io`
   to `/tmp/sdkman-install.sh`. `get_url` is idempotent by default via
   `force: false` — if the destination file already exists the download is
@@ -67,19 +67,19 @@ in the output.
   No `become_user` — writes to `/tmp` as root (play-level `become: true`
   is inherited); `/tmp` is world-readable so the script is accessible to
   `become_user` in the next task. Per research.md.
-- [ ] T006 [US1] Add per-user sdkman installer task to
+- [x] T006 [US1] Add per-user sdkman installer task to
   `roles/java/tasks/main.yml`: `ansible.builtin.shell` running
   `bash /tmp/sdkman-install.sh` with
   `creates: /home/{{ item }}/.sdkman/bin/sdkman-init.sh`,
   `become_user: "{{ item }}"`, and `loop: "{{ desktop_user_names }}"` (FR-010)
-- [ ] T007 [US1] Add per-user Temurin JDK install task to
+- [x] T007 [US1] Add per-user Temurin JDK install task to
   `roles/java/tasks/main.yml`: `ansible.builtin.shell` running
   `bash -c 'source /home/{{ item }}/.sdkman/bin/sdkman-init.sh`
   `&& sdk install java {{ java_sdkman_identifier }}'`
   with
   `creates: /home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}/bin/java`,
   `become_user: "{{ item }}"`, and `loop: "{{ desktop_user_names }}"` (FR-002, FR-005)
-- [ ] T008 [US1] **Validate SC-001**: Provision a fresh Ubuntu VM (AMD64) with
+- [x] T008 [US1] **Validate SC-001**: Provision a fresh Ubuntu VM (AMD64) with
   only the `java` role active in `configure-linux-roles.yml`; log in as a
   provisioned user; run `java -version 2>&1 | grep -i temurin` and confirm
   exit code 0 and "Temurin" in output. Document the result before proceeding
@@ -102,13 +102,13 @@ showing the sdkman version without errors.
 
 ### Implementation — US2
 
-- [ ] T009 [P] [US2] **Verification-only**: Confirm that T006's
+- [x] T009 [P] [US2] **Verification-only**: Confirm that T006's
   `ansible.builtin.shell` task in `roles/java/tasks/main.yml` targets the
   correct installer path (`bash /tmp/sdkman-install.sh`) and that the
   `creates:` guard correctly points to
   `/home/{{ item }}/.sdkman/bin/sdkman-init.sh` (FR-001, FR-005). Tick this
   off after inspecting the file — no code change expected.
-- [ ] T010 [P] [US2] **Idempotency verification — sdkman**: Re-run the
+- [x] T010 [P] [US2] **Idempotency verification — sdkman**: Re-run the
   playbook against a host where sdkman is already installed; confirm the
   sdkman installer task shows `ok` (skipped via `creates:`) and not `changed`
   (SC-002). No file change — checklist confirmation only.
@@ -135,13 +135,13 @@ installed, and verify the new version appears under
 
 ### Implementation — US3
 
-- [ ] T011 [P] [US3] **Verification-only**: Confirm that T007's `creates:`
+- [x] T011 [P] [US3] **Verification-only**: Confirm that T007's `creates:`
   guard in `roles/java/tasks/main.yml` references the version-specific path
   `/home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}/bin/java`
   and NOT the `current/` symlink path (FR-005, spec Key Entities). Tick this
   off after inspecting the file — no code change expected if T007 was written
   correctly.
-- [ ] T012 [P] [US3] **Verify override**: Temporarily set
+- [x] T012 [P] [US3] **Verify override**: Temporarily set
   `java_sdkman_identifier: "21.0.6-tem"` in inventory, re-run the playbook
   against a provisioned host, confirm the JDK task shows `changed` and the
   new version is installed under
@@ -159,18 +159,19 @@ new version's task runs.
 **Purpose**: Playbook integration, documentation completeness, full
 idempotency confirmation, and ARM64 validation.
 
-- [ ] T013 [P] Add the `java` role entry to `configure-linux-roles.yml`
-  after the `flutter` entry — no `tags:` needed (ARM64 is supported); follow
-  the existing role-entry format (FR-007, research.md ARM64 decision)
-- [ ] T014 [P] **Idempotency — full second run (SC-002)**: Run the playbook
+- [x] T013 [P] Add the `java` role entry to `configure-linux-roles.yml`
+  before `android_studio` in the Flutter Development group — no `tags:` needed
+  (ARM64 is supported); follow the existing role-entry format (FR-007,
+  research.md ARM64 decision)
+- [x] T014 [P] **Idempotency — full second run (SC-002)**: Run the playbook
   twice against the same provisioned host with the `java` role active; confirm
   the second run shows zero `changed` tasks for the `java` role (FR-006).
   No file change — checklist confirmation only.
-- [ ] T015 [P] **ARM64 validation (SC-003)**: Provision a fresh ARM64 Ubuntu
+- [x] T015 [P] **ARM64 validation (SC-003)**: Provision a fresh ARM64 Ubuntu
   VM with the `java` role applied; confirm `java -version` succeeds and shows
   "Temurin". No role-file change expected — confirms the role needs no
   architecture-specific branching (research.md ARM64 decision).
-- [ ] T016 Run markdownlint against all modified `.md` files
+- [x] T016 Run markdownlint against all modified `.md` files
   (`roles/java/DESIGN.md`, `specs/005-java-role/*.md`) and fix any violations
   per the Markdown Quality Standards constitution principle
 

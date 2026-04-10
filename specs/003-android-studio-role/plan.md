@@ -32,9 +32,8 @@ see quickstart.md
 **Performance Goals**: N/A
 **Constraints**: snapd must be pre-installed (standard Ubuntu); requires
 outbound internet access on first provisioning run (snap + SDK downloads);
-snap bundles JetBrains Runtime (JBR) at
-`/snap/android-studio/current/jbr/bin/java` — covers the
-Java 17+ requirement for sdkmanager
+the `java` role MUST run before this role — it installs the Eclipse Temurin
+JDK via sdkman, which provides the Java 17+ runtime required by sdkmanager
 **Scale/Scope**: Single role, three files (`meta/main.yml`,
 `tasks/main.yml`, `defaults/main.yml`), one entry in
 `configure-linux-roles.yml`
@@ -165,14 +164,16 @@ each developer's SDK directory.
    `sdkmanager --list` and parses the output to find the highest
    `platforms;android-XX` API level. Also detects the latest
    `build-tools` version. Uses `changed_when: false`. Requires
-   `JAVA_HOME` set to the snap-bundled JBR at
-   `/snap/android-studio/current/jbr`.
+   `JAVA_HOME` set to the sdkman Temurin JDK path:
+   `/home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}`
+   (installed by the `java` role; versioned path preferred over
+   `current/` symlink for stability).
 4. **Install SDK components** — `community.general.android_sdk` installs
    `platform-tools`, `platforms;android-{{ latest_api }}`,
    `build-tools;{{ latest_buildtools }}`, `emulator`, and
    `sources;android-{{ latest_api }}` with `accept_licenses: true`
    and `sdk_root: ~/Android/Sdk`. The module requires `sdkmanager`
-   (provided by step 2) and Java 17+ (snap-bundled JBR).
+   (provided by step 2) and Java 17+ (Temurin JDK from the `java` role).
 
 Per-user tasks use `become_user: "{{ item }}"` to ensure correct file
 ownership (see research.md Decision 6).

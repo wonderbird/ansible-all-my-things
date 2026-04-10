@@ -153,8 +153,9 @@ SDK* were required for the declared use case:
 - **NDK and Android SDK CMake do not affect `flutter doctor` output.** The
   Android toolchain check in `flutter doctor` validates `platform-tools`,
   `build-tools`, `platforms`, `cmdline-tools/latest`, and a JDK — none of
-  which include NDK or Android SDK CMake. All those items are already
-  satisfied by the `android_studio` role.
+  which include NDK or Android SDK CMake. The SDK components are satisfied by
+  the `android_studio` role; the JDK is provided by the `java` role (Eclipse
+  Temurin via sdkman).
 - **Both components are inert for this use case.** NDK lives under
   `$ANDROID_HOME/ndk/<version>/` and is invoked only for native JNI code.
   Android SDK CMake lives under `$ANDROID_HOME/cmake/<version>/bin/cmake`
