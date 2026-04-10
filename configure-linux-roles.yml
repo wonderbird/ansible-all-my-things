@@ -16,12 +16,13 @@
     - role: google_chrome
       tags: not-supported-on-vagrant-arm64
 
-    # Flutter Development
-    - java
-    - role: android_studio
-      tags: not-supported-on-vagrant-arm64
-    - role: flutter
-      tags: not-supported-on-vagrant-arm64
-
     # Optional roles - uncomment as needed
+
+    # Flutter Development
+    #- java
+    #- role: android_studio
+    #  tags: not-supported-on-vagrant-arm64
+    #- role: flutter
+    #  tags: not-supported-on-vagrant-arm64
+
     #- cursor_ide
