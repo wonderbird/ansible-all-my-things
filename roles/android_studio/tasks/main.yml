@@ -57,7 +57,7 @@
       | sort -V
       | tail -1
   environment:
-    JAVA_HOME: /snap/android-studio/current/jbr
+    JAVA_HOME: "/home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}"
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
   register: detected_api_levels
@@ -72,7 +72,7 @@
       | sort -V
       | tail -1
   environment:
-    JAVA_HOME: /snap/android-studio/current/jbr
+    JAVA_HOME: "/home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}"
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
   register: detected_buildtools_versions
@@ -104,7 +104,7 @@
     accept_licenses: true
     sdk_root: "/home/{{ item }}/Android/Sdk"
   environment:
-    JAVA_HOME: /snap/android-studio/current/jbr
+    JAVA_HOME: "/home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}"
     PATH: "/home/{{ item }}/Android/Sdk/cmdline-tools/latest/bin:{{ ansible_env.PATH }}"
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"

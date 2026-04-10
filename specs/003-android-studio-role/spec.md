@@ -167,6 +167,10 @@ completion.
 - **FR-012**: SDK pre-provisioning MUST be idempotent: re-running the role
   on a machine where the SDK is already present MUST produce no `changed`
   tasks.
+- **FR-013**: The `JAVA_HOME` environment variable passed to `sdkmanager`
+  MUST use the Temurin JDK installed by the `java` role via sdkman
+  (`/home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}`).
+  The snap-bundled JBR MUST NOT be used.
 
 ### Key Entities
 
@@ -257,8 +261,9 @@ completion.
   `configure-linux.yml`.
 - The provisioned user account is already created by the `setup-users.yml`
   playbook before this role runs.
-- The snap package bundles all required dependencies (including a Java
-  runtime); no separate dependency installation is needed for the IDE itself.
+- The `java` role MUST run before the `android_studio` role. It installs the
+  Eclipse Temurin JDK via sdkman, which provides the Java 17+ runtime required
+  by sdkmanager during SDK pre-provisioning.
 - SDK pre-provisioning downloads components from Google's servers during
   provisioning; outbound internet access is required.
 - snapd is assumed to be pre-installed on all target machines (standard

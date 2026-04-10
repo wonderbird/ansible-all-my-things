@@ -69,8 +69,13 @@ licenses) per user in `desktop_user_names`.
 present via `ansible-doc community.general.android_sdk`. Module wraps
 `sdkmanager`, supports `accept_licenses: true`, `sdk_root`, `state:
 latest`, and `check_mode`. Requires `sdkmanager` and Java 17+ on the
-managed node (both provided by cmdline-tools bootstrap and the
-snap-bundled JBR respectively).
+managed node (`sdkmanager` comes from cmdline-tools bootstrap; Java 17+
+comes from the Temurin JDK installed by the `java` role via sdkman).
+`JAVA_HOME` is set to the versioned sdkman path
+(`/home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}`)
+rather than the snap-bundled JBR — the versioned path is stable against
+user `sdk default java` changes and does not depend on the snap being
+present at runtime.
 
 **Key constraint**: Package names require explicit versions (e.g.,
 `platforms;android-35`). There is no symbolic `latest` token. The

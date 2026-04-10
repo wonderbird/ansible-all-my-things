@@ -165,13 +165,14 @@ confirm Flutter is installed without editing any other file.
   propagate the tag to inner tasks.
 - **FR-009**: After the role runs, `flutter doctor` MUST report no errors for
   the Chrome/web target on the provisioned machine.
-- **FR-010**: The role MUST depend on the `android_studio` role having been
-  applied first. This prerequisite MUST be documented in `README.md`.
-  The `meta/main.yml` file MUST keep `dependencies: []` (empty). The role
-  MUST NOT silently install `android_studio` itself. Meta-level dependencies
-  are not used in this project because they are invisible to playbook
-  readers, break tag filtering, and are designed for redistributed roles
-  rather than single-playbook provisioners.
+- **FR-010**: The role MUST depend on the `java` role and the `android_studio`
+  role having been applied first (in that order). Both prerequisites MUST be
+  documented in `README.md`. The `meta/main.yml` file MUST keep
+  `dependencies: []` (empty). The role MUST NOT silently install either
+  prerequisite itself. Meta-level dependencies are not used in this project
+  because they are invisible to playbook readers, break tag filtering, and
+  are designed for redistributed roles rather than single-playbook
+  provisioners.
 - **FR-011**: The Flutter SDK MUST be installed by downloading the official
   stable release archive (`.tar.xz`) from `flutter.dev` as described in the
   Flutter manual installation guide
@@ -272,7 +273,8 @@ resolved by the user.
 
 ## Assumptions
 
-- The `android_studio` role is applied before the `flutter` role in every
+- The `java` role is applied before the `android_studio` role, and the
+  `android_studio` role is applied before the `flutter` role in every
   provisioning run. The `flutter` role does not validate this at runtime.
 - The `google_chrome` role is applied before the `flutter` role, ensuring
   the Chrome browser is present for the web target.

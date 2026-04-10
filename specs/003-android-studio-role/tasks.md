@@ -139,15 +139,15 @@ start to completion. See `quickstart.md` — SDK validation test.
   with `creates: ~/Android/Sdk/cmdline-tools/latest/bin/sdkmanager`
 - [x] T010a [US4] Add task to detect latest Android API level
   and build-tools version by parsing `sdkmanager --list` output;
-  `changed_when: false`; set `JAVA_HOME` to snap-bundled JBR
-  (`/snap/android-studio/current/jbr`)
+  `changed_when: false`; set `JAVA_HOME` to sdkman Temurin JDK path
+  (`/home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}`)
 - [x] T011 [US4] Add task to install SDK components
   (`platform-tools`, `platforms;android-{{ latest_api }}`,
   `build-tools;{{ latest_buildtools }}`, `emulator`,
   `sources;android-{{ latest_api }}`) using
   `community.general.android_sdk` with
   `accept_licenses: true` and `sdk_root: ~/Android/Sdk`
-  per user, using snap-bundled JBR for Java
+  per user, using Temurin JDK installed by the `java` role for Java
 - [ ] T012 [US4] Verify idempotency: second run reports `ok`
   for all SDK tasks (FR-012)
 
@@ -191,8 +191,8 @@ following the same unpinned-version pattern as existing roles.
   in T003) — verification only
 - **US3 (P3)**: Implemented within US1 (tag on role entry in T004)
   — verification only
-- **US4 (P2)**: Depends on US1 (snap install provides JBR); T007
-  must precede T008–T011; T008–T010 are sequential
+- **US4 (P2)**: Depends on US1 (snap install) and the `java` role
+  (Temurin JDK); T007 must precede T008–T011; T008–T010 are sequential
   (directory → download → extract); T011 depends on T010
   (sdkmanager must exist)
 

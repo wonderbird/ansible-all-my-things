@@ -68,7 +68,8 @@ Applying the tag only at the entry level means:
 ## `meta/main.yml` — Empty Dependencies
 
 **Decision**: Keep `dependencies: []` in `meta/main.yml`. Document
-`android_studio` and `google_chrome` as prerequisites in `README.md` only.
+`java`, `android_studio`, and `google_chrome` as prerequisites in
+`README.md` only.
 
 **Rationale**: Meta-level dependencies are invisible to playbook readers,
 break tag filtering (the skip tag on `android_studio` would be bypassed if

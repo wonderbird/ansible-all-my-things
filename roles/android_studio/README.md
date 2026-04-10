@@ -9,6 +9,8 @@ for all desktop users.
 - `desktop_user_names` variable defined (list of users to receive the SDK).
 - Internet access on the first provisioning run (snap and SDK downloads).
 - `community.general` collection (already in `requirements.yml`).
+- The `java` role MUST run before this role. It installs the Eclipse Temurin
+  JDK via sdkman, which provides the Java 17+ runtime required by sdkmanager.
 
 ## Role Variables
 
@@ -26,7 +28,9 @@ See TD-009 in the technical debt register for the accepted risk.
 
 ## Dependencies
 
-none
+The `java` role must be applied before this role (provides Temurin JDK via
+sdkman for `sdkmanager`). This dependency is documented here only;
+`meta/main.yml` keeps `dependencies: []` following project convention.
 
 ## Example Playbook
 

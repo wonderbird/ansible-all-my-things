@@ -40,15 +40,20 @@ The bootstrap sequence for each user is therefore:
 
 ### JAVA_HOME
 
-`sdkmanager` requires Java 17+. The snap bundles JetBrains Runtime at:
+`sdkmanager` requires Java 17+. The `java` role installs the Eclipse Temurin
+JDK via sdkman for each user in `desktop_user_names`. Tasks that invoke
+`sdkmanager` (directly or via `community.general.android_sdk`) must set
+`JAVA_HOME` to the versioned sdkman candidate path:
 
 ```text
-/snap/android-studio/current/jbr
+/home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}
 ```
 
-Tasks that invoke `sdkmanager` (directly or via `community.general.android_sdk`)
-must set `JAVA_HOME` to this path. The intuitive path without `current/`
-does not exist.
+The versioned path (using the `java_sdkman_identifier` variable from
+`roles/java/defaults/main.yml`) is used in preference to the `current/`
+symlink. The symlink is updated by `sdk default java` and may point to a
+different version if the user changes their default; the versioned path is
+always stable.
 
 ### sdkmanager Must Be Added to PATH
 
