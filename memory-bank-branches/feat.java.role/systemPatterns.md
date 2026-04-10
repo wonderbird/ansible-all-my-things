@@ -32,8 +32,9 @@ Non-obvious decisions are also captured close to the code in
 
 ## Playbook Integration
 
-The `java` role is registered in `configure-linux-roles.yml` after `flutter`
-with no architecture tags (ARM64 is supported natively).
+The `java` role is registered in `configure-linux-roles.yml` before
+`android_studio` in the `# Flutter Development` group, with no architecture
+tags (ARM64 is supported natively). Also added `roles/java/README.md`.
 
 ## Conventions
 
