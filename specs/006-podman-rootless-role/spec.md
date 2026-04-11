@@ -32,7 +32,7 @@ confirm end-to-end container workflows work.
    succeeds for every listed user.
 
 2. **Given** Podman is installed for all listed users, **When** a user runs
-   `podman build -t devcontainer -f .devcontainer/Dockerfile .` from the
+   `podman build -t devcontainer .devcontainer/` from the
    repository root, **Then** the build completes without errors.
 
 3. **Given** a container image named `devcontainer` exists in the user's local

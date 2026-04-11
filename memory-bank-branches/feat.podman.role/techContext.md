@@ -18,11 +18,25 @@
 - SSH target configured for `vagrant` user
 - `configure-linux-roles.yml` used to apply the role in isolation
 
+### Acceptance Test (T020) — Actual Execution
+
+T020 was run against the Hetzner Cloud VM `hobbiton` (Ubuntu, `galadriel`
+user) instead of a local Vagrant VM. All four criteria passed:
+
+- Podman 4.9.3 installed; `podman --version` succeeded
+- `/etc/subuid` and `/etc/subgid` contain `galadriel:100000:65536`
+- `podman build -t devcontainer .devcontainer/` succeeded
+- `podman run --rm devcontainer ansible --version` → `ansible [core 2.20.4]`
+- Second playbook run: zero `changed` tasks
+
+Command used: `ansible-playbook configure-linux-roles.yml --limit hobbiton`
+(no `-i` flag needed; `ansible.cfg` sets `inventory = ./inventories`)
+
 ### Test Procedure (from CONTRIBUTING.md)
 
 1. Isolate the role: ensure only `podman` is active in
    `configure-linux-roles.yml`
-2. Run: `ansible-playbook configure-linux-roles.yml -i inventories/local`
+2. Run: `ansible-playbook configure-linux-roles.yml --limit <target>`
 3. Verify all four acceptance criteria (see `specs/006-podman-rootless-role/
    quickstart.md`)
 

@@ -11,7 +11,7 @@
   passed (all 6 principles), source layout defined, design decisions
   documented in `research.md` and `data-model.md`
 - **Tasks** (`specs/006-podman-rootless-role/tasks.md`) — 21 tasks
-  (T001–T021); T001–T019 and T021 checked; T020 (acceptance test) open
+  (T001–T021); all checked including T020 (acceptance test)
 - **Implementation** (`roles/podman/`) — all role files created and verified
 - **Code review** — all findings (H1, H2, M1, M2, L1, L2, L3) fixed
 
@@ -30,31 +30,33 @@
 
 ## What's Left to Build
 
-### T020 — Acceptance Test Against Local VM (OPEN)
+### T020 — Acceptance Test Against Hetzner VM (COMPLETE)
 
-Run the full acceptance test checklist from
-`specs/006-podman-rootless-role/quickstart.md`:
+All four acceptance criteria passed against `hobbiton` (Hetzner Cloud,
+Ubuntu, `galadriel` user):
 
-- [ ] SC-001: `podman --version` succeeds for each user in
-  `desktop_user_names`
-- [ ] SC-002: `podman build -t devcontainer -f .devcontainer/Dockerfile .`
-  succeeds
-- [ ] SC-003: `podman run --rm devcontainer ansible --version` prints a
-  version string
-- [ ] SC-004: second role run reports zero `changed` tasks
+- [X] SC-001: `podman --version` → `podman version 4.9.3`
+- [X] SC-002: `podman build -t devcontainer .devcontainer/` → build succeeded
+- [X] SC-002b: `podman run --rm devcontainer ansible --version`
+  → `ansible [core 2.20.4]`
+- [X] SC-003: second role run → zero `changed` tasks
+- [X] SC-004: `/etc/subuid` and `/etc/subgid` contain `galadriel:100000:65536`
+
+**Finding**: the build context must be `.devcontainer/` (not `.`), because
+all `COPY` source files reside in `.devcontainer/`. Documentation corrected
+in `spec.md`, `quickstart.md`, and `productContext.md`.
 
 ### After T020
 
-- [ ] Check T020 in `tasks.md`
-- [ ] Commit all changes (conventional commit: `feat: add podman role for
-  rootless container support`)
+- [X] Check T020 in `tasks.md`
+- [ ] Commit all changes
 - [ ] Create PR to merge `006-podman-rootless-role` into `main`
 
 ## Current Status
 
 **Branch**: `006-podman-rootless-role`
-**Phase**: 4 — Acceptance Test (in progress)
-**Blocker**: human must run T020 against local VM
+**Phase**: 4 — Acceptance Test complete; ready to commit and open PR
+**Blocker**: none
 
 ## Known Issues
 

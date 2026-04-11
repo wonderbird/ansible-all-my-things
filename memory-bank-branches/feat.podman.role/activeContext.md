@@ -2,8 +2,8 @@
 
 ## Current Work Focus
 
-Branch `006-podman-rootless-role` — implementation complete, code review
-complete, acceptance testing in progress (Phase 4 of the SDD workflow).
+Branch `006-podman-rootless-role` — all phases complete, including
+acceptance testing. Ready to commit and open PR.
 
 ## Recent Decisions (This Session)
 
@@ -22,17 +22,8 @@ complete, acceptance testing in progress (Phase 4 of the SDD workflow).
 
 ## Next Steps
 
-1. **Run acceptance test T020** against the local VM (the only remaining
-   open task):
-   - SC-001: `podman --version` → version string
-   - SC-002: `podman build -t devcontainer -f .devcontainer/Dockerfile .`
-     → succeeds
-   - SC-003: `podman run --rm devcontainer ansible --version` → version
-     string
-   - SC-004: re-run role → zero `changed` tasks
-2. **Check T020** in `specs/006-podman-rootless-role/tasks.md`
-3. **Commit** all changes on branch `006-podman-rootless-role`
-4. **Create PR** to merge into `main`
+1. **Commit** all changes on branch `006-podman-rootless-role`
+2. **Create PR** to merge into `main`
 
 ## Active Decisions and Considerations
 
@@ -43,10 +34,14 @@ complete, acceptance testing in progress (Phase 4 of the SDD workflow).
   no `registries.conf` configuration required
 - `podman system migrate` runs unconditionally with `changed_when: false`
   (see systemPatterns.md D3 for rationale)
+- **Build context must be `.devcontainer/`**: all `COPY` source files
+  (`awscliv2-public-key.asc`, `install-aws-cli.sh`, etc.) reside inside
+  `.devcontainer/`, not the repo root. Correct command:
+  `podman build -t devcontainer .devcontainer/`
 
 ## Open Questions / Blockers
 
-None. The only open item is the human-run acceptance test (T020).
+None.
 
 ## Patterns and Preferences Learned
 

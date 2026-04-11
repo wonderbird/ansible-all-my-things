@@ -23,7 +23,7 @@ Podman is the container runtime chosen because:
 - Purpose: runs Ansible playbooks and CLI tools (AWS CLI, Hetzner CLI)
 - Uses BuildKit cache mounts (`--mount=type=cache`) — supported by Podman
   natively; the `# syntax=docker/dockerfile:1` comment is silently ignored
-- Built with: `podman build -t devcontainer -f .devcontainer/Dockerfile .`
+- Built with: `podman build -t devcontainer .devcontainer/`
 
 ### `test/docker/Dockerfile` — Test Target (OUT OF SCOPE)
 
@@ -36,7 +36,7 @@ Podman is the container runtime chosen because:
 After the role is applied to the VM, any user in `desktop_user_names` can:
 
 ```bash
-podman build -t devcontainer -f .devcontainer/Dockerfile .
+podman build -t devcontainer .devcontainer/
 podman run --rm devcontainer ansible --version
 ```
 

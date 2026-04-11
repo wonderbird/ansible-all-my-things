@@ -153,7 +153,7 @@ are in place. A second playbook run reports zero changed tasks.
 - [X] T018 [P] Apply the `format-markdown` skill to all new Markdown files in
   `roles/podman/` (README.md and DESIGN.md) to verify Markdown quality
   (Principle VI)
-- [ ] T020 Run full acceptance test checklist from
+- [X] T020 Run full acceptance test checklist from
   `specs/006-podman-rootless-role/quickstart.md` against the local VM
 - [X] T021 Verify that `roles/podman/tasks/main.yml` contains no reference to
   `podman-docker` — covers FR-011

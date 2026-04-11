@@ -33,7 +33,8 @@ Follow the standard CONTRIBUTING.md procedure:
 
    ```bash
    podman --version
-   podman run --rm hello-world
+   podman build -t devcontainer .devcontainer/
+   podman run --rm devcontainer ansible --version
    ```
 
 ## Adding the Role to configure-linux-roles.yml
@@ -64,5 +65,6 @@ roles:
 - [ ] `podman --version` succeeds for every user in `desktop_user_names`.
 - [ ] `/etc/subuid` contains a valid entry for every user.
 - [ ] `/etc/subgid` contains a valid entry for every user.
-- [ ] `podman run --rm hello-world` succeeds as a listed user (rootless).
+- [ ] `podman build -t devcontainer .devcontainer/` succeeds as a listed user.
+- [ ] `podman run --rm devcontainer ansible --version` prints a version string.
 - [ ] Second playbook run reports zero changed tasks.
