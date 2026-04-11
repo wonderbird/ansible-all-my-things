@@ -93,4 +93,5 @@ Architecture Decision Records are in
 
 ## Active Technologies
 
-- YAML (Ansible 2.19+) + `community.general` collection
+- YAML (Ansible 2.19+) + `community.general` collection + `ansible.builtin.*`;
+  Ubuntu `podman` apt package for rootless containers
