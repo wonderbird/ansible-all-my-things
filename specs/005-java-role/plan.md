@@ -11,11 +11,14 @@
 ## Summary
 
 Install sdkman and the Temurin JDK (pinned LTS version) into the home directory
-of every user listed in `desktop_user_names`, using a three-task per-user
-sequence: download the sdkman installer, run the installer, then install the JDK
-via `sdk install java`. All tasks are guarded for idempotency with `creates:`.
+of every user listed in `desktop_user_names`, using a four-task per-user
+sequence: install prerequisites (`zip`, `unzip`, `curl`) via apt, download the
+sdkman installer, run the installer, then install the JDK via `sdk install java`.
+All tasks are guarded for idempotency with `creates:`.
 The role follows the conventions of the `android_studio` and `flutter` reference
 roles (SPDX header, FQCN, `become_user`, no task-level `become`).
+A Molecule test scenario (driver: `podman`, platform: `ubuntu:24.04`) provides
+automated acceptance verification.
 
 ## Technical Context
 
@@ -24,7 +27,8 @@ roles (SPDX header, FQCN, `become_user`, no task-level `become`).
 `https://get.sdkman.io`; Eclipse Temurin JDK published on sdkman as `tem` vendor
 **Storage**: Per-user `~/.sdkman/` directory tree on the remote host; no
 controller-side storage
-**Testing**: Manual Vagrant run per `CONTRIBUTING.md` (no Molecule); SC-005
+**Testing**: `molecule test` inside `roles/java/` using `molecule-plugins[podman]`
+and `ubuntu:24.04`; SC-005
 **Target Platform**: AMD64 + ARM64 Ubuntu Linux (both supported by sdkman and
 Temurin)
 **Project Type**: Ansible role
@@ -32,7 +36,8 @@ Temurin)
 **Constraints**: Idempotent (zero `changed` on second run); no task-level
 `become`; FQCN throughout; SPDX header on every YAML file; no system-wide Java
 installation
-**Scale/Scope**: One role; three tasks per user; one variable; one DESIGN.md
+**Scale/Scope**: One role; four tasks per user (apt prerequisites + three
+sdkman/JDK steps); one variable; one DESIGN.md; one Molecule scenario
 
 ## Constitution Check
 
@@ -42,7 +47,7 @@ installation
 | --------- | ------ | ----- |
 | I. Idempotency | PASS | All `shell`/`command` tasks use `creates:` guards referencing version-specific paths. |
 | II. Role-First | PASS | Implemented as `roles/java/`; no implementation logic in playbooks. |
-| III. Test Locally Before Cloud | PASS | Vagrant test is the acceptance criterion (SC-005); role isolated in `configure-linux-roles.yml`. |
+| III. Test Locally Before Cloud | PASS | Molecule + Podman (`molecule test`) is the acceptance criterion (SC-005); this satisfies local-VM validation without cloud access. |
 | IV. Simplicity (YAGNI) | PASS | Three tasks per user, one variable, no speculative abstraction. |
 | V. Conventional Commits | PASS | No commits in this plan phase; will follow `feat:` prefix on first implementation commit. |
 | VI. Markdown Quality | PASS | All `.md` files produced here follow ATX headings and blank-line list rules. |
@@ -74,12 +79,18 @@ variable defined by the calling playbook/inventory; those are documented in
 ```text
 roles/java/
 ├── defaults/
-│   └── main.yml           # java_sdkman_identifier default value
+│   └── main.yml               # java_sdkman_identifier default value
 ├── meta/
-│   └── main.yml           # galaxy_info
+│   └── main.yml               # galaxy_info
+├── molecule/
+│   └── default/
+│       ├── molecule.yml       # podman driver, ubuntu:24.04 platform
+│       ├── prepare.yml        # install python3+sudo, create testuser
+│       ├── converge.yml       # apply java role with testuser
+│       └── verify.yml         # assert java -version contains Temurin
 ├── tasks/
-│   └── main.yml           # All provisioning tasks
-└── DESIGN.md              # Non-obvious design decisions
+│   └── main.yml               # All provisioning tasks
+└── DESIGN.md                  # Non-obvious design decisions
 ```
 
 **Structure Decision**: Single-role layout matching every other role in the

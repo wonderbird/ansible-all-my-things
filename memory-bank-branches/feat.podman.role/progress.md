@@ -27,6 +27,15 @@
 | `configure-linux-roles.yml` | Modified (podman added) ✓ |
 | `CLAUDE.md` | Modified (Active Technologies updated) ✓ |
 | `specs/006-podman-rootless-role/` | All 6 spec artifacts ✓ |
+| `roles/java/tasks/main.yml` | Modified (prerequisites task added) ✓ |
+| `roles/java/molecule/default/molecule.yml` | Created ✓ |
+| `roles/java/molecule/default/prepare.yml` | Created ✓ |
+| `roles/java/molecule/default/converge.yml` | Created ✓ |
+| `roles/java/molecule/default/verify.yml` | Created ✓ |
+| `requirements.txt` | Modified (molecule deps added) ✓ |
+| `specs/005-java-role/spec.md` | Modified (FR-013–FR-019, SC-005) ✓ |
+| `specs/005-java-role/plan.md` | Modified (Molecule references) ✓ |
+| `specs/005-java-role/tasks.md` | Modified (T017–T023) ✓ |
 
 ## What's Left to Build
 
@@ -46,16 +55,31 @@ Ubuntu, `galadriel` user):
 all `COPY` source files reside in `.devcontainer/`. Documentation corrected
 in `spec.md`, `quickstart.md`, and `productContext.md`.
 
-### After T020
+### After T020 (Podman role)
 
 - [X] Check T020 in `tasks.md`
-- [ ] Commit all changes
+
+### Molecule + Java Role Extension (T017–T023)
+
+- [X] T017: Added `zip`/`unzip`/`curl` prerequisite task as first task in
+  `roles/java/tasks/main.yml`
+- [X] T018: Created `roles/java/molecule/default/molecule.yml` (podman
+  driver, ubuntu:24.04 platform)
+- [X] T019: Created `roles/java/molecule/default/prepare.yml` (python3,
+  sudo, testuser via raw + user module)
+- [X] T020: Created `roles/java/molecule/default/converge.yml`
+- [X] T021: Created `roles/java/molecule/default/verify.yml` (java
+  -version → Temurin assertion)
+- [X] T022: Updated `requirements.txt` with molecule dependencies;
+  `ansible>=4.0.0` tightened to `ansible-core>=2.19.0`
+- [X] Committed and pushed all changes
+- [ ] T023: Run `molecule test` — acceptance test (Phase 4)
 - [ ] Create PR to merge `006-podman-rootless-role` into `main`
 
 ## Current Status
 
 **Branch**: `006-podman-rootless-role`
-**Phase**: 4 — Acceptance Test complete; ready to commit and open PR
+**Phase**: 4 — Acceptance Test pending (T023); all implementation complete
 **Blocker**: none
 
 ## Known Issues
