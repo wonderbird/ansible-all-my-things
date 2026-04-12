@@ -8,7 +8,7 @@
       ansible.builtin.command: java -version
       become_user: testuser
       environment:
-        PATH: "/home/testuser/.sdkman/candidates/java/current/bin:{{ ansible_env.PATH | default('/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin') }}"
+        PATH: "/home/testuser/.sdkman/candidates/java/current/bin:{{ ansible_facts['env']['PATH'] | default('/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin') }}"
       register: java_version_output
       changed_when: false
 
