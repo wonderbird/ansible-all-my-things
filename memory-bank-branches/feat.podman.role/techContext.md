@@ -63,6 +63,21 @@ All located at `specs/006-podman-rootless-role/`:
 - Architecture: the Ubuntu `podman` apt package supports AMD64 and ARM64
   natively — no architecture branching needed
 
+## Molecule Testing
+
+- **Versions**: `molecule>=24.0.0`, `molecule-plugins[podman]>=23.0.0`
+- **Driver**: `podman` — requires `podman` binary in PATH (Ubuntu apt)
+- **Test command**: `cd roles/<role-name> && molecule test`
+- **Rule file**: `.cursor/rules/340-molecule-testing.mdc`
+- **Key pitfalls**:
+  - `&&` in YAML `>` folded scalars unreliable with Podman connection plugin
+    → use separate `raw` tasks
+  - `apt-get update -qq` fails in Ubuntu 24.04 apt 2.7.x → use `apt-get update`
+  - `become: true` at play level tries sudo before sudo is installed → add
+    `become: false` to bootstrap `raw` tasks
+  - Unconditional file deletion (cleanup tasks) breaks idempotence
+  - Use `ansible_facts['env']['PATH']` not `ansible_env.PATH` (removed 2.24)
+
 ## File Conventions
 
 - YAML files: `#SPDX-License-Identifier: MIT-0` (no space after `#`)

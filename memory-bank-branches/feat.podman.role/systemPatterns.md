@@ -87,6 +87,19 @@ share start=100000, count=65536. Callers on multi-user servers must override
 | `lineinfile /etc/subgid` | `regexp: '^{{ item }}:'` |
 | `podman system migrate` | `changed_when: false` |
 
+## Molecule Scenario Pattern (java role)
+
+```text
+roles/java/molecule/default/
+├── molecule.yml   # podman driver, ubuntu:24.04, ANSIBLE_ROLES_PATH, test_sequence
+├── prepare.yml    # two raw tasks (update cache, install python3+sudo); become: false
+├── converge.yml   # applies the java role with desktop_user_names: [testuser]
+└── verify.yml     # runs java -version as testuser; asserts "Temurin" in output
+```
+
+`meta/main.yml` must declare `namespace: wonderbird` and `role_name: java`
+or Molecule's prerun fails.
+
 ## Playbook Integration
 
 The role is the first entry in `configure-linux-roles.yml`:
