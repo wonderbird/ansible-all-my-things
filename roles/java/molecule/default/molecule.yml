@@ -1,0 +1,14 @@
+#SPDX-License-Identifier: MIT-0
+---
+dependency:
+  name: galaxy
+driver:
+  name: podman
+platforms:
+  - name: instance
+    image: docker.io/library/ubuntu:24.04
+    pre_build_image: true
+provisioner:
+  name: ansible
+verifier:
+  name: ansible

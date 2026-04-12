@@ -1,5 +1,14 @@
 #SPDX-License-Identifier: MIT-0
 ---
+- name: Install sdkman prerequisites
+  ansible.builtin.apt:
+    name:
+      - zip
+      - unzip
+      - curl
+    state: present
+    update_cache: false
+
 - name: Download sdkman installer
   ansible.builtin.get_url:
     url: "https://get.sdkman.io"

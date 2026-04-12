@@ -1,0 +1,20 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Run java -version as testuser
+      ansible.builtin.command: java -version
+      become_user: testuser
+      environment:
+        PATH: "/home/testuser/.sdkman/candidates/java/current/bin:{{ ansible_env.PATH | default('/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin') }}"
+      register: java_version_output
+      changed_when: false
+
+    - name: Assert Temurin is installed
+      ansible.builtin.assert:
+        that:
+          - "'Temurin' in java_version_output.stderr or 'Temurin' in java_version_output.stdout"
+        fail_msg: "Expected 'Temurin' in java -version output but got: {{ java_version_output.stderr }}"
+        success_msg: "Temurin JDK confirmed: {{ java_version_output.stderr }}"
