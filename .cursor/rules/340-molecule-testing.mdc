@@ -1,0 +1,134 @@
+---
+alwaysApply: false
+description: >
+  Use when implementing or modifying an Ansible role to set up or maintain
+  its Molecule test scenario.
+---
+
+# Molecule testing for Ansible roles
+
+See constitution Principle II for applicability. Roles requiring a full VM
+(desktop, display managers, hardware drivers) use `CONTRIBUTING.md` instead.
+
+## meta/main.yml — required fields
+
+```yaml
+galaxy_info:
+  namespace: wonderbird
+  role_name: <role-name>
+```
+
+## Required scenario files
+
+| File | Purpose |
+| --- | --- |
+| `molecule.yml` | Driver, platform, provisioner, verifier, test sequence |
+| `prepare.yml` | Bootstrap the container before converge |
+| `converge.yml` | Apply the role under test |
+| `verify.yml` | Assert observable outcomes |
+
+## molecule.yml
+
+```yaml
+dependency:
+  name: galaxy
+driver:
+  name: podman
+platforms:
+  - name: instance
+    image: docker.io/library/ubuntu:24.04
+    pre_build_image: true
+provisioner:
+  name: ansible
+  env:
+    ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/../"
+verifier:
+  name: ansible
+scenario:
+  test_sequence:
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    - idempotence
+    - verify
+    - destroy
+```
+
+## prepare.yml
+
+Bootstrap rules:
+
+- Two **separate** `raw` tasks — do NOT chain with `&&` in a folded scalar
+- Both MUST have `become: false` (sudo not yet installed)
+- Further tasks after bootstrap may inherit play-level `become: true`
+
+```yaml
+- name: Prepare container
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.raw: apt-get update
+      become: false
+      changed_when: true
+
+    - name: Install python3 and sudo
+      ansible.builtin.raw: apt-get install -y python3 sudo
+      become: false
+      changed_when: true
+```
+
+## converge.yml
+
+```yaml
+- name: Converge
+  hosts: all
+  become: true
+  vars:
+    my_var: value
+  roles:
+    - role: <role-name>
+```
+
+## verify.yml
+
+Use `ansible_facts['env']` — NOT `ansible_env` (deprecated, removed in 2.24).
+
+```yaml
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Check outcome
+      ansible.builtin.command: <command>
+      register: result
+      changed_when: false
+
+    - name: Assert outcome
+      ansible.builtin.assert:
+        that:
+          - "'expected' in result.stdout"
+```
+
+## Idempotence pitfalls
+
+- **Temporary files**: do not delete a downloaded file unconditionally; use a
+  `when:` guard or omit the cleanup task
+- **shell/command**: always add `creates:` or `changed_when:`
+
+## Running the tests
+
+```shell
+cd roles/<role-name>
+molecule test
+```
+
+All phases MUST pass before committing. The two podman schema warnings are
+expected and acceptable.
+
+## Happiness
+
+🧪
