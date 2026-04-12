@@ -45,17 +45,33 @@
 
 ## What's Left to Build
 
+Review findings from 2026-04-12 technical code review (see `REVIEW-FINDINGS.md`):
+
+- [ ] **M1** — Document Molecule exemption for `roles/podman/` in `DESIGN.md`
+      (podman-in-podman problem prevents full Molecule test; `apt` + `lineinfile`
+      tasks could be partially tested)
+- [ ] **M2** — Remove `-qq` from `apt-get update -qq` in
+      `roles/java/molecule/default/prepare.yml` to align with rule 340 template
+- [ ] **L1** — Add `namespace: wonderbird` and `role_name: podman` to
+      `roles/podman/meta/main.yml`
+- [ ] **L2** — Conditionally delete `/tmp/sdkman-install.sh` in
+      `roles/java/tasks/main.yml` (register install result; `when: changed`)
+- [ ] **I1** — Add `update_cache: false` to podman `apt` task in
+      `roles/podman/tasks/main.yml`
+- [ ] **I2** — Add `become: false` comment to raw tasks in
+      `roles/java/molecule/default/prepare.yml`
 - [ ] Create PR to merge `006-podman-rootless-role` into `main`
 
 ## Current Status
 
 **Branch**: `006-podman-rootless-role`
-**Phase**: Complete — PR creation is the only remaining step
-**Blocker**: none
+**Phase**: Post-review remediation — 6 findings to address before PR
+**Blocker**: none (review findings are improvements, not blockers — but should
+be resolved before merge per project quality standards)
 
 ## Known Issues
 
-None.
+None beyond the review findings listed above.
 
 ## Evolution of Project Decisions
 
