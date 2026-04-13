@@ -5,3 +5,4 @@ podman_subuid_start: 100000
 podman_subuid_count: 65536
 podman_subgid_start: 100000
 podman_subgid_count: 65536
+podman_run_migrate: true

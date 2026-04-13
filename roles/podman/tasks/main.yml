@@ -23,4 +23,5 @@
   ansible.builtin.command: podman system migrate
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
+  when: podman_run_migrate
   changed_when: false

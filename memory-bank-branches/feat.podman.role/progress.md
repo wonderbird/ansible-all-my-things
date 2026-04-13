@@ -47,27 +47,29 @@
 
 Review findings from 2026-04-12 technical code review (see `REVIEW-FINDINGS.md`):
 
-- [ ] **M1** — Document Molecule exemption for `roles/podman/` in `DESIGN.md`
-      (podman-in-podman problem prevents full Molecule test; `apt` + `lineinfile`
-      tasks could be partially tested)
-- [ ] **M2** — Remove `-qq` from `apt-get update -qq` in
-      `roles/java/molecule/default/prepare.yml` to align with rule 340 template
-- [ ] **L1** — Add `namespace: wonderbird` and `role_name: podman` to
+- [x] **M1** — Molecule scenario added for `roles/podman/`; `podman_run_migrate`
+      flag guards migrate task; exemption documented in `DESIGN.md`
+- [x] **L1** — `namespace: wonderbird` and `role_name: podman` added to
       `roles/podman/meta/main.yml`
+- [ ] **M2** — Remove `-qq` from `apt-get update -qq` in
+      `roles/java/molecule/default/prepare.yml` to align with rule 340 template.
+      Also apply `failed_when: false` to `roles/java/molecule/default/verify.yml`
+      for consistency with podman role.
 - [ ] **L2** — Conditionally delete `/tmp/sdkman-install.sh` in
       `roles/java/tasks/main.yml` (register install result; `when: changed`)
 - [ ] **I1** — Add `update_cache: false` to podman `apt` task in
       `roles/podman/tasks/main.yml`
 - [ ] **I2** — Add `become: false` comment to raw tasks in
       `roles/java/molecule/default/prepare.yml`
+- [ ] **Ask**: how to run all Molecule tests at once (loop over `roles/` or
+      built-in Molecule command)
 - [ ] Create PR to merge `006-podman-rootless-role` into `main`
 
 ## Current Status
 
 **Branch**: `006-podman-rootless-role`
-**Phase**: Post-review remediation — 6 findings to address before PR
-**Blocker**: none (review findings are improvements, not blockers — but should
-be resolved before merge per project quality standards)
+**Phase**: Post-review remediation — M1 + L1 done; 4 findings + PR remaining
+**Blocker**: none
 
 ## Known Issues
 

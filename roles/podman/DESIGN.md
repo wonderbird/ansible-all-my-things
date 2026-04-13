@@ -19,7 +19,18 @@ released Ansible version (as of April 2026). `usermod --add-subuids` is not
 idempotent — it appends duplicate entries on every run. `lineinfile` is the
 correct tool here.
 
-## Decision 3 — `podman system migrate` `changed_when: false` guard
+## Decision 3 - Avoid `podman system migrate` in Molecule tests
+
+Molecule tests install the role under test into a podman container. When
+testing the podman role itself, this would run `podman system migrate` inside
+the container. Running podman inside podman would require nested virtualization
+which is not necessarily enabled on virtual machines.
+
+Thus we skip the `podman system migrate` step when running inside a container
+environment. The configuration variable `podman_run_migrate` is used to control
+this behavior.
+
+## Decision 4 — `podman system migrate` `changed_when: false` guard
 
 `ansible.builtin.command: podman system migrate` runs as each desktop user
 after subuid/subgid changes. The task is marked `changed_when: false` because
@@ -36,7 +47,7 @@ subuid/subgid lines are already correct. More importantly, introducing a
 complexity with no benefit — the unconditional approach is simpler and equally
 correct.
 
-## Decision 4 — Shared subuid/subgid start value for all users
+## Decision 5 — Shared subuid/subgid start value for all users
 
 All users listed in `desktop_user_names` receive the same default
 `podman_subuid_start` / `podman_subgid_start` value (`100000`). This is
@@ -49,7 +60,7 @@ multi-user servers where non-overlapping ranges are required must override
 `podman_subuid_start` and `podman_subgid_start` per user via `host_vars` or
 `group_vars`.
 
-## Decision 5 — Play-level `become` convention
+## Decision 6 — Play-level `become` convention
 
 No task in `tasks/main.yml` sets `become: true` at task level. The calling
 playbook sets `become: true` at play level, which is inherited by all tasks.

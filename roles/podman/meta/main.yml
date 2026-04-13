@@ -1,6 +1,8 @@
 #SPDX-License-Identifier: MIT-0
 galaxy_info:
   author: Stefan Boos
+  namespace: wonderbird
+  role_name: podman
   description: Install and configure rootless Podman on Ubuntu
   company: n.a.
   issue_tracker_url: https://github.com/wonderbird/ansible-all-my-things/issues

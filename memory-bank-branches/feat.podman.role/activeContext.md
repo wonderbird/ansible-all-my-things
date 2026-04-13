@@ -10,26 +10,40 @@ Findings are saved in `REVIEW-FINDINGS.md` at the project root.
 
 ## Next Steps
 
-Address review findings in order of severity, then create the PR:
+Address remaining review findings, then create the PR:
 
-1. **M1** — Document Molecule exemption for `roles/podman/` in `DESIGN.md`
-   (podman-in-podman problem; `apt` + `lineinfile` tasks could be partially
-   tested but `podman system migrate` requires privileged mode not available
-   in the driver). Alternatively, add a partial Molecule scenario that covers
-   the `apt` and `lineinfile` tasks with the `migrate` task skipped via a
-   variable guard.
-2. **M2** — Align `prepare.yml` with rule 340 template: remove `-qq` from
-   `apt-get update -qq` in `roles/java/molecule/default/prepare.yml`.
-3. **L1** — Add `namespace: wonderbird` and `role_name: podman` to
-   `roles/podman/meta/main.yml`.
-4. **L2** — In `roles/java/tasks/main.yml`, register the sdkman install task
+1. **M2** — Remove `-qq` from `apt-get update -qq` in
+   `roles/java/molecule/default/prepare.yml` to align with rule 340 template.
+   Also apply `failed_when: false` improvement to
+   `roles/java/molecule/default/verify.yml` for consistency with podman role.
+2. **L2** — In `roles/java/tasks/main.yml`, register the sdkman install task
    result and delete `/tmp/sdkman-install.sh` conditionally
    (`when: install_result is changed`).
-5. **I1** — Add `update_cache: false` to the podman `apt` task in
+3. **I1** — Add `update_cache: false` to the podman `apt` task in
    `roles/podman/tasks/main.yml`.
-6. **I2** — Add inline comment to the two `raw` tasks in
+4. **I2** — Add inline comment to the two `raw` tasks in
    `roles/java/molecule/default/prepare.yml` explaining `become: false`.
-7. **Create PR** to merge `006-podman-rootless-role` into `main`.
+5. **Running all Molecule tests at once** — ask technical-coach how to run
+   all role Molecule tests in a single command (e.g. `molecule test --all`
+   or a loop over roles/).
+6. **Create PR** to merge `006-podman-rootless-role` into `main`.
+
+## Session Progress (2026-04-13)
+
+### Completed this session
+
+- **M1** — Molecule scenario created for `roles/podman/`:
+  - `podman_run_migrate` variable added (`defaults/main.yml`, default `true`)
+  - `when: podman_run_migrate` guard on migrate task
+  - Full scenario: `molecule.yml`, `prepare.yml`, `converge.yml` (sets flag
+    `false`), `verify.yml` (consistent read-then-assert pattern with
+    `failed_when: false` on all command tasks)
+  - `DESIGN.md` updated: headline numbering fixed, exemption documented
+- **L1** — `namespace: wonderbird` and `role_name: podman` added to
+  `roles/podman/meta/main.yml`
+- **`containers.podman` collection** added to `requirements.yml` (>=1.19.2);
+  was missing on fresh machines, broke all Molecule tests
+- Both `roles/podman/` and `roles/java/` Molecule tests pass on `hobbiton`
 
 ## Review Findings Summary (2026-04-12)
 
