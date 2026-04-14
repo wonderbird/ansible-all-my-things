@@ -4,6 +4,7 @@
   ansible.builtin.apt:
     name: podman
     state: present
+    update_cache: true
 
 - name: Configure subuid for each desktop user
   ansible.builtin.lineinfile:

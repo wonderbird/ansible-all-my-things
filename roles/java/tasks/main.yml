@@ -7,7 +7,7 @@
       - unzip
       - curl
     state: present
-    update_cache: false
+    update_cache: true
 
 - name: Download sdkman installer
   ansible.builtin.get_url:

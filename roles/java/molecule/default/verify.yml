@@ -11,6 +11,7 @@
         PATH: "/home/testuser/.sdkman/candidates/java/current/bin:{{ ansible_facts['env']['PATH'] | default('/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin') }}"
       register: java_version_output
       changed_when: false
+      failed_when: false
 
     - name: Assert Temurin is installed
       ansible.builtin.assert:

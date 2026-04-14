@@ -9,14 +9,22 @@ tools as described in the [Spec Kit Getting Started Guide](https://github.com/gi
 ## Testing a role with Molecule (preferred)
 
 Roles that can be exercised in a container are tested with Molecule. Activate
-the Python virtual environment first, then run from the role directory:
+the Python virtual environment first.
+
+To test a single role, run from the role directory:
 
 ```shell
 cd roles/<role-name>
 molecule test
 ```
 
-This runs the full lifecycle: create → prepare → converge → idempotence →
+To test all roles at once, run from the project root:
+
+```shell
+./scripts/test-molecule-all.sh
+```
+
+Both forms run the full lifecycle: create → prepare → converge → idempotence →
 verify → destroy. All phases MUST pass before committing.
 
 ## Testing a role with Vagrant (fallback for full-VM roles)
