@@ -12,6 +12,7 @@
   # the caller MUST pass apply: {tags: [not-supported-on-vagrant-arm64]}
   # to propagate the skip tag to inner tasks.
   roles:
+    - podman
     - claude_code
     - role: google_chrome
       tags: not-supported-on-vagrant-arm64

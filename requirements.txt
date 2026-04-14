@@ -2,7 +2,7 @@
 # Multi-provider infrastructure automation
 
 # Core Ansible dependencies
-ansible>=4.0.0
+ansible-core>=2.19.0
 
 # AWS provider support
 boto3>=1.26.0
@@ -17,3 +17,7 @@ hcloud>=1.16.0
 # Additional utilities
 requests>=2.25.0
 PyYAML>=5.4.0
+
+# Molecule test dependencies
+molecule>=24.0.0
+molecule-plugins[podman]>=23.0.0

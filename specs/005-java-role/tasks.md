@@ -6,8 +6,8 @@
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, quickstart.md
 
 **Organization**: Tasks are grouped by user story to enable independent
-implementation and testing of each story. No test tasks are generated
-(not requested in the feature specification).
+implementation and testing of each story. Molecule test scaffold tasks
+(T017–T023) are added as Phase 7 to cover FR-013 through FR-019.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -59,6 +59,12 @@ in the output.
 
 ### Implementation — US1
 
+- [x] T017 [US1] Add prerequisites task as the **first** task in
+  `roles/java/tasks/main.yml`: `ansible.builtin.apt` installing
+  `zip`, `unzip`, and `curl` with `state: present` and
+  `update_cache: false`. These packages are required by the sdkman
+  installer. Place this task before the `Download sdkman installer`
+  task (FR-013).
 - [x] T005 [US1] Write `roles/java/tasks/main.yml` with SPDX header and the
   download task: `ansible.builtin.get_url` fetching `https://get.sdkman.io`
   to `/tmp/sdkman-install.sh`. `get_url` is idempotent by default via
@@ -177,6 +183,38 @@ idempotency confirmation, and ARM64 validation.
 
 ---
 
+## Phase 7: Molecule Test Scenario (FR-013–FR-019, SC-005)
+
+**Purpose**: Create the Molecule test scaffold for automated acceptance
+testing of the `java` role using Podman as the container driver.
+
+- [x] T018 Create `roles/java/molecule/default/molecule.yml` with SPDX
+  header. Configure: driver `podman`, platform `ubuntu:24.04`, and rely
+  on the default `test_sequence` (which includes the `idempotency` step
+  automatically — no explicit `test_sequence` config required) (FR-014,
+  FR-015, FR-018).
+- [x] T019 Create `roles/java/molecule/default/prepare.yml`. Use
+  `ansible.builtin.raw` to run `apt-get update && apt-get install -y
+  python3 sudo` (the container has no Python yet; `raw` is the only
+  viable pre-Python step). Then use `ansible.builtin.user` to create
+  `testuser` with `state: present` and `create_home: true` (FR-016,
+  FR-017).
+- [x] T020 Create `roles/java/molecule/default/converge.yml` with SPDX
+  header. Apply the `java` role with `become: true` and pass
+  `desktop_user_names: ["testuser"]` as a role variable (FR-017).
+- [x] T021 Create `roles/java/molecule/default/verify.yml` with SPDX
+  header. Run `java -version 2>&1` as `testuser` using
+  `ansible.builtin.command` and register the output. Assert that the
+  output contains "Temurin" (FR-019).
+- [x] T022 Update `requirements.txt` to add `molecule` and
+  `molecule-plugins[podman]` as Python dependencies (FR-014, U3).
+- [ ] T023 **Acceptance test**: Run `molecule test` inside `roles/java/`
+  and confirm: converge completes without errors, idempotency step
+  reports zero `changed` tasks, verify step passes. This is SC-005
+  (replaces the manual Vagrant acceptance run).
+
+---
+
 ## Dependencies and Execution Order
 
 ### Phase Dependencies
@@ -271,8 +309,8 @@ All four are independent — launch together.
 
 ## Notes
 
-- No test tasks are generated — the spec does not request TDD or automated
-  tests; SC-005 is satisfied by a manual Vagrant run per `CONTRIBUTING.md`.
+- Molecule test tasks (T017–T023) cover FR-013 through FR-019; SC-005 is
+  satisfied by a successful `molecule test` run inside `roles/java/`.
 - All per-user tasks use `loop: "{{ desktop_user_names }}"` and
   `become_user: "{{ item }}"`. The download task (T005) does NOT use
   `become_user` because it writes to `/tmp` as root (play-level

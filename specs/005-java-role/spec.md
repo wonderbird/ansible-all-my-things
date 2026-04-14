@@ -134,6 +134,24 @@ and selectable.
 - **FR-011**: The role MUST include a `meta/main.yml` with `galaxy_info`.
 - **FR-012**: The role MUST include a `DESIGN.md` documenting non-obvious design
   decisions.
+- **FR-013**: The role MUST install the packages `zip`, `unzip`, and `curl` via
+  `ansible.builtin.apt` as the very first task in `tasks/main.yml`, before any
+  sdkman installation steps. These packages are required by the sdkman installer.
+- **FR-014**: The role MUST include a Molecule test scenario under
+  `roles/java/molecule/default/` using the `podman` driver (via
+  `molecule-plugins[podman]`).
+- **FR-015**: The Molecule scenario MUST use `ubuntu:24.04` as the container
+  image platform.
+- **FR-016**: The Molecule scenario MUST include a `prepare.yml` playbook that
+  installs `python3` and `sudo` inside the container before the converge phase
+  runs (Ansible requires both to execute tasks).
+- **FR-017**: The Molecule `prepare.yml` MUST create a system user named
+  `testuser` inside the container, and the Molecule `converge.yml` MUST pass
+  `desktop_user_names: ["testuser"]` to the role.
+- **FR-018**: The Molecule scenario MUST enable the built-in idempotency
+  verifier step (second converge run that asserts zero `changed` tasks).
+- **FR-019**: The Molecule scenario MUST include a `verify.yml` playbook that
+  runs `java -version` as `testuser` and asserts the output contains "Temurin".
 
 ### Key Entities
 
@@ -166,9 +184,10 @@ and selectable.
   ARM64 Ubuntu Linux test VMs.
 - **SC-004**: The installed JDK version matches the value of
   `java_sdkman_identifier` defined in `defaults/main.yml`.
-- **SC-005**: The role can be exercised in isolation (only the `java` role
-  active in the playbook) against a local Vagrant/Docker VM following the
-  procedure in `CONTRIBUTING.md`.
+- **SC-005**: Running `molecule test` inside `roles/java/` succeeds: the
+  converge phase installs Java without errors, the idempotency step reports
+  zero `changed` tasks, and the verify step confirms `java -version` output
+  contains "Temurin" for `testuser`.
 
 ## Assumptions
 
@@ -192,8 +211,9 @@ and selectable.
   directories.
 - Internet access is available during provisioning; no offline/air-gapped
   support is in scope.
-- No Molecule test suite is required. SC-005 is satisfied by a successful
-  manual Vagrant run following the procedure in `CONTRIBUTING.md`.
+- A Molecule test suite (`molecule-plugins[podman]`) is the primary automated
+  acceptance mechanism for this role. `molecule test` MUST pass before the
+  branch is merged.
 - Standard Ansible output and verbosity apply to all tasks. No task in this
   role requires `no_log: true`; in particular, the sdkman init script source
   path does not contain sensitive data and MUST NOT suppress output.

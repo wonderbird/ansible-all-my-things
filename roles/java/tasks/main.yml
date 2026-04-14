@@ -1,5 +1,14 @@
 #SPDX-License-Identifier: MIT-0
 ---
+- name: Install sdkman prerequisites
+  ansible.builtin.apt:
+    name:
+      - zip
+      - unzip
+      - curl
+    state: present
+    update_cache: true
+
 - name: Download sdkman installer
   ansible.builtin.get_url:
     url: "https://get.sdkman.io"
@@ -15,11 +24,6 @@
     SDKMAN_DIR: "/home/{{ item }}/.sdkman"
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
-
-- name: Remove sdkman installer
-  ansible.builtin.file:
-    path: /tmp/sdkman-install.sh
-    state: absent
 
 - name: Install Temurin JDK per user
   ansible.builtin.shell:

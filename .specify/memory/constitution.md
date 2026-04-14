@@ -21,19 +21,40 @@ most important property of reliable Ansible code.
 Every reusable capability MUST be implemented as a standalone Ansible role
 inside the `roles/` directory. Playbooks MUST only orchestrate roles; they
 MUST NOT contain implementation logic (tasks, handlers, templates) directly.
-Roles MUST have a clear single responsibility and MUST be independently
-testable on a local Vagrant/Tart VM.
+Roles MUST have a clear single responsibility.
+
+Every role that can be exercised in a container MUST include a Molecule test
+scenario in `molecule/default/`. The scenario MUST cover at minimum:
+
+- A `prepare.yml` that bootstraps the container to a state where Ansible can
+  operate (Python, sudo, and any required system users).
+- A `converge.yml` that applies the role under test.
+- A `verify.yml` that asserts the role's observable outcomes using
+  `ansible.builtin.assert`.
+- An explicit `test_sequence` in `molecule.yml` listing only the phases the
+  scenario defines.
+
+Roles that cannot be exercised in a container (e.g., desktop environment
+configuration, display managers, hardware drivers) MUST instead be validated
+on a local Vagrant/Tart VM as described in `CONTRIBUTING.md`.
 
 **Rationale**: Roles keep the codebase modular and reusable across different
-target hosts without duplicating logic.
+target hosts without duplicating logic. Molecule container tests provide fast,
+repeatable, local validation without requiring a full VM.
 
 ### III. Test Locally Before Cloud
 
-Changes to roles or playbooks MUST be validated on a local VM (Vagrant +
-Tart or Docker) before being applied to cloud-hosted machines (AWS EC2 or
-Hetzner). The test procedure defined in `CONTRIBUTING.md` MUST be followed:
-isolated role testing with the role under test as the only active role in
-`configure-linux-roles.yml`.
+Changes to roles or playbooks MUST be validated locally before being applied
+to cloud-hosted machines (AWS EC2 or Hetzner).
+
+For roles with a Molecule scenario, run `molecule test` from the role directory
+as the primary validation step. This covers the full create → prepare →
+converge → idempotence → verify → destroy lifecycle.
+
+For roles without a Molecule scenario (those requiring a full VM), follow the
+Vagrant-based procedure in `CONTRIBUTING.md`: isolate the role under test as
+the only active role in `configure-linux-roles.yml` and run the playbook
+against a local VM.
 
 **Rationale**: Local validation is fast, free and reversible. Cloud
 provisioning is slow and costs money; catching defects early avoids wasted
@@ -116,12 +137,15 @@ introduces uncontrolled changes and makes root-cause analysis impossible.
 ## Technology Stack
 
 - **Automation**: Ansible (playbooks, roles, inventory)
+- **Role testing**: Molecule (molecule>=24.0.0 + molecule-plugins[podman])
+  with the Podman driver for containerized role validation
 - **Local test VMs**: Vagrant + Tart (macOS ARM64), Vagrant + Docker (Linux)
+  for roles that cannot be containerized
 - **Cloud targets**: AWS EC2 (Linux + Windows Server 2025), Hetzner Cloud (Linux)
 - **Guest OS**: Ubuntu Linux (primary), Windows Server 2025 (secondary)
 - **Configuration**: `ansible.cfg`, `group_vars`, `host_vars`, `inventories/`
 - **Dependencies**: `requirements.yml` (Ansible Galaxy roles/collections),
-  `requirements.txt` (Python packages)
+  `requirements.txt` (Python packages including Molecule)
 - **Scripting**: Bash (`configure.sh`, `scripts/`)
 
 No additional runtime languages (Python services, Node apps, etc.) are
@@ -163,8 +187,8 @@ All documentation MUST comply with Principle VI (Markdown Quality Standards).
    ask clarifying questions before starting work. Resolve ambiguity one
    question at a time.
 2. **Feature branch**: create a branch named `###-short-description` from `main`.
-3. **Local test**: follow `CONTRIBUTING.md` — isolate the new/changed role and
-   run the playbook against a local VM.
+3. **Local test**: for roles with a Molecule scenario, run `molecule test` from
+   the role directory. For roles without one, follow `CONTRIBUTING.md`.
 4. **Commit**: use conventional commit format (Principle V); keep commits small
    and coherent.
 5. **User review**: after every commit, request a user review and wait for
@@ -197,4 +221,4 @@ All agents working in this repository MUST read this constitution at the start
 of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `CLAUDE.md` and `.cursor/rules/`.
 
-**Version**: 1.1.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-03-26
+**Version**: 1.2.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-04-12

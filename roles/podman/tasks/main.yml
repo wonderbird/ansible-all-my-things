@@ -1,0 +1,28 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Install Podman
+  ansible.builtin.apt:
+    name: podman
+    state: present
+    update_cache: true
+
+- name: Configure subuid for each desktop user
+  ansible.builtin.lineinfile:
+    path: /etc/subuid
+    regexp: "^{{ item }}:"
+    line: "{{ item }}:{{ podman_subuid_start }}:{{ podman_subuid_count }}"
+  loop: "{{ desktop_user_names }}"
+
+- name: Configure subgid for each desktop user
+  ansible.builtin.lineinfile:
+    path: /etc/subgid
+    regexp: "^{{ item }}:"
+    line: "{{ item }}:{{ podman_subgid_start }}:{{ podman_subgid_count }}"
+  loop: "{{ desktop_user_names }}"
+
+- name: Run podman system migrate for each desktop user
+  ansible.builtin.command: podman system migrate
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+  when: podman_run_migrate
+  changed_when: false

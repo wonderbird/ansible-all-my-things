@@ -61,6 +61,7 @@ task.
 | [020-rule-confirmation.mdc](.cursor/rules/general/020-rule-confirmation.mdc) | Always applied |
 | [310-collaboration.mdc](.cursor/rules/general/310-collaboration.mdc) | Always applied |
 | [330-git-usage.mdc](.cursor/rules/general/330-git-usage.mdc) | Use for documenting version information and when committing to git |
+| [340-molecule-testing.mdc](.cursor/rules/340-molecule-testing.mdc) | Use when implementing or modifying an Ansible role to set up or maintain its Molecule test scenario |
 | [380-remediation-protocol.mdc](.cursor/rules/general/380-remediation-protocol.mdc) | Use when an unexpected obstacle prevents progress |
 | [400-markdown-formatting.mdc](.cursor/rules/general/400-markdown-formatting.mdc) | Use after creating or modifying a markdown file (`*.md`, `*.mdc`) |
 | [500-cline-memory-bank.mdc](.cursor/rules/general/500-cline-memory-bank.mdc) | Use when following 'follow your custom instructions' to understand the memory bank concept |
@@ -93,4 +94,5 @@ Architecture Decision Records are in
 
 ## Active Technologies
 
-- YAML (Ansible 2.19+) + `community.general` collection
+- YAML (Ansible 2.19+) + `community.general` collection + `ansible.builtin.*`;
+  Ubuntu `podman` apt package for rootless containers

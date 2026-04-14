@@ -2,12 +2,17 @@
 galaxy_info:
   author: Stefan Boos
   namespace: wonderbird
-  role_name: java
-  description: Install sdkman and Temurin JDK for every user in desktop_user_names
+  role_name: podman
+  description: Install and configure rootless Podman on Ubuntu
   company: n.a.
   issue_tracker_url: https://github.com/wonderbird/ansible-all-my-things/issues
-  license: MIT
+  license: MIT-0
   min_ansible_version: 2.19
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
   galaxy_tags: []
 
 dependencies: []

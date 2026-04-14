@@ -6,15 +6,38 @@
 can be used to extend this application. Consider installing the corresponding
 tools as described in the [Spec Kit Getting Started Guide](https://github.com/github/spec-kit).
 
-## Easily adding and testing a new role
+## Testing a role with Molecule (preferred)
 
-To test your new role:
+Roles that can be exercised in a container are tested with Molecule. Activate
+the Python virtual environment first.
 
-1. Create a tart based VM: [/docs/create-vm.md](./docs/create-vm.md)
-2. Insert the new role in the `configure-linux-roles.yml` playbook
-3. Comment out all other roles in the `configure-linux-roles.yml` playbook, except the new one.
+To test a single role, run from the role directory:
 
-Then you can easily run only the new role as follows:
+```shell
+cd roles/<role-name>
+molecule test
+```
+
+To test all roles at once, run from the project root:
+
+```shell
+./scripts/test-molecule-all.sh
+```
+
+Both forms run the full lifecycle: create → prepare → converge → idempotence →
+verify → destroy. All phases MUST pass before committing.
+
+## Testing a role with Vagrant (fallback for full-VM roles)
+
+Roles that require a full VM (e.g., desktop environment, display managers,
+hardware drivers) are tested against a local Vagrant/Tart VM:
+
+1. Create a Tart-based VM: [/docs/create-vm.md](./docs/create-vm.md)
+2. Insert the new role in the `configure-linux-roles.yml` playbook.
+3. Comment out all other roles in `configure-linux-roles.yml`, except the
+   new one.
+
+Then run only the new role:
 
 ```shell
 cd test/tart
@@ -23,4 +46,5 @@ ansible-playbook ../../configure-linux-roles.yml --skip-tags "not-supported-on-v
 
 > [!WARNING]
 >
-> When done, remember to uncomment the other roles in the `configure-linux-roles.yml` playbook.
+> When done, remember to uncomment the other roles in the
+> `configure-linux-roles.yml` playbook.

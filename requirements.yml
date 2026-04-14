@@ -10,3 +10,5 @@ collections:
     version: ">=1.0.0"
   - name: community.windows
     version: ">=1.0.0"
+  - name: containers.podman
+    version: ">=1.19.2"

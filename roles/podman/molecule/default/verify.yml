@@ -1,0 +1,45 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Run podman -version as testuser
+      ansible.builtin.command: podman --version
+      become_user: testuser
+      register: podman_version_output
+      changed_when: false
+      failed_when: false
+
+    - name: Assert podman is installed
+      ansible.builtin.assert:
+        that:
+          - "'podman' in podman_version_output.stdout"
+        fail_msg: "Expected 'podman' in podman --version output but got: {{ podman_version_output.stdout }}"
+        success_msg: "Podman confirmed: {{ podman_version_output.stdout }}"
+
+    - name: Read subuid configuration for testuser
+      ansible.builtin.command: grep "^testuser:" /etc/subuid
+      register: subuid_output
+      changed_when: false
+      failed_when: false
+
+    - name: Assert subuid output for testuser
+      ansible.builtin.assert:
+        that:
+          - "'testuser' in subuid_output.stdout"
+        fail_msg: "Expected 'testuser' in /etc/subuid output but got: {{ subuid_output.stdout }}"
+        success_msg: "Subuid confirmed for testuser: {{ subuid_output.stdout }}"
+
+    - name: Read subgid configuration for testuser
+      ansible.builtin.command: grep "^testuser:" /etc/subgid
+      register: subgid_output
+      changed_when: false
+      failed_when: false
+
+    - name: Assert subgid output for testuser
+      ansible.builtin.assert:
+        that:
+          - "'testuser' in subgid_output.stdout"
+        fail_msg: "Expected 'testuser' in /etc/subgid output but got: {{ subgid_output.stdout }}"
+        success_msg: "Subgid confirmed for testuser: {{ subgid_output.stdout }}"
