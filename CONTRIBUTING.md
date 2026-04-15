@@ -27,6 +27,9 @@ To test all roles at once, run from the project root:
 Both forms run the full lifecycle: create → prepare → converge → idempotence →
 verify → destroy. All phases MUST pass before committing.
 
+For scenario templates and known pitfalls when adding a Molecule scenario to a
+new role, see `.cursor/rules/340-molecule-testing.mdc`.
+
 ## Testing a role with Vagrant (fallback for full-VM roles)
 
 Roles that require a full VM (e.g., desktop environment, display managers,
