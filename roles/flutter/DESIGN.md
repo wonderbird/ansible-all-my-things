@@ -18,38 +18,69 @@ The role performs three jobs:
 AMD64 Ubuntu only; ARM64 hosts are skipped via the
 `not-supported-on-vagrant-arm64` tag applied in `configure-linux-roles.yml`.
 
-## Version-File Idempotency
+## Stamp-File Idempotency
 
-**Decision**: Read `/home/{{ item }}/flutter/version` with
-`ansible.builtin.slurp`, compare the decoded content to `flutter_version`,
-and skip download and extraction when they match.
+**Decision**: Use an Ansible-written stamp file
+(`/home/{{ item }}/flutter/.ansible_installed_version`) as the idempotency
+signal, not a file shipped by the SDK.
 
-**Rationale**: The Flutter SDK ships a plain-text `version` file at
-`<sdk_root>/version` containing only the version string (e.g. `3.41.6`).
-Reading this file is simpler and more reliable than running
-`flutter --version`, which requires Dart runtime initialisation (a
-first-run compilation step that is slow and may fail in a headless
-provisioning environment).
+**Rationale**: Flutter 3.x does **not** ship a `version` file at the SDK
+root. Relying on `flutter/version` (the original plan) meant `stat.exists`
+was always `False`, causing a remove-and-re-extract on every playbook run.
+Running `flutter --version` was also rejected because it requires Dart
+runtime initialisation — a slow first-run compilation step that may fail in a
+headless provisioning environment.
+
+The stamp file is written by Ansible immediately after extraction and contains
+only the version string (e.g. `3.41.6\n`). It is the sole idempotency signal.
 
 **Implementation sequence per user**:
 
-1. `ansible.builtin.stat` — check whether `/home/{{ item }}/flutter/version`
-   exists.
-2. `ansible.builtin.slurp` — read the file content when it exists; set
-   `flutter_installed_version` via `ansible.builtin.set_fact`.
-3. `ansible.builtin.get_url` — download the tarball when
-   `flutter_installed_version != flutter_version` (or the version file is
-   absent).
+1. `ansible.builtin.stat` — check whether
+   `/home/{{ item }}/flutter/.ansible_installed_version` exists.
+2. `ansible.builtin.slurp` — read the file content when it exists.
+3. `ansible.builtin.set_fact` — build a `flutter_installed_versions` dict
+   keyed by username.
 4. `ansible.builtin.file` (state=absent) — remove the old SDK directory when
-   the version differs, so the unarchive task starts clean.
+   the installed version differs from `flutter_version`.
 5. `ansible.builtin.unarchive` — extract the archive when the version differs.
+6. `ansible.builtin.copy` — write `flutter_version` to the stamp file after
+   extraction.
 
-The `sha256` checksum on `get_url` (FR-019) is used for **download integrity
-verification**, not for idempotency decisions. The `version` file is the sole
-idempotency signal.
+The `sha256` checksum on `get_url` is used for **download integrity
+verification**, not for idempotency decisions.
 
 **Upgrade trigger**: bump `flutter_version` (and `flutter_sha256`) in
 `defaults/main.yml` and re-run the playbook. No other change is required.
+
+## Tarball Download Optimisation
+
+**Decision**: Skip `get_url` entirely when every user in
+`desktop_user_names` already has the target version installed.
+
+**Rationale**: Downloading a ~1.4 GB archive on every run — even if the
+SDK is already installed — wastes time and bandwidth. A single `when:`
+condition on the `get_url` task checks whether any user still needs the
+update before initiating the download.
+
+**Implementation**: The condition uses Jinja2 set arithmetic:
+
+```yaml
+when: >
+  desktop_user_names | difference(
+    (flutter_installed_versions | default({}))
+    | dict2items
+    | selectattr('value', 'equalto', flutter_version)
+    | map(attribute='key')
+    | list
+  ) | length > 0
+```
+
+This computes the set of users whose installed version does not match
+`flutter_version`. If that set is empty (all users are current), the
+download is skipped for the entire play. The downstream `file`,
+`unarchive`, `copy`, and `blockinfile` tasks each carry their own
+per-user `when:` guards and are similarly skipped.
 
 ## Tag Placement — Role Entry Level Only
 
@@ -98,6 +129,33 @@ task ensures the untarred files inherit the correct ownership without a
 separate `chown` step. The play-level `become: true` in
 `configure-linux-roles.yml` is inherited; task-level `become: true` is
 therefore not repeated.
+
+## Android SDK Components: NDK and CMake Excluded
+
+**Decision**: Do not install NDK (Side by Side), Android SDK CMake, or any
+additional `platforms;android-N` package beyond what the `android_studio`
+role already provisions.
+
+**Rationale**: The declared use case is **Chrome/web only**.
+
+- `flutter build web` compiles Dart to JavaScript/WebAssembly via
+  `dart2js`/`dart2wasm`. No native Android toolchain is invoked.
+- `flutter doctor`'s Chrome check verifies only that a `google-chrome`
+  binary is executable. NDK and Android SDK CMake are invisible to it.
+- The Android toolchain check in `flutter doctor` validates
+  `platform-tools`, `build-tools`, `platforms`, `cmdline-tools/latest`,
+  and a JDK — all satisfied by the `android_studio` and `java` roles.
+- `platforms;android-N` is already handled dynamically by `android_studio`
+  (via `sdkmanager --list --channel=0`); installing it again here would be
+  redundant.
+
+**Cost of including them**: NDK alone is ~500 MB–1 GB. Each component adds
+provisioning time, version-tracking, checksum maintenance, and a
+troubleshooting surface — all with no benefit for the Chrome/web target.
+
+**Alternatives considered**: Installing NDK and Android SDK CMake —
+rejected because they provide no benefit for this use case and impose
+non-trivial provisioning and maintenance cost.
 
 ## Code Conventions
 

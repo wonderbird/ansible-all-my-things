@@ -36,6 +36,8 @@ backup/restore pattern described in the
 | Cloud targets | AWS EC2, Hetzner Cloud | Existing provider choice; not changed by automation tooling. |
 | Guest OS | Ubuntu Linux (primary), Windows Server 2025 (secondary) | Ubuntu is the dominant desktop/server target; Windows Server added to run applications that are only available on Windows. |
 | Java runtime | sdkman + Eclipse Temurin JDK | Per-user self-service JDK management; avoids system-wide Java conflicts; ARM64 and AMD64 artifacts published by Adoptium. |
+| Container runtime | Podman (rootless) | Daemonless, no root required; available in Ubuntu apt; supports `--mount=type=cache` natively; serves as the Molecule driver for role testing. |
+| Role testing | Molecule + Podman driver | Container-based, fast, repeatable validation without a full VM for most roles. See `CONTRIBUTING.md` for the test procedure. |
 | Secret management | Ansible Vault | Native Ansible integration; avoids third-party secret stores for a single-person project. |
 | Scripting — simple | Bash | Minimal dependency; used only for bootstrap and helper scripts not suited to Ansible. |
 | Scripting — complex | Python | Required for Ansible AWS modules; enables structured programming and unit testing for scripts too complex for Bash. |
@@ -48,7 +50,7 @@ documented in this file and in the relevant `specs/<feature>/plan.md`.
 | Quality Goal | Approach |
 | --- | --- |
 | **Idempotency** | Use built-in Ansible modules with idempotent semantics (running twice yields the same result as running once). Raw `command`/`shell` tasks require an explicit `creates:` or `changed_when:` guard. |
-| **Testability** | Validate every change on a local VM (Vagrant + Tart or Docker) before applying to cloud targets. Isolate the role under test in `configure-linux-roles.yml`. |
+| **Testability** | Roles with a Molecule scenario are validated in a Podman container (primary path). Roles requiring a full VM (desktop, display managers, hardware drivers) use Vagrant + Tart or Docker (fallback). Cloud targets are only provisioned after local validation passes. See `CONTRIBUTING.md` for the test procedure. |
 | **Simplicity** | YAGNI (You Aren't Gonna Need It): minimum working solution. Parameterise only confirmed needs; no speculative abstraction. |
 | **Traceability** | Conventional commits; co-authorship trailers for AI-assisted changes. Git is the sole source of version and author history. |
 
