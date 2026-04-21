@@ -109,3 +109,18 @@
   become: true
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
+
+# -----
+# Install Oh My Claude Code plugin for each desktop user
+# -----
+
+- name: Clone Oh My Claude Code plugin
+  ansible.builtin.git:
+    repo: https://github.com/Yeachan-Heo/oh-my-claudecode
+    dest: /home/{{ item }}/.claude/plugins/oh-my-claudecode
+    version: HEAD
+    update: yes
+    force: no
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
