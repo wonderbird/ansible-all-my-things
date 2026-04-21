@@ -17,8 +17,8 @@
       become: false
       changed_when: true
 
-    - name: Install git
-      ansible.builtin.raw: apt-get install -y -qq git
+    - name: Install git and curl
+      ansible.builtin.raw: apt-get install -y -qq git curl
       # become: false — sudo is not yet installed; run directly as root
       become: false
       changed_when: true
