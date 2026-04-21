@@ -1,0 +1,29 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Check Claude Code binary exists
+      ansible.builtin.stat:
+        path: /home/testuser/.local/bin/claude
+      register: claude_binary_stat
+
+    - name: Assert Claude Code binary is present
+      ansible.builtin.assert:
+        that:
+          - claude_binary_stat.stat.exists
+        fail_msg: "Claude Code binary not found at /home/testuser/.local/bin/claude"
+        success_msg: "Claude Code binary found at /home/testuser/.local/bin/claude"
+
+    - name: Check Oh My Claude Code git directory exists
+      ansible.builtin.stat:
+        path: /home/testuser/.claude/plugins/oh-my-claudecode/.git
+      register: omc_git_stat
+
+    - name: Assert Oh My Claude Code is installed
+      ansible.builtin.assert:
+        that:
+          - omc_git_stat.stat.exists
+        fail_msg: "Oh My Claude Code not found at /home/testuser/.claude/plugins/oh-my-claudecode/.git"
+        success_msg: "Oh My Claude Code found at /home/testuser/.claude/plugins/oh-my-claudecode/.git"
