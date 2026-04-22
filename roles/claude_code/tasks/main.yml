@@ -133,3 +133,74 @@
   become: true
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
+
+# -----
+# Clone oh-my-claudecode source repo for each desktop user
+# -----
+
+- name: Clone oh-my-claudecode source repository
+  ansible.builtin.git:
+    repo: https://github.com/Yeachan-Heo/oh-my-claudecode
+    dest: /home/{{ item }}/Documents/Cline/oh-my-claudecode
+    version: HEAD
+    update: yes
+    force: no
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+
+# -----
+# Install beads issue tracker for each desktop user
+# -----
+
+- name: Install beads issue tracker
+  ansible.builtin.shell:
+    cmd: curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
+    creates: /home/{{ item }}/.local/bin/bd
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+
+# -----
+# Install Claude Code plugins for each desktop user
+# -----
+
+- name: Add oh-my-claudecode plugin to Claude Code marketplace
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  changed_when: false
+
+- name: Install oh-my-claudecode plugin
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin install oh-my-claudecode
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  changed_when: false
+
+- name: Add caveman plugin to Claude Code marketplace
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin marketplace add JuliusBrussee/caveman
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  changed_when: false
+
+- name: Install caveman plugin
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin install caveman@caveman
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  changed_when: false
