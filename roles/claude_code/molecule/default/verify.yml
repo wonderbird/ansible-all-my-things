@@ -16,14 +16,38 @@
         fail_msg: "Claude Code binary not found at /home/testuser/.local/bin/claude"
         success_msg: "Claude Code binary found at /home/testuser/.local/bin/claude"
 
-    - name: Check Oh My Claude Code git directory exists
+    - name: Check Oh My Claude Code plugin cache directory exists
       ansible.builtin.stat:
-        path: /home/testuser/.claude/plugins/oh-my-claudecode/.git
-      register: omc_git_stat
+        path: /home/testuser/.claude/plugins/cache/omc/oh-my-claudecode
+      register: omc_cache_stat
 
-    - name: Assert Oh My Claude Code is installed
+    - name: Assert Oh My Claude Code plugin is installed
       ansible.builtin.assert:
         that:
-          - omc_git_stat.stat.exists
-        fail_msg: "Oh My Claude Code not found at /home/testuser/.claude/plugins/oh-my-claudecode/.git"
-        success_msg: "Oh My Claude Code found at /home/testuser/.claude/plugins/oh-my-claudecode/.git"
+          - omc_cache_stat.stat.exists
+        fail_msg: "Oh My Claude Code not found at /home/testuser/.claude/plugins/cache/omc/oh-my-claudecode"
+        success_msg: "Oh My Claude Code found at /home/testuser/.claude/plugins/cache/omc/oh-my-claudecode"
+
+    - name: Check beads binary exists
+      ansible.builtin.stat:
+        path: /home/testuser/.local/bin/bd
+      register: beads_stat
+
+    - name: Assert beads is installed
+      ansible.builtin.assert:
+        that:
+          - beads_stat.stat.exists
+        fail_msg: "beads binary not found at /home/testuser/.local/bin/bd"
+        success_msg: "beads binary found at /home/testuser/.local/bin/bd"
+
+    - name: Check oh-my-claudecode source repository exists
+      ansible.builtin.stat:
+        path: /home/testuser/Documents/Cline/oh-my-claudecode/.git
+      register: omc_src_stat
+
+    - name: Assert oh-my-claudecode source repository is cloned
+      ansible.builtin.assert:
+        that:
+          - omc_src_stat.stat.exists
+        fail_msg: "oh-my-claudecode source repo not found at /home/testuser/Documents/Cline/oh-my-claudecode/.git"
+        success_msg: "oh-my-claudecode source repo found at /home/testuser/Documents/Cline/oh-my-claudecode/.git"

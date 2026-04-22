@@ -144,6 +144,8 @@
     creates: /home/{{ item }}/.local/bin/bd
   become: true
   become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   loop: "{{ desktop_user_names }}"
 
 # -----
