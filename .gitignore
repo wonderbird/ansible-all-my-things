@@ -1,3 +1,10 @@
+# Oh My Claude Code
+.omc/state/
+.omc/sessions/
+.omc/prd.json
+.omc/project-memory.json
+.omc/progress.txt
+
 # Skip private keys
 *.pem
 
