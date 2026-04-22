@@ -44,11 +44,10 @@ None. See `meta/main.yml` for details.
 3. Downloads and runs the official Claude Code installer for each user (skipped if already installed)
 4. Verifies the installed binary checksum against the release manifest
 5. Adds `~/.local/bin` to each user's `PATH` via `.bashrc`
-6. Clones the oh-my-claudecode plugin into `~/.claude/plugins/oh-my-claudecode`
-7. Clones the oh-my-claudecode source repo to `~/Documents/Cline/oh-my-claudecode`
-8. Installs the [beads](https://github.com/steveyegge/beads) issue tracker (`bd`)
-9. Registers and installs the oh-my-claudecode Claude Code plugin
-10. Registers and installs the caveman Claude Code plugin
+6. Clones the oh-my-claudecode source repo to `~/Documents/Cline/oh-my-claudecode`
+7. Installs the [beads](https://github.com/steveyegge/beads) issue tracker (`bd`)
+8. Registers and installs the oh-my-claudecode Claude Code plugin
+9. Registers and installs the caveman Claude Code plugin
 
 ## Post-install Manual Steps
 
