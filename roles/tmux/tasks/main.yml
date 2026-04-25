@@ -1,0 +1,7 @@
+#SPDX-License-Identifier: MIT-0
+---
+- import_tasks: install-tmux.yml
+- import_tasks: install-gitmux.yml
+- import_tasks: install-font.yml
+- import_tasks: install-plugins.yml
+- import_tasks: configure.yml

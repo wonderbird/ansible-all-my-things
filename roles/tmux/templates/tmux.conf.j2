@@ -1,0 +1,112 @@
+# ============================================================================
+# tmux Configuration for Claude Code Agent Teams
+# Linux | Catppuccin Mocha + plugins
+# https://ksingh7.medium.com/watch-claude-code-agents-work-side-by-side-a-tmux-setup-guide-1ef3ba1531c4
+# ============================================================================
+
+# --- Core Settings -----------------------------------------------------------
+
+set -g default-terminal "tmux-256color"       # Enable 256 colors
+set -as terminal-overrides ",*:RGB"           # True RGB color support
+set -sg escape-time 0                         # No delay after pressing Escape
+set -g history-limit 50000                    # Scrollback buffer
+set -g mouse on                               # Click panes, resize, scroll
+set -g base-index 1                           # Windows start at 1, not 0
+setw -g pane-base-index 1                     # Panes start at 1 too
+set -g renumber-windows on                    # Fill gaps when windows close
+set -g focus-events on                        # Pass focus events to programs
+
+# --- Pane Behavior -----------------------------------------------------------
+
+set -g remain-on-exit off                     # Auto-close pane when agent exits
+set -g display-panes-time 2000                # Show pane numbers for 2 seconds
+set -g pane-border-status top                 # Show pane labels at the top
+set -g pane-border-format " #{pane_index}: #S "  # Label: pane number + session name
+
+# Terminal title shows session name (not hostname)
+set -g set-titles on
+set -g set-titles-string "#S"
+
+# --- Key Bindings ------------------------------------------------------------
+
+# Config
+bind r source-file ~/.tmux.conf \; display-message "Config reloaded!"
+
+# Navigate panes (no prefix needed — just Alt+Arrow)
+bind -n M-Left select-pane -L
+bind -n M-Right select-pane -R
+bind -n M-Up select-pane -U
+bind -n M-Down select-pane -D
+
+# Resize panes (no prefix needed — Ctrl+Alt+Arrow)
+bind -n C-M-Left resize-pane -L 5
+bind -n C-M-Right resize-pane -R 5
+bind -n C-M-Up resize-pane -U 3
+bind -n C-M-Down resize-pane -D 3
+
+# Pane management
+bind x kill-pane
+bind S setw synchronize-panes \; display-message "Sync #{?synchronize-panes,ON,OFF}"
+
+# Agent team layouts (quick arrange for multi-agent sessions)
+bind t select-layout tiled             # Equal space for all panes
+bind v select-layout main-vertical     # Lead on left, agents stacked right
+bind h select-layout main-horizontal   # Lead on top, agents below
+
+setw -g main-pane-width 50%
+setw -g main-pane-height 50%
+
+# --- Catppuccin Theme & Plugin Options (set BEFORE loading plugins) ----------
+
+set -g @catppuccin_flavor "mocha"                      # Dark theme variant
+set -g @catppuccin_status_background "default"          # Transparent status bar
+set -g @catppuccin_window_status_style "rounded"        # Rounded tab separators
+set -g @catppuccin_window_number_position "left"
+set -g @catppuccin_window_text ""                       # Hide window tabs
+set -g @catppuccin_window_current_text ""               # (single window per session)
+
+# CPU/RAM color thresholds (green → yellow → red)
+set -g @cpu_medium_thresh "50"
+set -g @cpu_high_thresh "80"
+set -g @ram_medium_thresh "60"
+set -g @ram_high_thresh "85"
+
+# --- Load Plugins (synchronous, order matters) -------------------------------
+
+run-shell ~/.tmux/plugins/tmux/catppuccin.tmux
+run-shell ~/.tmux/plugins/tmux-cpu/cpu.tmux
+run-shell ~/.tmux/plugins/tmux-battery/battery.tmux
+
+# --- Status Bar --------------------------------------------------------------
+# Left: session | git branch | directory
+# Right: CPU | load | hostname
+
+set -g status-position bottom
+set -g status-interval 5                                # Refresh every 5 seconds
+set -g status-left-length 120
+set -g status-right-length 120
+
+# Left side (no -F flag: keeps #S and #{pane_current_path} live at render time)
+set  -g status-left "#{E:@catppuccin_status_session}"
+set -ag status-left "#{E:@catppuccin_status_gitmux}"
+set -ag status-left "#{E:@catppuccin_status_directory}"
+
+# Right side: CPU | load | hostname
+set  -gF status-right "#{E:@catppuccin_status_cpu}"
+set -agF status-right "#{E:@catppuccin_status_load}"
+set -ag  status-right "#{E:@catppuccin_status_host}"
+
+# --- TPM (for plugin updates via prefix+I) -----------------------------------
+
+set -g @plugin 'catppuccin/tmux#v2.1.3'
+set -g @plugin 'tmux-plugins/tmux-cpu'
+set -g @plugin 'tmux-plugins/tmux-battery'
+set -g @plugin 'tmux-plugins/tpm'
+
+run '~/.tmux/plugins/tpm/tpm'
+
+# --- Post-Plugin Overrides (MUST be after TPM re-sources plugins) ------------
+# TPM re-loads plugin configs, so we override catppuccin's window tab defaults here
+
+set -g window-status-format ""
+set -g window-status-current-format ""

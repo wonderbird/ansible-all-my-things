@@ -1,0 +1,103 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: apt
+
+    - name: Assert tmux is installed
+      ansible.builtin.assert:
+        that: "'tmux' in ansible_facts.packages"
+        fail_msg: "tmux package is not installed"
+        success_msg: "tmux package is installed"
+
+    - name: Check gitmux binary exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/gitmux
+      register: tmux_gitmux_stat
+
+    - name: Assert gitmux binary is present
+      ansible.builtin.assert:
+        that: tmux_gitmux_stat.stat.exists
+        fail_msg: "gitmux binary not found at /usr/local/bin/gitmux"
+        success_msg: "gitmux binary found at /usr/local/bin/gitmux"
+
+    - name: Check TPM is cloned
+      ansible.builtin.stat:
+        path: /home/testuser/.tmux/plugins/tpm/.git
+      register: tmux_tpm_stat
+
+    - name: Assert TPM is cloned
+      ansible.builtin.assert:
+        that: tmux_tpm_stat.stat.exists
+        fail_msg: "TPM not found at /home/testuser/.tmux/plugins/tpm"
+        success_msg: "TPM found at /home/testuser/.tmux/plugins/tpm"
+
+    - name: Check catppuccin plugin is cloned
+      ansible.builtin.stat:
+        path: /home/testuser/.tmux/plugins/tmux/.git
+      register: tmux_catppuccin_stat
+
+    - name: Assert catppuccin plugin is cloned
+      ansible.builtin.assert:
+        that: tmux_catppuccin_stat.stat.exists
+        fail_msg: "catppuccin/tmux not found at /home/testuser/.tmux/plugins/tmux"
+        success_msg: "catppuccin/tmux found at /home/testuser/.tmux/plugins/tmux"
+
+    - name: Check tmux-cpu plugin is cloned
+      ansible.builtin.stat:
+        path: /home/testuser/.tmux/plugins/tmux-cpu/.git
+      register: tmux_cpu_stat
+
+    - name: Assert tmux-cpu plugin is cloned
+      ansible.builtin.assert:
+        that: tmux_cpu_stat.stat.exists
+        fail_msg: "tmux-cpu not found at /home/testuser/.tmux/plugins/tmux-cpu"
+        success_msg: "tmux-cpu found at /home/testuser/.tmux/plugins/tmux-cpu"
+
+    - name: Check tmux-battery plugin is cloned
+      ansible.builtin.stat:
+        path: /home/testuser/.tmux/plugins/tmux-battery/.git
+      register: tmux_battery_stat
+
+    - name: Assert tmux-battery plugin is cloned
+      ansible.builtin.assert:
+        that: tmux_battery_stat.stat.exists
+        fail_msg: "tmux-battery not found at /home/testuser/.tmux/plugins/tmux-battery"
+        success_msg: "tmux-battery found at /home/testuser/.tmux/plugins/tmux-battery"
+
+    - name: Check .tmux.conf is deployed
+      ansible.builtin.stat:
+        path: /home/testuser/.tmux.conf
+      register: tmux_conf_stat
+
+    - name: Assert .tmux.conf is present
+      ansible.builtin.assert:
+        that: tmux_conf_stat.stat.exists
+        fail_msg: ".tmux.conf not found at /home/testuser/.tmux.conf"
+        success_msg: ".tmux.conf found at /home/testuser/.tmux.conf"
+
+    - name: Check .gitmux.conf is deployed
+      ansible.builtin.stat:
+        path: /home/testuser/.gitmux.conf
+      register: tmux_gitmux_conf_stat
+
+    - name: Assert .gitmux.conf is present
+      ansible.builtin.assert:
+        that: tmux_gitmux_conf_stat.stat.exists
+        fail_msg: ".gitmux.conf not found at /home/testuser/.gitmux.conf"
+        success_msg: ".gitmux.conf found at /home/testuser/.gitmux.conf"
+
+    - name: Check Hack Nerd Font is installed
+      ansible.builtin.stat:
+        path: /home/testuser/.local/share/fonts/HackNerdFont-Regular.ttf
+      register: tmux_font_stat
+
+    - name: Assert Hack Nerd Font is present
+      ansible.builtin.assert:
+        that: tmux_font_stat.stat.exists
+        fail_msg: "HackNerdFont-Regular.ttf not found at /home/testuser/.local/share/fonts/"
+        success_msg: "HackNerdFont-Regular.ttf found at /home/testuser/.local/share/fonts/"

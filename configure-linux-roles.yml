@@ -14,6 +14,7 @@
   roles:
     - podman
     - claude_code
+    - tmux
     - role: google_chrome
       tags: not-supported-on-vagrant-arm64
 
