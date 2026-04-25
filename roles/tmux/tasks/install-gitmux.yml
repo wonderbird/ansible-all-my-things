@@ -22,49 +22,12 @@
     tmux_gitmux_archive: "gitmux_{{ tmux_gitmux_version }}_linux_{{ tmux_gitmux_arch }}.tar.gz"
   when: not tmux_gitmux_binary_stat.stat.exists
 
-- name: Download gitmux archive
+- name: Download gitmux archive with checksum verification
   ansible.builtin.get_url:
     url: "https://github.com/arl/gitmux/releases/download/{{ tmux_gitmux_version }}/{{ tmux_gitmux_archive }}"
     dest: "/tmp/{{ tmux_gitmux_archive }}"
+    checksum: "sha256:https://github.com/arl/gitmux/releases/download/{{ tmux_gitmux_version }}/checksums.txt"
     mode: '0644'
-  when: not tmux_gitmux_binary_stat.stat.exists
-
-- name: Download gitmux checksums
-  ansible.builtin.get_url:
-    url: "https://github.com/arl/gitmux/releases/download/{{ tmux_gitmux_version }}/checksums.txt"
-    dest: "/tmp/gitmux_{{ tmux_gitmux_version }}_checksums.txt"
-    mode: '0644'
-  when: not tmux_gitmux_binary_stat.stat.exists
-
-- name: Read gitmux checksums file
-  ansible.builtin.slurp:
-    src: "/tmp/gitmux_{{ tmux_gitmux_version }}_checksums.txt"
-  register: tmux_gitmux_checksums_raw
-  when: not tmux_gitmux_binary_stat.stat.exists
-
-- name: Extract expected checksum for gitmux archive
-  ansible.builtin.set_fact:
-    tmux_gitmux_expected_checksum: >-
-      {{ (tmux_gitmux_checksums_raw.content | b64decode).split('\n')
-         | select('search', tmux_gitmux_archive)
-         | first | split() | first }}
-  when: not tmux_gitmux_binary_stat.stat.exists
-
-- name: Compute sha256 of gitmux archive
-  ansible.builtin.stat:
-    path: "/tmp/{{ tmux_gitmux_archive }}"
-    checksum_algorithm: sha256
-  register: tmux_gitmux_archive_stat
-  when: not tmux_gitmux_binary_stat.stat.exists
-
-- name: Assert gitmux archive checksum matches
-  ansible.builtin.assert:
-    that:
-      - tmux_gitmux_archive_stat.stat.checksum == tmux_gitmux_expected_checksum
-    fail_msg: >
-      gitmux archive checksum mismatch.
-      Expected: {{ tmux_gitmux_expected_checksum }}
-      Actual: {{ tmux_gitmux_archive_stat.stat.checksum | default('N/A') }}
   when: not tmux_gitmux_binary_stat.stat.exists
 
 - name: Extract and install gitmux binary
