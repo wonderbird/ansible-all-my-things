@@ -148,6 +148,16 @@
     PATH: "/home/{{ item }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   loop: "{{ desktop_user_names }}"
 
+- name: Install beads viewer
+  ansible.builtin.shell:
+    cmd: curl -fsSL "https://raw.githubusercontent.com/Dicklesworthstone/beads_viewer/main/install.sh" | bash
+    creates: /home/{{ item }}/.local/bin/bv
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  loop: "{{ desktop_user_names }}"
+
 # -----
 # Install Claude Code plugins for each desktop user
 # -----

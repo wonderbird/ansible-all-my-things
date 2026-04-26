@@ -40,6 +40,18 @@
         fail_msg: "beads binary not found at /home/testuser/.local/bin/bd"
         success_msg: "beads binary found at /home/testuser/.local/bin/bd"
 
+    - name: Check beads viewer binary exists
+      ansible.builtin.stat:
+        path: /home/testuser/.local/bin/bv
+      register: bv_binary
+
+    - name: Assert beads viewer is installed
+      ansible.builtin.assert:
+        that:
+          - bv_binary.stat.exists
+        fail_msg: "beads viewer (bv) binary not found"
+        success_msg: "beads viewer (bv) binary found at /home/testuser/.local/bin/bv"
+
     - name: Check oh-my-claudecode source repository exists
       ansible.builtin.stat:
         path: /home/testuser/Documents/Cline/oh-my-claudecode/.git
