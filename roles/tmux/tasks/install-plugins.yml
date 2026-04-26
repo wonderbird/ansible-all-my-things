@@ -29,13 +29,3 @@
   become: true
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
-
-- name: Clone tmux-battery plugin for each user
-  ansible.builtin.git:
-    repo: "{{ tmux_plugin_battery_repo }}"
-    dest: "/home/{{ item }}/.tmux/plugins/tmux-battery"
-    version: HEAD
-    update: false
-  become: true
-  become_user: "{{ item }}"
-  loop: "{{ desktop_user_names }}"

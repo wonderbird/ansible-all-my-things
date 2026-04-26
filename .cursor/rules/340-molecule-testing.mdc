@@ -76,7 +76,7 @@ Bootstrap rules:
       changed_when: true
 
     - name: Install python3 and sudo
-      ansible.builtin.raw: apt-get install -y python3 sudo
+      ansible.builtin.raw: apt-get install -y -qq python3 sudo
       become: false
       changed_when: true
 ```

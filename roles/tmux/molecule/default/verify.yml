@@ -58,17 +58,6 @@
         fail_msg: "tmux-cpu not found at /home/testuser/.tmux/plugins/tmux-cpu"
         success_msg: "tmux-cpu found at /home/testuser/.tmux/plugins/tmux-cpu"
 
-    - name: Check tmux-battery plugin is cloned
-      ansible.builtin.stat:
-        path: /home/testuser/.tmux/plugins/tmux-battery/.git
-      register: tmux_battery_stat
-
-    - name: Assert tmux-battery plugin is cloned
-      ansible.builtin.assert:
-        that: tmux_battery_stat.stat.exists
-        fail_msg: "tmux-battery not found at /home/testuser/.tmux/plugins/tmux-battery"
-        success_msg: "tmux-battery found at /home/testuser/.tmux/plugins/tmux-battery"
-
     - name: Check .tmux.conf is deployed
       ansible.builtin.stat:
         path: /home/testuser/.tmux.conf

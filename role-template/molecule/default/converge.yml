@@ -1,0 +1,7 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Converge
+  hosts: all
+  become: true
+  roles:
+    - role: ROLE_NAME
