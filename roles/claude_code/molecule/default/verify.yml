@@ -1,0 +1,65 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Check Claude Code binary exists
+      ansible.builtin.stat:
+        path: /home/testuser/.local/bin/claude
+      register: claude_binary_stat
+
+    - name: Assert Claude Code binary is present
+      ansible.builtin.assert:
+        that:
+          - claude_binary_stat.stat.exists
+        fail_msg: "Claude Code binary not found at /home/testuser/.local/bin/claude"
+        success_msg: "Claude Code binary found at /home/testuser/.local/bin/claude"
+
+    - name: Check Oh My Claude Code plugin cache directory exists
+      ansible.builtin.stat:
+        path: /home/testuser/.claude/plugins/cache/omc/oh-my-claudecode
+      register: omc_cache_stat
+
+    - name: Assert Oh My Claude Code plugin is installed
+      ansible.builtin.assert:
+        that:
+          - omc_cache_stat.stat.exists
+        fail_msg: "Oh My Claude Code not found at /home/testuser/.claude/plugins/cache/omc/oh-my-claudecode"
+        success_msg: "Oh My Claude Code found at /home/testuser/.claude/plugins/cache/omc/oh-my-claudecode"
+
+    - name: Check beads binary exists
+      ansible.builtin.stat:
+        path: /home/testuser/.local/bin/bd
+      register: beads_stat
+
+    - name: Assert beads is installed
+      ansible.builtin.assert:
+        that:
+          - beads_stat.stat.exists
+        fail_msg: "beads binary not found at /home/testuser/.local/bin/bd"
+        success_msg: "beads binary found at /home/testuser/.local/bin/bd"
+
+    - name: Check beads viewer binary exists
+      ansible.builtin.stat:
+        path: /home/testuser/.local/bin/bv
+      register: bv_binary
+
+    - name: Assert beads viewer is installed
+      ansible.builtin.assert:
+        that:
+          - bv_binary.stat.exists
+        fail_msg: "beads viewer (bv) binary not found"
+        success_msg: "beads viewer (bv) binary found at /home/testuser/.local/bin/bv"
+
+    - name: Check oh-my-claudecode source repository exists
+      ansible.builtin.stat:
+        path: /home/testuser/Documents/Cline/oh-my-claudecode/.git
+      register: omc_src_stat
+
+    - name: Assert oh-my-claudecode source repository is cloned
+      ansible.builtin.assert:
+        that:
+          - omc_src_stat.stat.exists
+        fail_msg: "oh-my-claudecode source repo not found at /home/testuser/Documents/Cline/oh-my-claudecode/.git"
+        success_msg: "oh-my-claudecode source repo found at /home/testuser/Documents/Cline/oh-my-claudecode/.git"

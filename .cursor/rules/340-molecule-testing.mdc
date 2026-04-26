@@ -18,6 +18,28 @@ galaxy_info:
   role_name: <role-name>
 ```
 
+## Creating a new role
+
+**Always** use the scaffold script — never create role directories or files manually:
+
+```shell
+bash scripts/new-role.sh <role-name>
+```
+
+The script copies `role-template/` to `roles/<role-name>/` and substitutes the
+`ROLE_NAME` placeholder throughout all files.
+
+**After scaffolding, customize:**
+
+- `meta/main.yml` — set `role_name` to the actual role name
+- `converge.yml` — add required vars and update the role reference
+- `verify.yml` — add assertions for observable outcomes
+
+**Do NOT modify per-role:**
+
+- `molecule.yml` — canonical; change only via this rule or `role-template/`
+- `prepare.yml` — canonical; change only via this rule or `role-template/`
+
 ## Required scenario files
 
 | File | Purpose |
@@ -76,7 +98,7 @@ Bootstrap rules:
       changed_when: true
 
     - name: Install python3 and sudo
-      ansible.builtin.raw: apt-get install -y python3 sudo
+      ansible.builtin.raw: apt-get install -y -qq python3 sudo
       become: false
       changed_when: true
 ```

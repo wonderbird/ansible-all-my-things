@@ -1,0 +1,19 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Deploy .tmux.conf for each user
+  ansible.builtin.copy:
+    src: tmux.conf
+    dest: "/home/{{ item }}/.tmux.conf"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0644'
+  loop: "{{ desktop_user_names }}"
+
+- name: Deploy .gitmux.conf for each user
+  ansible.builtin.copy:
+    src: gitmux.conf
+    dest: "/home/{{ item }}/.gitmux.conf"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0644'
+  loop: "{{ desktop_user_names }}"

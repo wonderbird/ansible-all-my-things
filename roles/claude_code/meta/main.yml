@@ -1,6 +1,8 @@
 #SPDX-License-Identifier: MIT-0
 galaxy_info:
   author: Stefan Boos
+  namespace: wonderbird
+  role_name: claude_code
   description: Install Anthropic's Claude code on Linux
   company: n.a.
   issue_tracker_url: http://github.com/wonderbird/ansible-all-my-things/issues
@@ -17,3 +19,7 @@ galaxy_info:
 dependencies: []
   # List your role dependencies here, one per line. Be sure to remove the '[]' above,
   # if you add dependencies to this list.
+  #
+  # System requirement: git must be present on target hosts (used to clone
+  # oh-my-claudecode). Install it via your base provisioning; it is not an
+  # Ansible role dependency.

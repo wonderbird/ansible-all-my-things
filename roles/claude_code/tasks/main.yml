@@ -40,6 +40,12 @@
 # Install Claude Code for each desktop user
 # -----
 
+- name: Check if Claude Code binary already exists for each user
+  stat:
+    path: /home/{{ item }}/.local/bin/claude
+  loop: "{{ desktop_user_names }}"
+  register: claude_code_pre_install_stat
+
 # Installation instructions can be found in the quickstart guide at
 # https://code.claude.com/docs/en/quickstart
 - name: Download Claude Code installer
@@ -47,6 +53,7 @@
     url: https://claude.ai/install.sh
     dest: /tmp/claude_code_install.sh
     mode: '0755'
+  when: claude_code_pre_install_stat.results | selectattr('stat.exists', 'equalto', false) | list | length > 0
 
 - name: Run Claude Code installer
   shell: /tmp/claude_code_install.sh
@@ -55,11 +62,13 @@
   become: true
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
+  when: not (claude_code_pre_install_stat.results | selectattr('item', 'equalto', item) | first).stat.exists
 
 - name: Remove Claude Code installer
   file:
     path: /tmp/claude_code_install.sh
     state: absent
+  when: claude_code_pre_install_stat.results | selectattr('stat.exists', 'equalto', false) | list | length > 0
 
 # -----
 # Verify Claude Code binary integrity
@@ -109,3 +118,86 @@
   become: true
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
+
+# -----
+# Clone oh-my-claudecode source repo for each desktop user
+# -----
+
+- name: Clone oh-my-claudecode source repository
+  ansible.builtin.git:
+    repo: https://github.com/Yeachan-Heo/oh-my-claudecode
+    dest: /home/{{ item }}/Documents/Cline/oh-my-claudecode
+    version: HEAD
+    update: yes
+    force: no
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+
+# -----
+# Install beads issue tracker for each desktop user
+# -----
+
+- name: Install beads issue tracker
+  ansible.builtin.shell:
+    cmd: curl -fsSL https://raw.githubusercontent.com/steveyegge/beads/main/scripts/install.sh | bash
+    creates: /home/{{ item }}/.local/bin/bd
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  loop: "{{ desktop_user_names }}"
+
+- name: Install beads viewer
+  ansible.builtin.shell:
+    cmd: curl -fsSL "https://raw.githubusercontent.com/Dicklesworthstone/beads_viewer/main/install.sh" | bash
+    creates: /home/{{ item }}/.local/bin/bv
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  loop: "{{ desktop_user_names }}"
+
+# -----
+# Install Claude Code plugins for each desktop user
+# -----
+
+- name: Add oh-my-claudecode plugin to Claude Code marketplace
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  changed_when: false
+
+- name: Install oh-my-claudecode plugin
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin install oh-my-claudecode
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  changed_when: false
+
+- name: Add caveman plugin to Claude Code marketplace
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin marketplace add JuliusBrussee/caveman
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  changed_when: false
+
+- name: Install caveman plugin
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin install caveman@caveman
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  changed_when: false

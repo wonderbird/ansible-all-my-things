@@ -1,0 +1,42 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Ensure fonts directory exists for each user
+  ansible.builtin.file:
+    path: "/home/{{ item }}/.local/share/fonts"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0755'
+  loop: "{{ desktop_user_names }}"
+
+- name: Check Hack Nerd Font is installed for each user
+  ansible.builtin.stat:
+    path: "/home/{{ item }}/.local/share/fonts/HackNerdFont-Regular.ttf"
+  loop: "{{ desktop_user_names }}"
+  register: tmux_font_stat
+
+- name: Download Hack Nerd Font
+  ansible.builtin.get_url:
+    url: "https://github.com/ryanoasis/nerd-fonts/releases/download/{{ tmux_font_version }}/Hack.zip"
+    dest: "/tmp/Hack-NerdFont-{{ tmux_font_version }}.zip"
+    mode: '0644'
+  when: tmux_font_stat.results | selectattr('stat.exists', 'equalto', false) | list | length > 0
+
+- name: Extract Hack Nerd Font for each user
+  ansible.builtin.unarchive:
+    src: "/tmp/Hack-NerdFont-{{ tmux_font_version }}.zip"
+    dest: "/home/{{ item.item }}/.local/share/fonts/"
+    remote_src: true
+    owner: "{{ item.item }}"
+    group: "{{ item.item }}"
+  loop: "{{ tmux_font_stat.results }}"
+  when: not item.stat.exists
+
+- name: Rebuild font cache for each user
+  ansible.builtin.command:
+    cmd: fc-cache -fv
+  become: true
+  become_user: "{{ item.item }}"
+  loop: "{{ tmux_font_stat.results }}"
+  when: not item.stat.exists
+  changed_when: true

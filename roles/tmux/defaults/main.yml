@@ -1,0 +1,10 @@
+#SPDX-License-Identifier: MIT-0
+---
+tmux_gitmux_version: "v0.11.5"
+tmux_font_version: "v3.2.1"
+tmux_gitmux_arch_map:
+  x86_64: amd64
+  aarch64: arm64
+tmux_plugin_tpm_repo: "https://github.com/tmux-plugins/tpm"
+tmux_plugin_catppuccin_repo: "https://github.com/catppuccin/tmux.git"
+tmux_plugin_cpu_repo: "https://github.com/tmux-plugins/tmux-cpu.git"

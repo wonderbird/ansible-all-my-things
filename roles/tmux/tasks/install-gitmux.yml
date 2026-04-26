@@ -1,0 +1,45 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify supported processor architecture
+  ansible.builtin.assert:
+    that: "ansible_architecture in tmux_gitmux_arch_map"
+    fail_msg: >
+      Unsupported processor architecture: {{ ansible_architecture }}.
+      Supported architectures are: {{ tmux_gitmux_arch_map.keys() | list }}.
+
+- name: Check if gitmux is installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/gitmux
+  register: tmux_gitmux_binary_stat
+
+- name: Set gitmux architecture
+  ansible.builtin.set_fact:
+    tmux_gitmux_arch: "{{ tmux_gitmux_arch_map[ansible_architecture] }}"
+  when: not tmux_gitmux_binary_stat.stat.exists
+
+- name: Set gitmux archive name
+  ansible.builtin.set_fact:
+    tmux_gitmux_archive: "gitmux_{{ tmux_gitmux_version }}_linux_{{ tmux_gitmux_arch }}.tar.gz"
+  when: not tmux_gitmux_binary_stat.stat.exists
+
+- name: Download gitmux archive with checksum verification
+  ansible.builtin.get_url:
+    url: "https://github.com/arl/gitmux/releases/download/{{ tmux_gitmux_version }}/{{ tmux_gitmux_archive }}"
+    dest: "/tmp/{{ tmux_gitmux_archive }}"
+    checksum: "sha256:https://github.com/arl/gitmux/releases/download/{{ tmux_gitmux_version }}/checksums.txt"
+    mode: '0644'
+  when: not tmux_gitmux_binary_stat.stat.exists
+
+- name: Extract and install gitmux binary
+  ansible.builtin.command:
+    cmd: "tar -xzf /tmp/{{ tmux_gitmux_archive }} -C /usr/local/bin/ gitmux"
+    creates: /usr/local/bin/gitmux
+  when: not tmux_gitmux_binary_stat.stat.exists
+
+- name: Set gitmux binary permissions
+  ansible.builtin.file:
+    path: /usr/local/bin/gitmux
+    mode: '0755'
+    owner: root
+    group: root
+  when: not tmux_gitmux_binary_stat.stat.exists

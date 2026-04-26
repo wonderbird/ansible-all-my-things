@@ -1,0 +1,31 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Clone TPM for each user
+  ansible.builtin.git:
+    repo: "{{ tmux_plugin_tpm_repo }}"
+    dest: "/home/{{ item }}/.tmux/plugins/tpm"
+    version: HEAD
+    update: false
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+
+- name: Clone catppuccin tmux plugin for each user
+  ansible.builtin.git:
+    repo: "{{ tmux_plugin_catppuccin_repo }}"
+    dest: "/home/{{ item }}/.tmux/plugins/tmux"
+    version: HEAD
+    update: false
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+
+- name: Clone tmux-cpu plugin for each user
+  ansible.builtin.git:
+    repo: "{{ tmux_plugin_cpu_repo }}"
+    dest: "/home/{{ item }}/.tmux/plugins/tmux-cpu"
+    version: HEAD
+    update: false
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"

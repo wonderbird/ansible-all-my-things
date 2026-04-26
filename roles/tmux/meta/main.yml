@@ -1,0 +1,13 @@
+#SPDX-License-Identifier: MIT-0
+galaxy_info:
+  author: Stefan Boos
+  namespace: wonderbird
+  role_name: tmux
+  description: Install and configure tmux with plugins for desktop users on Linux
+  company: n.a.
+  issue_tracker_url: http://github.com/wonderbird/ansible-all-my-things/issues
+  license: MIT
+  min_ansible_version: 2.19
+  galaxy_tags: []
+
+dependencies: []

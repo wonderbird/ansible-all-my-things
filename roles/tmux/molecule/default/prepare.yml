@@ -1,0 +1,27 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Prepare container
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.raw: apt-get update
+      become: false
+      changed_when: true
+
+    - name: Install python3 and sudo
+      ansible.builtin.raw: apt-get install -y -qq python3 sudo
+      become: false
+      changed_when: true
+
+    - name: Install git, fontconfig, and unzip
+      ansible.builtin.raw: apt-get install -y -qq git fontconfig unzip
+      become: false
+      changed_when: true
+
+    - name: Create testuser
+      ansible.builtin.user:
+        name: testuser
+        state: present
+        create_home: true
