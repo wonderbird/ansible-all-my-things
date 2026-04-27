@@ -63,3 +63,47 @@
           - omc_src_stat.stat.exists
         fail_msg: "oh-my-claudecode source repo not found at /home/testuser/Documents/Cline/oh-my-claudecode/.git"
         success_msg: "oh-my-claudecode source repo found at /home/testuser/Documents/Cline/oh-my-claudecode/.git"
+
+    - name: Check jq is installed
+      ansible.builtin.stat:
+        path: /usr/bin/jq
+      register: jq_stat
+
+    - name: Assert jq is installed
+      ansible.builtin.assert:
+        that:
+          - jq_stat.stat.exists
+        fail_msg: "jq not found at /usr/bin/jq"
+        success_msg: "jq found at /usr/bin/jq"
+
+    - name: Check omc CLI is available
+      ansible.builtin.shell: source ~/.nvm/nvm.sh && omc --version
+      args:
+        executable: /bin/bash
+      become: true
+      become_user: testuser
+      register: omc_version_result
+      changed_when: false
+
+    - name: Assert omc CLI is available
+      ansible.builtin.assert:
+        that:
+          - omc_version_result.rc == 0
+        fail_msg: "omc --version failed with rc {{ omc_version_result.rc }}"
+        success_msg: "omc CLI available"
+
+    - name: Read settings.json
+      ansible.builtin.slurp:
+        src: /home/testuser/.claude/settings.json
+      register: settings_file
+
+    - name: Assert settings.json contains required keys
+      ansible.builtin.assert:
+        that:
+          - settings.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS == "1"
+          - settings.env.CLAUDE_CODE_SPAWN_BACKEND == "tmux"
+          - settings.teammateMode == "tmux"
+        fail_msg: "settings.json missing required agent-team keys"
+        success_msg: "settings.json contains all required agent-team keys"
+      vars:
+        settings: "{{ settings_file.content | b64decode | from_json }}"
