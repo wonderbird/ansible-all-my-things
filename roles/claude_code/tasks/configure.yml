@@ -1,0 +1,40 @@
+#SPDX-License-Identifier: MIT-0
+---
+# -----
+# Ensure Claude settings.json configuration keys for each desktop user
+# -----
+
+- name: Ensure ~/.claude directory exists
+  ansible.builtin.file:
+    path: /home/{{ item }}/.claude
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0755'
+  become: true
+  loop: "{{ desktop_user_names }}"
+
+- name: Merge required keys into settings.json
+  ansible.builtin.shell: |
+    FILE="$HOME/.claude/settings.json"
+    if [ -f "$FILE" ]; then
+      CURRENT=$(cat "$FILE")
+    else
+      CURRENT='{}'
+    fi
+    MERGED=$(printf '%s' "$CURRENT" | jq '. * {"env":{"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS":"1","CLAUDE_CODE_SPAWN_BACKEND":"tmux"},"teammateMode":"tmux"}')
+    CURRENT_NORMALIZED=$(printf '%s' "$CURRENT" | jq '.')
+    if [ "$MERGED" = "$CURRENT_NORMALIZED" ]; then
+      echo NO_CHANGE
+    else
+      printf '%s\n' "$MERGED" > "${FILE}.tmp"
+      mv "${FILE}.tmp" "$FILE"
+      echo CHANGED
+    fi
+  args:
+    executable: /bin/bash
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+  register: claude_settings_merge
+  changed_when: "'CHANGED' in claude_settings_merge.stdout"
