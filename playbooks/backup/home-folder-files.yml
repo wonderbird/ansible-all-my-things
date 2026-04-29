@@ -12,5 +12,4 @@
       vars:
         path:
           - "/home/{{ backup_user }}/.gitconfig"
-          - "/home/{{ backup_user }}/.tmux.conf"
         backup_file: "home-folder-files-backup.tar.gz"
