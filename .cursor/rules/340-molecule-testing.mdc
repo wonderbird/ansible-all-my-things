@@ -151,6 +151,28 @@ molecule test
 All phases MUST pass before committing. The two podman schema warnings are
 expected and acceptable.
 
+## Troubleshooting: molecule not found
+
+If `molecule` is not on PATH, the project `.venv` is missing or stale.
+Set it up before running any molecule command:
+
+```shell
+# From project root
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+ansible-galaxy install -r requirements.yml
+```
+
+Then run molecule from inside the activated venv:
+
+```shell
+cd roles/<role-name>
+molecule test
+```
+
+The `.venv/` directory is git-ignored. Re-create it whenever it is absent.
+
 ## Happiness
 
 🧪
