@@ -54,7 +54,8 @@ None. See `meta/main.yml` for details.
 After running the playbook, each user must complete initial setup interactively:
 
 1. Run `claude` to open a Claude Code session
-2. Run `/setup` inside the session (requires an [Exa](https://exa.ai) API key and a GitHub Personal Access Token)
+2. Run `/setup` inside the session. If the [Exa](https://exa.ai) and GitHub MCPs
+   are desired, then corresponding API keys (PATs) are required.
 3. Run `/caveman` to activate caveman mode
 
 ## License

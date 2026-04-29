@@ -36,3 +36,19 @@
         owner: testuser
         group: testuser
         mode: '0755'
+
+    - name: Install nvm for testuser
+      ansible.builtin.shell: curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash
+      args:
+        executable: /bin/bash
+        creates: /home/testuser/.nvm/nvm.sh
+      become: true
+      become_user: testuser
+
+    - name: Install Node.js LTS via nvm
+      ansible.builtin.shell: source ~/.nvm/nvm.sh && nvm install --lts
+      args:
+        executable: /bin/bash
+      become: true
+      become_user: testuser
+      changed_when: false
