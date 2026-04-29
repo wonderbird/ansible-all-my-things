@@ -1,9 +1,5 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# -----
-# Ensure Claude settings.json configuration keys for each desktop user
-# -----
-
 - name: Ensure ~/.claude directory exists
   ansible.builtin.file:
     path: /home/{{ item }}/.claude
