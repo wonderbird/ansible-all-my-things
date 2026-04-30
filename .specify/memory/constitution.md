@@ -12,6 +12,12 @@ or `shell` tasks. When `command`/`shell` is unavoidable, add an explicit
 `creates:` or `changed_when:` guard so the task is not re-executed
 unnecessarily.
 
+**`blockinfile` prohibition**: Never use `append_newline: true` or
+`prepend_newline: true` on `ansible.builtin.blockinfile`. These parameters
+cause the task to report `changed` on every run, silently breaking idempotency.
+If blank lines around a block are required for readability, embed them
+explicitly in the `block` content (e.g., `block: "\nexport FOO=bar\n"`).
+
 **Rationale**: Infrastructure automation that is not idempotent causes
 unpredictable drift and makes re-runs unsafe. Idempotency is the single
 most important property of reliable Ansible code.
@@ -221,4 +227,4 @@ All agents working in this repository MUST read this constitution at the start
 of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `CLAUDE.md` and `.cursor/rules/`.
 
-**Version**: 1.2.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-04-12
+**Version**: 1.3.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-04-30

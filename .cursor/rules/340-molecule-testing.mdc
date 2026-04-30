@@ -135,11 +135,37 @@ Use `ansible_facts['env']` — NOT `ansible_env` (deprecated, removed in 2.24).
           - "'expected' in result.stdout"
 ```
 
+**Do not verify `.bashrc` exports via `ansible_facts['env']` or `ansible_env`.**
+Ubuntu's default `.bashrc` contains `case $- in *i*) ;; *) return;; esac` —
+it exits immediately in non-interactive shells. All Ansible connections are
+non-interactive, so `.bashrc` is never sourced and environment variables
+exported there are never visible to the module.
+
+To assert that a `blockinfile`/`lineinfile` task correctly wrote an export
+to `.bashrc`, grep the file directly:
+
+```yaml
+- name: Check VAR is configured in user's .bashrc
+  ansible.builtin.shell: grep -q 'VAR=expected_value' /home/user/.bashrc
+  changed_when: false
+  failed_when: false
+  register: bashrc_check
+
+- name: Assert VAR is configured in .bashrc
+  ansible.builtin.assert:
+    that:
+      - bashrc_check.rc == 0
+    fail_msg: "VAR not found in user's .bashrc"
+    success_msg: "VAR is configured in user's .bashrc"
+```
+
 ## Idempotence pitfalls
 
 - **Temporary files**: do not delete a downloaded file unconditionally; use a
   `when:` guard or omit the cleanup task
 - **shell/command**: always add `creates:` or `changed_when:`
+- **blockinfile `append_newline`/`prepend_newline`**: never use these
+  parameters — they cause the task to report `changed` on every run
 
 ## Running the tests
 
