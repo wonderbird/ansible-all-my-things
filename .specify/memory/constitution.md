@@ -187,6 +187,21 @@ stable, reusable across features, and no longer tied to a single increment.
 
 All documentation MUST comply with Principle VI (Markdown Quality Standards).
 
+## Agent Environment
+
+The VM running the coding agent is destroyed regularly. Any state stored
+outside the git repository — shell history, local memory files, environment
+variables, tools installed outside `.venv` — does not survive between sessions.
+
+All durable knowledge MUST be committed to git:
+
+- Ansible patterns and prohibitions → this constitution
+- Molecule and testing rules → `.cursor/rules/`
+- Architecture decisions → `docs/architecture/decisions/`
+
+Never rely on in-session memory or local files for knowledge that must
+carry forward to the next agent session.
+
 ## Development Workflow
 
 1. **Clarify first**: if instructions are unclear, ambiguous, or contradictory,
@@ -227,4 +242,4 @@ All agents working in this repository MUST read this constitution at the start
 of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `CLAUDE.md` and `.cursor/rules/`.
 
-**Version**: 1.3.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-04-30
+**Version**: 1.4.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-04-30
