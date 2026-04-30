@@ -36,9 +36,10 @@
   changed_when: "'CHANGED' in claude_settings_merge.stdout"
 
 - name: Set CLAUDE_PLUGIN_ROOT environment variable in .bashrc
-  lineinfile:
+  ansible.builtin.blockinfile:
     path: /home/{{ item }}/.bashrc
-    line: 'export CLAUDE_PLUGIN_ROOT=/home/{{ item }}/.claude/plugins'
+    block: "export CLAUDE_PLUGIN_ROOT=/home/{{ item }}/.claude/plugins"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Claude Code Plugin Root"
     state: present
   become: true
   become_user: "{{ item }}"

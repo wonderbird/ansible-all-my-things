@@ -4,13 +4,18 @@
   hosts: all
   become: true
   tasks:
-    - name: Assert CLAUDE_PLUGIN_ROOT environment variable is set
+    - name: Check CLAUDE_PLUGIN_ROOT is configured in testuser's .bashrc
+      ansible.builtin.shell: grep -q 'CLAUDE_PLUGIN_ROOT=/home/testuser/.claude/plugins' /home/testuser/.bashrc
+      changed_when: false
+      failed_when: false
+      register: claude_plugin_root_val
+
+    - name: Assert CLAUDE_PLUGIN_ROOT is configured in .bashrc
       ansible.builtin.assert:
         that:
-          - "'CLAUDE_PLUGIN_ROOT' in ansible_env"
-          - "ansible_env.CLAUDE_PLUGIN_ROOT == '/home/testuser/.claude/plugins'"
-        fail_msg: "CLAUDE_PLUGIN_ROOT environment variable is not set correctly"
-        success_msg: "CLAUDE_PLUGIN_ROOT environment variable is set correctly"
+          - claude_plugin_root_val.rc == 0
+        fail_msg: "CLAUDE_PLUGIN_ROOT not found in testuser's .bashrc"
+        success_msg: "CLAUDE_PLUGIN_ROOT is configured in testuser's .bashrc"
 
     - name: Check Claude Code binary exists
       ansible.builtin.stat:
