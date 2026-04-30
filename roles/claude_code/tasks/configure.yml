@@ -34,3 +34,12 @@
   loop: "{{ desktop_user_names }}"
   register: claude_settings_merge
   changed_when: "'CHANGED' in claude_settings_merge.stdout"
+
+- name: Set CLAUDE_PLUGIN_ROOT environment variable in .bashrc
+  lineinfile:
+    path: /home/{{ item }}/.bashrc
+    line: 'export CLAUDE_PLUGIN_ROOT=/home/{{ item }}/.claude/plugins'
+    state: present
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
