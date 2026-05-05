@@ -5,3 +5,16 @@
     name: jq
     state: present
   become: true
+
+# -----
+# Install rtk token-optimizer proxy
+# -----
+
+- name: Install rtk
+  ansible.builtin.shell:
+    cmd: >
+      curl -fsSL -o /tmp/rtk_amd64.deb
+      https://github.com/rtk-ai/rtk/releases/latest/download/rtk_amd64.deb
+      && dpkg -i /tmp/rtk_amd64.deb
+    creates: /usr/bin/rtk
+  become: true

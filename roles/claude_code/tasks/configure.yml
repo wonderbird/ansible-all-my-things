@@ -18,7 +18,7 @@
     else
       CURRENT='{}'
     fi
-    MERGED=$(printf '%s' "$CURRENT" | jq '. * {"env":{"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS":"1","CLAUDE_CODE_SPAWN_BACKEND":"tmux"},"teammateMode":"tmux"}')
+    MERGED=$(printf '%s' "$CURRENT" | jq '. * {"env":{"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS":"1","CLAUDE_CODE_SPAWN_BACKEND":"tmux"},"teammateMode":"tmux","hooks":{"PreToolUse":[{"matcher":"Bash","hooks":[{"type":"command","command":"rtk hook claude"}]}]}}')
     CURRENT_NORMALIZED=$(printf '%s' "$CURRENT" | jq '.')
     if [ "$MERGED" = "$CURRENT_NORMALIZED" ]; then
       echo NO_CHANGE
