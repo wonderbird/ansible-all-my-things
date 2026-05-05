@@ -6,10 +6,6 @@
     state: present
   become: true
 
-# -----
-# Install rtk token-optimizer proxy
-# -----
-
 - name: Download rtk deb
   ansible.builtin.get_url:
     url: "https://github.com/rtk-ai/rtk/releases/download/v{{ rtk_version }}/rtk_amd64.deb"
