@@ -10,11 +10,16 @@
 # Install rtk token-optimizer proxy
 # -----
 
+- name: Download rtk deb
+  ansible.builtin.get_url:
+    url: "https://github.com/rtk-ai/rtk/releases/download/v{{ rtk_version }}/rtk_amd64.deb"
+    dest: /tmp/rtk_amd64.deb
+    checksum: "sha256:{{ rtk_sha256 }}"
+    mode: '0644'
+  become: true
+
 - name: Install rtk
-  ansible.builtin.shell:
-    cmd: >
-      curl -fsSL -o /tmp/rtk_amd64.deb
-      https://github.com/rtk-ai/rtk/releases/latest/download/rtk_amd64.deb
-      && dpkg -i /tmp/rtk_amd64.deb
-    creates: /usr/bin/rtk
+  ansible.builtin.apt:
+    deb: /tmp/rtk_amd64.deb
+    state: present
   become: true
