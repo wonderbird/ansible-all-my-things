@@ -10,7 +10,7 @@
 # Just enter the distribution (e.g., "noble") and the region (e.g.,
 # "eu-north-1") into the search box.
 #
-aws_default_ami_id: "ami-081c358c86e68b9f9"
+aws_default_ami_id: "ami-067bcf851477ebb78"
 
 # The following table gives an overview of server types and prices for servers
 # Last updated: 2025-07-13
