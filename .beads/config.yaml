@@ -55,4 +55,4 @@
 
 sync.remote: "git+https://github.com/eudicy/ansible-all-my-things.git"
 
-export.auto: false
+export.auto: true
