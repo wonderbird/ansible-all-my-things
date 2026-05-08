@@ -11,6 +11,8 @@ ansible-playbook /dev/stdin --limit "${HOST}" <<EOF
 - hosts: ${HOST}
   become: true
   gather_facts: true
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
   roles:
     - ${ROLE}
 EOF
