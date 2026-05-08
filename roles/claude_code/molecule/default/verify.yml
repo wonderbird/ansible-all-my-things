@@ -123,15 +123,15 @@
 
     - name: Check rtk binary exists
       ansible.builtin.stat:
-        path: /usr/bin/rtk
+        path: /usr/local/bin/rtk
       register: rtk_stat
 
     - name: Assert rtk is installed
       ansible.builtin.assert:
         that:
           - rtk_stat.stat.exists
-        fail_msg: "rtk binary not found at /usr/bin/rtk"
-        success_msg: "rtk binary found at /usr/bin/rtk"
+        fail_msg: "rtk binary not found at /usr/local/bin/rtk"
+        success_msg: "rtk binary found at /usr/local/bin/rtk"
 
     - name: Check rtk hook is configured in settings.json
       ansible.builtin.shell: >

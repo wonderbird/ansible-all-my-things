@@ -6,16 +6,29 @@
     state: present
   become: true
 
-- name: Download rtk deb
-  ansible.builtin.get_url:
-    url: "https://github.com/rtk-ai/rtk/releases/download/v{{ rtk_version }}/rtk_amd64.deb"
-    dest: /tmp/rtk_amd64.deb
-    checksum: "sha256:{{ rtk_sha256 }}"
-    mode: '0644'
-  become: true
+- name: Check if rtk binary already exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/rtk
+  register: rtk_pre_install_stat
 
-- name: Install rtk
-  ansible.builtin.apt:
-    deb: /tmp/rtk_amd64.deb
-    state: present
+- name: Download rtk installer
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh
+    dest: /tmp/rtk_install.sh
+    mode: '0755'
+  when: not rtk_pre_install_stat.stat.exists
+
+- name: Run rtk installer
+  ansible.builtin.shell: /tmp/rtk_install.sh
+  args:
+    executable: /bin/bash
+  environment:
+    RTK_INSTALL_DIR: /usr/local/bin
   become: true
+  when: not rtk_pre_install_stat.stat.exists
+
+- name: Remove rtk installer
+  ansible.builtin.file:
+    path: /tmp/rtk_install.sh
+    state: absent
+  when: not rtk_pre_install_stat.stat.exists

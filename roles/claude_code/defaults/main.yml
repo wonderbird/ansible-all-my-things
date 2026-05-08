@@ -6,6 +6,3 @@ claude_code_manifest_base_url: "https://storage.googleapis.com/claude-code-dist-
 claude_code_platform_map:
   x86_64: linux-x64
   aarch64: linux-arm64
-
-rtk_version: "0.38.0"
-rtk_sha256: "49bf654e69941994d0019413d94784a5eb4925fc9b57e85f58471ada6c941b32"
