@@ -1,6 +1,6 @@
 # Developer Setup
 
-## Prerequisites: Spec-Kit
+## Optional Prerequisite: Spec-Kit
 
 [GitHub Spec Kit](https://github.com/github/spec-kit) and [Claude Code](https://claude.ai)
 can be used to extend this application. Consider installing the corresponding
@@ -11,14 +11,14 @@ tools as described in the [Spec Kit Getting Started Guide](https://github.com/gi
 Roles that can be exercised in a container are tested with Molecule. Activate
 the Python virtual environment first.
 
-To test a single role, run from the role directory:
+From the role directory:
 
 ```shell
 cd roles/<role-name>
 molecule test
 ```
 
-To test all roles at once, run from the project root:
+From the project root:
 
 ```shell
 ./scripts/test-molecule-all.sh
@@ -30,6 +30,15 @@ verify → destroy. All phases MUST pass before committing.
 For scenario templates and known pitfalls when adding a Molecule scenario to a
 new role, see `.cursor/rules/340-molecule-testing.mdc`.
 
+## Running a single role on a live host
+
+```shell
+./scripts/run-role.sh <host> <role>
+```
+
+`<host>` must match an inventory entry. The script uses `my_ansible_user` and
+`desktop_users` variables from inventory, so those must be defined.
+
 ## Testing a role with Vagrant (fallback for full-VM roles)
 
 Roles that require a full VM (e.g., desktop environment, display managers,
@@ -39,8 +48,6 @@ hardware drivers) are tested against a local Vagrant/Tart VM:
 2. Insert the new role in the `configure-linux-roles.yml` playbook.
 3. Comment out all other roles in `configure-linux-roles.yml`, except the
    new one.
-
-Then run only the new role:
 
 ```shell
 cd test/tart
