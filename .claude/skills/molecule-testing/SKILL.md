@@ -1,10 +1,10 @@
 ---
-alwaysApply: false
+name: molecule-testing
 description: >
+  Pull in information about the molecule testing setup for Ansible roles.
   Use when implementing or modifying an Ansible role to set up or maintain
   its Molecule test scenario.
 ---
-
 # Molecule testing for Ansible roles
 
 See constitution Principle II for applicability. Roles requiring a full VM
@@ -198,7 +198,3 @@ molecule test
 ```
 
 The `.venv/` directory is git-ignored. Re-create it whenever it is absent.
-
-## Happiness
-
-🧪

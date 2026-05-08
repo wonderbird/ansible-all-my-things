@@ -1,40 +1,49 @@
 # Agent Instructions
 
-This project uses **bd** (beads) for issue tracking. Run `bd prime` for full workflow context.
+## Rules are stored in .specify/memory/constitution.md and in .cursor/rules
 
-## Quick Reference
+This project uses spec-kit for guiding the coding agent. Thus, rules important
+for developing the project are stored in `.specify/memory/constitution.md`.
+This file is the source of truth for the project and must be read and followed
+carefully.
 
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work atomically
-bd close <id>         # Complete work
-bd dolt push          # Push beads data to remote
-```
+## Skill index
 
-## Non-Interactive Shell Commands
+The table below lists every skill file in `.claude/skills/` with the description from
+their frontmatter. Use it to decide which skills to read for your current
+task.
 
-**ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.
+| Skill | When to read |
+| --- | --- |
+| [molecule-testing.mdc](.claude/skills/molecule-testing/SKILL.md) | Pull in information about the molecule testing setup for Ansible roles.  Use when implementing or modifying an Ansible role to set up or maintain its Molecule test scenario. |
 
-Shell commands like `cp`, `mv`, and `rm` may be aliased to include `-i` (interactive) mode on some systems, causing the agent to hang indefinitely waiting for y/n input.
+## Test environment host architecture
 
-**Use these forms instead:**
-```bash
-# Force overwrite without prompting
-cp -f source dest           # NOT: cp source dest
-mv -f source dest           # NOT: mv source dest
-rm -f file                  # NOT: rm file
+**Do not assume the architecture of the machine running Claude Code.**
+`Platform: linux` in the environment info does not imply AMD64. Docker
+containers also do not imply AMD64 — on Apple Silicon they run ARM64 by
+default.
 
-# For recursive operations
-rm -rf directory            # NOT: rm -r directory
-cp -rf source dest          # NOT: cp -r source dest
-```
+When a task requires knowing the current host's architecture (e.g.
+deciding which test target to use), check it explicitly with `uname -m`
+before proceeding. Only check when it is relevant — not on every task.
 
-**Other commands that may prompt:**
-- `scp` - use `-o BatchMode=yes` for non-interactive
-- `ssh` - use `-o BatchMode=yes` to fail instead of prompting
-- `apt-get` - use `-y` flag
-- `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
+The known test hosts and their architectures are listed in [README.md](README.md#overview).
+
+## Architecture documentation
+
+Technology decisions, the top-level decomposition strategy, and platform
+constraints are documented in
+[`docs/architecture/solution-strategy.md`](docs/architecture/solution-strategy.md)
+(arc42 Section 4).
+
+Architecture Decision Records are in
+[`docs/architecture/decisions/`](docs/architecture/decisions/).
+
+## Active Technologies
+
+- YAML (Ansible 2.19+) + `community.general` collection + `ansible.builtin.*`;
+  Ubuntu `podman` apt package for rootless containers
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
 ## Beads Issue Tracker
