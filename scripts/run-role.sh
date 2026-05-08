@@ -13,6 +13,7 @@ ansible-playbook /dev/stdin --limit "${HOST}" <<EOF
   gather_facts: true
   vars:
     ansible_user: "{{ my_ansible_user }}"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
   roles:
     - ${ROLE}
 EOF
