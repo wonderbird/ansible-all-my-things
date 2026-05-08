@@ -147,3 +147,18 @@
           - rtk_hook_check.rc == 0
         fail_msg: "rtk hook claude not found in settings.json PreToolUse hooks"
         success_msg: "rtk hook claude configured in settings.json"
+
+    - name: Run rtk init -g as testuser
+      ansible.builtin.command:
+        cmd: rtk init -g
+      become: true
+      become_user: testuser
+      changed_when: false
+      register: rtk_init_result
+
+    - name: Assert rtk init -g succeeded
+      ansible.builtin.assert:
+        that:
+          - rtk_init_result.rc == 0
+        fail_msg: "rtk init -g failed with rc {{ rtk_init_result.rc }}"
+        success_msg: "rtk init -g succeeded for testuser"
