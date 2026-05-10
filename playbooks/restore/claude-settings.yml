@@ -17,3 +17,4 @@
         destination_beneath_home: ".claude"
         delete_before_beneath_home:
           - ".claude"
+          - ".claude.json"
