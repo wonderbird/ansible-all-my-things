@@ -106,8 +106,7 @@ Two items are most relevant to architectural understanding:
   [`.specify/memory/constitution.md`](../../.specify/memory/constitution.md)
 - Agent runtime guidance:
   [`CLAUDE.md`](../../CLAUDE.md),
-  [`.cursor/rules/`](../../.cursor/rules/)
-- Commit format and co-authorship:
-  [`.cursor/rules/general/330-git-usage.mdc`](../../.cursor/rules/general/330-git-usage.mdc)
+  [`AGENTS.md`](../../AGENTS.md)
+- Commit format and co-authorship: `commit` skill
 - Architecture Decision Records:
   [`docs/architecture/decisions/`](decisions/)

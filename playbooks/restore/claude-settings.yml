@@ -17,3 +17,11 @@
         destination_beneath_home: ".claude"
         delete_before_beneath_home:
           - ".claude"
+          - ".claude.json"
+
+    - name: Reinstall oh-my-claudecode (restores hud/ and plugins/)
+      shell: |
+        export NVM_DIR="$HOME/.nvm"
+        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+        omc update
+      become_user: "{{ restore_user }}"

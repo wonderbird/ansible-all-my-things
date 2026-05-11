@@ -1,40 +1,70 @@
 # Agent Instructions
 
-This project uses **bd** (beads) for issue tracking. Run `bd prime` for full workflow context.
+## Collaboration with the User
 
-## Quick Reference
+- **Language**: chat is in English.
+- **One question at a time**: when asking the user a question, ask one
+  question at a time so they can focus.
+- **Avoid ambiguity**: if instructions are unclear, contradictory, or
+  conflict with rules or earlier instructions, describe the situation and
+  ask clarifying questions before proceeding.
+- **Custom instructions**: when the user says "follow your custom
+  instructions", use the `/memory-bank-by-cline` skill to understand the
+  memory bank concept. If no memory bank exists, ask for clarification.
+  Otherwise read the memory bank, identify the next action, read the
+  applicable rules, summarize understanding ending with the next immediate
+  action, then ask whether to execute it.
+- **Hidden files**: the LS tool does not show hidden files; use
+  `ls -la <path>` via Bash to check for hidden files or directories.
 
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work atomically
-bd close <id>         # Complete work
-bd dolt push          # Push beads data to remote
-```
+## Rules are stored in .specify/memory/constitution.md
 
-## Non-Interactive Shell Commands
+This project uses spec-kit for guiding the coding agent. Project rules are
+stored in `.specify/memory/constitution.md`. That file is the source of
+truth and must be read and followed carefully.
 
-**ALWAYS use non-interactive flags** with file operations to avoid hanging on confirmation prompts.
+## Skill index
 
-Shell commands like `cp`, `mv`, and `rm` may be aliased to include `-i` (interactive) mode on some systems, causing the agent to hang indefinitely waiting for y/n input.
+The table below lists every skill file in `.claude/skills/` with the description from
+their frontmatter. Use it to decide which skills to read for your current
+task.
 
-**Use these forms instead:**
-```bash
-# Force overwrite without prompting
-cp -f source dest           # NOT: cp source dest
-mv -f source dest           # NOT: mv source dest
-rm -f file                  # NOT: rm file
+| Skill | When to read |
+| --- | --- |
+| [molecule-testing](.claude/skills/molecule-testing/SKILL.md) | Pull in information about the molecule testing setup for Ansible roles. Use when implementing or modifying an Ansible role to set up or maintain its Molecule test scenario. |
+| [review-documentation-here](.claude/skills/review-documentation-here/SKILL.md) | Extends review-documentation by project-specific documentation structure, including co-located role documentation. Use when reviewing the project documentation. |
+| [technical-coach](.claude/skills/technical-coach/SKILL.md) | Use when expert knowledge of Ansible is required to advise and tutor on automating setup and maintenance of virtual machines. |
 
-# For recursive operations
-rm -rf directory            # NOT: rm -r directory
-cp -rf source dest          # NOT: cp -r source dest
-```
+## Test environment host architecture
 
-**Other commands that may prompt:**
-- `scp` - use `-o BatchMode=yes` for non-interactive
-- `ssh` - use `-o BatchMode=yes` to fail instead of prompting
-- `apt-get` - use `-y` flag
-- `brew` - use `HOMEBREW_NO_AUTO_UPDATE=1` env var
+**Do not assume the architecture of the machine running Claude Code.**
+`Platform: linux` in the environment info does not imply AMD64. Docker
+containers also do not imply AMD64 — on Apple Silicon they run ARM64 by
+default.
+
+When a task requires knowing the current host's architecture (e.g.
+deciding which test target to use), check it explicitly with `uname -m`
+before proceeding. Only check when it is relevant — not on every task.
+
+The known test hosts and their architectures are listed in [README.md](README.md#overview).
+
+## Architecture documentation
+
+Technology decisions, the top-level decomposition strategy, and platform
+constraints are documented in
+[`docs/architecture/solution-strategy.md`](docs/architecture/solution-strategy.md)
+(arc42 Section 4).
+
+Architecture Decision Records are in
+[`docs/architecture/decisions/`](docs/architecture/decisions/).
+
+These are the canonical locations for architectural decisions; they MUST
+NOT be recorded in `CLAUDE.md` or agent-specific context files.
+
+## Active Technologies
+
+- YAML (Ansible 2.19+) + `community.general` collection + `ansible.builtin.*`;
+  Ubuntu `podman` apt package for rootless containers
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
 ## Beads Issue Tracker

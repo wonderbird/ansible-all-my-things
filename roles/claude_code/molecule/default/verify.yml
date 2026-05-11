@@ -4,6 +4,19 @@
   hosts: all
   become: true
   tasks:
+    - name: Check CLAUDE_PLUGIN_ROOT is configured in testuser's .bashrc
+      ansible.builtin.shell: grep -q 'CLAUDE_PLUGIN_ROOT=/home/testuser/.claude/plugins' /home/testuser/.bashrc
+      changed_when: false
+      failed_when: false
+      register: claude_plugin_root_val
+
+    - name: Assert CLAUDE_PLUGIN_ROOT is configured in .bashrc
+      ansible.builtin.assert:
+        that:
+          - claude_plugin_root_val.rc == 0
+        fail_msg: "CLAUDE_PLUGIN_ROOT not found in testuser's .bashrc"
+        success_msg: "CLAUDE_PLUGIN_ROOT is configured in testuser's .bashrc"
+
     - name: Check Claude Code binary exists
       ansible.builtin.stat:
         path: /home/testuser/.local/bin/claude
@@ -107,3 +120,45 @@
         success_msg: "settings.json contains all required agent-team keys"
       vars:
         settings: "{{ settings_file.content | b64decode | from_json }}"
+
+    - name: Check rtk binary exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/rtk
+      register: rtk_stat
+
+    - name: Assert rtk is installed
+      ansible.builtin.assert:
+        that:
+          - rtk_stat.stat.exists
+        fail_msg: "rtk binary not found at /usr/local/bin/rtk"
+        success_msg: "rtk binary found at /usr/local/bin/rtk"
+
+    - name: Check rtk hook is configured in settings.json
+      ansible.builtin.shell: >
+        jq -e '.hooks.PreToolUse[] | select(.matcher == "Bash") | .hooks[] |
+        select(.command == "rtk hook claude")' /home/testuser/.claude/settings.json
+      changed_when: false
+      failed_when: false
+      register: rtk_hook_check
+
+    - name: Assert rtk PreToolUse hook is present in settings.json
+      ansible.builtin.assert:
+        that:
+          - rtk_hook_check.rc == 0
+        fail_msg: "rtk hook claude not found in settings.json PreToolUse hooks"
+        success_msg: "rtk hook claude configured in settings.json"
+
+    - name: Run rtk init -g as testuser
+      ansible.builtin.command:
+        cmd: rtk init -g
+      become: true
+      become_user: testuser
+      changed_when: false
+      register: rtk_init_result
+
+    - name: Assert rtk init -g succeeded
+      ansible.builtin.assert:
+        that:
+          - rtk_init_result.rc == 0
+        fail_msg: "rtk init -g failed with rc {{ rtk_init_result.rc }}"
+        success_msg: "rtk init -g succeeded for testuser"

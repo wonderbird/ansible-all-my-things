@@ -5,3 +5,30 @@
     name: jq
     state: present
   become: true
+
+- name: Check if rtk binary already exists
+  ansible.builtin.stat:
+    path: /usr/local/bin/rtk
+  register: rtk_pre_install_stat
+
+- name: Download rtk installer
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh
+    dest: /tmp/rtk_install.sh
+    mode: '0755'
+  when: not rtk_pre_install_stat.stat.exists
+
+- name: Run rtk installer
+  ansible.builtin.shell: /tmp/rtk_install.sh
+  args:
+    executable: /bin/bash
+  environment:
+    RTK_INSTALL_DIR: /usr/local/bin
+  become: true
+  when: not rtk_pre_install_stat.stat.exists
+
+- name: Remove rtk installer
+  ansible.builtin.file:
+    path: /tmp/rtk_install.sh
+    state: absent
+  when: not rtk_pre_install_stat.stat.exists

@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"bd add \\\"Adapt agent rules and skills to AI agent workspace changes\\\" --body \\\"Adapting the agent rules and skills to reflect recent changes made in the AI agent workspace. This includes u...",
+  "error": "Exit code 1\nError: unknown command \"add\" for \"bd\"\n\nDid you mean this?\n\tado\n\nRun 'bd --help' for usage.",
+  "timestamp": "2026-05-08T03:54:44.657Z",
+  "retry_count": 1
+}

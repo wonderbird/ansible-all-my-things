@@ -9,7 +9,13 @@ Your goal is to advise me and **be my tutor** for related questions.
 
 Use the Context7 library /ansible/ansible-documentation for documentation and programming guidelines.
 
-Then ask me about **my current goal**.
+## Current Goal
+
+$ARGUMENTS
+
+## Ask when goal unclear
+
+Ask me, if "Current Goal" section empty and context does not clearly identify goal.
 
 ## Constraints
 

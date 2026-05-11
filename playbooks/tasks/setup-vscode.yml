@@ -109,7 +109,6 @@
     insertafter: '^{$'
     block: "{{ vscode_keyring_configuration | indent(8, True) }}"
     marker: "// {mark} ANSIBLE MANAGED BLOCK - Visual Studio Code keyring configuration"
-    append_newline: true
     state: present
   vars:
     vscode_keyring_configuration: |

@@ -142,9 +142,8 @@ host.
 
 - [ ] T006 [P] Update `memory-bank-branches/feat.backup-chrome-config/activeContext.md`
   and `progress.md` to reflect implementation complete
-- [ ] T007 Commit all changes with `feat:` prefix following
-  `.cursor/rules/general/330-git-usage.mdc` (include `Co-authored-by` trailer
-  for Claude Code)
+- [ ] T007 Commit all changes with `feat:` prefix following the `commit`
+  skill (include `Co-authored-by` trailer for Claude Code)
 
 ---
 

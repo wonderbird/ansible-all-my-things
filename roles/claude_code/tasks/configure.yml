@@ -18,7 +18,13 @@
     else
       CURRENT='{}'
     fi
-    MERGED=$(printf '%s' "$CURRENT" | jq '. * {"env":{"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS":"1","CLAUDE_CODE_SPAWN_BACKEND":"tmux"},"teammateMode":"tmux"}')
+    MERGED=$(printf '%s' "$CURRENT" | jq '
+      .env = (.env // {} | . + {"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS":"1","CLAUDE_CODE_SPAWN_BACKEND":"tmux"})
+      | .teammateMode = "tmux"
+      | if (.hooks.PreToolUse // [] | map(select((.hooks // [] | map(select(.command == "rtk hook claude")) | length > 0))) | length) == 0
+        then .hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{"matcher":"Bash","hooks":[{"type":"command","command":"rtk hook claude"}]}])
+        else . end
+    ')
     CURRENT_NORMALIZED=$(printf '%s' "$CURRENT" | jq '.')
     if [ "$MERGED" = "$CURRENT_NORMALIZED" ]; then
       echo NO_CHANGE
@@ -34,3 +40,21 @@
   loop: "{{ desktop_user_names }}"
   register: claude_settings_merge
   changed_when: "'CHANGED' in claude_settings_merge.stdout"
+
+- name: Set CLAUDE_PLUGIN_ROOT environment variable in .bashrc
+  ansible.builtin.blockinfile:
+    path: /home/{{ item }}/.bashrc
+    block: "export CLAUDE_PLUGIN_ROOT=/home/{{ item }}/.claude/plugins"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Claude Code Plugin Root"
+    state: present
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+
+- name: Initialize rtk globally for each desktop user
+  ansible.builtin.command:
+    cmd: rtk init -g
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+  changed_when: false

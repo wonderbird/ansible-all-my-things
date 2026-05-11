@@ -99,7 +99,6 @@
     path: "/home/{{ item }}/.bashrc"
     block: 'export PATH="$HOME/flutter/bin:$PATH"'
     marker: "# {mark} ANSIBLE MANAGED BLOCK - Flutter PATH"
-    append_newline: true
     state: present
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
