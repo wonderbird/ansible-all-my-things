@@ -8,7 +8,7 @@
 - **Dynamic Inventory**: Multi-provider plugins for automatic host discovery
 - **Collections**: Extended functionality for AWS, Hetzner Cloud, and Windows
 
-### Multi-Provider Cloud Infrastructure ✅ PRODUCTION-READY
+### Multi-Provider Cloud Infrastructure
 **Hetzner Cloud**: Primary provider for persistent development environments (~$4/month)
 **AWS EC2**: Multi-platform provider for diverse workloads (~$8-60/month depending on usage)
 
@@ -47,25 +47,101 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 ```
 ansible-all-my-things/
 ├── Multi-Provider Provisioning:
-│   ├── provision.yml             # Hetzner Cloud Linux ✅ WORKING
-│   ├── provision-aws-linux.yml   # AWS Linux provisioning ✅ WORKING
-│   └── provision-aws-windows.yml # AWS Windows provisioning ✅ WORKING
+│   ├── provision.yml                 # Hetzner Cloud Linux
+│   ├── provision-aws-linux.yml       # AWS Linux provisioning
+│   └── provision-aws-windows.yml     # AWS Windows provisioning
 ├── Configuration:
-│   ├── configure.yml             # Hetzner Cloud configuration ✅ WORKING
-│   ├── configure-linux.yml       # Linux configuration (used by tests) ✅ WORKING
-│   └── configure-aws-windows.yml # AWS Windows configuration ✅ WORKING
+│   ├── configure.yml                 # Hetzner Cloud configuration
+│   ├── configure-linux.yml           # Linux configuration (used by tests)
+│   └── configure-aws-windows.yml     # AWS Windows configuration
 ├── Cleanup:
-│   ├── destroy.yml               # Hetzner Cloud cleanup ✅ WORKING
-│   └── destroy-aws.yml           # AWS unified cleanup ✅ WORKING
+│   ├── destroy.yml                   # Hetzner Cloud cleanup
+│   └── destroy-aws.yml              # AWS unified cleanup
+├── Provisioners:
+│   ├── provisioners/hcloud-linux.yml     # Hetzner provisioner
+│   ├── provisioners/aws-linux.yml        # AWS Linux provisioner
+│   └── provisioners/aws-windows.yml      # AWS Windows provisioner
 ├── Unified Inventory & Configuration:
-│   ├── inventories/aws_ec2.yml   # AWS inventory ✅ WORKING
-│   ├── inventories/hcloud.yml    # Hetzner inventory ✅ WORKING
-│   └── inventories/group_vars/   # Provider-aware variables with secrets ✅ WORKING
+│   ├── inventories/aws_ec2.yml           # AWS dynamic inventory
+│   ├── inventories/hcloud.yml            # Hetzner dynamic inventory
+│   ├── inventories/vagrant_docker.yml    # Vagrant Docker inventory
+│   ├── inventories/vagrant_tart.yml      # Vagrant Tart inventory
+│   └── inventories/group_vars/           # Provider-aware variables with secrets
+├── Testing:
+│   ├── test/docker/                      # Vagrant Docker test environment
+│   └── test/tart/                        # Vagrant Tart test environment
 ├── Dependencies:
-│   ├── requirements.txt          # Python dependencies ✅ COMPLETED
-│   └── requirements.yml          # Ansible collections ✅ COMPLETED
-└── memory-bank/                  # Cross-provider documentation ✅ CURRENT
+│   ├── requirements.txt              # Python dependencies
+│   └── requirements.yml             # Ansible collections
+└── docs/                            # Project documentation
 ```
+
+## Unified Inventory System
+
+The project uses a dual-keyed-groups inventory strategy: each host belongs to both a generic cross-provider group (`@linux`, `@windows`) and a provider-specific group (`@hcloud_linux`, `@aws_ec2_linux`, `@aws_ec2_windows`). This enables writing playbooks that target platforms uniformly while retaining the ability to apply provider-specific overrides.
+
+### Inventory Directory Tree
+```
+inventories/
+├── aws_ec2.yml              # AWS dynamic inventory (dual keyed_groups)
+├── hcloud.yml               # Hetzner dynamic inventory (dual keyed_groups)
+├── vagrant_docker.yml       # Vagrant Docker static inventory
+├── vagrant_tart.yml         # Vagrant Tart static inventory
+├── requirements.txt         # Python inventory-plugin dependencies
+├── requirements.yml         # Ansible collection dependencies
+└── group_vars/
+    ├── all/
+    │   └── vars.yml         # Vault-encrypted shared secrets
+    ├── aws_ec2/             # AWS-specific variables
+    ├── aws_ec2_linux/       # AWS Linux overrides
+    ├── aws_ec2_windows/     # AWS Windows overrides
+    ├── hcloud/              # Hetzner-specific variables
+    ├── hcloud_linux/        # Hetzner Linux overrides
+    ├── vagrant_docker/      # Vagrant Docker variables (admin_user handling)
+    └── vagrant_tart/        # Vagrant Tart variables (admin_user handling)
+```
+
+### Group Structure
+```
+@all:
+  @linux:               # All Linux hosts (cross-provider)
+    @hcloud_linux:      # Hetzner Linux hosts
+    @aws_ec2_linux:     # AWS Linux hosts
+    @vagrant_docker:    # Vagrant Docker Linux hosts
+  @windows:             # All Windows hosts (cross-provider)
+    @aws_ec2_windows:   # AWS Windows hosts
+  @aws_ec2:             # All AWS hosts
+    @aws_ec2_linux
+    @aws_ec2_windows
+  @hcloud:              # All Hetzner hosts
+    @hcloud_linux
+```
+
+### Variable Precedence (4-tier)
+Variables are resolved from broadest to most specific:
+1. `all` — defaults for every host
+2. `platform` (e.g., `hcloud`, `aws_ec2`) — provider-level overrides
+3. `provider_platform` (e.g., `hcloud_linux`, `aws_ec2_windows`) — provider + platform combination
+
+The `platform:` host variable (e.g., `platform: "linux"`) is set via the inventory `keyed_groups` configuration. It replaced the legacy `ansible_group:` tag and provides backward-compatible cross-provider grouping.
+
+## Testing Infrastructure
+
+Each test provider has its own subdirectory under `test/`:
+
+```
+test/
+├── docker/
+│   ├── Vagrantfile           # Docker-backend Vagrant definition
+│   ├── ansible.cfg           # Points to ../../inventories (shared inventory)
+│   └── README.md
+└── tart/
+    ├── Vagrantfile           # Tart-backend Vagrant definition
+    ├── ansible.cfg           # Points to ../../inventories (shared inventory)
+    └── README.md
+```
+
+The `ansible.cfg` inside each test directory sets `inventory_path = ../../inventories`, so test VMs load variables from the same unified `group_vars/` tree as production hosts. Provider-specific defaults (e.g., `admin_user_on_fresh_system: vagrant` for Vagrant Docker) live in `inventories/group_vars/vagrant_docker/`.
 
 ## AI Agent Safety Implementation
 
@@ -103,7 +179,7 @@ ansible-all-my-things/
 
 #### AppArmor Integration (Ubuntu/Debian Linux Systems) ✅ SELECTED
 
-**Technical Specifications**: See [ADR-001 Command Restriction Decision](../docs/architecture/decisions/001-command-restrictions.md) for decision rationale.
+**Technical Specifications**: See [ADR-001 Command Restriction Decision](architecture/decisions/001-command-restrictions.md) for decision rationale.
 
 **AppArmor Profile Structure**:
 ```bash
@@ -229,45 +305,117 @@ bash -c "ssh -V"
 - Must be maintainable and debuggable across distributed infrastructure
 - Should not impact normal user workflows on target systems
 
-## Infrastructure Requirements ✅ IMPLEMENTED
+## Per-VM Specifications
+
+| VM | Provider | Region | OS | Auth chain | Cost |
+|---|---|---|---|---|---|
+| hobbiton | Hetzner Cloud cx22 | Helsinki | Ubuntu 24.04 LTS | root → galadriel | ~$4/mo |
+| rivendell | AWS t3.micro/small | eu-north-1 | Ubuntu 24.04 LTS | ubuntu → galadriel | ~$8-10/mo |
+| moria | AWS t3.large | eu-north-1 | Windows Server 2025 | Administrator | ~$60/mo |
+| dagorlad | Vagrant Docker | local | Ubuntu Linux (container) | vagrant | free |
+| lorien | Vagrant Tart | local | macOS-compatible | vagrant | free |
+
+## Windows Server Implementation
+
+### Connection Configuration
+AWS Windows hosts use SSH with a PowerShell shell rather than WinRM:
+
+```yaml
+ansible_connection: ssh
+ansible_user: Administrator
+ansible_shell_type: powershell
+ansible_shell_executable: powershell
+```
+
+### Chocolatey Package Manager
+```yaml
+- name: Install Chocolatey
+  win_shell: |
+    Set-ExecutionPolicy Bypass -Scope Process -Force
+    [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+    iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+  args:
+    creates: C:\ProgramData\chocolatey\bin\choco.exe
+```
+
+### Achieved Windows Configuration
+- OpenSSH Server enabled with PowerShell as the default SSH shell
+- SSH key authentication configured via `icacls` permissions
+- Windows Firewall configured via PowerShell (ports 22 and 3389)
+- Desktop Experience feature installed
+- RDP optimized: 32-bit color depth, clipboard sharing enabled
+
+### Security Group (Shared Between Linux and Windows)
+```yaml
+- name: Configure ansible-sg security group
+  amazon.aws.ec2_group:
+    name: ansible-sg
+    rules:
+      - proto: tcp
+        ports: [22]
+        cidr_ip: "{{ current_public_ip }}/32"
+      - proto: tcp
+        ports: [3389]
+        cidr_ip: "{{ current_public_ip }}/32"
+```
+
+The `current_public_ip` variable is detected dynamically via `ipinfo.io`. The `ansible-sg` security group is shared between Linux and Windows EC2 instances.
+
+### AMI Reference
+Windows Server 2025 AMI: `ami-01998fe5b868df6e3` (eu-north-1)
+
+### Collections
+```yaml
+# requirements.yml
+collections:
+  - ansible.windows
+  - community.windows
+  - amazon.aws
+  - hetzner.hcloud
+  - community.general
+```
+
+## Idiomatic Configuration
+
+Secrets are stored in `inventories/group_vars/all/vars.yml` as Ansible Vault-encrypted values. The vault password is supplied automatically via `ansible.cfg`:
+
+```ini
+[defaults]
+vault_password_file = scripts/echo-vault-password-environment-variable.sh
+```
+
+Playbooks do not use `vars_files:` directives — all secrets are loaded from group_vars automatically by Ansible's inventory resolution. A `vault-template.yml` file documents the required secret keys without their values.
+
+## Provider Differences Reference
+
+| Attribute | AWS Linux | AWS Windows | Hetzner Linux |
+|---|---|---|---|
+| Connection | SSH | SSH | SSH |
+| Default User | ubuntu → galadriel | Administrator | root → galadriel |
+| Package Manager | apt | Chocolatey | apt |
+| Instance Type | t3.micro/small | t3.large | cx22 |
+| Desktop Access | No | RDP (3389) | GNOME via backup/restore |
+| Cost | ~$8-10/mo | ~$60/mo | ~$4/mo |
+| Authentication | SSH key | SSH key + Windows password (vault) | SSH key |
+| Provisioning Time | ~5-8 min | ~15-20 min | ~3-5 min |
+| Inventory Groups | @aws_ec2, @aws_ec2_linux, @linux | @aws_ec2, @aws_ec2_windows, @windows | @hcloud, @hcloud_linux, @linux |
+
+## Infrastructure Requirements
 
 ### Current System Capabilities
 - **Multi-Provider Support**: AWS and Hetzner Cloud with dynamic inventory
 - **Cross-Platform**: Linux and Windows environments with unified patterns
 - **Secret Management**: Ansible Vault with automated password handling
-- **Testing Integration**: Vagrant-based testing environments
+- **Testing Integration**: Vagrant-based testing environments (Docker and Tart backends)
 
 ### Cost Analysis
 - **Hetzner Cloud**: ~$4/month with predictable EU pricing
 - **AWS Linux**: ~$8-10/month with on-demand usage
 - **AWS Windows**: ~$60/month base with on-demand reducing actual costs
 
-## Tool Usage Patterns
-
-### Current Infrastructure Patterns
-```yaml
-# Multi-provider inventory management ✅ WORKING
-# Cross-provider SSH key authentication ✅ WORKING
-# Unified command structure across providers ✅ WORKING
-# Automated vault password handling ✅ WORKING
-```
-
-### AI Agent Safety Architecture
-**Current Priority**: AppArmor kernel-level command restrictions implementation
-**Timeline**: 3 scrum stories (0.5 + 1-2 + 1 days) for complete implementation
-**Selected Approach**: AppArmor Integration with comprehensive profile strategy
-**Implementation Strategy**: ✅ Stand-Alone Profiling method mastered, comprehensive single-profile approach validated
-**Learning Completed**: ✅ Hands-on experience with `aa-genprof`, `aa-logprof`, profile creation, and sub-shell testing
-
 ## Dependencies & Integration
 
-### Current Working Dependencies ✅ IMPLEMENTED
-- **Multi-Provider Collections**: `amazon.aws`, `hetzner.hcloud`, `ansible.windows`
-- **Python Dependencies**: `boto3`, `botocore` for AWS support
+- **Multi-Provider Collections**: `amazon.aws`, `hetzner.hcloud`, `ansible.windows`, `community.windows`, `community.general`
+- **Python Dependencies**: `boto3`, `botocore` for AWS dynamic inventory
 - **Inventory Integration**: Dynamic inventory plugins working across providers
 - **Secret Management**: Unified Ansible Vault patterns for all implementations
-
-### Command Restriction Implementation
-**AI Agent Safety System**: Deploy robust command restriction mechanism to target systems via ansible automation
-
-The technical foundation provides a solid base for infrastructure automation with the command restriction system ready for implementation on target systems.

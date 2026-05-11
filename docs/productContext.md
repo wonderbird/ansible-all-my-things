@@ -27,9 +27,11 @@ Automate complete lifecycle of development environments across cloud providers w
 ### Key Requirements
 
 #### Infrastructure Automation
-- **AWS Linux**: On-demand development servers (`rivendell`)
-- **AWS Windows**: Windows application servers (`moria`) 
 - **Hetzner Cloud**: Persistent development environments (`hobbiton`)
+- **AWS Linux**: On-demand development servers (`rivendell`)
+- **AWS Windows**: Windows application servers (`moria`)
+- **Vagrant Docker**: Linux testing environments (`dagorlad`)
+- **Vagrant Tart**: macOS-compatible testing environments (`lorien`)
 - **Complete Lifecycle**: Provision → Configure → Access → Destroy
 
 #### Target Applications
@@ -119,6 +121,13 @@ ansible-playbook destroy-aws.yml
 
 ## Problems This Solves
 
+### For Individual Users
+**Cross-Provider Choice**: Freedom to select the cloud provider and platform that best fits each task — persistent Hetzner Cloud for daily development, on-demand AWS for intermittent workloads.
+**Platform Access**: Run platform-specific applications (e.g., Claude Desktop) from any host OS without manual setup.
+**Environment Isolation**: Each provisioned environment is reproducible and self-contained, preventing dependency conflicts with the local machine.
+**Cost Control**: On-demand provisioning means resources are destroyed when not in use, eliminating idle charges.
+**Flexibility**: Switch between Linux and Windows environments using the same automation framework without vendor lock-in.
+
 ### For Development Teams
 **Consistent Environments**: Identical, reproducible development environments across team members
 **Multi-Provider Strategy**: Avoid vendor lock-in with proven patterns across providers
@@ -151,12 +160,29 @@ ansible-playbook destroy-aws.yml
 - Cross-provider SSH key management working
 - AI agent safety controls deployed automatically
 
+### Qualitative Measures
+**Predictable command patterns**: The same `ansible-playbook provision.yml --extra-vars "provider=<x> platform=<y>"` interface works across providers.
+**Consistent SSH key authentication**: A single key pair grants access to all provisioned environments regardless of provider.
+**Unified automation framework**: New providers and platforms can be added by following existing playbook and inventory conventions, without redesigning the automation layer.
+**Complete environment cleanup**: Every provisioned environment can be fully destroyed, leaving no orphaned resources or costs.
+
 ### AI Agent Safety
 **Command Blocking**: Infrastructure commands blocked on target systems
 **Persistence**: Restrictions survive system reboots and updates
 **Cross-Platform**: Works on Linux and Windows target systems
 **Remote Verification**: Status checkable from control machine via ansible
 
+## User Personas
+
+### Cross-Platform Developer (Primary)
+A developer working primarily on Linux or macOS who needs occasional access to Windows environments to run platform-specific applications (e.g., Claude Desktop, Windows-only tooling). They value automation over manual VM management and expect a single command to produce a ready-to-use environment.
+
+### Cost-Conscious Developer (Primary)
+A developer who self-funds cloud infrastructure and needs on-demand environments that cost nothing when not in use. They choose providers based on task duration: Hetzner for persistent daily work, AWS for intermittent workloads, Vagrant for local testing that incurs no cloud cost.
+
+### Team Lead / DevOps Engineer (Secondary)
+A technical lead responsible for ensuring that all team members work in identical, reproducible environments. They value the unified inventory system, idiomatic Ansible configuration, and the ability to extend the framework to new providers without rewriting existing automation.
+
 ## Integration Philosophy
 
-Cross-provider infrastructure automation with built-in AI agent safety demonstrates that consistent automation patterns can work across diverse technologies while maintaining security. The system deploys command restrictions to target systems during infrastructure provisioning, ensuring safe AI agent operation throughout the development workflow.
+Cross-provider infrastructure automation with built-in AI agent safety demonstrates that consistent automation patterns can work across diverse technologies while respecting each provider's strengths — without vendor lock-in. The system deploys command restrictions to target systems during infrastructure provisioning, ensuring safe AI agent operation throughout the development workflow.
