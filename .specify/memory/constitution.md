@@ -85,10 +85,9 @@ If the correct prefix is unclear, ask the user before committing.
 Commit messages MUST represent a small, coherent, working increment.
 
 **Commit format, headline conventions, co-authorship requirements, and the
-AI agent co-author table are defined in
-`.cursor/rules/general/330-git-usage.mdc`, which is the authoritative source
-of truth for all commit formatting. All agents MUST read and follow that file
-before creating any commit.**
+AI agent co-author table are defined in the `commit` skill, which is the
+authoritative source of truth for all commit formatting. All agents MUST
+invoke it before creating any commit.**
 
 **Rationale**: Consistent commit messages make history machine-readable and
 auditable; co-authorship credits are required by the collaboration agreement.
@@ -109,9 +108,9 @@ All Markdown files in this repository (`.md`, `.mdc`) MUST comply with:
   no skipped levels).
 
 **The full linting ruleset, tool invocation, and installation instructions are
-defined in `.cursor/rules/general/400-markdown-formatting.mdc`, which is the
-authoritative source of truth. All agents MUST read and follow that file
-whenever creating or modifying a Markdown file.**
+defined in the `format-markdown` skill, which is the authoritative source of
+truth. All agents MUST invoke it whenever creating or modifying a Markdown
+file.**
 
 **Rationale**: Consistent formatting ensures readability across editors and
 rendering tools, and makes diffs easier to review.
@@ -165,9 +164,10 @@ at runtime via the `ANSIBLE_VAULT_PASSWORD_FILE` environment variable.
 ## Documentation Standards
 
 **The documentation strategy, folder structure, and migration policy are
-defined in `.cursor/rules/general/600-documentation-strategy.mdc`, which is
-the authoritative source of truth. All agents MUST read and follow that file
-when creating or updating documentation.**
+defined in the `review-documentation` skill, extended by the project-specific
+`review-documentation-here` skill for co-located role documentation. All
+agents MUST invoke `review-documentation-here` when creating or updating
+documentation.**
 
 This project extends the base strategy with one additional documentation tier:
 
@@ -196,7 +196,7 @@ variables, tools installed outside `.venv` — does not survive between sessions
 All durable knowledge MUST be committed to git:
 
 - Ansible patterns and prohibitions → this constitution
-- Molecule and testing rules → `.cursor/rules/`
+- Molecule and testing rules → `.claude/skills/molecule-testing/SKILL.md`
 - Architecture decisions → `docs/architecture/decisions/`
 
 Never rely on in-session memory or local files for knowledge that must
@@ -240,6 +240,6 @@ begins.
 
 All agents working in this repository MUST read this constitution at the start
 of any non-trivial task and verify that their plan complies with each principle.
-Runtime guidance for AI agents is in `CLAUDE.md` and `.cursor/rules/`.
+Runtime guidance for AI agents is in `CLAUDE.md` and `AGENTS.md`.
 
 **Version**: 1.4.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-04-30

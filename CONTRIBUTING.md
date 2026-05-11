@@ -28,7 +28,7 @@ Both forms run the full lifecycle: create → prepare → converge → idempoten
 verify → destroy. All phases MUST pass before committing.
 
 For scenario templates and known pitfalls when adding a Molecule scenario to a
-new role, see `.cursor/rules/340-molecule-testing.mdc`.
+new role, see [`.claude/skills/molecule-testing/SKILL.md`](.claude/skills/molecule-testing/SKILL.md).
 
 ## Running a single role on a live host
 

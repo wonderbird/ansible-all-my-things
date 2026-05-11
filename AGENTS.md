@@ -17,12 +17,11 @@
 - **Hidden files**: the LS tool does not show hidden files; use
   `ls -la <path>` via Bash to check for hidden files or directories.
 
-## Rules are stored in .specify/memory/constitution.md and in .cursor/rules
+## Rules are stored in .specify/memory/constitution.md
 
-This project uses spec-kit for guiding the coding agent. Thus, rules important
-for developing the project are stored in `.specify/memory/constitution.md`.
-This file is the source of truth for the project and must be read and followed
-carefully.
+This project uses spec-kit for guiding the coding agent. Project rules are
+stored in `.specify/memory/constitution.md`. That file is the source of
+truth and must be read and followed carefully.
 
 ## Skill index
 
@@ -32,7 +31,9 @@ task.
 
 | Skill | When to read |
 | --- | --- |
-| [molecule-testing.mdc](.claude/skills/molecule-testing/SKILL.md) | Pull in information about the molecule testing setup for Ansible roles.  Use when implementing or modifying an Ansible role to set up or maintain its Molecule test scenario. |
+| [molecule-testing](.claude/skills/molecule-testing/SKILL.md) | Pull in information about the molecule testing setup for Ansible roles. Use when implementing or modifying an Ansible role to set up or maintain its Molecule test scenario. |
+| [review-documentation-here](.claude/skills/review-documentation-here/SKILL.md) | Extends review-documentation by project-specific documentation structure, including co-located role documentation. Use when reviewing the project documentation. |
+| [technical-coach](.claude/skills/technical-coach/SKILL.md) | Use when expert knowledge of Ansible is required to advise and tutor on automating setup and maintenance of virtual machines. |
 
 ## Test environment host architecture
 
