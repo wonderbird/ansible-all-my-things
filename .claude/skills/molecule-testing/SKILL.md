@@ -10,6 +10,14 @@ description: >
 See constitution Principle II for applicability. Roles requiring a full VM
 (desktop, display managers, hardware drivers) use `CONTRIBUTING.md` instead.
 
+## Current Goal
+
+$ARGUMENTS
+
+## Ask when goal unclear
+
+Ask me, if "Current Goal" section empty and context does not clearly identify goal.
+
 ## meta/main.yml — required fields
 
 ```yaml
