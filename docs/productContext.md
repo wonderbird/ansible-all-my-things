@@ -1,5 +1,18 @@
 # Product Context: Ansible All My Things
 
+## Project Overview
+
+An Infrastructure-as-Code automation system that provisions cross-platform development environments with AI agent safety controls. The system deploys automated command restrictions to target systems to ensure safe AI agent operation.
+
+## Core Purpose
+
+Automate complete lifecycle of development environments across cloud providers with built-in AI agent safety:
+
+- **Cross-Platform Access**: Enable Windows-only applications from non-Windows host systems
+- **Multi-Provider Infrastructure**: AWS EC2 and Hetzner Cloud automation
+- **AI Agent Safety**: Command restrictions deployed to target systems via ansible
+- **Cost Efficiency**: On-demand provisioning with complete resource cleanup
+
 ## Why This Project Exists
 
 ### The Problem
@@ -11,6 +24,26 @@
 
 **AI Agent Safety Requirements**: Infrastructure automation projects require strict AI agent safety controls to prevent accidental resource provisioning or destruction on target systems.
 
+### Key Requirements
+
+#### Infrastructure Automation
+- **AWS Linux**: On-demand development servers (`rivendell`)
+- **AWS Windows**: Windows application servers (`moria`) 
+- **Hetzner Cloud**: Persistent development environments (`hobbiton`)
+- **Complete Lifecycle**: Provision → Configure → Access → Destroy
+
+#### Target Applications
+- **Claude Desktop**: Windows-only application access
+- **Development Tools**: Cross-platform development environments
+- **Testing Infrastructure**: Vagrant-based testing environments
+
+### Success Metrics
+
+#### Infrastructure Performance
+- Environment provisioning: 3-15 minutes depending on platform
+- Cost optimization: Provider choice based on usage patterns
+- Unified management: Single automation framework across providers
+
 ### The Solution
 A unified, cross-provider automation system that provides automated access to development environments with built-in AI agent safety controls:
 
@@ -20,6 +53,18 @@ A unified, cross-provider automation system that provides automated access to de
 **Application Access**: Run platform-specific applications from any host system
 **AI Agent Safety**: Command restrictions deployed to target systems via ansible
 **Unified Management**: Single automation framework managing diverse infrastructure
+
+### Technical Implementation
+
+#### Multi-Provider Architecture
+- Unified inventory system with dynamic host discovery
+- Cross-provider SSH key management
+- Idiomatic ansible configuration with vault encryption
+
+#### Target System Deployment
+- AI agents operate on provisioned systems (`hobbiton`, `rivendell`, `moria`)
+- Command restrictions deployed during user provisioning
+- Cross-platform ansible automation for Linux and Windows systems
 
 ## How It Works
 
