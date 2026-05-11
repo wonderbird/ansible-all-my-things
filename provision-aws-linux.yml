@@ -1,6 +1,0 @@
----
-- name: Provision AWS EC2 Instance
-  import_playbook: provisioners/aws-linux.yml
-
-- name: Configure Linux Development Environment
-  import_playbook: configure-linux.yml

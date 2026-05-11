@@ -6,13 +6,15 @@ Automated setup and updates for my IT system.
 
 This repository defines virtual machine configurations for software developers. The following infrastructure is defined:
 
-| Provider        | Platform | Operating System    | Architecture | Host name |
-| --------------- | -------- | ------------------- | ------------ | --------- |
-| AWS EC2         | Windows  | Windows Server 2025 | AMD64        | moria     |
-| AWS EC2         | Linux    | Ubuntu Linux        | AMD64        | rivendell |
-| Hetzner Cloud   | Linux    | Ubuntu Linux        | AMD64        | hobbiton  |
-| Vagrant, Tart   | Linux    | Ubuntu Linux        | ARM64        | lorien    |
-| Vagrant, Docker | Linux    | Ubuntu Linux        | ARM64        | dagorlad  |
+| Provider        | Platform | Operating System    | Architecture | Host name | Region          | Auth chain              |
+| --------------- | -------- | ------------------- | ------------ | --------- | --------------- | ----------------------- |
+| AWS EC2         | Windows  | Windows Server 2025 | AMD64        | moria     | eu-north-1      | Administrator           |
+| AWS EC2         | Linux    | Ubuntu Linux        | AMD64        | rivendell | eu-north-1      | ubuntu → galadriel      |
+| Hetzner Cloud   | Linux    | Ubuntu Linux        | AMD64        | hobbiton  | Helsinki (hel1) | root → galadriel        |
+| Vagrant, Tart   | Linux    | Ubuntu Linux        | ARM64        | lorien    | local           | vagrant                 |
+| Vagrant, Docker | Linux    | Ubuntu Linux        | ARM64        | dagorlad  | local           | vagrant                 |
+
+For current pricing see the comments in the provider-specific group_vars files, e.g. [`inventories/group_vars/hcloud_linux/vars.yml`](./inventories/group_vars/hcloud_linux/vars.yml).
 
 ## Quick Start
 

@@ -114,7 +114,7 @@ Priority-ordered criteria for evaluating solutions:
 2. **Ansible Automation** (1 day) - Deploy via ansible Infrastructure-as-Code
 3. **Fallback Available** - Claude CLI Native if AppArmor validation fails
 
-*Implementation details in memory bank: [activeContext.md](../memory-bank/activeContext.md), [techContext.md](../memory-bank/techContext.md)*
+*Implementation details: [docs/techContext.md](../../techContext.md)*
 
 ## Constraints
 
@@ -171,13 +171,10 @@ Priority-ordered criteria for evaluating solutions:
 
 **Result**: AI agents get "permission denied" for dangerous commands (`ansible`, `docker`) but can still use development tools (`git`, `python`) normally.
 
-*Complete technical specifications in memory bank: [techContext.md](../memory-bank/techContext.md), [systemPatterns.md](../memory-bank/systemPatterns.md)*
-
-*Current implementation status and success criteria in memory bank: [progress.md](../memory-bank/progress.md), [activeContext.md](../memory-bank/activeContext.md)*
+*Technical specifications: [docs/techContext.md](../../techContext.md)*
 
 ## Future Enhancements
 
-*Future enhancements and detailed technical specifications in memory bank: [techContext.md](../memory-bank/techContext.md)*
 
 ## References
 
@@ -185,7 +182,7 @@ Priority-ordered criteria for evaluating solutions:
 - [AppArmor Profile Syntax](https://manpages.ubuntu.com/manpages/focal/man5/apparmor.d.5.html)  
 - [Claude Code Settings Documentation](https://docs.anthropic.com/en/docs/claude-code/settings)
 - Original analysis: `docs/features/command-restrictions/concept.md`
-- **Implementation Details**: See memory bank files [activeContext.md](../memory-bank/activeContext.md), [techContext.md](../memory-bank/techContext.md), [systemPatterns.md](../memory-bank/systemPatterns.md), [progress.md](../memory-bank/progress.md)
+- **Technical Context**: [docs/techContext.md](../../techContext.md)
 
 ## Appendix A: Decision Matrix Scoring Rationale
 

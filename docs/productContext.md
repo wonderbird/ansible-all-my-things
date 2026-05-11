@@ -81,14 +81,14 @@ ansible-playbook destroy.yml
 
 **AWS Linux (On-Demand Development)**:
 ```bash
-ansible-playbook provision-aws-linux.yml
+ansible-playbook provision.yml --extra-vars "provider=aws platform=linux"
 ssh galadriel@$RIVENDELL_IP
 ansible-playbook destroy-aws.yml
 ```
 
 **AWS Windows (Application Access)**:
 ```bash
-ansible-playbook provision-aws-windows.yml
+ansible-playbook provision.yml --extra-vars "provider=aws platform=windows"
 ssh galadriel@$MORIA_IP  # Command-line access
 # RDP connection available for desktop applications
 ansible-playbook destroy-aws.yml
@@ -149,10 +149,7 @@ ansible-playbook destroy-aws.yml
 - AWS Linux: ~3-5 minutes for minimal server environment  
 - AWS Windows: ~5 minutes for complete Windows Server environment
 
-**Cost Optimization Across Providers**:
-- Hetzner Cloud: ~$4/month with predictable pricing
-- AWS Linux: ~$8-10/month with on-demand optimization
-- AWS Windows: ~$60/month base with on-demand reducing actual costs
+**Cost Optimization Across Providers**: See README.md for current cost estimates from provider group_vars.
 
 **Automation Coverage**:
 - Zero manual configuration required across all implementations
@@ -164,7 +161,7 @@ ansible-playbook destroy-aws.yml
 **Predictable command patterns**: The same `ansible-playbook provision.yml --extra-vars "provider=<x> platform=<y>"` interface works across providers.
 **Consistent SSH key authentication**: A single key pair grants access to all provisioned environments regardless of provider.
 **Unified automation framework**: New providers and platforms can be added by following existing playbook and inventory conventions, without redesigning the automation layer.
-**Complete environment cleanup**: Every provisioned environment can be fully destroyed, leaving no orphaned resources or costs.
+**Complete cloud environment cleanup**: Every cloud-provisioned environment (Hetzner Cloud, AWS) can be fully destroyed, leaving no orphaned resources or costs. Local Vagrant environments (dagorlad, lorien) are excluded — they incur no cloud cost.
 
 ### AI Agent Safety
 **Command Blocking**: Infrastructure commands blocked on target systems

@@ -9,8 +9,8 @@
 - **Collections**: Extended functionality for AWS, Hetzner Cloud, and Windows
 
 ### Multi-Provider Cloud Infrastructure
-**Hetzner Cloud**: Primary provider for persistent development environments (~$4/month)
-**AWS EC2**: Multi-platform provider for diverse workloads (~$8-60/month depending on usage)
+**Hetzner Cloud**: Primary provider for persistent development environments
+**AWS EC2**: Multi-platform provider for diverse workloads
 
 ### Target Applications & Use Cases
 **Cross-Provider Development**: Automated development environments across providers
@@ -47,9 +47,7 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 ```
 ansible-all-my-things/
 ├── Multi-Provider Provisioning:
-│   ├── provision.yml                 # Hetzner Cloud Linux
-│   ├── provision-aws-linux.yml       # AWS Linux provisioning
-│   └── provision-aws-windows.yml     # AWS Windows provisioning
+│   └── provision.yml                 # Unified provisioning (provider + platform params)
 ├── Configuration:
 │   ├── configure.yml                 # Hetzner Cloud configuration
 │   ├── configure-linux.yml           # Linux configuration (used by tests)
@@ -91,7 +89,9 @@ inventories/
 ├── requirements.yml         # Ansible collection dependencies
 └── group_vars/
     ├── all/
-    │   └── vars.yml         # Vault-encrypted shared secrets
+    │   ├── vars.yml         # Shared variables (references vault.yml)
+    │   ├── vault.yml        # Vault-encrypted secrets (user-created, not in repo)
+    │   └── vault-template.yml # Documents required secret keys
     ├── aws_ec2/             # AWS-specific variables
     ├── aws_ec2_linux/       # AWS Linux overrides
     ├── aws_ec2_windows/     # AWS Windows overrides
@@ -145,175 +145,9 @@ The `ansible.cfg` inside each test directory sets `inventory_path = ../../invent
 
 ## AI Agent Safety Implementation
 
-### Target System Deployment Requirements
-**Target Systems**: AI agents operate on provisioned systems (`hobbiton`, `rivendell`, `moria`) under `desktop_users` accounts (`galadriel`, `legolas`).
+See [ADR-001 Command Restriction Decision](architecture/decisions/001-command-restrictions.md) for context, evaluated options, decision rationale, acceptance tests, and deployment details.
 
-**Deployment Constraints**:
-- **Cross-Platform**: Must work on AWS Linux, AWS Windows, and Hetzner Cloud systems
-- **Ansible Integration**: Deploy via ansible playbooks during infrastructure provisioning
-- **Shell Session Resistance**: Work across Claude Code's independent bash sessions
-- **User Isolation**: Apply only to AI agents, not human users
-
-### Implementation Approaches
-
-#### User Profile Integration
-**Concept**: Deploy restriction scripts to desktop_users' profiles on target systems
-- **Linux Implementation**: `.bashrc`/`.profile` modification via ansible templates
-- **Windows Implementation**: PowerShell profile deployment for desktop_users
-- **Ansible Integration**: Extend existing `playbooks/setup-users.yml` workflow
-- **Persistence**: Restrictions loaded on every shell session
-
-#### System-Wide Wrappers
-**Concept**: Deploy global wrapper scripts to target systems via ansible
-- **Linux Implementation**: `/usr/local/bin/` deployment with PATH modification
-- **Windows Implementation**: `C:\Windows\System32\` deployment via ansible
-- **Deployment**: Cross-platform ansible tasks for installation and verification
-- **Management**: Remote updates and status checking via ansible
-
-#### Service-Based Blocking
-**Concept**: Deploy services that monitor and block commands on target systems
-- **Linux Implementation**: systemd services deployed via ansible
-- **Windows Implementation**: Windows services deployed via ansible
-- **Monitoring**: Service-based approach survives all session types and reboots
-- **Control**: Remote monitoring and management capabilities via ansible
-
-#### AppArmor Integration (Ubuntu/Debian Linux Systems) ✅ SELECTED
-
-**Technical Specifications**: See [ADR-001 Command Restriction Decision](architecture/decisions/001-command-restrictions.md) for decision rationale.
-
-**AppArmor Profile Structure**:
-```bash
-# /etc/apparmor.d/ai-agent-block - comprehensive profile blocking infrastructure commands
-#include <tunables/global>
-
-profile ai-agent-block flags=(attach_disconnected) {
-  #include <abstractions/base>
-  
-  # Block infrastructure commands
-  deny /usr/bin/ansible* x,
-  deny /usr/local/bin/vagrant x,
-  deny /usr/bin/docker x,
-  deny /usr/bin/aws x,
-  deny /usr/bin/hcloud x,
-  
-  # Allow normal system operations
-  /bin/** ux,
-  /usr/bin/** ux,
-  /usr/local/bin/** ux,
-}
-```
-
-**User-Specific Targeting**:
-```bash
-# /etc/security/pam_apparmor.conf - apply profile to specific users
-galadriel default_profile=ai-agent-block  
-legolas default_profile=ai-agent-block
-```
-
-**Ansible Integration Tasks**:
-```yaml
-- name: Deploy AppArmor profile for AI agent command restrictions
-  template:
-    src: ai-agent-block.profile.j2
-    dest: /etc/apparmor.d/ai-agent-block
-  notify: reload apparmor
-
-- name: Configure pam_apparmor for desktop users
-  template:
-    src: pam_apparmor.conf.j2  
-    dest: /etc/security/pam_apparmor.conf
-  notify: restart ssh
-
-- name: Enable AppArmor profile
-  command: aa-enforce /etc/apparmor.d/ai-agent-block
-
-- name: Verify AppArmor profile status
-  command: aa-status
-  register: apparmor_status
-```
-
-#### Claude CLI Native Restrictions ✅ FALLBACK OPTION
-
-**Fallback Settings Template**:
-```json
-{
-  "permissions": {
-    "deny": [
-      "Bash(ansible:*)",
-      "Bash(vagrant:*)", 
-      "Bash(docker:*)",
-      "Bash(tart:*)",
-      "Bash(aws:*)",
-      "Bash(hcloud:*)"
-    ]
-  }
-}
-```
-
-**Ansible Deployment**:
-```yaml
-- name: Create Claude settings directory
-  file:
-    path: "{{ ansible_user_dir }}/.claude"
-    state: directory
-    mode: '0755'
-    
-- name: Deploy Claude command restrictions
-  template:
-    src: claude-settings.json.j2
-    dest: "{{ ansible_user_dir }}/.claude/settings.json"
-    mode: '0644'
-    
-- name: Verify Claude settings deployment
-  stat:
-    path: "{{ ansible_user_dir }}/.claude/settings.json"
-  register: claude_settings_stat
-```
-
-**Blocked Commands**: `ansible`, `ansible-playbook`, `ansible-vault`, `ansible-inventory`, `ansible-galaxy`, `ansible-config`, `vagrant`, `docker`, `tart`, `aws`, `hcloud`
-
-**Comprehensive Acceptance Tests**:
-```bash
-# These commands must fail on target systems for AI agent accounts
-bash -c "ansible --version"
-bash -c "ansible-playbook --help"
-bash -c "vagrant status" 
-bash -c "docker ps"
-bash -c "aws --version"
-bash -c "hcloud version"
-
-# These commands must continue working normally
-bash -c "ls -la"
-bash -c "git status"
-bash -c "python --version"
-bash -c "curl --version"
-bash -c "ssh -V"
-```
-
-### Technical Constraints
-
-**Claude Code Architecture**: Creates independent shell sessions for each command execution, requiring sub-shell resistant solutions.
-
-**Security Constraints**:
-- **sudo Prohibition**: AI agents MUST NOT execute commands as root - enforced by excluding desktop_users from sudoers group
-- **Acceptance Tests**: Sub-shell command blocking must work (`bash -c "ansible --version"` fails, `bash -c "ls -la"` succeeds)
-
-**Deployment Requirements**:
-- Must be deployable via ansible playbooks across multiple platforms
-- Must integrate with existing user provisioning workflows (`playbooks/setup-users.yml`)
-- Must work on both Linux and Windows target systems
-- Must be maintainable and debuggable across distributed infrastructure
-- Should not impact normal user workflows on target systems
-
-## Per-VM Specifications
-
-| VM | Provider | Region | OS | Auth chain | Cost |
-|---|---|---|---|---|---|
-| hobbiton | Hetzner Cloud cx22 | Helsinki | Ubuntu 24.04 LTS | root → galadriel | ~$4/mo |
-| rivendell | AWS t3.micro/small | eu-north-1 | Ubuntu 24.04 LTS | ubuntu → galadriel | ~$8-10/mo |
-| moria | AWS t3.large | eu-north-1 | Windows Server 2025 | Administrator | ~$60/mo |
-| dagorlad | Vagrant Docker | local | Ubuntu Linux (container) | vagrant | free |
-| lorien | Vagrant Tart | local | macOS-compatible | vagrant | free |
+For VM inventory and provider comparison see [README.md](../README.md).
 
 ## Windows Server Implementation
 
@@ -377,28 +211,14 @@ collections:
 
 ## Idiomatic Configuration
 
-Secrets are stored in `inventories/group_vars/all/vars.yml` as Ansible Vault-encrypted values. The vault password is supplied automatically via `ansible.cfg`:
+Secrets are stored in `inventories/group_vars/all/vault.yml` (user-created, not in repo) as Ansible Vault-encrypted values. `vars.yml` is a plain wrapper that references variables from `vault.yml`. `vault-template.yml` documents the required secret keys without their values. The vault password is supplied automatically via `ansible.cfg`:
 
 ```ini
 [defaults]
 vault_password_file = scripts/echo-vault-password-environment-variable.sh
 ```
 
-Playbooks do not use `vars_files:` directives — all secrets are loaded from group_vars automatically by Ansible's inventory resolution. A `vault-template.yml` file documents the required secret keys without their values.
-
-## Provider Differences Reference
-
-| Attribute | AWS Linux | AWS Windows | Hetzner Linux |
-|---|---|---|---|
-| Connection | SSH | SSH | SSH |
-| Default User | ubuntu → galadriel | Administrator | root → galadriel |
-| Package Manager | apt | Chocolatey | apt |
-| Instance Type | t3.micro/small | t3.large | cx22 |
-| Desktop Access | No | RDP (3389) | GNOME via backup/restore |
-| Cost | ~$8-10/mo | ~$60/mo | ~$4/mo |
-| Authentication | SSH key | SSH key + Windows password (vault) | SSH key |
-| Provisioning Time | ~5-8 min | ~15-20 min | ~3-5 min |
-| Inventory Groups | @aws_ec2, @aws_ec2_linux, @linux | @aws_ec2, @aws_ec2_windows, @windows | @hcloud, @hcloud_linux, @linux |
+Playbooks do not use `vars_files:` directives — all secrets are loaded from group_vars automatically by Ansible's inventory resolution. See [docs/user-manual/important-concepts.md](user-manual/important-concepts.md) for setup instructions.
 
 ## Infrastructure Requirements
 
@@ -407,11 +227,6 @@ Playbooks do not use `vars_files:` directives — all secrets are loaded from gr
 - **Cross-Platform**: Linux and Windows environments with unified patterns
 - **Secret Management**: Ansible Vault with automated password handling
 - **Testing Integration**: Vagrant-based testing environments (Docker and Tart backends)
-
-### Cost Analysis
-- **Hetzner Cloud**: ~$4/month with predictable EU pricing
-- **AWS Linux**: ~$8-10/month with on-demand usage
-- **AWS Windows**: ~$60/month base with on-demand reducing actual costs
 
 ## Dependencies & Integration
 

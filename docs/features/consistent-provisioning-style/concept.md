@@ -45,42 +45,18 @@ ansible-playbook provision.yml --extra-vars "provider=aws platform=linux"
 ansible-playbook provision.yml --extra-vars "provider=aws platform=windows"
 ```
 
-**Vagrant Docker (dagorlad) — target command:**
-```bash
-ansible-playbook provision.yml --extra-vars "provider=vagrant_docker platform=linux"
-```
-
 ## Provider Differences
 
-| Property | Hetzner Linux | AWS Linux | Vagrant Docker |
-|---|---|---|---|
-| Connection | SSH | SSH | SSH (port 2223) |
-| Default User | root → galadriel | ubuntu → galadriel | vagrant |
-| Package Manager | apt | apt | apt |
-| Provisioning | hcloud server create | EC2 launch | vagrant up |
-| Cost | ~$4/mo (persistent) | ~$8-10/mo (on-demand) | free |
-| Inventory Groups | @hcloud, @hcloud_linux | @aws_ec2, @aws_ec2_linux | @vagrant_docker, @linux |
+| Property | Hetzner Linux | AWS Linux |
+|---|---|---|
+| Connection | SSH | SSH |
+| Default User | root → galadriel | ubuntu → galadriel |
+| Package Manager | apt | apt |
+| Provisioning | hcloud server create | EC2 launch |
+| Cost | ~$4/mo (persistent) | ~$8-10/mo (on-demand) |
+| Inventory Groups | @hcloud, @hcloud_linux | @aws_ec2, @aws_ec2_linux |
 
-## Vagrant Docker Specifics
-
-The `provisioners/vagrant_docker-linux.yml` provisioner uses the Ansible `shell` module to execute `vagrant up` from the `test/docker/` directory, then calls `meta: refresh_inventory` so subsequent tasks see the newly started container in the inventory.
-
-- Admin user on fresh system: `vagrant`
-- Estimated provisioning time: 2–3 minutes
-- Docker backend; no cloud account required
-- Inventory source: `inventories/vagrant_docker.yml`
-- Group vars: `inventories/group_vars/vagrant_docker/`
-
-## Inventory Integration
-
-The `inventories/vagrant_docker.yml` inventory file is referenced by `ansible.cfg` alongside the cloud provider inventories. Variable loading follows the same 4-tier precedence as production environments:
-
-1. `group_vars/all/` — shared defaults
-2. `group_vars/linux/` — platform-level vars
-3. `group_vars/vagrant_docker/` — provider-level vars
-4. `group_vars/vagrant_docker_linux/` — provider+platform combination vars
-
-This means `ansible-inventory --graph` shows dagorlad in the `@vagrant_docker` and `@linux` groups, and vault-managed variables (SSH keys, secrets) load automatically via `ansible.cfg`'s `vault_password_file`.
+Vagrant Docker and Tart provisioner support is planned; see [docs/feature-requests/feat.consistent.provisioning.style/prd.md](../../feature-requests/feat.consistent.provisioning.style/prd.md).
 
 ## Out of Scope
 
