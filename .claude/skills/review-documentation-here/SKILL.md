@@ -30,3 +30,15 @@ Role-specific documentation MUST NOT be placed under `docs/roles/`.
 Cross-cutting architecture documentation (solution strategy, ADRs,
 technical debt) continues to live in `docs/architecture/` as described
 in the "review-documentation" skill.
+
+## Working-Context Tier: `specs/<feature>/`
+
+This project adds one documentation tier on top of the base strategy:
+
+- `specs/<feature>/` — Working context per feature: spec, plan, research,
+  and tasks (managed by spec-kit).
+
+## Migration Policy
+
+Content moves from `specs/` to `docs/` when it becomes stable, reusable
+across features, and no longer tied to a single increment.

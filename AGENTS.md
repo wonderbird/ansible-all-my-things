@@ -58,6 +58,9 @@ constraints are documented in
 Architecture Decision Records are in
 [`docs/architecture/decisions/`](docs/architecture/decisions/).
 
+These are the canonical locations for architectural decisions; they MUST
+NOT be recorded in `CLAUDE.md` or agent-specific context files.
+
 ## Active Technologies
 
 - YAML (Ansible 2.19+) + `community.general` collection + `ansible.builtin.*`;

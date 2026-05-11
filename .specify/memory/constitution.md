@@ -1,3 +1,15 @@
+<!--
+Sync Impact Report — 1.4.0 → 1.5.0 (MINOR)
+- New top-level section: Secret Management (promoted from Technology Stack sub-heading)
+- Principle II: Molecule scenario contract → molecule-testing skill pointer
+- Principle V: prefix list + small-increment rule fully delegated to commit skill
+- Principle VI: format-markdown invocation timing (once at task close, after files finalized)
+- Documentation Standards: review-documentation-here invocation order (before format-markdown); project-specific tier and migration policy moved to review-documentation-here skill
+- Agent Environment: durable knowledge generalized to all rule-bearing skills
+- Governance §4: propagation targets enumerated (.specify/templates/, AGENTS.md, CLAUDE.md, .claude/skills/*/SKILL.md)
+- All `.cursor/rules/*.mdc` references replaced with skill or `.claude/skills/*/SKILL.md` references
+- Propagation: AGENTS.md ✓, CLAUDE.md ✓, CONTRIBUTING.md ✓, .claude/skills/review-documentation-here/SKILL.md ✓, ~/.claude/skills/commit/SKILL.md ✓ (separate repo)
+-->
 # ansible-all-my-things Constitution
 
 ## Core Principles
@@ -30,15 +42,13 @@ MUST NOT contain implementation logic (tasks, handlers, templates) directly.
 Roles MUST have a clear single responsibility.
 
 Every role that can be exercised in a container MUST include a Molecule test
-scenario in `molecule/default/`. The scenario MUST cover at minimum:
+scenario in `molecule/default/` covering the full
+create → prepare → converge → idempotence → verify → destroy lifecycle.
 
-- A `prepare.yml` that bootstraps the container to a state where Ansible can
-  operate (Python, sudo, and any required system users).
-- A `converge.yml` that applies the role under test.
-- A `verify.yml` that asserts the role's observable outcomes using
-  `ansible.builtin.assert`.
-- An explicit `test_sequence` in `molecule.yml` listing only the phases the
-  scenario defines.
+**The scenario file contract, required content of `prepare.yml`,
+`converge.yml`, `verify.yml`, and `molecule.yml` are defined in the
+`molecule-testing` skill, which is the authoritative source of truth. All
+agents MUST invoke it when creating or modifying a role's Molecule scenario.**
 
 Roles that cannot be exercised in a container (e.g., desktop environment
 configuration, display managers, hardware drivers) MUST instead be validated
@@ -78,34 +88,18 @@ maintain for a single-person project. YAGNI keeps the repository actionable.
 
 ### V. Conventional Commits & Traceability
 
-Every git commit MUST use one of the following conventional commit prefixes:
-`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `ci:`, `build(deps):`.
-If the correct prefix is unclear, ask the user before committing.
-
-Commit messages MUST represent a small, coherent, working increment.
-
-**Commit format, headline conventions, co-authorship requirements, and the
-AI agent co-author table are defined in the `commit` skill, which is the
-authoritative source of truth for all commit formatting. All agents MUST
-invoke it before creating any commit.**
+Every git commit MUST conform to the `commit` skill, which is the authoritative
+source of truth for all commit formatting — including allowed prefixes, message
+format, small-increment requirements, and co-authorship rules. All agents MUST
+invoke it before creating any commit.
 
 **Rationale**: Consistent commit messages make history machine-readable and
 auditable; co-authorship credits are required by the collaboration agreement.
 
 ### VI. Markdown Quality Standards
 
-All Markdown files in this repository (`.md`, `.mdc`) MUST comply with:
-
-- Section headers MUST use ATX heading syntax (`#`, `##`, `###`, …). Bold
-  text (`**text**`) MUST NOT be used as a substitute for headings.
-- Every list (ordered or unordered) MUST be preceded and followed by a blank
-  line.
-- No trailing whitespace on any line.
-- No multiple consecutive blank lines — use exactly one blank line to
-  separate sections.
-- Every file MUST end with exactly one newline character.
-- Heading hierarchy MUST be consistent throughout the file (H1 → H2 → H3;
-  no skipped levels).
+All Markdown files in this repository (`.md`, `.mdc`) MUST be lint-clean
+under the `format-markdown` skill's ruleset.
 
 **The full linting ruleset, tool invocation, and installation instructions are
 defined in the `format-markdown` skill, which is the authoritative source of
@@ -156,35 +150,21 @@ introduces uncontrolled changes and makes root-cause analysis impossible.
 No additional runtime languages (Python services, Node apps, etc.) are
 introduced without explicit justification and documentation.
 
-**Secret Management**: All sensitive data (cloud credentials, API tokens, SSH
-keys, vault passwords) MUST be encrypted with Ansible Vault. Plaintext
-secrets MUST NOT appear in any committed file. Vault passwords are provided
-at runtime via the `ANSIBLE_VAULT_PASSWORD_FILE` environment variable.
+## Secret Management
+
+All sensitive data (cloud credentials, API tokens, SSH keys, vault passwords)
+MUST be encrypted with Ansible Vault. Plaintext secrets MUST NOT appear in
+any committed file. Vault passwords are provided at runtime via the
+`ANSIBLE_VAULT_PASSWORD_FILE` environment variable.
 
 ## Documentation Standards
 
-**The documentation strategy, folder structure, and migration policy are
-defined in the `review-documentation` skill, extended by the project-specific
-`review-documentation-here` skill for co-located role documentation. All
-agents MUST invoke `review-documentation-here` once at the close of a task,
-before invoking `format-markdown`, so documentation is stable before
-formatting runs.**
-
-This project extends the base strategy with one additional documentation tier:
-
-- `specs/<feature>/` — Working context per feature: spec, plan, research,
-  and tasks (managed by spec-kit). Promoted to `docs/` when stable and
-  feature-agnostic.
-
-Technology decisions, platform constraints, and the top-level decomposition
-strategy are documented in `docs/architecture/solution-strategy.md`
-(arc42 Section 4). Detailed Architecture Decision Records are kept in
-`docs/architecture/decisions/`. These are the canonical locations for
-architectural decisions; they MUST NOT be recorded in `CLAUDE.md` or
-agent-specific context files.
-
-**Migration policy**: content moves from `specs/` to `docs/` when it becomes
-stable, reusable across features, and no longer tied to a single increment.
+**The documentation strategy, folder structure, project-specific tiers
+(working-context specs, co-located role documentation), and migration policy
+are defined in the `review-documentation` skill and its project-specific
+extension `review-documentation-here`. All agents MUST invoke
+`review-documentation-here` once at the close of a task, before invoking
+`format-markdown`, so documentation is stable before formatting runs.**
 
 All documentation MUST comply with Principle VI (Markdown Quality Standards).
 
@@ -197,7 +177,8 @@ variables, tools installed outside `.venv` — does not survive between sessions
 All durable knowledge MUST be committed to git:
 
 - Ansible patterns and prohibitions → this constitution
-- Molecule and testing rules → `.claude/skills/molecule-testing/SKILL.md`
+- Skill-owned rules (Molecule, commit format, Markdown formatting,
+  documentation review) → `.claude/skills/<skill>/SKILL.md`
 - Architecture decisions → `docs/architecture/decisions/`
 
 Never rely on in-session memory or local files for knowledge that must
@@ -233,7 +214,9 @@ This constitution supersedes all informal conventions. Any amendment requires:
    - **PATCH**: clarification, wording improvement, typo fix.
 3. An update to this file with an incremented version, updated
    `Last Amended` date, and a new Sync Impact Report comment.
-4. Propagation checks across `.specify/templates/` and referenced docs.
+4. Propagation checks across `.specify/templates/`, `AGENTS.md`,
+   `CLAUDE.md`, and any `.claude/skills/*/SKILL.md` named in this
+   constitution.
 
 Complexity exceptions (violations of Principle IV) MUST be documented in the
 `Complexity Tracking` table of the relevant plan.md before implementation
@@ -241,6 +224,7 @@ begins.
 
 All agents working in this repository MUST read this constitution at the start
 of any non-trivial task and verify that their plan complies with each principle.
-Runtime guidance for AI agents is in `CLAUDE.md` and `AGENTS.md`.
+Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
+it and to this constitution.
 
-**Version**: 1.4.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-04-30
+**Version**: 1.5.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-11
