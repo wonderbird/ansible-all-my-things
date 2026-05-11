@@ -70,54 +70,9 @@ A unified, cross-provider automation system that provides automated access to de
 
 ## How It Works
 
-### Multi-Provider User Experience
+Environments are provisioned, configured, accessed, and destroyed using Ansible playbooks. A unified `provision.yml` entrypoint accepts `provider` and `platform` parameters to target any supported environment with a single command.
 
-**Hetzner Cloud Linux (Persistent Development)**:
-```bash
-ansible-playbook provision.yml
-ssh galadriel@$HOBBITON_IP
-ansible-playbook destroy.yml
-```
-
-**AWS Linux (On-Demand Development)**:
-```bash
-ansible-playbook provision.yml --extra-vars "provider=aws platform=linux"
-ssh galadriel@$RIVENDELL_IP
-ansible-playbook destroy-aws.yml
-```
-
-**AWS Windows (Application Access)**:
-```bash
-ansible-playbook provision.yml --extra-vars "provider=aws platform=windows"
-ssh galadriel@$MORIA_IP  # Command-line access
-# RDP connection available for desktop applications
-ansible-playbook destroy-aws.yml
-```
-
-### Primary Workflows
-
-**Persistent Development Environment (Hetzner Cloud)**:
-1. **Provision**: Complete GNOME desktop environment (~10-15 minutes)
-2. **Configure**: Automatic application installation and user setup with command restrictions
-3. **Access**: SSH with full desktop environment and AI agent safety controls
-4. **Destroy**: Complete cleanup with data backup
-
-**Cross-Platform Application Access (AWS Windows)**:
-1. **Provision**: Windows Server 2025 instance with desktop environment (~5 minutes)
-2. **Configure**: Automatic Chocolatey installation, RDP optimization, and command restrictions
-3. **Access**: SSH and RDP connections to Windows Server environment with AI agent safety
-4. **Use**: Ready for Claude Desktop and other Windows applications
-5. **Destroy**: Complete environment cleanup
-
-### AI Agent Safety on Target Systems
-
-**Command Restriction Deployment**: 
-- Restrictions deployed to target systems (`hobbiton`, `rivendell`, `moria`) via ansible
-- Applied to `desktop_users` accounts (`galadriel`, `legolas`) during provisioning
-- Cross-platform implementation for Linux and Windows target systems
-
-**Blocked Commands**: `ansible`, `vagrant`, `docker`, `aws`, `hcloud` and related tools
-**User Access**: Restrictions apply only to AI agents, users retain full command access
+For step-by-step instructions see [docs/user-manual/create-vm.md](user-manual/create-vm.md).
 
 ## Problems This Solves
 
@@ -149,7 +104,7 @@ ansible-playbook destroy-aws.yml
 - AWS Linux: ~3-5 minutes for minimal server environment  
 - AWS Windows: ~5 minutes for complete Windows Server environment
 
-**Cost Optimization Across Providers**: See README.md for current cost estimates from provider group_vars.
+**Cost Optimization Across Providers**: For current pricing see the comments in the provider-specific group_vars files, e.g. [`inventories/group_vars/hcloud_linux/vars.yml`](../inventories/group_vars/hcloud_linux/vars.yml).
 
 **Automation Coverage**:
 - Zero manual configuration required across all implementations

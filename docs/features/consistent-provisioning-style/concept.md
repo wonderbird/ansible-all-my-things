@@ -45,17 +45,6 @@ ansible-playbook provision.yml --extra-vars "provider=aws platform=linux"
 ansible-playbook provision.yml --extra-vars "provider=aws platform=windows"
 ```
 
-## Provider Differences
-
-| Property | Hetzner Linux | AWS Linux |
-|---|---|---|
-| Connection | SSH | SSH |
-| Default User | root → galadriel | ubuntu → galadriel |
-| Package Manager | apt | apt |
-| Provisioning | hcloud server create | EC2 launch |
-| Cost | ~$4/mo (persistent) | ~$8-10/mo (on-demand) |
-| Inventory Groups | @hcloud, @hcloud_linux | @aws_ec2, @aws_ec2_linux |
-
 Vagrant Docker and Tart provisioner support is planned; see [docs/feature-requests/feat.consistent.provisioning.style/prd.md](../../feature-requests/feat.consistent.provisioning.style/prd.md).
 
 ## Out of Scope
