@@ -1,14 +1,14 @@
 ---
+name: review-documentation-here
 description: >
-  Read immediately after 600-documentation-strategy.mdc; defines
-  project-specific documentation structure, including co-located
-  role documentation.
-alwaysApply: false
+  Extends review-documentation by project-specific documentation structure,
+  including co-located role documentation. Use when reviewing the project
+  documentation.
 ---
 # Project-Specific Documentation Strategy
 
-This rule extends `600-documentation-strategy.mdc` with conventions
-specific to this repository.
+Review the project documentation according to the rules here and to the
+rules in the "review-documentation" skill.
 
 ## Role Documentation Co-Location
 
@@ -29,8 +29,4 @@ extracted to a standalone Ansible Galaxy repository.
 Role-specific documentation MUST NOT be placed under `docs/roles/`.
 Cross-cutting architecture documentation (solution strategy, ADRs,
 technical debt) continues to live in `docs/architecture/` as described
-in `600-documentation-strategy.mdc`.
-
-## Happiness
-
-🗂️
+in the "review-documentation" skill.
