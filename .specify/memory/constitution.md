@@ -109,8 +109,8 @@ All Markdown files in this repository (`.md`, `.mdc`) MUST comply with:
 
 **The full linting ruleset, tool invocation, and installation instructions are
 defined in the `format-markdown` skill, which is the authoritative source of
-truth. All agents MUST invoke it whenever creating or modifying a Markdown
-file.**
+truth. All agents MUST invoke it once at the close of a task, after all
+Markdown files are finalized — not after each individual edit.**
 
 **Rationale**: Consistent formatting ensures readability across editors and
 rendering tools, and makes diffs easier to review.
