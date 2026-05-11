@@ -166,8 +166,9 @@ at runtime via the `ANSIBLE_VAULT_PASSWORD_FILE` environment variable.
 **The documentation strategy, folder structure, and migration policy are
 defined in the `review-documentation` skill, extended by the project-specific
 `review-documentation-here` skill for co-located role documentation. All
-agents MUST invoke `review-documentation-here` when creating or updating
-documentation.**
+agents MUST invoke `review-documentation-here` once at the close of a task,
+before invoking `format-markdown`, so documentation is stable before
+formatting runs.**
 
 This project extends the base strategy with one additional documentation tier:
 
