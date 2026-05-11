@@ -1,14 +1,7 @@
 <!--
-Sync Impact Report — 1.4.0 → 1.5.0 (MINOR)
-- New top-level section: Secret Management (promoted from Technology Stack sub-heading)
-- Principle II: Molecule scenario contract → molecule-testing skill pointer
-- Principle V: prefix list + small-increment rule fully delegated to commit skill
-- Principle VI: format-markdown invocation timing (once at task close, after files finalized)
-- Documentation Standards: review-documentation-here invocation order (before format-markdown); project-specific tier and migration policy moved to review-documentation-here skill
-- Agent Environment: durable knowledge generalized to all rule-bearing skills
-- Governance §4: propagation targets enumerated (.specify/templates/, AGENTS.md, CLAUDE.md, .claude/skills/*/SKILL.md)
-- All `.cursor/rules/*.mdc` references replaced with skill or `.claude/skills/*/SKILL.md` references
-- Propagation: AGENTS.md ✓, CLAUDE.md ✓, CONTRIBUTING.md ✓, .claude/skills/review-documentation-here/SKILL.md ✓, ~/.claude/skills/commit/SKILL.md ✓ (separate repo)
+Sync Impact Report — 1.5.0 → 1.5.1 (PATCH)
+- Principle VII: 8-step protocol fully delegated to fix-problem skill (consistency with Principles II, V, VI delegation pattern)
+- Propagation: none required (skill already authoritative; no other files reference the inlined protocol)
 -->
 # ansible-all-my-things Constitution
 
@@ -112,23 +105,8 @@ rendering tools, and makes diffs easier to review.
 ### VII. Structured Problem Solving
 
 When an unexpected obstacle arises (test failure, tooling error, regression,
-incorrect command output), the remediation protocol MUST be followed:
-
-1. **Stop** the current primary task immediately.
-2. **Document** the obstacle (in chat or a spec artifact) before attempting
-   a fix.
-3. **One obstacle at a time** — select only the first obstacle; ignore
-   others until it is fully resolved. Solving multiple issues simultaneously
-   is forbidden.
-4. **Hypothesize** — form a specific, testable hypothesis for the cause.
-5. **Test the hypothesis** — make the minimal change needed to confirm or
-   refute it (a minimal failing test for code bugs; a minimal command
-   execution for tooling bugs).
-6. **Fix** — implement the minimal fix; verify no regressions.
-7. **Commit** — use a commit message that names the specific obstacle
-   resolved.
-8. **Repeat** for remaining obstacles, or resume the primary task when all
-   are cleared.
+incorrect command output), agents MUST invoke the `fix-problem` skill, which
+is the authoritative source of truth for the remediation protocol.
 
 **Rationale**: Attempting to fix multiple interleaved issues simultaneously
 introduces uncontrolled changes and makes root-cause analysis impossible.
@@ -227,4 +205,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.5.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-11
+**Version**: 1.5.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-11
