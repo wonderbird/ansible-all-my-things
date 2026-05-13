@@ -1,0 +1,26 @@
+{
+  "feature": "ru3-molecule-ci-pipeline-verification",
+  "stories": [
+    {
+      "id": "US-PR",
+      "title": "Open PR to trigger Molecule CI",
+      "passes": true,
+      "acceptanceCriteria": [
+        "PR exists on GitHub targeting main from ru3-molecule-ci-pipeline",
+        "gh pr list --head ru3-molecule-ci-pipeline returns one open PR",
+        "PR title references ru3 and molecule CI"
+      ]
+    },
+    {
+      "id": "US-CI",
+      "title": "CI runs and result is captured",
+      "passes": true,
+      "acceptanceCriteria": [
+        "Molecule Tests workflow triggered on the PR head commit",
+        "CI result (green or red) is captured with run URL",
+        "If green: ru3 closed in beads with PR URL and run URL as evidence",
+        "If red: failure log saved to .omc/research/ru3-ci-failure.log and ru3 stays open"
+      ]
+    }
+  ]
+}
