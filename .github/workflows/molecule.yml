@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: MIT-0
+---
+name: Molecule Tests
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  molecule:
+    name: Run Molecule tests
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Ansible collections
+        run: ansible-galaxy collection install -r requirements.yml
+
+      - name: Configure rootless Podman
+        run: echo "XDG_RUNTIME_DIR=/run/user/$(id -u)" >> "$GITHUB_ENV"
+
+      - name: Run Molecule tests
+        run: ./scripts/test-molecule-all.sh
+        env:
+          ANSIBLE_FORCE_COLOR: "true"
+          PY_COLORS: "1"
