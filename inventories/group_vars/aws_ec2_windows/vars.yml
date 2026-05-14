@@ -14,10 +14,10 @@
 # - in the AMI Catalog, activate the "Community-AMIs" tab
 # - enter "Windows_Server-2025-English-Full-Base" into the search box
 # - in the results, search for an AMI starting with exactly the same name
-#   and ending with a date like 2025.08.13
+#   and ending with a date like 2025.08.13 (provided by Amazon)
 #
 #
-aws_default_ami_id: "ami-02d780a7b1609ebca"
+aws_default_ami_id: "ami-04825a63f08add32f"
 
 # Refer to the pricing table in inventories/group_vars/aws_ec2_linux/vars.yml
 aws_default_instance_type: "t3.large"
