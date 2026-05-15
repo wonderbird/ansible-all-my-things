@@ -1,10 +1,12 @@
 # syntax=docker/dockerfile:1
 
-# BuildKit Cache Mounts
+# Two-stage build: builder installs tools (git, curl, gpg, gpg-agent, wget,
+# unzip, pipx, python3-venv), runtime stage copies only the produced artifacts
+# (/root/.local, /root/.ansible, aws-cli, hcloud). Single-stage alternative
+# requires apt-get purge after install, but purged packages remain in lower
+# image layers — measured +131 MB (817 MB vs 686 MB).
 #
-#   The cache mounts improve build performance by persisting between builds.
-#   Package lists are stored in the cache outside the image layers.
-#   Thus, images stay small even without `rm -rf /var/lib/apt/lists/*` in each layer.
+# BuildKit cache mounts keep apt lists outside image layers for fast rebuilds.
 
 FROM ubuntu:26.04 AS builder
 
@@ -73,7 +75,6 @@ COPY --from=builder /root/.ansible /root/.ansible
 
 ENV PATH="/root/.local/bin:$PATH"
 
-# Setup directories (rarely changes)
 RUN mkdir -p /root/.ssh \
     && chmod 700 /root/.ssh \
     && mkdir /backup
