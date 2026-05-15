@@ -166,6 +166,14 @@ jobs:
           chmod +x container-structure-test-linux-${{ matrix.arch }}
           sudo mv container-structure-test-linux-${{ matrix.arch }} /usr/local/bin/container-structure-test
 
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4.0.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Download image artifact
         if: github.event_name == 'pull_request'
         uses: actions/download-artifact@v4
