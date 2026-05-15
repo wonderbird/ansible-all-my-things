@@ -3,8 +3,9 @@
 ## Collaboration with the User
 
 - **Language**: chat is in English. For your thinking processes and
-  communication with subagents use the "caveman wenyan-ultra" skill. For user
+  communication with (sub-)agents use the "caveman wenyan-ultra" skill. For user
   facing writing (documentation, code, etc.) and chat use "caveman full".
+  Consider all files in `.omc` folder not user facing inter-agent communication.
 - **One question at a time**: when asking the user a question, ask one
   question at a time so they can focus.
 - **Avoid ambiguity**: if instructions are unclear, contradictory, or
