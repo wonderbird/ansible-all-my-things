@@ -66,10 +66,29 @@ Scenario: Fork PR — no credential failure
 
 ## Implementation Plan
 
+## Implementation Notes
+
+### GHA env block limitation
+
+Workflow-level `env` blocks do not support expressions (`${{ }}`) — only
+literal values. `${{ github.repository_owner }}` cannot be set there.
+
+**Fix:** compute the image name in a job step and export via `$GITHUB_ENV`,
+then reference `$IMAGE_NAME` in subsequent steps. Alternatively, inline the
+expression directly at each usage site.
+
+### Push-before-test gap (known, accepted)
+
+On non-PR pushes, the image is pushed before the test job validates it.
+This gap exists in the current workflow and is not introduced by this change.
+It is addressed by the follow-up issue `nkb`.
+
+---
+
 ### Stage 1: Workflow changes
 
-1. Set `IMAGE_NAME: ${{ github.repository_owner }}/ansible-toolchain` in
-   `env` block; remove hardcoded `wonderbird` reference
+1. Compute image name in a step: `echo "IMAGE_NAME=ghcr.io/${{ github.repository_owner }}/ansible-toolchain" >> $GITHUB_ENV`
+   in each job that needs it; remove hardcoded `wonderbird` from the workflow-level `env` block
 2. Add per-arch matrix to `build` job: `ubuntu-24.04` (amd64) and
    `ubuntu-24.04-arm` (arm64); set `runs-on: ${{ matrix.runner }}`
 3. Set `platforms: linux/${{ matrix.arch }}` on `build-push-action`
