@@ -1,11 +1,5 @@
 # Role development workflow
 
-## Molecule-testing skill explains Role development
-
-To gain more insights into developing roles and testing them with Molecule,
-read the associated skill file:
-[molecule-testing/SKILL.md](../../../.claude/skills/molecule-testing/SKILL.md).
-
 ## Testing a role with Molecule (preferred)
 
 Roles that can be exercised in a container are tested with Molecule. Activate
@@ -26,9 +20,6 @@ From the project root:
 
 Both forms run the full lifecycle: create → prepare → converge → idempotence →
 verify → destroy. All phases MUST pass before committing.
-
-For scenario templates and known pitfalls when adding a Molecule scenario to a
-new role, see [`.claude/skills/molecule-testing/SKILL.md`](.claude/skills/molecule-testing/SKILL.md).
 
 ## Running a single role on a live host
 

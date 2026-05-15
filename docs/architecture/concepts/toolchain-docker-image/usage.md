@@ -6,8 +6,11 @@ A GitHub action rebuilds the image periodically. The latest version can be
 pulled as follows:
 
 ```shell
-docker pull ghcr.io/wonderbird/ansible-toolchain
+docker pull ghcr.io/<owner>/ansible-toolchain
 ```
+
+Replace `<owner>` with the GitHub user or organisation that owns the repository
+(e.g. `wonderbird` for the upstream project).
 
 ## Container configuration
 
@@ -15,17 +18,23 @@ The following environment variables are supported:
 
 - `HCLOUD_TOKEN`: your Hetzner cloud API token
 - `ANSIBLE_VAULT_PASSWORD`: password to encrypt the secrets in ansible vault
-- `BACKUP_DIR` (optional): If this variable is not empty, then your backups are copied into that directory. For example, use  `/backup`
+- `BACKUP_DIR` (optional): If this variable is not empty, then your backups
+  are copied into that directory. For example, use `/backup`
 
 Furthermore the following bind mounts are supported:
 
-- `/root/.ssh/YOUR_KEY_FILE.pem`: your private key registered with Hetzner cloud and aws. See [/docs/user-manual/prerequisites-aws.md](../docs/user-manual/prerequisites-aws.md).
-- `/root/ansible-all-my-things/inventories/group_vars/all/vault.yml`: encrypted ansible configuration. See [docs/user-manual/important-concepts.md](../docs/user-manual/important-concepts.md).
+- `/root/.ssh/YOUR_KEY_FILE.pem`: your private key registered with Hetzner
+  cloud and aws. See the
+  [AWS prerequisites](../docs/user-manual/prerequisites-aws.md).
+- `/root/ansible-all-my-things/inventories/group_vars/all/vault.yml`:
+  encrypted ansible configuration. See
+  [important-concepts.md](../docs/user-manual/important-concepts.md).
 - `/backup`: folder containing and receiving backups
 
 ## Create container
 
-Once you have the sources of the bind mounts ready, you can run the container as follows:
+Once you have the sources of the bind mounts ready, you can run the container
+as follows:
 
 ```shell
 read -p "Enter HCLOUD_TOKEN: " -s HCLOUD_TOKEN; export HCLOUD_TOKEN; echo; \
@@ -38,7 +47,7 @@ docker run --mount type=bind,source="/path/to/backup",target=/backup \
            --env ANSIBLE_VAULT_PASSWORD="$ANSIBLE_VAULT_PASSWORD" \
            --env BACKUP_DIR="/backup" \
            --name "ansible-toolchain" \
-           -it ghcr.io/wonderbird/ansible-toolchain
+           -it ghcr.io/<owner>/ansible-toolchain
 ```
 
 ## Create a VM on hcloud
@@ -59,10 +68,10 @@ More commands and procedure to delete the VM are described in [/docs/user-manual
 
 ## Re-start and Enter the Container
 
-The next time you want to interact with the ansible playbooks, you only need to start the container and enter it:
+The next time you want to interact with the ansible playbooks, you only need
+to start the container and enter it:
 
 ```shell
 docker start ansible-toolchain
 docker exec -it ansible-toolchain bash
 ```
-
