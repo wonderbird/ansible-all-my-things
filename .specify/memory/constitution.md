@@ -1,7 +1,12 @@
 <!--
-Sync Impact Report — 1.5.0 → 1.5.1 (PATCH)
-- Principle VII: 8-step protocol fully delegated to fix-problem skill (consistency with Principles II, V, VI delegation pattern)
-- Propagation: none required (skill already authoritative; no other files reference the inlined protocol)
+Sync Impact Report — 1.5.1 → 1.6.0 (MINOR)
+- Added Principle VIII: No Untracked Technical Debt
+- Development Workflow: step 6 updated to require findings tracking
+- Templates requiring updates:
+  ✅ .specify/templates/plan-template.md — Constitution Check covers VIII automatically
+  ✅ .specify/templates/tasks-template.md — no change needed
+  ✅ .specify/templates/spec-template.md — no change needed
+- No principles renamed or removed
 -->
 # ansible-all-my-things Constitution
 
@@ -111,6 +116,22 @@ is the authoritative source of truth for the remediation protocol.
 **Rationale**: Attempting to fix multiple interleaved issues simultaneously
 introduces uncontrolled changes and makes root-cause analysis impossible.
 
+### VIII. No Untracked Technical Debt
+
+When implementing any task, all findings discovered during implementation —
+code-review observations, follow-up improvements, and technical debt — MUST
+be tracked as issues with the same priority as the source task. These issues
+MUST block the source task's cover or parent issue before that issue is closed.
+
+Technical debt MUST NOT be left untracked unless explicitly agreed with the
+team. Such agreement MUST be recorded in the relevant issue before the source
+task is closed.
+
+**Rationale**: Untracked debt accumulates invisibly and degrades quality
+without appearing in any backlog. Matching priority and blocking status ensures
+findings are treated with the same urgency as the work that produced them,
+preventing silent quality erosion.
+
 ## Technology Stack
 
 - **Automation**: Ansible (playbooks, roles, inventory)
@@ -175,7 +196,8 @@ carry forward to the next agent session.
 5. **User review**: after every commit, request a user review and wait for
    approval before proceeding.
 6. **Peer/self review**: verify idempotency, simplicity and traceability before
-   merging.
+   merging. Track all findings as issues with the same priority as the source
+   task, blocking the source task's cover issue (Principle VIII).
 7. **Merge to main**: squash or rebase as appropriate; no merge commits unless
    history clarity demands it.
 8. **Cloud apply**: run the playbook against cloud targets only after local
@@ -205,4 +227,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.5.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-11
+**Version**: 1.6.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-15
