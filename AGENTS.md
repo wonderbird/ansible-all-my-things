@@ -2,7 +2,9 @@
 
 ## Collaboration with the User
 
-- **Language**: chat is in English.
+- **Language**: chat is in English. For your thinking processes and
+  communication with subagents use the "caveman wenyan-ultra" skill. For user
+  facing writing (documentation, code, etc.) and chat use "caveman full".
 - **One question at a time**: when asking the user a question, ask one
   question at a time so they can focus.
 - **Avoid ambiguity**: if instructions are unclear, contradictory, or
