@@ -1,9 +1,10 @@
 name: Docker
 
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+# Pipeline overview:
+# - build: per-arch native matrix (amd64 on ubuntu-24.04, arm64 on ubuntu-24.04-arm).
+#   PR path: build → save tarball → upload artifact (no registry push).
+#   Non-PR path: build → push to ghcr.io → sign with cosign.
+# - test: download artifact (PR) or pull from registry (non-PR) → structure tests.
 
 on:
   schedule:
@@ -176,6 +177,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Pull image from registry
+        if: github.event_name != 'pull_request'
+        run: docker pull $IMAGE_NAME:latest-${{ matrix.arch }}
+
       - name: Download image artifact
         if: github.event_name == 'pull_request'
         uses: actions/download-artifact@v4
@@ -185,10 +190,6 @@ jobs:
       - name: Load image from artifact
         if: github.event_name == 'pull_request'
         run: docker load < image-${{ matrix.arch }}.tar.gz
-
-      - name: Pull image from registry
-        if: github.event_name != 'pull_request'
-        run: docker pull $IMAGE_NAME:latest-${{ matrix.arch }}
 
       - name: Set test image reference
         run: |
