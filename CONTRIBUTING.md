@@ -12,3 +12,4 @@ Development concepts are documented in
 [docs/architecture/concepts](./docs/architecture/concepts/):
 
 - [Role development workflow](./docs/architecture/concepts/role-development-workflow.md)
+- [Toolchain docker image](./docs/architecture/concepts/toolchain-docker-image.md)
