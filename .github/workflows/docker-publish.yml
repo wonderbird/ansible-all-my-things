@@ -81,6 +81,8 @@ jobs:
           tags: |
             # set latest tag for default branch
             type=raw,value=latest,enable={{is_default_branch}}
+            # arch-specific latest tag so each arch can be tested independently
+            type=raw,value=latest-${{ matrix.arch }},enable={{is_default_branch}}
             # tag PRs so the built image has a reference for docker save
             type=ref,event=pr
             # semver tags: v1.2.3 → 1.2.3, 1.2, 1
@@ -186,14 +188,14 @@ jobs:
 
       - name: Pull image from registry
         if: github.event_name != 'pull_request'
-        run: docker pull $IMAGE_NAME:latest
+        run: docker pull $IMAGE_NAME:latest-${{ matrix.arch }}
 
       - name: Set test image reference
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "TEST_IMAGE=test-image:${{ matrix.arch }}" >> $GITHUB_ENV
           else
-            echo "TEST_IMAGE=$IMAGE_NAME:latest" >> $GITHUB_ENV
+            echo "TEST_IMAGE=$IMAGE_NAME:latest-${{ matrix.arch }}" >> $GITHUB_ENV
           fi
 
       - name: Run Structure Tests (${{ matrix.arch }})
