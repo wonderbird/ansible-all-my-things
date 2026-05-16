@@ -28,6 +28,7 @@ task.
 
 | Skill | When to read |
 | --- | --- |
+| [developer](.claude/skills/developer/SKILL.md) | Use when expert knowledge of Ansible is required to analyze, implement, or fix features. Project scope: setting up and mainting virtual machines. |
 | [molecule-testing](.claude/skills/molecule-testing/SKILL.md) | Pull in information about the molecule testing setup for Ansible roles. Use when implementing or modifying an Ansible role to set up or maintain its Molecule test scenario. |
 | [review-documentation-here](.claude/skills/review-documentation-here/SKILL.md) | Extends review-documentation by project-specific documentation structure, including co-located role documentation. Use when reviewing the project documentation. |
 | [technical-coach](.claude/skills/technical-coach/SKILL.md) | Use when expert knowledge of Ansible is required to advise and tutor on automating setup and maintenance of virtual machines. |
