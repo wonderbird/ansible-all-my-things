@@ -31,33 +31,82 @@ Without an explicit rule, future workflow changes risk inconsistent
 review: a reviewer cannot tell whether a new `uses: foo/bar@v1` line is
 acceptable or must be SHA-pinned.
 
-This ADR records the proposed policy so the team can decide and so
-future contributors (human and AI) apply a consistent rule.
+This ADR records a recommended policy so the decision-maker can accept,
+amend, or reject it, and so future contributors (human and AI) apply a
+consistent rule.
+
+### Project Blast Radius
+
+This is a single-maintainer Ansible repository for personal virtual
+machine setup. The Docker artefact (`ansible-toolchain`) is consumed
+mainly by the maintainer's own workflows and by anyone who voluntarily
+forks the repo. The publish step already runs only on non-PR events
+(`docker-publish.yml:128`) and the image is cosign-signed
+(`docker-publish.yml:205`). Consumers can detect tampering with
+`cosign verify` against the OIDC certificate.
+
+Sizing the worst case: a compromised publish produces an image used by
+the maintainer and possibly a handful of voluntary forks; cosign
+signature verification will fail or implicate the run; recovery is a
+rebuild and a key rotation. This is materially smaller than a
+multi-tenant production registry. The policy below is deliberately
+proportional: it formalises what is already working rather than adding
+new machinery.
+
+### Scope
+
+In scope: every `uses:` reference in every workflow under
+`.github/workflows/`, regardless of form. This explicitly includes:
+
+- direct action references (`uses: owner/action@ref`);
+- reusable workflows (`uses: owner/repo/.github/workflows/x.yml@ref`);
+- composite actions (which themselves transitively use other actions);
+- container actions (`uses: docker://image:tag` or actions whose
+  `runs.using: docker` pulls an external image).
+
+Out of scope:
+
+- non-`uses:` third-party code execution in CI. In particular, the
+  `curl -LO .../container-structure-test-linux-${arch}` followed by
+  `sudo mv` in `docker-publish.yml:107-110` is a distinct supply-chain
+  finding tracked as `ansible-all-my-things-i3p`. That issue exists
+  precisely because pinning policy alone cannot address floating
+  binary downloads inside `run:` steps. Adopting this ADR does not
+  close `i3p`, and rejecting this ADR does not nullify it.
+- runner-host integrity (GitHub-hosted runner internals);
+- secret rotation, repository ruleset configuration, branch protection
+  (separate concerns).
 
 ## Decision Drivers
 
-Initial driver set (to be reduced or expanded to 3–5 in a follow-up
-interview with the decision-maker):
+The drivers below are priority-ranked. Higher-priority drivers should
+dominate the trade-off when options conflict.
 
-1. **Supply-chain integrity** — resistance to tag-retargeting attacks
-   where a third-party maintainer (or attacker with maintainer
-   credentials) moves an existing tag to a malicious commit.
-2. **Security-patch velocity** — how quickly a CVE fix in an action
-   reaches our pipeline without manual intervention.
-3. **Auditability** — alignment with Principle IX; ability to reconstruct
-   exactly which action code ran for a given workflow run.
-4. **Maintenance burden** — Dependabot PR churn, reviewer time,
-   merge-conflict risk in workflow files.
-5. **Reviewer cognitive load** — readability of `uses:` lines and ease
-   of spotting policy violations during code review.
+1. **D1 — Supply-chain integrity for credential-bearing steps.** The
+   publish job holds `packages: write` and `id-token: write`. Code
+   reached from those steps must be referenced by something an attacker
+   cannot mutate without our consent.
+2. **D2 — Auditability (Principle IX alignment).** A reviewer (human or
+   future agent) should be able to determine which action code will run
+   by reading the workflow file alone.
+3. **D3 — Security-patch velocity.** Once a CVE in an action is fixed
+   upstream, the path from "fix released" to "fix running in our
+   pipeline" should be as short as is consistent with D1.
+4. **D4 — Maintenance and cognitive load.** Dependabot PR churn,
+   contributor effort to add a new action, reviewer time per PR.
+   "Reviewer cognitive load" and "maintenance burden" are merged into
+   this driver because the repository has a single maintainer who is
+   also the sole reviewer.
 
 ## Considered Options
 
-- **Option A — Two-tier policy (proposed)**: SHA-pin third-party actions
-  that handle credentials, sign, or push artefacts; floating
-  major-version tag for first-party `actions/*` utility actions.
-- **Option B — SHA-pin everything**: every `uses:` line in every workflow
-  uses a 40-character commit SHA with a `# vX.Y.Z` comment.
+- **Option A — Two-tier policy (recommended)**: SHA-pin actions that
+  satisfy a capability-and-role test (credential-bearing, signing,
+  building, or publishing); floating major-version tag for
+  GitHub-published utility actions that do not request elevated
+  permissions.
+- **Option B — SHA-pin everything**: every `uses:` line in every
+  workflow uses a 40-character commit SHA with a `# vX.Y.Z` comment.
 - **Option C — Tag-pin everything**: every `uses:` line uses a floating
   major-version tag.
 - **Option D — Do nothing**: keep the current mixed pinning state
@@ -66,10 +115,27 @@ interview with the decision-maker):
   pull-request reviewer applies their own judgement when a new action
   is introduced or an existing one changes pin style.
 - **Option F — Buy a hardening product**: adopt a third-party
-  supply-chain security product (for example StepSecurity
-  Harden-Runner, Snyk for GitHub Actions, Socket) that monitors action
-  behaviour at runtime instead of, or in addition to, writing a
-  pinning policy.
+  supply-chain product (for example StepSecurity Harden-Runner) that
+  monitors action behaviour at runtime in addition to (or instead of)
+  a pinning policy.
+- **Option G — GitHub repository allow-list (Settings → Actions)**:
+  enable "Allow specific actions and reusable workflows" in repository
+  settings and require SHA references. Mechanically prevents
+  introduction of disallowed actions without writing a CI lint.
+- **Option H — Fork-pin / internal mirror**: maintain a fork of each
+  third-party action under a maintainer-owned namespace and reference
+  the fork's SHA. Eliminates upstream-account-compromise exposure for
+  the actions in the mirror.
+- **Option I — Trusted-publisher allow-list + tag-pin**: maintain an
+  explicit list of trusted publishers (a file or a repository ruleset)
+  and permit tag pins for any action in that list, SHA otherwise.
+
+Note on asymmetry: the recommended option (A) is given more text below
+than the rejected options. The author has tried to keep that asymmetry
+to genuine analytical depth (Tier definitions, governance, follow-up
+hooks) rather than rhetorical loading. Where a rejected option's
+"negatives" can be softened by the same mechanisms as A, that is
+called out under that option's mitigations rather than buried.
 
 ### Pros and Cons of the Options
 
@@ -82,81 +148,101 @@ interview with the decision-maker):
   is documentation only.
 - Good, because Dependabot already handles both tiers; no new tooling
   is required.
-- Bad, because the policy is human-enforced until a CI lint (`v2u`)
-  lands; drift between policy and workflow files is possible.
-- Bad, because the Tier B allow-list rests on trust in GitHub's own
-  account-security posture for the `actions/` and `github/` orgs.
-- Neutral, because adding a new third-party action requires looking up
-  a SHA at PR time — minor friction compared with copying a tag.
+- Good, because Tier B actions still receive zero-touch security
+  patches via floating major tag, preserving patch velocity (D3) where
+  credential risk is lowest.
+- Bad, because the policy is human-enforced unless and until a CI
+  lint job (`v2u`) lands. See "Enforcement reality" below for an
+  honest framing of this constraint.
+- Bad, because Tier B's identity-and-capability constraint accepts a
+  trust assumption about GitHub's own account-security posture for the
+  `actions/` and `github/` organisations. See "Residual risk" below.
+- Bad, because adding a new third-party action requires looking up a
+  SHA at PR time — small friction compared with copying a tag.
 
-**Mitigations**
+**Mitigations and residual-risk acceptance**
 
-- Human-enforcement drift is closed by the follow-up CI lint job
-  tracked as `ansible-all-my-things-v2u`, which blocks the parent
-  finding epic and so cannot silently slip.
-- Trust in the `actions/` org can be tightened on demand: an
-  individual Tier B action MAY be SHA-pinned with an inline comment
-  (`# tightened to SHA, see <issue>`) without changing the overall
-  policy. If GitHub itself were compromised, the policy can be
-  amended in a single PATCH revision to collapse to Option B.
-- SHA-lookup friction can be removed for the contributor by running
-  `pinact run` or `ratchet pin` locally before committing; both tools
-  resolve `owner/action@vX` to `owner/action@<sha> # vX` automatically.
+- Lookup friction: a SHA-resolving helper such as `pinact` or
+  `ratchet` can rewrite `owner/action@vX` to
+  `owner/action@<sha> # vX` automatically. Tool selection and any
+  installation/documentation is deferred to `v2u`; this ADR does not
+  pre-commit either tool. Until then the lookup is manual.
+- Per-action tightening: an individual Tier B action MAY be SHA-pinned
+  ad hoc with an inline comment of the form
+  `# tightened to SHA, ref: <issue-id>` and a corresponding tracking
+  issue in beads. This is policy-conformant, not a deviation. The
+  maintainer approves these by reviewing the PR that introduces them;
+  no separate governance is required.
+- Residual risk — `actions/` org compromise: this is not mitigated by
+  the policy. It is accepted as the cost of D3 patch velocity for
+  utility actions. The accepted residual is bounded by the fact that
+  Tier B actions cannot request `packages: write`, `id-token: write`,
+  `contents: write`, `security-events: write`, or any cloud
+  push/login credential (see Tier B definition below). Public
+  precedents (for example the 2025 `tj-actions/changed-files`
+  incident, which was a third-party publisher and would have fallen
+  under Tier A, not Tier B) inform but do not change this
+  acceptance: no published `actions/*` or `github/*` incident to
+  date has resulted in arbitrary code execution under an attacker's
+  control in our credential context. Re-evaluate on first disclosed
+  `actions/`-org incident.
 
 #### Option B — SHA-pin everything
 
 - Good, because the rule is the simplest possible: every `uses:` line
   carries an immutable SHA — no allow-list, no per-action judgement.
-- Good, because supply-chain risk is uniformly bounded; even a
-  hypothetical compromise of the `actions/` GitHub org cannot move a
-  pinned SHA under us.
-- Bad, because security patches for first-party utility actions (CVEs
-  in `actions/checkout`, etc.) require a Dependabot PR + merge before
-  they reach our pipeline, slowing patch velocity.
+- Good, because trust scope shrinks uniformly; an `actions/`-org
+  compromise cannot move a pinned SHA under us.
+- Bad, because security patches for utility actions (CVEs in
+  `actions/checkout`, etc.) require a Dependabot PR + merge before
+  they reach the pipeline, slowing D3.
 - Bad, because workflow diffs become noisier — every minor utility
   bump generates a SHA change PR.
 - Bad, because contributors must look up a SHA for every action,
-  including trivial utility actions.
+  including trivial utility actions (D4 cost).
 
 **Mitigations**
 
 - Patch-velocity loss can be reduced by switching Dependabot to
   weekly cadence for `github-actions` and enabling auto-merge for
-  passing CI on Dependabot PRs touching only first-party utility
-  actions.
+  passing CI on Dependabot PRs that touch only utility actions.
+  This narrows the A↔B gap on D3 significantly; the residual delta is
+  largely whether you trust auto-merge on `actions/*` bumps.
 - Diff noise is already mitigated by the existing Dependabot grouping
   (`groups: all-actions`); all SHA bumps land in one PR per cycle.
 - Contributor lookup burden is removed by `pinact run` / `ratchet pin`
-  as described under Option A.
+  as discussed for Option A (same caveat: tool choice deferred to
+  `v2u`).
 
 #### Option C — Tag-pin everything
 
 - Good, because workflow files stay readable and writeable without
   external lookup.
 - Good, because security patches roll in automatically when a
-  maintainer cuts a new minor/patch under the same major tag.
-- Bad, because credential- and signing-bearing actions become
-  vulnerable to tag-retargeting attacks — a single compromised
+  maintainer cuts a new minor/patch under the same major tag (D3).
+- Bad, because credential-bearing actions become vulnerable to
+  tag-retargeting attacks (D1 fails) — a single compromised
   maintainer credential can replace the code that holds our GHCR push
   token at the next workflow run.
 - Bad, because Principle IX's "auditable artefact provenance" claim
-  becomes false: the workflow file no longer tells us which code ran.
-- Neutral, because Dependabot churn drops slightly compared with
-  SHA-everywhere (only major bumps generate PRs).
+  becomes false: the workflow file no longer tells us which code ran
+  (D2 fails).
+- Bad, because Dependabot churn for tag pins is lower (only major
+  bumps generate PRs) — this is a positive on D4 but the price is
+  the D1/D2 regression above.
 
 **Mitigations**
 
-- The tag-retargeting risk cannot be mitigated at the policy layer —
-  any meaningful mitigation (re-introducing SHA pinning for
-  credential-bearing actions) is equivalent to adopting Option A and
-  is therefore not a mitigation but a different choice.
+- The tag-retargeting risk on credential-bearing actions cannot be
+  mitigated at the policy layer without re-introducing SHA pinning
+  for those actions, which is Option A.
 - The audit-trail loss is partially recoverable post-hoc: GitHub
   workflow-run logs record the resolved `repo@SHA` for each action
   invocation, but only until the log retention window expires.
-  Stakeholders relying on Option C MUST therefore extend the
+  Stakeholders relying on Option C MUST therefore extend
   workflow-log retention to match their audit horizon.
-- Layering Option F (Harden-Runner or equivalent) on top of Option C
-  is the only meaningful compensating control.
+- Layering Option F (Harden-Runner or equivalent) provides
+  defence-in-depth without changing the pin layer.
 
 #### Option D — Do nothing
 
@@ -164,17 +250,16 @@ interview with the decision-maker):
 - Bad, because every future workflow change re-opens the same debate
   with no precedent to anchor the decision.
 - Bad, because Principle IX's "auditable artefact provenance" goal
-  cannot be confirmed without an explicit rule against which to audit.
-- Bad, because a contributor (including an AI agent) introducing a new
-  third-party action has no signal that SHA pinning is expected.
+  cannot be confirmed without an explicit rule to audit against.
+- Bad, because a contributor (including an AI agent) introducing a
+  new third-party action has no signal that SHA pinning is expected.
 
 **Mitigations**
 
-- None of the negatives can be addressed without writing some form
-  of policy, which is no longer "do nothing". A partial mitigation
-  is to add a brief contributor hint in `AGENTS.md` pointing at the
-  open decision; that, however, is itself a policy fragment and is
-  excluded here to keep this option pure.
+- None at the policy layer. A partial mitigation is to add a brief
+  contributor hint in `AGENTS.md` pointing at the open decision; that
+  is itself a policy fragment and is excluded here to keep the option
+  pure.
 
 #### Option E — Manual reviewer workaround
 
@@ -184,136 +269,296 @@ interview with the decision-maker):
   forget prior reasoning.
 - Bad, because consistency cannot be enforced by any automated check,
   ruling out the later CI lint (`v2u`).
-- Bad, because it places the burden of supply-chain reasoning on every
-  reviewer for every PR rather than encoding the answer once.
+- Bad, because it places the burden of supply-chain reasoning on
+  every reviewer for every PR rather than encoding the answer once.
 
 **Mitigations**
 
-- Drift and consistency loss can be reduced by maintaining a written
-  reviewer checklist — but a checklist that captures the rule is
-  effectively a thin Option A, so this is not a separable mitigation.
-- The per-PR reasoning burden cannot be removed without a written
-  policy.
+- A written reviewer checklist would reduce drift, but a checklist
+  that captures the rule is functionally a thin Option A.
+- The per-PR reasoning burden is unavoidable at this option.
 
 #### Option F — Buy a hardening product (e.g. Harden-Runner)
 
-- Good, because runtime egress monitoring catches a compromised action
-  even when its pin (SHA or tag) was valid at review time —
+- Good, because runtime egress monitoring catches a compromised
+  action even when its pin was valid at review time —
   defence-in-depth beyond what any pinning policy can achieve.
-- Good, because audit trails of network/file activity per workflow run
-  strengthen the Principle IX provenance story.
+- Good, because audit trails of network/file activity per workflow
+  run strengthen the Principle IX provenance story.
+- Good, because it can be adopted later on top of any of Options A–C
+  without re-opening this decision. (Treat this as a positive of
+  flexibility, not as a "neutral".)
 - Bad, because it does not replace a pinning policy — Harden-Runner's
   own documentation recommends SHA pinning as a complement, so the
   policy question still has to be answered.
 - Bad, because it adds an external runtime dependency and an extra
   workflow step on every job, increasing CI minutes and surface area.
 - Bad, because full feature sets (custom egress allow-lists, longer
-  audit retention, SSO) are paid-tier on most products evaluated.
-- Neutral, because the product can be adopted later on top of any of
-  Options A–C without re-opening this decision.
+  audit retention, SSO) are paid-tier on most products evaluated;
+  free-tier coverage is assumed sufficient at the time of writing
+  (2026-05-16) and would need re-verification at adoption time.
 
 **Mitigations**
 
-- The "does not replace policy" negative is mitigated by treating
-  Option F as additive: adopt it on top of Option A, not instead of
-  it. Harden-Runner's documentation explicitly recommends SHA
-  pinning alongside its agent.
-- CI-minute overhead can be capped by enabling Harden-Runner only on
-  the `push` job (where credentials live) and not on `build` or
-  `test` jobs.
-- Paid-tier dependency is avoided by using only the free-tier
-  egress-monitoring features at first; an upgrade decision can be
-  deferred until the audit findings demand it.
+- Treat F as additive: adopt it on top of Option A if defence-in-depth
+  is wanted later. Harden-Runner documentation explicitly recommends
+  SHA pinning alongside its agent.
+- Limit the per-job overhead by enabling Harden-Runner only on the
+  `push` job (the only job holding write credentials). This is
+  natural placement, not a saving — phrasing it as a mitigation does
+  not artificially inflate Option F's cost in the comparison.
 
-## Decision Outcome
+#### Option G — GitHub repository allow-list (Settings → Actions)
 
-**Chosen option: A — Two-tier policy.** Document the rule in this ADR and
-add a one-sentence cross-reference from constitution Principle IX. No
-workflow changes required — both current workflows already conform to
-the proposed tiers.
+- Good, because GitHub's native "Allow specific actions and reusable
+  workflows" toggle mechanically blocks introduction of disallowed
+  actions, without requiring CI or a lint job.
+- Good, because it can be combined with Option A: A defines what
+  belongs in which tier; G prevents accidental addition of anything
+  outside the allow-list.
+- Bad, because the allow-list lives in repository settings, not in
+  git — drift between settings and policy is invisible to
+  reviewers reading the repo.
+- Bad, because the allow-list does not distinguish SHA pin from tag
+  pin per entry; enforcement of "SHA for Tier A" still requires the
+  later CI lint (`v2u`) or human review.
+- Neutral, because for a solo-maintainer repo the settings-vs-git
+  drift risk is small (one person owns both).
 
-### The Two Tiers
+#### Option H — Fork-pin / internal mirror
 
-**Tier A — SHA pin with `# vX.Y.Z` comment.** Required for any
-third-party action that satisfies any of the following:
+- Good, because pinning to a fork in a maintainer-owned namespace
+  eliminates upstream-account-compromise exposure for the mirrored
+  actions.
+- Bad, because mirror maintenance is a recurring task: every
+  upstream release must be re-mirrored and the pin advanced manually
+  or via custom Dependabot configuration.
+- Bad, because patch velocity (D3) drops to manual cadence for any
+  mirrored action.
+- Bad, because the trust relocation is partial: the upstream
+  publisher is still trusted at the moment of each fork-sync.
 
-- runs with `packages: write`, `id-token: write`, or any cloud
-  push/login credential;
-- signs artefacts (cosign, sigstore, slsa-framework);
-- builds or pushes a container image, package, or release;
-- otherwise participates in the artefact-provenance chain.
+#### Option I — Trusted-publisher allow-list + tag-pin
 
-Examples: `docker/*`, `sigstore/*`, `slsa-framework/*`,
-`goreleaser/goreleaser-action`.
+- Good, because it decouples the trust decision (per publisher) from
+  the pinning decision (uniform tag pins inside the trusted set).
+- Good, because the trust list is short and reviewable (handful of
+  publishers).
+- Bad, because tag-retargeting risk is restored for all
+  credential-bearing actions whose publishers are on the list,
+  including signing tools. D1 fails for the same reason as Option C.
+- Bad, because publisher trust is binary in this option; a publisher
+  is either fully trusted (any of their actions can be tag-pinned)
+  or not at all, which is a coarser knob than Tier A's
+  per-capability test.
 
-**Tier B — floating major-version tag (`@vN`)** is permitted for
-first-party utility actions published under the GitHub-owned `actions/`
-and `github/` organisations.
+## Recommendation
 
-Examples: `actions/checkout`, `actions/setup-python`,
+The recommended option is **A — Two-tier policy**, optionally combined
+with **G (repository allow-list)** as a no-cost mechanical guard.
+Options B, C, D, E, H, and I are not recommended for the reasons in
+the pros-and-cons sections above. Option F may be adopted additively
+at any later point without re-opening this decision.
+
+The decision-maker (Stefan) may accept the recommendation, amend it
+(for example by choosing A+G+F), or reject it in favour of any of the
+other options. The remainder of this ADR documents the policy as it
+would read if Option A is accepted, so the decision-maker can read
+the rule itself before deciding.
+
+### Tier A — SHA pin with `# vX.Y.Z` comment
+
+Required for any action — direct, composite, container, or
+reusable-workflow — that satisfies any of the following:
+
+- the action runs in a job that holds `packages: write`,
+  `id-token: write`, `contents: write`, `security-events: write`, or
+  any cloud push/login credential; or
+- the action signs artefacts (cosign, sigstore, slsa-framework); or
+- the action builds, pushes, or releases a container image,
+  package, binary, or other artefact; or
+- the action is a container action (`uses: docker://...` or
+  `runs.using: docker` with an external image) — regardless of
+  publisher, because container actions can fetch arbitrary
+  layers at runtime; or
+- the action is a reusable workflow or composite action that itself
+  uses any action satisfying the above (transitive Tier A).
+
+Examples (illustrative, not exhaustive): `docker/*`, `sigstore/*`,
+`slsa-framework/*`, `goreleaser/goreleaser-action`. The criteria
+above are normative; the examples are not.
+
+### Tier B — floating major-version tag (`@vN`) permitted
+
+Tier B requires **both** of the following:
+
+- *Identity*: the action is published under the GitHub-owned
+  `actions/` or `github/` organisation.
+- *Capability*: the action does NOT request any of
+  `packages: write`, `id-token: write`, `contents: write`,
+  `security-events: write`, or any cloud push/login credential.
+
+If both hold, a floating major-version tag (`@vN`) is permitted.
+Examples (illustrative): `actions/checkout`, `actions/setup-python`,
 `actions/upload-artifact`, `actions/download-artifact`,
-`actions/setup-node`, `github/codeql-action`.
+`actions/setup-node`. Note: `github/codeql-action` uploads SARIF
+with `security-events: write` and is therefore Tier A under the
+capability test, even though its identity satisfies Tier B.
 
 ### Dependabot Interaction
 
 The existing `.github/dependabot.yml` configuration (monthly,
-ecosystem `github-actions`, grouped) handles both tiers without change.
-For Tier A entries, Dependabot rewrites the SHA and updates the
-trailing `# vX.Y.Z` comment in the same edit. For Tier B entries, it
-bumps the major version when a new major is released.
+ecosystem `github-actions`, grouped) is expected to handle both
+tiers: rewriting the SHA and updating the trailing `# vX.Y.Z`
+comment for Tier A entries, and bumping the major version for Tier B
+when a new major is released. This behaviour is documented by
+Dependabot but has not been verified in this repository; the first
+Dependabot PR after merging this ADR serves as the verification (see
+Confirmation, below).
 
-### Enforcement
+### Enforcement Reality
 
-This ADR is policy only. Automated enforcement (a CI lint job that
-fails when a Tier A action is tag-pinned) is tracked separately as
-issue `ansible-all-my-things-v2u` and blocks the parent finding epic.
+This ADR is policy only. Two enforcement levels are possible:
+
+1. **Mechanical guard (Option G, additive)**: enabling GitHub's
+   repository allow-list under Settings → Actions can prevent
+   accidental introduction of unallowed actions at zero implementation
+   cost. It does not enforce Tier A vs Tier B per pin style.
+2. **Automated lint (`ansible-all-my-things-v2u`, deferred)**: a CI
+   lint job that fails on a Tier A action with a tag pin. The lint
+   issue is open with no committed timeline. With only ~12 `uses:`
+   lines across two workflows today, human enforcement by the
+   maintainer-reviewer is realistic indefinitely. If `v2u` is never
+   implemented, the policy remains in effect as a human convention;
+   that is an honest part of this decision, not a postponed deficit.
+
+### Cron and Scheduled Runs
+
+`docker-publish.yml` runs on a Monday 04:00 cron. Tag-retargeting on
+a Tier B action could execute on that schedule without a human in
+the loop. Because Tier B forbids elevated permissions, the blast
+radius of such an event is bounded to the build/test path (which
+cannot publish or sign on its own). A retargeted Tier A action
+would, by definition, reach the credential-bearing publish path.
+Both cases reduce to "trust the publisher of any Tier A action"
+during cron runs; the policy as a whole is the mitigation.
+
+### Action Deprecation and Rename
+
+SHA-pinned consumers do not follow upstream rename/redirect. If
+`sigstore/cosign-installer` is renamed, our Tier A pin breaks and
+must be updated manually or via Dependabot's deprecation detection.
+Tag-pinned consumers may follow rename if the publisher pushes the
+new tag to the old repo. The asymmetry is accepted as part of the
+SHA pin choice.
+
+### Tier B Tightening Governance
+
+A Tier B action may be SHA-pinned ad hoc (see Mitigations above)
+with `# tightened to SHA, ref: <issue-id>` and a beads tracking
+issue. There is no separate approval body: the maintainer reviews
+the PR that introduces the tightening, the tracking issue records
+the reason, and the comment makes the deviation visible in the
+workflow file. This is the same governance as any other code change
+in this single-maintainer repo.
 
 ## Consequences
 
 **Positive**
 
-- Reviewers gain an unambiguous rule for evaluating new `uses:` lines.
+- Reviewers gain an unambiguous rule for evaluating new `uses:`
+  lines.
 - Supply-chain risk for credential-bearing actions is bounded by SHA
-  immutability; reading the workflow file is enough to know exactly
-  which action code will run.
+  immutability. Note: a SHA pin guarantees that the *referenced
+  commit* does not change; it does NOT guarantee that the code at
+  that commit is trustworthy. A SHA-pinned action that was malicious
+  when the SHA was chosen, or that runs `curl | bash` or downloads
+  external code at runtime, remains a risk. SHA pinning is a
+  necessary but not sufficient supply-chain control.
 - First-party utility actions continue to receive security patches
   with minimal PR churn.
-- No workflow rewrite is required today — current code already conforms.
+- No workflow rewrite is required today — current `docker-publish.yml`
+  and `molecule.yml` already conform to the proposed tiers.
 
 **Negative**
 
-- The policy is human-enforced until the lint job (`v2u`) lands; a
-  drift between policy and workflow file is possible.
-- The Tier B allow-list is identity-based (`actions/`, `github/`) and
-  rests on trust in GitHub's account-security posture; a compromise of
-  the `actions` org would bypass the policy entirely.
+- The policy is human-enforced indefinitely if `v2u` never lands; see
+  Enforcement Reality.
+- The Tier B allow-list rests on trust in GitHub's account-security
+  posture for `actions/` and `github/`; this is an explicit residual
+  risk acceptance, not a mitigated condition.
+- A SHA-pinned third-party action can still execute arbitrary
+  transitive code (composite-action chain, `run:` `curl | bash`,
+  container image pull) that the SHA does not cover. Tier A reduces
+  but does not eliminate this surface.
 - Adding a new third-party action requires finding the right SHA at
   PR-creation time, a small friction compared with copying a tag.
 
-**Neutral**
+**Neutral / known-unverified**
 
-- The Dependabot grouping continues to land all action updates in a
-  single monthly PR; reviewer effort stays the same.
+- The Dependabot SHA-plus-comment co-update behaviour is documented
+  by Dependabot but has not been observed in this repository. The
+  Confirmation step below verifies it on the first post-merge bump.
 
-## Confirmation
+## Confirmation and Follow-up Tasks
 
-After approval:
+**Confirmation (evidence the decision worked):**
 
-1. Update constitution Principle IX with a one-sentence cross-reference
-   to this ADR (PATCH version bump: 1.7.0 → 1.7.1).
-2. Audit `docker-publish.yml` and `molecule.yml` against the tier table
-   above; document any deviation as a finding.
-3. Close `ansible-all-my-things-urf`.
-4. The follow-up CI lint (`ansible-all-my-things-v2u`) provides the
-   long-term enforcement mechanism.
+- The first Dependabot PR after this ADR is merged that touches a
+  Tier A action MUST update the SHA and the trailing `# vX.Y.Z`
+  comment together. If it does not, the Dependabot assumption above
+  fails and the ADR must be revisited.
+- No new `uses:` line MAY be introduced after merge without the
+  reviewer (maintainer) noting the tier classification in the PR
+  description. This is the human-enforcement contract.
+
+**Follow-up tasks (after approval):**
+
+1. Update constitution Principle IX with a single informational
+   cross-reference to this ADR. This is a clarification, not a new
+   MUST, so a PATCH bump applies (1.7.0 → 1.7.1). If the
+   decision-maker prefers a normative reference (introducing a MUST
+   for ADR-002 conformance), a MINOR bump (1.7.0 → 1.8.0) applies
+   instead per the Governance section of the constitution.
+2. Close `ansible-all-my-things-urf` referencing this ADR.
+3. Leave `ansible-all-my-things-v2u` open for the eventual CI lint;
+   accept that it may not land soon and that human enforcement is
+   the operative regime in the meantime.
+4. `ansible-all-my-things-i3p` (curl|sudo finding) remains an
+   independent supply-chain issue; this ADR does not address it.
+
+## Revisit Triggers
+
+This policy is not permanent by default. Revisit it on any of:
+
+- a publicly disclosed compromise of the `actions/` or `github/`
+  organisations, or of any Tier A publisher in active use;
+- the first Dependabot Tier A PR that does not co-update SHA and
+  version comment (invalidates the assumption above);
+- annual review (next: 2027-05-16) — confirm the trade-off still
+  reflects project scope, especially if the repo grows beyond
+  single-maintainer scale;
+- adoption of Option F, G, or H, which changes the trust topology.
+
+## Methodology Note
+
+ADR-001 uses a numeric weighted decision matrix; ADR-002 uses MADR
+pros/cons prose. The two are not in conflict: ADR-001's options
+are commensurable on shared criteria (Linux support, effectiveness,
+user level, maturity, simplicity), whereas ADR-002's options
+represent categorically different risk models that resist a single
+shared scale. Future ADRs may use either pattern; the choice is
+per-ADR based on whether the options share criteria.
 
 ## More Information
 
-- Constitution Principle IX, `.specify/memory/constitution.md`.
-- Current Dependabot configuration, `.github/dependabot.yml`.
+- Constitution Principle IX (CI/CD Pipeline Security) and Principle
+  IV (Simplicity / YAGNI) — `.specify/memory/constitution.md`.
+- Current Dependabot configuration — `.github/dependabot.yml`.
 - Feature concept doc that originally noted SHA pinning was out of
-  scope, `docs/features/fork-safe-docker-ci/concept.md`.
+  scope for the fork-safe CI work — `docs/features/fork-safe-docker-ci/concept.md`.
 - Issue tracker references: source finding
   `ansible-all-my-things-urf`; enforcement follow-up
-  `ansible-all-my-things-v2u`; parent epic
+  `ansible-all-my-things-v2u`; curl|sudo follow-up
+  `ansible-all-my-things-i3p`; parent epic
   `ansible-all-my-things-86r`.
