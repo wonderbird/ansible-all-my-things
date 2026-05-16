@@ -22,16 +22,20 @@ truth and must be read and followed carefully.
 
 ## Skill index
 
-The table below lists every skill file in `.claude/skills/` with the description from
-their frontmatter. Use it to decide which skills to read for your current
-task.
+The table below lists all skills relevant to this project. Local skills are in
+`.claude/skills/`; global skills are installed with the agent runtime. Use it
+to decide which skills to invoke for your current task.
 
-| Skill | When to read |
-| --- | --- |
-| [developer](.claude/skills/developer/SKILL.md) | Use when expert knowledge of Ansible is required to analyze, implement, or fix features. Project scope: setting up and mainting virtual machines. |
-| [molecule-testing](.claude/skills/molecule-testing/SKILL.md) | Pull in information about the molecule testing setup for Ansible roles. Use when implementing or modifying an Ansible role to set up or maintain its Molecule test scenario. |
-| [review-documentation-here](.claude/skills/review-documentation-here/SKILL.md) | Extends review-documentation by project-specific documentation structure, including co-located role documentation. Use when reviewing the project documentation. |
-| [technical-coach](.claude/skills/technical-coach/SKILL.md) | Use when expert knowledge of Ansible is required to advise and tutor on automating setup and maintenance of virtual machines. |
+| Skill | Scope | When to invoke |
+| --- | --- | --- |
+| [developer](.claude/skills/developer/SKILL.md) | local | Use when expert knowledge of Ansible is required to analyze, implement, or fix features. Project scope: setting up and maintaining virtual machines. |
+| [molecule-testing](.claude/skills/molecule-testing/SKILL.md) | local | Pull in information about the molecule testing setup for Ansible roles. Use when implementing or modifying an Ansible role to set up or maintain its Molecule test scenario. |
+| [review-documentation-here](.claude/skills/review-documentation-here/SKILL.md) | local | Extends review-documentation by project-specific documentation structure, including co-located role documentation. Use when reviewing the project documentation. |
+| [technical-coach](.claude/skills/technical-coach/SKILL.md) | local | Use when expert knowledge of Ansible is required to advise and tutor on automating setup and maintenance of virtual machines. |
+| `commit` | global | Authoritative source for commit format, allowed prefixes, message structure, and co-authorship rules. MUST invoke before creating any commit (Principle V). |
+| `format-markdown` | global | Authoritative Markdown linting ruleset. MUST invoke once at close of task after all Markdown files are finalized (Principle VI). |
+| `fix-problem` | global | Remediation protocol for unexpected obstacles (test failure, tooling error, regression). MUST invoke before attempting fixes (Principle VII). |
+| `review-documentation` | global | Base documentation review strategy and folder structure. Extended by `review-documentation-here` for this project. |
 
 ## Test environment host architecture
 
@@ -59,11 +63,7 @@ Architecture Decision Records are in
 These are the canonical locations for architectural decisions; they MUST
 NOT be recorded in `CLAUDE.md` or agent-specific context files.
 
-## Active Technologies
-
-- YAML (Ansible 2.19+) + `community.general` collection + `ansible.builtin.*`;
-  Ubuntu `podman` apt package for rootless containers
-
+<!-- markdownlint-disable MD013 MD031 MD032 -->
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
 ## Beads Issue Tracker
 
@@ -110,3 +110,4 @@ bd close <id>         # Complete work
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 <!-- END BEADS INTEGRATION -->
+<!-- markdownlint-enable MD013 MD031 MD032 -->

@@ -207,7 +207,6 @@ All durable knowledge MUST be committed to git:
 - Ansible patterns and prohibitions → this constitution
 - Skill-owned rules (Molecule, commit format, Markdown formatting,
   documentation review) → `.claude/skills/<skill>/SKILL.md`
-- Architecture decisions → `docs/architecture/decisions/`
 
 Never rely on in-session memory or local files for knowledge that must
 carry forward to the next agent session.
