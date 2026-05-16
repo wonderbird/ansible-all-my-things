@@ -1,7 +1,12 @@
 # CLAUDE.md
 
 This project's authoritative guidance lives in **`AGENTS.md`** (agent
-runtime) and **`.specify/memory/constitution.md`** (project rules). Read
-both.
+runtime) and **`.specify/memory/constitution.md`** (project rules).
 
-Do not duplicate rules here. Update AGENTS.md or the constitution instead.
+**Before ANY action — including clarifying questions — read both files:**
+
+1. Read `AGENTS.md`
+2. Read `.specify/memory/constitution.md`
+
+Do not proceed until both are read. Do not duplicate rules here — update
+`AGENTS.md` or the constitution instead.

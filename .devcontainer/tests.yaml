@@ -10,4 +10,22 @@ commandTests:
     command: "hcloud"
     args: [ "version" ]
     expectedOutput: [ "hcloud 1.*" ]
-  
+
+  - name: "Check ansible-playbook"
+    command: "ansible-playbook"
+    args: [ "--version" ]
+    expectedOutput: [ "ansible-playbook.*" ]
+
+  - name: "Check ansible-galaxy"
+    command: "ansible-galaxy"
+    args: [ "--version" ]
+    expectedOutput: [ "ansible-galaxy.*" ]
+
+fileExistenceTests:
+  - name: "pip binary absent"
+    path: "/usr/local/bin/pip"
+    shouldExist: false
+
+  - name: "git binary absent"
+    path: "/usr/bin/git"
+    shouldExist: false

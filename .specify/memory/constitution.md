@@ -1,7 +1,12 @@
 <!--
-Sync Impact Report — 1.5.0 → 1.5.1 (PATCH)
-- Principle VII: 8-step protocol fully delegated to fix-problem skill (consistency with Principles II, V, VI delegation pattern)
-- Propagation: none required (skill already authoritative; no other files reference the inlined protocol)
+Sync Impact Report — 1.6.0 → 1.7.0 (MINOR)
+- Added Principle IX: CI/CD Pipeline Security (least-privilege job permissions,
+  test-gated registry writes, artefact provenance)
+- Templates requiring updates:
+  ✅ .specify/templates/plan-template.md — Constitution Check covers IX automatically
+  ✅ .specify/templates/tasks-template.md — no change needed
+  ✅ .specify/templates/spec-template.md — no change needed
+- No principles renamed or removed
 -->
 # ansible-all-my-things Constitution
 
@@ -111,6 +116,51 @@ is the authoritative source of truth for the remediation protocol.
 **Rationale**: Attempting to fix multiple interleaved issues simultaneously
 introduces uncontrolled changes and makes root-cause analysis impossible.
 
+### VIII. No Untracked Technical Debt
+
+When implementing any task, all findings discovered during implementation —
+code-review observations, follow-up improvements, and technical debt — MUST
+be tracked as issues with the same priority as the source task. These issues
+MUST block the source task's cover or parent issue before that issue is closed.
+
+Technical debt MUST NOT be left untracked unless explicitly agreed with the
+team. Such agreement MUST be recorded in the relevant issue before the source
+task is closed.
+
+**Rationale**: Untracked debt accumulates invisibly and degrades quality
+without appearing in any backlog. Matching priority and blocking status ensures
+findings are treated with the same urgency as the work that produced them,
+preventing silent quality erosion.
+
+### IX. CI/CD Pipeline Security
+
+CI/CD workflows that publish artefacts (container images, packages, signed
+binaries) MUST follow three rules:
+
+1. **Least-privilege job permissions.** Each job declares only the permissions
+   it needs. Write-level credentials (`packages: write`, `id-token: write`,
+   cloud push tokens) MUST be scoped to the job that performs the publish step
+   — never to build, test, or lint jobs. Pull-request events from forks MUST
+   NOT receive write-level permissions (gate publish steps with
+   `if: github.event_name != 'pull_request'` or equivalent).
+
+2. **Test-gated registry writes.** No artefact MUST reach a shared registry
+   without first passing automated tests. The publish job MUST express a hard
+   dependency on the test job (e.g. `needs: [build, test]` in GitHub Actions)
+   so that a failing test blocks the push automatically.
+
+3. **Artefact provenance.** Published container images MUST carry OCI
+   provenance labels (`org.opencontainers.image.source`, `.revision`,
+   `.created`) baked in at build time. Where the CI platform provides a
+   keyless signing mechanism (e.g. cosign OIDC via Sigstore Fulcio), images
+   MUST be signed after the push step.
+
+**Rationale**: Overly broad job permissions expose write credentials to
+untrusted fork code and to steps that do not need them. Publishing before
+testing allows broken artefacts to reach consumers silently. Provenance labels
+and signatures make the build-to-publish chain auditable and enable consumers
+to verify what they pull.
+
 ## Technology Stack
 
 - **Automation**: Ansible (playbooks, roles, inventory)
@@ -157,7 +207,6 @@ All durable knowledge MUST be committed to git:
 - Ansible patterns and prohibitions → this constitution
 - Skill-owned rules (Molecule, commit format, Markdown formatting,
   documentation review) → `.claude/skills/<skill>/SKILL.md`
-- Architecture decisions → `docs/architecture/decisions/`
 
 Never rely on in-session memory or local files for knowledge that must
 carry forward to the next agent session.
@@ -175,7 +224,8 @@ carry forward to the next agent session.
 5. **User review**: after every commit, request a user review and wait for
    approval before proceeding.
 6. **Peer/self review**: verify idempotency, simplicity and traceability before
-   merging.
+   merging. Track all findings as issues with the same priority as the source
+   task, blocking the source task's cover issue (Principle VIII).
 7. **Merge to main**: squash or rebase as appropriate; no merge commits unless
    history clarity demands it.
 8. **Cloud apply**: run the playbook against cloud targets only after local
@@ -205,4 +255,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.5.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-11
+**Version**: 1.7.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-16
