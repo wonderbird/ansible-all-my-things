@@ -1,9 +1,9 @@
 <!--
-Sync Impact Report — 1.5.1 → 1.6.0 (MINOR)
-- Added Principle VIII: No Untracked Technical Debt
-- Development Workflow: step 6 updated to require findings tracking
+Sync Impact Report — 1.6.0 → 1.7.0 (MINOR)
+- Added Principle IX: CI/CD Pipeline Security (least-privilege job permissions,
+  test-gated registry writes, artefact provenance)
 - Templates requiring updates:
-  ✅ .specify/templates/plan-template.md — Constitution Check covers VIII automatically
+  ✅ .specify/templates/plan-template.md — Constitution Check covers IX automatically
   ✅ .specify/templates/tasks-template.md — no change needed
   ✅ .specify/templates/spec-template.md — no change needed
 - No principles renamed or removed
@@ -132,6 +132,35 @@ without appearing in any backlog. Matching priority and blocking status ensures
 findings are treated with the same urgency as the work that produced them,
 preventing silent quality erosion.
 
+### IX. CI/CD Pipeline Security
+
+CI/CD workflows that publish artefacts (container images, packages, signed
+binaries) MUST follow three rules:
+
+1. **Least-privilege job permissions.** Each job declares only the permissions
+   it needs. Write-level credentials (`packages: write`, `id-token: write`,
+   cloud push tokens) MUST be scoped to the job that performs the publish step
+   — never to build, test, or lint jobs. Pull-request events from forks MUST
+   NOT receive write-level permissions (gate publish steps with
+   `if: github.event_name != 'pull_request'` or equivalent).
+
+2. **Test-gated registry writes.** No artefact MUST reach a shared registry
+   without first passing automated tests. The publish job MUST express a hard
+   dependency on the test job (e.g. `needs: [build, test]` in GitHub Actions)
+   so that a failing test blocks the push automatically.
+
+3. **Artefact provenance.** Published container images MUST carry OCI
+   provenance labels (`org.opencontainers.image.source`, `.revision`,
+   `.created`) baked in at build time. Where the CI platform provides a
+   keyless signing mechanism (e.g. cosign OIDC via Sigstore Fulcio), images
+   MUST be signed after the push step.
+
+**Rationale**: Overly broad job permissions expose write credentials to
+untrusted fork code and to steps that do not need them. Publishing before
+testing allows broken artefacts to reach consumers silently. Provenance labels
+and signatures make the build-to-publish chain auditable and enable consumers
+to verify what they pull.
+
 ## Technology Stack
 
 - **Automation**: Ansible (playbooks, roles, inventory)
@@ -227,4 +256,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.6.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-15
+**Version**: 1.7.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-16
