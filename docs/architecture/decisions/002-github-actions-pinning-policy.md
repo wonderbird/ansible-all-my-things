@@ -130,13 +130,6 @@ dominate the trade-off when options conflict.
   explicit list of trusted publishers (a file or a repository ruleset)
   and permit tag pins for any action in that list, SHA otherwise.
 
-Note on asymmetry: the recommended option (A) is given more text below
-than the rejected options. The author has tried to keep that asymmetry
-to genuine analytical depth (Tier definitions, governance, follow-up
-hooks) rather than rhetorical loading. Where a rejected option's
-"negatives" can be softened by the same mechanisms as A, that is
-called out under that option's mitigations rather than buried.
-
 ### Pros and Cons of the Options
 
 #### Option A — Two-tier policy
@@ -160,7 +153,7 @@ called out under that option's mitigations rather than buried.
 - Bad, because adding a new third-party action requires looking up a
   SHA at PR time — small friction compared with copying a tag.
 
-**Mitigations and residual-risk acceptance**
+##### Mitigations and residual-risk acceptance
 
 - Lookup friction: a SHA-resolving helper such as `pinact` or
   `ratchet` can rewrite `owner/action@vX` to
@@ -201,7 +194,7 @@ called out under that option's mitigations rather than buried.
 - Bad, because contributors must look up a SHA for every action,
   including trivial utility actions (D4 cost).
 
-**Mitigations**
+##### Mitigations
 
 - Patch-velocity loss can be reduced by switching Dependabot to
   weekly cadence for `github-actions` and enabling auto-merge for
@@ -231,7 +224,7 @@ called out under that option's mitigations rather than buried.
   bumps generate PRs) — this is a positive on D4 but the price is
   the D1/D2 regression above.
 
-**Mitigations**
+##### Mitigations
 
 - The tag-retargeting risk on credential-bearing actions cannot be
   mitigated at the policy layer without re-introducing SHA pinning
@@ -254,7 +247,7 @@ called out under that option's mitigations rather than buried.
 - Bad, because a contributor (including an AI agent) introducing a
   new third-party action has no signal that SHA pinning is expected.
 
-**Mitigations**
+##### Mitigations
 
 - None at the policy layer. A partial mitigation is to add a brief
   contributor hint in `AGENTS.md` pointing at the open decision; that
@@ -272,7 +265,7 @@ called out under that option's mitigations rather than buried.
 - Bad, because it places the burden of supply-chain reasoning on
   every reviewer for every PR rather than encoding the answer once.
 
-**Mitigations**
+##### Mitigations
 
 - A written reviewer checklist would reduce drift, but a checklist
   that captures the rule is functionally a thin Option A.
@@ -298,15 +291,13 @@ called out under that option's mitigations rather than buried.
   free-tier coverage is assumed sufficient at the time of writing
   (2026-05-16) and would need re-verification at adoption time.
 
-**Mitigations**
+##### Mitigations
 
 - Treat F as additive: adopt it on top of Option A if defence-in-depth
   is wanted later. Harden-Runner documentation explicitly recommends
   SHA pinning alongside its agent.
-- Limit the per-job overhead by enabling Harden-Runner only on the
-  `push` job (the only job holding write credentials). This is
-  natural placement, not a saving — phrasing it as a mitigation does
-  not artificially inflate Option F's cost in the comparison.
+- Scope Harden-Runner to the `push` job (the only job holding write
+  credentials) to bound the per-job overhead.
 
 #### Option G — GitHub repository allow-list (Settings → Actions)
 
@@ -360,11 +351,8 @@ Options B, C, D, E, H, and I are not recommended for the reasons in
 the pros-and-cons sections above. Option F may be adopted additively
 at any later point without re-opening this decision.
 
-The decision-maker (Stefan) may accept the recommendation, amend it
-(for example by choosing A+G+F), or reject it in favour of any of the
-other options. The remainder of this ADR documents the policy as it
-would read if Option A is accepted, so the decision-maker can read
-the rule itself before deciding.
+The sections below document the policy as it would read if Option A
+is accepted, so the decision-maker can review the rule before deciding.
 
 ### Tier A — SHA pin with `# vX.Y.Z` comment
 
@@ -456,15 +444,13 @@ SHA pin choice.
 
 A Tier B action may be SHA-pinned ad hoc (see Mitigations above)
 with `# tightened to SHA, ref: <issue-id>` and a beads tracking
-issue. There is no separate approval body: the maintainer reviews
-the PR that introduces the tightening, the tracking issue records
-the reason, and the comment makes the deviation visible in the
-workflow file. This is the same governance as any other code change
-in this single-maintainer repo.
+issue. The PR that introduces the tightening is the approval; the
+tracking issue records the reason; the comment makes the deviation
+visible in the workflow file.
 
 ## Consequences
 
-**Positive**
+### Positive
 
 - Reviewers gain an unambiguous rule for evaluating new `uses:`
   lines.
@@ -480,21 +466,20 @@ in this single-maintainer repo.
 - No workflow rewrite is required today — current `docker-publish.yml`
   and `molecule.yml` already conform to the proposed tiers.
 
-**Negative**
+### Negative
 
 - The policy is human-enforced indefinitely if `v2u` never lands; see
   Enforcement Reality.
-- The Tier B allow-list rests on trust in GitHub's account-security
-  posture for `actions/` and `github/`; this is an explicit residual
-  risk acceptance, not a mitigated condition.
 - A SHA-pinned third-party action can still execute arbitrary
   transitive code (composite-action chain, `run:` `curl | bash`,
   container image pull) that the SHA does not cover. Tier A reduces
   but does not eliminate this surface.
 - Adding a new third-party action requires finding the right SHA at
   PR-creation time, a small friction compared with copying a tag.
+- Residual risk for the `actions/` org compromise is accepted; see
+  Option A mitigations.
 
-**Neutral / known-unverified**
+### Neutral / known-unverified
 
 - The Dependabot SHA-plus-comment co-update behaviour is documented
   by Dependabot but has not been observed in this repository. The
@@ -524,8 +509,6 @@ in this single-maintainer repo.
 3. Leave `ansible-all-my-things-v2u` open for the eventual CI lint;
    accept that it may not land soon and that human enforcement is
    the operative regime in the meantime.
-4. `ansible-all-my-things-i3p` (curl|sudo finding) remains an
-   independent supply-chain issue; this ADR does not address it.
 
 ## Revisit Triggers
 
@@ -540,16 +523,6 @@ This policy is not permanent by default. Revisit it on any of:
   single-maintainer scale;
 - adoption of Option F, G, or H, which changes the trust topology.
 
-## Methodology Note
-
-ADR-001 uses a numeric weighted decision matrix; ADR-002 uses MADR
-pros/cons prose. The two are not in conflict: ADR-001's options
-are commensurable on shared criteria (Linux support, effectiveness,
-user level, maturity, simplicity), whereas ADR-002's options
-represent categorically different risk models that resist a single
-shared scale. Future ADRs may use either pattern; the choice is
-per-ADR based on whether the options share criteria.
-
 ## More Information
 
 - Constitution Principle IX (CI/CD Pipeline Security) and Principle
@@ -562,3 +535,6 @@ per-ADR based on whether the options share criteria.
   `ansible-all-my-things-v2u`; curl|sudo follow-up
   `ansible-all-my-things-i3p`; parent epic
   `ansible-all-my-things-86r`.
+- Methodology: ADR-001 uses a weighted decision matrix; ADR-002 uses
+  MADR pros/cons because the options here represent categorically
+  different risk models, not commensurable criteria.
