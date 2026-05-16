@@ -89,6 +89,20 @@ interview with the decision-maker):
 - Neutral, because adding a new third-party action requires looking up
   a SHA at PR time — minor friction compared with copying a tag.
 
+**Mitigations**
+
+- Human-enforcement drift is closed by the follow-up CI lint job
+  tracked as `ansible-all-my-things-v2u`, which blocks the parent
+  finding epic and so cannot silently slip.
+- Trust in the `actions/` org can be tightened on demand: an
+  individual Tier B action MAY be SHA-pinned with an inline comment
+  (`# tightened to SHA, see <issue>`) without changing the overall
+  policy. If GitHub itself were compromised, the policy can be
+  amended in a single PATCH revision to collapse to Option B.
+- SHA-lookup friction can be removed for the contributor by running
+  `pinact run` or `ratchet pin` locally before committing; both tools
+  resolve `owner/action@vX` to `owner/action@<sha> # vX` automatically.
+
 #### Option B — SHA-pin everything
 
 - Good, because the rule is the simplest possible: every `uses:` line
@@ -103,6 +117,17 @@ interview with the decision-maker):
   bump generates a SHA change PR.
 - Bad, because contributors must look up a SHA for every action,
   including trivial utility actions.
+
+**Mitigations**
+
+- Patch-velocity loss can be reduced by switching Dependabot to
+  weekly cadence for `github-actions` and enabling auto-merge for
+  passing CI on Dependabot PRs touching only first-party utility
+  actions.
+- Diff noise is already mitigated by the existing Dependabot grouping
+  (`groups: all-actions`); all SHA bumps land in one PR per cycle.
+- Contributor lookup burden is removed by `pinact run` / `ratchet pin`
+  as described under Option A.
 
 #### Option C — Tag-pin everything
 
@@ -119,6 +144,20 @@ interview with the decision-maker):
 - Neutral, because Dependabot churn drops slightly compared with
   SHA-everywhere (only major bumps generate PRs).
 
+**Mitigations**
+
+- The tag-retargeting risk cannot be mitigated at the policy layer —
+  any meaningful mitigation (re-introducing SHA pinning for
+  credential-bearing actions) is equivalent to adopting Option A and
+  is therefore not a mitigation but a different choice.
+- The audit-trail loss is partially recoverable post-hoc: GitHub
+  workflow-run logs record the resolved `repo@SHA` for each action
+  invocation, but only until the log retention window expires.
+  Stakeholders relying on Option C MUST therefore extend the
+  workflow-log retention to match their audit horizon.
+- Layering Option F (Harden-Runner or equivalent) on top of Option C
+  is the only meaningful compensating control.
+
 #### Option D — Do nothing
 
 - Good, because it requires zero effort and no policy maintenance.
@@ -128,6 +167,14 @@ interview with the decision-maker):
   cannot be confirmed without an explicit rule against which to audit.
 - Bad, because a contributor (including an AI agent) introducing a new
   third-party action has no signal that SHA pinning is expected.
+
+**Mitigations**
+
+- None of the negatives can be addressed without writing some form
+  of policy, which is no longer "do nothing". A partial mitigation
+  is to add a brief contributor hint in `AGENTS.md` pointing at the
+  open decision; that, however, is itself a policy fragment and is
+  excluded here to keep this option pure.
 
 #### Option E — Manual reviewer workaround
 
@@ -139,6 +186,14 @@ interview with the decision-maker):
   ruling out the later CI lint (`v2u`).
 - Bad, because it places the burden of supply-chain reasoning on every
   reviewer for every PR rather than encoding the answer once.
+
+**Mitigations**
+
+- Drift and consistency loss can be reduced by maintaining a written
+  reviewer checklist — but a checklist that captures the rule is
+  effectively a thin Option A, so this is not a separable mitigation.
+- The per-PR reasoning burden cannot be removed without a written
+  policy.
 
 #### Option F — Buy a hardening product (e.g. Harden-Runner)
 
@@ -156,6 +211,19 @@ interview with the decision-maker):
   audit retention, SSO) are paid-tier on most products evaluated.
 - Neutral, because the product can be adopted later on top of any of
   Options A–C without re-opening this decision.
+
+**Mitigations**
+
+- The "does not replace policy" negative is mitigated by treating
+  Option F as additive: adopt it on top of Option A, not instead of
+  it. Harden-Runner's documentation explicitly recommends SHA
+  pinning alongside its agent.
+- CI-minute overhead can be capped by enabling Harden-Runner only on
+  the `push` job (where credentials live) and not on `build` or
+  `test` jobs.
+- Paid-tier dependency is avoided by using only the free-tier
+  egress-monitoring features at first; an upgrade decision can be
+  deferred until the audit findings demand it.
 
 ## Decision Outcome
 
