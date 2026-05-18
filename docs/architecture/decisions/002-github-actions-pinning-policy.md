@@ -496,27 +496,31 @@ introduction point — the only gap G does not close is pin-style
 enforcement (SHA vs tag per tier), which is reserved for the deferred
 SHA-enforcement CI lint.
 
-The option×threat×mitigation matrix was re-walked after the Threat
-Model (T1–T6) and D5 driver landed:
+The table below summarises the option×threat×mitigation re-walk
+performed after the Threat Model (T1–T6) and D5 driver landed;
+see the per-option sections for full rationale and
+"Rejected even with mitigations" notes.
 
-- **A+G** addresses T1 and T2 (high-severity) via Tier A SHA pinning,
-  addresses T5 via G's introduction-point mechanical guard, leaves T3
-  and T4 to complementary controls (least-privilege permissions for
-  T3; out-of-band review for T4), and accepts T6 as out of scope.
-- **B+auto-merge+pinact** closes the D3 gap but requires trusting
-  auto-merge for security-touching bumps; A+G achieves equivalent T5
-  coverage at zero adoption cost without that dependency.
-- **C+F** provides runtime defence-in-depth but cannot prevent T1/T2
-  exploitation before it completes; D1 and D2 still fail at the policy
-  layer.
-- **D, E, H, I** remain rejected even with their respective
-  mitigations; see "Rejected even with mitigations" notes in each
-  option above.
-- **F** is recommended as an additive layer on top of A+G if
-  defence-in-depth is wanted later; free-tier-only adoption under D5.
-- **D5** does not change the A-over-B verdict — both are
-  D5-compatible — but limits any future Option F adoption to free-tier
-  features only.
+| Option | D1 | D2 | D3 | D4 | D5 | T1 | T2 | T5 | Verdict |
+| --- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | --- |
+| **A+G** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | **Recommended** |
+| B + auto-merge | ✓ | ✓ | ~¹ | ~¹ | ✓ | ✓ | ✓ | ~² | Second-best |
+| C + F | ✗ | ✗ | ✓ | ✓ | ~³ | ✗ | ✗ | ~³ | Rejected |
+| D | ✗ | ✗ | ✓ | ✓ | ✓ | ✗ | ✗ | ✗ | Rejected |
+| E | ~ | ~ | ✓ | ✗ | ✓ | ~ | ~ | ~ | Rejected |
+| H | ✓ | ✓ | ✗ | ✗ | ✓ | ✓ | ✓ | ~ | Rejected |
+| I | ✗ | ✗ | ✓ | ~ | ✓ | ✗ | ✗ | ~ | Rejected |
+| F (additive) | — | — | — | — | ~³ | + | + | — | Add-on only |
+
+Legend: ✓ satisfies · ✗ fails · ~ partial/conditional ·
+— not applicable · + improvement
+
+¹ D3/D4 close substantially with auto-merge and pinact; residual =
+trust in auto-merge on security bumps.
+² T5 coverage requires the deferred CI lint; G's introduction-point
+guard is not part of B.
+³ F free-tier assumed D5-compatible; paid-tier features are
+D5-violating (see D5 driver).
 
 The sections below document the policy as it would read if Option A
 is accepted, so the decision-maker can review the rule before deciding.
