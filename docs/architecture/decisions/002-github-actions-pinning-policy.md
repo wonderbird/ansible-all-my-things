@@ -541,11 +541,19 @@ reusable-workflow — that satisfies any of the following:
   publisher, because container actions can fetch arbitrary
   layers at runtime; or
 - the action is a reusable workflow or composite action that itself
-  uses any action satisfying the above (transitive Tier A).
+  uses any action satisfying the above (transitive Tier A); or
+- the action uploads or stages artefacts (container layers, build
+  products, test archives) that are subsequently downloaded in a job
+  satisfying any of the above criteria, forming a transitive publish
+  chain (`actions/upload-artifact` in a pipeline whose
+  `download-artifact` step runs in the publish job is a canonical
+  example).
 
 Examples (illustrative, not exhaustive): `docker/*`, `sigstore/*`,
-`slsa-framework/*`, `goreleaser/goreleaser-action`. The criteria
-above are normative; the examples are not.
+`slsa-framework/*`, `goreleaser/goreleaser-action`,
+`actions/upload-artifact` and `actions/download-artifact` (when used
+in a pipeline with a publish job — see Tier B note below). The
+criteria above are normative; the examples are not.
 
 ### Tier B — floating major-version tag (`@vN`) permitted
 
@@ -559,10 +567,14 @@ Tier B requires **both** of the following:
 
 If both hold, a floating major-version tag (`@vN`) is permitted.
 Examples (illustrative): `actions/checkout`, `actions/setup-python`,
-`actions/upload-artifact`, `actions/download-artifact`,
 `actions/setup-node`. Note: `github/codeql-action` uploads SARIF
 with `security-events: write` and is therefore Tier A under the
 capability test, even though its identity satisfies Tier B.
+Similarly, `actions/download-artifact` runs inside the publish job
+in this repository's pipeline (which holds `packages: write`) and is
+therefore Tier A under the capability criterion;
+`actions/upload-artifact`, which runs earlier in the non-credential
+build job, is Tier A under the transitive-publish-chain criterion.
 
 ### Dependabot Interaction
 
@@ -634,8 +646,13 @@ file without requiring a tracker reference.
   necessary but not sufficient supply-chain control.
 - First-party utility actions continue to receive security patches
   with minimal PR churn.
-- No workflow rewrite is required today — current `docker-publish.yml`
-  and `molecule.yml` already conform to the proposed tiers.
+- Current `docker-publish.yml` and `molecule.yml` already conform to
+  Tier A and Tier B rules for all actions except
+  `actions/upload-artifact` and `actions/download-artifact`, which
+  participate in the artifact-publish chain and require SHA pinning
+  under the new transitive-publish-chain Tier A criterion. Pinning
+  these two actions is a post-acceptance follow-up task (see below),
+  not a prerequisite for adopting this ADR.
 - The G co-recommendation (GitHub repository allow-list) adds a
   zero-cost mechanical guard: once enabled under Settings → Actions,
   it prevents introduction of any action outside the allow-list without
@@ -696,6 +713,11 @@ file without requiring a tracker reference.
 4. Enable the GitHub repository allow-list under Settings → Actions to
    activate the G mechanical guard (see Confirmation above). This is a
    one-time settings change with no implementation cost.
+5. SHA-pin `actions/upload-artifact` and `actions/download-artifact`
+   in `.github/workflows/docker-publish.yml`. Both actions participate
+   in the artifact-publish chain and are now classified as Tier A
+   under the transitive-publish-chain criterion. Update the pins using
+   the SHA-resolving helper selected in the CI lint follow-up.
 
 ## Revisit Triggers
 
