@@ -294,6 +294,12 @@ dominate the trade-off when options conflict.
   as discussed for Option A (same caveat: tool choice deferred to
   `v2u`).
 
+**Rejected even with mitigations**: Option B+auto-merge+pinact closes
+the D3 gap but requires trusting GitHub's CI auto-merge for
+security-touching bumps; A+G achieves equivalent or better T5 coverage
+at zero adoption cost without that trust dependency, making A+G the
+preferable choice for this repo.
+
 #### Option C — Tag-pin everything
 
 - Good, because workflow files stay readable and writeable without
@@ -325,6 +331,12 @@ dominate the trade-off when options conflict.
 - Layering Option F (Harden-Runner or equivalent) provides
   defence-in-depth without changing the pin layer.
 
+**Rejected even with mitigations**: Layering F (Harden-Runner) on C
+detects post-hoc but cannot prevent T1/T2 exploitation before it
+completes; D1 and D2 fail at the policy layer regardless of runtime
+egress monitoring, and the credential-bearing actions remain
+retargetable.
+
 #### Option D — Do nothing
 
 - Good, because it requires zero effort and no policy maintenance.
@@ -344,6 +356,11 @@ dominate the trade-off when options conflict.
   is itself a policy fragment and is excluded here to keep the option
   pure.
 
+**Rejected even with mitigations**: An AGENTS.md policy hint is
+functionally a weaker, unenforceable fragment of Option A; T1, T2, and
+T5 exposures remain fully open with no mechanism to detect or block a
+non-conforming `uses:` line.
+
 #### Option E — Manual reviewer workaround
 
 - Good, because it preserves full per-case flexibility.
@@ -362,6 +379,11 @@ dominate the trade-off when options conflict.
 - A written reviewer checklist would reduce drift, but a checklist
   that captures the rule is functionally a thin Option A.
 - The per-PR reasoning burden is unavoidable at this option.
+
+**Rejected even with mitigations**: A reviewer checklist that captures
+the pinning rule is functionally Option A with additional per-PR
+burden; adopting A directly is strictly better and enables the later
+v2u lint.
 
 #### Option F — Buy a hardening product (e.g. Harden-Runner)
 
@@ -430,6 +452,12 @@ dominate the trade-off when options conflict.
 - Bad, because the trust relocation is partial: the upstream
   publisher is still trusted at the moment of each fork-sync.
 
+**Rejected even with mitigations**: Fork-sync automation reduces but
+does not eliminate D3/D4 overhead; trust relocation is partial
+(upstream publisher trusted at sync time), and the maintenance
+complexity is disproportionate to this repo's single-maintainer blast
+radius.
+
 #### Option I — Trusted-publisher allow-list + tag-pin
 
 - Good, because it decouples the trust decision (per publisher) from
@@ -447,24 +475,42 @@ dominate the trade-off when options conflict.
 - Neutral, because the trusted-publisher list is a plain repository
   artefact with no recurring cost (D5-neutral).
 
+**Rejected even with mitigations**: The trusted-publisher list
+restores tag-retargeting risk for every credential-bearing publisher
+on it (T1 open); Option A's per-capability test is a strictly
+finer-grained trust control with identical D5 posture.
+
 ## Recommendation
 
-The recommended option is **A — Two-tier policy**, optionally combined
-with **G (repository allow-list)** as a no-cost mechanical guard.
-Option A is recommended because it addresses T1 and T2 (the
-high-severity threats for this repo) at zero adoption cost, leaves T3
-and T4 to complementary controls already noted (least-privilege job
-permissions for T3; out-of-band review of `.devcontainer/` changes
-for T4), reduces T5 and gains mechanical T5 coverage when combined
-with G, and accepts T6 as out of scope. Options B, C, D, E, H, and I
-are not recommended for the reasons in the pros-and-cons sections
-above. Option F may be adopted additively at any later point without
-re-opening this decision; it would add defence-in-depth on T1 and T2
-on top of A's pin-shape control. D5 (no recurring out-of-pocket cost)
-does not change the A-over-B verdict — both A and B are
-D5-compatible — but it explicitly limits any future Option F
-adoption to free-tier features only; paid-tier features of
-hardening products are D5-violating and remain deferred.
+The recommended option is **A+G — Two-tier policy combined with the
+GitHub repository allow-list**. G is elevated from "optional guard"
+to primary co-recommendation because it is free (D5-positive), additive,
+and mechanically addresses T5 (phishing/social-engineered PRs) at the
+introduction point — the only gap G does not close is pin-style
+enforcement (SHA vs tag per tier), which is reserved for the deferred
+`v2u` lint job.
+
+The option×threat×mitigation matrix was re-walked after the Threat
+Model (T1–T6) and D5 driver landed:
+
+- **A+G** addresses T1 and T2 (high-severity) via Tier A SHA pinning,
+  addresses T5 via G's introduction-point mechanical guard, leaves T3
+  and T4 to complementary controls (least-privilege permissions for
+  T3; out-of-band review for T4), and accepts T6 as out of scope.
+- **B+auto-merge+pinact** closes the D3 gap but requires trusting
+  auto-merge for security-touching bumps; A+G achieves equivalent T5
+  coverage at zero adoption cost without that dependency.
+- **C+F** provides runtime defence-in-depth but cannot prevent T1/T2
+  exploitation before it completes; D1 and D2 still fail at the policy
+  layer.
+- **D, E, H, I** remain rejected even with their respective
+  mitigations; see "Rejected even with mitigations" notes in each
+  option above.
+- **F** is recommended as an additive layer on top of A+G if
+  defence-in-depth is wanted later; free-tier-only adoption under D5.
+- **D5** does not change the A-over-B verdict — both are
+  D5-compatible — but limits any future Option F adoption to free-tier
+  features only.
 
 The sections below document the policy as it would read if Option A
 is accepted, so the decision-maker can review the rule before deciding.
@@ -523,7 +569,7 @@ Confirmation, below).
 
 This ADR is policy only. Two enforcement levels are possible:
 
-1. **Mechanical guard (Option G, additive)**: enabling GitHub's
+1. **Mechanical guard (Option G, co-recommended)**: enabling GitHub's
    repository allow-list under Settings → Actions can prevent
    accidental introduction of unallowed actions at zero implementation
    cost. It does not enforce Tier A vs Tier B per pin style.
