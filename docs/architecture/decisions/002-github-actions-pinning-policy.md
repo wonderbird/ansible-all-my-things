@@ -718,6 +718,11 @@ file without requiring a tracker reference.
    in the artifact-publish chain and are now classified as Tier A
    under the transitive-publish-chain criterion. Update the pins using
    the SHA-resolving helper selected in the CI lint follow-up.
+6. Evaluate and implement pinning policy enforcement: either add a
+   constitution principle referencing the Tier A/B rules for future
+   workflow changes, or create a dedicated project review skill that
+   checks workflow files for pin-style compliance. The review skill
+   approach also serves as a fallback until the deferred CI lint lands.
 
 ## Revisit Triggers
 
