@@ -76,6 +76,76 @@ Out of scope:
 - secret rotation, repository ruleset configuration, branch protection
   (separate concerns).
 
+## Threat Model
+
+The threats below are enumerated so each Considered Option can be
+cross-referenced to the threats it materially addresses. Severities
+are calibrated against the "Project Blast Radius" section above:
+a single-maintainer, single-VM consumer surface bounds the absolute
+impact of every threat below.
+
+- **T1 — Pipeline credential leak.** GHCR push token plus OIDC
+  `id-token: write` exposed to malicious action code running inside
+  the publish job. This is the highest-blast-radius threat in the
+  enumeration: a leaked push token can publish an arbitrary image
+  under our identity until the token is rotated.
+  - Scope: in scope.
+  - Severity for this repo: high — the publish job holds exactly
+    these credentials and is the one place an action can pivot from
+    "executes in CI" to "publishes as us".
+  - Owning option(s): A (SHA-pin credential-bearing actions), B
+    (SHA-pin all); partial coverage from G (allow-list) by
+    preventing introduction of disallowed actions.
+- **T2 — Malicious artefact published.** An image carrying a backdoor
+  is published under our signed identity; the cosign signature is
+  still valid because we sign whatever we built; downstream trust
+  chain is weaponised against consumers who only check the signature.
+  - Scope: in scope.
+  - Severity for this repo: high — trust chain compromise survives
+    token rotation and is detectable only by out-of-band review of
+    image contents.
+  - Owning option(s): A, B; F (runtime egress monitoring) provides
+    defence-in-depth.
+- **T3 — CI secret exfiltration.** Ansible Vault password, SSH keys,
+  or cloud credentials reachable via `secrets.*` exfiltrated by
+  malicious action code in any job that mounts them.
+  - Scope: in scope.
+  - Severity for this repo: low — the CI secret surface today is
+    small (publish credentials and signing OIDC, both covered by
+    T1/T2); no broader cloud credential is mounted in CI.
+  - Owning option(s): A and B reduce; the primary control is
+    least-privilege job permissions per Principle IX rather than
+    the pinning policy itself.
+- **T4 — Supply chain to maintainer dev box.** A compromised action
+  writes malicious content into `.devcontainer/` or other files that
+  get pulled to local laptops by the maintainer or contributors —
+  an indirect attack path that bypasses the CI sandbox.
+  - Scope: in scope.
+  - Severity for this repo: medium — indirect, requires the
+    compromised content to be merged and then pulled locally, but
+    bypasses runner isolation entirely if it lands.
+  - Owning option(s): A, B reduce the action-code surface; the
+    primary control is out-of-band code review on `.devcontainer/`
+    changes.
+- **T5 — Phishing or social-engineered PRs.** An adversary opens a
+  PR adding `uses: evil/foo@v1`, betting on reviewer fatigue or
+  unfamiliarity to land the action.
+  - Scope: in scope.
+  - Severity for this repo: medium — solo-maintainer review is the
+    only gate; an inattentive merge of a malicious `uses:` line
+    moves an attacker straight to T1/T2.
+  - Owning option(s): A or B + G (allow-list) reduce; a future
+    `v2u` CI lint reduces further by blocking non-conforming pins
+    before review.
+- **T6 — Bot-net abuse of forks.** A fork's CI compute is repurposed
+  as a crypto miner, proxy, or other unrelated abuse target.
+  - Scope: out of scope — a fork is the forker's compute, not ours.
+  - Severity for this repo: n/a.
+  - Owning option(s): none; named and dismissed.
+
+Each Considered Option below cross-references the threat IDs it
+materially addresses; the Recommendation cites them explicitly.
+
 ## Decision Drivers
 
 The drivers below are priority-ranked. Higher-priority drivers should
@@ -135,7 +205,7 @@ dominate the trade-off when options conflict.
 
 - Good, because it bounds supply-chain risk where it is highest
   (credential- and signing-bearing actions) without paying SHA-pin
-  overhead everywhere.
+  overhead everywhere (addresses T1, T2).
 - Good, because both current workflows already conform — adoption cost
   is documentation only.
 - Good, because Dependabot already handles both tiers; no new tooling
@@ -144,11 +214,13 @@ dominate the trade-off when options conflict.
   patches via floating major tag, preserving patch velocity (D3) where
   credential risk is lowest.
 - Bad, because the policy is human-enforced unless and until a CI
-  lint job (`v2u`) lands. See "Enforcement reality" below for an
-  honest framing of this constraint.
+  lint job (`v2u`) lands — partial coverage of T5 until that lint
+  exists. See "Enforcement reality" below for an honest framing of
+  this constraint.
 - Bad, because Tier B's identity-and-capability constraint accepts a
   trust assumption about GitHub's own account-security posture for the
-  `actions/` and `github/` organisations. See "Residual risk" below.
+  `actions/` and `github/` organisations (residual T1/T2 exposure
+  bounded by Tier B's capability test). See "Residual risk" below.
 - Bad, because adding a new third-party action requires looking up a
   SHA at PR time — small friction compared with copying a tag.
 
@@ -182,9 +254,12 @@ dominate the trade-off when options conflict.
 #### Option B — SHA-pin everything
 
 - Good, because the rule is the simplest possible: every `uses:` line
-  carries an immutable SHA — no allow-list, no per-action judgement.
+  carries an immutable SHA — no allow-list, no per-action judgement
+  (addresses T1, T2 uniformly across all actions, not only
+  credential-bearing ones).
 - Good, because trust scope shrinks uniformly; an `actions/`-org
-  compromise cannot move a pinned SHA under us.
+  compromise cannot move a pinned SHA under us (closes Option A's
+  residual T1/T2 exposure on Tier B).
 - Bad, because security patches for utility actions (CVEs in
   `actions/checkout`, etc.) require a Dependabot PR + merge before
   they reach the pipeline, slowing D3.
@@ -215,7 +290,8 @@ dominate the trade-off when options conflict.
 - Bad, because credential-bearing actions become vulnerable to
   tag-retargeting attacks (D1 fails) — a single compromised
   maintainer credential can replace the code that holds our GHCR push
-  token at the next workflow run.
+  token at the next workflow run (fails T1; enables T2 through the
+  same path).
 - Bad, because Principle IX's "auditable artefact provenance" claim
   becomes false: the workflow file no longer tells us which code ran
   (D2 fails).
@@ -244,7 +320,9 @@ dominate the trade-off when options conflict.
 - Bad, because Principle IX's "auditable artefact provenance" goal
   cannot be confirmed without an explicit rule to audit against.
 - Bad, because a contributor (including an AI agent) introducing a
-  new third-party action has no signal that SHA pinning is expected.
+  new third-party action has no signal that SHA pinning is expected
+  (no control over T5; T1/T2 exposure depends on whichever pin shape
+  is chosen ad hoc).
 
 ##### Mitigations
 
@@ -262,7 +340,9 @@ dominate the trade-off when options conflict.
 - Bad, because consistency cannot be enforced by any automated check,
   ruling out the later CI lint (`v2u`).
 - Bad, because it places the burden of supply-chain reasoning on
-  every reviewer for every PR rather than encoding the answer once.
+  every reviewer for every PR rather than encoding the answer once
+  (T5 exposure scales with reviewer fatigue rather than being
+  bounded by a written rule).
 
 ##### Mitigations
 
@@ -274,7 +354,9 @@ dominate the trade-off when options conflict.
 
 - Good, because runtime egress monitoring catches a compromised
   action even when its pin was valid at review time —
-  defence-in-depth beyond what any pinning policy can achieve.
+  defence-in-depth beyond what any pinning policy can achieve
+  (defence-in-depth against T1 and T2 even after pin shape is
+  compromised).
 - Good, because audit trails of network/file activity per workflow
   run strengthen the Principle IX provenance story.
 - Good, because it can be adopted later on top of any of Options A–C
@@ -302,7 +384,8 @@ dominate the trade-off when options conflict.
 
 - Good, because GitHub's native "Allow specific actions and reusable
   workflows" toggle mechanically blocks introduction of disallowed
-  actions, without requiring CI or a lint job.
+  actions, without requiring CI or a lint job (mechanically addresses
+  T5 at the introduction point).
 - Good, because it can be combined with Option A: A defines what
   belongs in which tier; G prevents accidental addition of anything
   outside the allow-list.
@@ -319,7 +402,8 @@ dominate the trade-off when options conflict.
 
 - Good, because pinning to a fork in a maintainer-owned namespace
   eliminates upstream-account-compromise exposure for the mirrored
-  actions.
+  actions (addresses T1, T2 specifically against upstream publisher
+  compromise).
 - Bad, because mirror maintenance is a recurring task: every
   upstream release must be re-mirrored and the pin advanced manually
   or via custom Dependabot configuration.
@@ -336,7 +420,8 @@ dominate the trade-off when options conflict.
   publishers).
 - Bad, because tag-retargeting risk is restored for all
   credential-bearing actions whose publishers are on the list,
-  including signing tools. D1 fails for the same reason as Option C.
+  including signing tools. D1 fails for the same reason as Option C
+  (fails T1; enables T2 for any compromised publisher on the list).
 - Bad, because publisher trust is binary in this option; a publisher
   is either fully trusted (any of their actions can be tag-pinned)
   or not at all, which is a coarser knob than Tier A's
@@ -346,9 +431,16 @@ dominate the trade-off when options conflict.
 
 The recommended option is **A — Two-tier policy**, optionally combined
 with **G (repository allow-list)** as a no-cost mechanical guard.
-Options B, C, D, E, H, and I are not recommended for the reasons in
-the pros-and-cons sections above. Option F may be adopted additively
-at any later point without re-opening this decision.
+Option A is recommended because it addresses T1 and T2 (the
+high-severity threats for this repo) at zero adoption cost, leaves T3
+and T4 to complementary controls already noted (least-privilege job
+permissions for T3; out-of-band review of `.devcontainer/` changes
+for T4), reduces T5 and gains mechanical T5 coverage when combined
+with G, and accepts T6 as out of scope. Options B, C, D, E, H, and I
+are not recommended for the reasons in the pros-and-cons sections
+above. Option F may be adopted additively at any later point without
+re-opening this decision; it would add defence-in-depth on T1 and T2
+on top of A's pin-shape control.
 
 The sections below document the policy as it would read if Option A
 is accepted, so the decision-maker can review the rule before deciding.
