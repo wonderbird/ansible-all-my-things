@@ -296,9 +296,8 @@ dominate the trade-off when options conflict.
 
 **Rejected even with mitigations**: Option B+auto-merge+pinact closes
 the D3 gap but requires trusting GitHub's CI auto-merge for
-security-touching bumps; A+G achieves equivalent or better T5 coverage
-at zero adoption cost without that trust dependency, making A+G the
-preferable choice for this repo.
+security-touching bumps; A+G achieves equivalent T5 coverage at zero
+adoption cost without that trust dependency.
 
 #### Option C — Tag-pin everything
 
@@ -334,8 +333,7 @@ preferable choice for this repo.
 **Rejected even with mitigations**: Layering F (Harden-Runner) on C
 detects post-hoc but cannot prevent T1/T2 exploitation before it
 completes; D1 and D2 fail at the policy layer regardless of runtime
-egress monitoring, and the credential-bearing actions remain
-retargetable.
+egress monitoring.
 
 #### Option D — Do nothing
 
@@ -357,9 +355,8 @@ retargetable.
   pure.
 
 **Rejected even with mitigations**: An AGENTS.md policy hint is
-functionally a weaker, unenforceable fragment of Option A; T1, T2, and
-T5 exposures remain fully open with no mechanism to detect or block a
-non-conforming `uses:` line.
+functionally an unenforceable fragment of Option A; T1, T2, and T5
+exposures remain fully open.
 
 #### Option E — Manual reviewer workaround
 
