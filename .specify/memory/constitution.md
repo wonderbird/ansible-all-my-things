@@ -1,11 +1,18 @@
 <!--
-Sync Impact Report — 1.6.0 → 1.7.0 (MINOR)
-- Added Principle IX: CI/CD Pipeline Security (least-privilege job permissions,
-  test-gated registry writes, artefact provenance)
-- Templates requiring updates:
-  ✅ .specify/templates/plan-template.md — Constitution Check covers IX automatically
-  ✅ .specify/templates/tasks-template.md — no change needed
-  ✅ .specify/templates/spec-template.md — no change needed
+Sync Impact Report — 1.7.0 → 1.8.0 (MINOR)
+- Added Principle X: No External-System References in Durable Artefacts
+  (forbids ephemeral tracker IDs — beads, Jira, Linear, transient GitHub
+  issue numbers — in code, Markdown, YAML, and any git-tracked artefact
+  intended to outlive a single ticket; substance must be inlined)
+- Templates checked for propagation (greps for `beads`,
+  `ansible-all-my-things-[a-z0-9]{3}`, and `bd `):
+  ✅ .specify/templates/plan-template.md — no violations found
+  ✅ .specify/templates/tasks-template.md — no violations found
+  ✅ .specify/templates/spec-template.md — no violations found
+- AGENTS.md and CLAUDE.md spot-checked for pre-existing beads references
+  in durable contexts (informational only; a comprehensive sweep is
+  tracked separately as follow-up F2b/bq7 and is NOT performed in this
+  commit).
 - No principles renamed or removed
 -->
 # ansible-all-my-things Constitution
@@ -161,6 +168,30 @@ testing allows broken artefacts to reach consumers silently. Provenance labels
 and signatures make the build-to-publish chain auditable and enable consumers
 to verify what they pull.
 
+### X. No External-System References in Durable Artefacts
+
+Durable artefacts — code, Markdown documentation (including ADRs and this
+constitution), YAML configuration, and any file checked into git intended
+to outlive a single tracker ticket — MUST NOT reference beads issue IDs
+or any other ephemeral external-tracker identifier (Jira, Linear, GitHub
+issue numbers tied to a transient project, etc.). The substance of the
+referenced work MUST be inlined or summarised in the durable artefact
+itself.
+
+Beads (or equivalent) references remain permitted in:
+
+- pull-request descriptions (transient by definition);
+- commit message bodies (become immutable git history once committed);
+- `.omc/` working files (agent-session scratch, not durable);
+- the beads-tracker integration section of `AGENTS.md` (operational
+  guidance, not a substantive reference).
+
+**Rationale**: Ephemeral tracker IDs decay. A tracker can be migrated,
+renumbered, archived, or replaced; the durable artefact then carries a
+dangling identifier whose context has to be reconstructed. Inlining the
+substance keeps the durable artefact self-contained and outlives any
+tracker.
+
 ## Technology Stack
 
 - **Automation**: Ansible (playbooks, roles, inventory)
@@ -255,4 +286,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.7.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-16
+**Version**: 1.8.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-18
