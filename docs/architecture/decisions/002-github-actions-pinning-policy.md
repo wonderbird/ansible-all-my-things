@@ -623,6 +623,10 @@ visible in the workflow file.
   with minimal PR churn.
 - No workflow rewrite is required today — current `docker-publish.yml`
   and `molecule.yml` already conform to the proposed tiers.
+- The G co-recommendation (GitHub repository allow-list) adds a
+  zero-cost mechanical guard: once enabled under Settings → Actions,
+  it prevents introduction of any action outside the allow-list without
+  requiring the v2u CI lint.
 
 ### Negative
 
@@ -642,6 +646,10 @@ visible in the workflow file.
 - The Dependabot SHA-plus-comment co-update behaviour is documented
   by Dependabot but has not been observed in this repository. The
   Confirmation step below verifies it on the first post-merge bump.
+- The G allow-list guards against introduction of disallowed actions
+  but does not enforce pin style (SHA vs tag) per entry; the
+  Tier A vs Tier B distinction still relies on human review or the
+  deferred CI lint.
 
 ## Confirmation and Follow-up Tasks
 
@@ -654,19 +662,26 @@ visible in the workflow file.
 - No new `uses:` line MAY be introduced after merge without the
   reviewer (maintainer) noting the tier classification in the PR
   description. This is the human-enforcement contract.
+- The repository Settings → Actions allow-list is enabled within 30
+  days of this ADR being accepted. If not enabled within that window,
+  the G co-recommendation is not yet operative; re-evaluate whether
+  human-only T5 enforcement is acceptable.
 
 **Follow-up tasks (after approval):**
 
 1. Update constitution Principle IX with a single informational
    cross-reference to this ADR. This is a clarification, not a new
-   MUST, so a PATCH bump applies (1.7.0 → 1.7.1). If the
+   MUST, so a PATCH bump applies (1.8.0 → 1.8.1). If the
    decision-maker prefers a normative reference (introducing a MUST
-   for ADR-002 conformance), a MINOR bump (1.7.0 → 1.8.0) applies
+   for ADR-002 conformance), a MINOR bump (1.8.0 → 1.9.0) applies
    instead per the Governance section of the constitution.
 2. Close `ansible-all-my-things-urf` referencing this ADR.
 3. Leave `ansible-all-my-things-v2u` open for the eventual CI lint;
    accept that it may not land soon and that human enforcement is
    the operative regime in the meantime.
+4. Enable the GitHub repository allow-list under Settings → Actions to
+   activate the G mechanical guard (see Confirmation above). This is a
+   one-time settings change with no implementation cost.
 
 ## Revisit Triggers
 
@@ -679,7 +694,9 @@ This policy is not permanent by default. Revisit it on any of:
 - annual review (next: 2027-05-16) — confirm the trade-off still
   reflects project scope, especially if the repo grows beyond
   single-maintainer scale;
-- adoption of Option F, G, or H, which changes the trust topology.
+- adoption of Option F or H, which changes the trust topology (G is
+  the co-recommended baseline and does not re-open the decision when
+  enabled).
 
 ## More Information
 
