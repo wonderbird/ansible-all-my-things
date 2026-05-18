@@ -68,10 +68,11 @@ Out of scope:
 - non-`uses:` third-party code execution in CI. In particular, the
   `curl -LO .../container-structure-test-linux-${arch}` followed by
   `sudo mv` in `docker-publish.yml:107-110` is a distinct supply-chain
-  finding tracked as `ansible-all-my-things-i3p`. That issue exists
-  precisely because pinning policy alone cannot address floating
-  binary downloads inside `run:` steps. Adopting this ADR does not
-  close `i3p`, and rejecting this ADR does not nullify it.
+  finding (tracked separately as a curl|sudo binary-download issue).
+  That finding exists precisely because pinning policy alone cannot
+  address floating binary downloads inside `run:` steps. Adopting
+  this ADR does not close that finding, and rejecting this ADR does
+  not nullify it.
 - runner-host integrity (GitHub-hosted runner internals);
 - secret rotation, repository ruleset configuration, branch protection
   (separate concerns).
@@ -570,13 +571,13 @@ This ADR is policy only. Two enforcement levels are possible:
    repository allow-list under Settings → Actions can prevent
    accidental introduction of unallowed actions at zero implementation
    cost. It does not enforce Tier A vs Tier B per pin style.
-2. **Automated lint (`ansible-all-my-things-v2u`, deferred)**: a CI
-   lint job that fails on a Tier A action with a tag pin. The lint
-   issue is open with no committed timeline. With only ~12 `uses:`
-   lines across two workflows today, human enforcement by the
-   maintainer-reviewer is realistic indefinitely. If `v2u` is never
-   implemented, the policy remains in effect as a human convention;
-   that is an honest part of this decision, not a postponed deficit.
+2. **Automated lint (open issue, deferred)**: a CI lint job that fails
+   on a Tier A action with a tag pin. The lint issue is open with no
+   committed timeline. With only ~12 `uses:` lines across two workflows
+   today, human enforcement by the maintainer-reviewer is realistic
+   indefinitely. If the lint job is never implemented, the policy
+   remains in effect as a human convention; that is an honest part of
+   this decision, not a postponed deficit.
 
 ### Cron and Scheduled Runs
 
@@ -675,8 +676,9 @@ visible in the workflow file.
    decision-maker prefers a normative reference (introducing a MUST
    for ADR-002 conformance), a MINOR bump (1.8.0 → 1.9.0) applies
    instead per the Governance section of the constitution.
-2. Close `ansible-all-my-things-urf` referencing this ADR.
-3. Leave `ansible-all-my-things-v2u` open for the eventual CI lint;
+2. Close the source-finding issue for this ADR in the issue tracker
+   once the ADR is accepted.
+3. Leave the deferred CI lint issue open for the eventual SHA-enforcement automation;
    accept that it may not land soon and that human enforcement is
    the operative regime in the meantime.
 4. Enable the GitHub repository allow-list under Settings → Actions to
@@ -705,11 +707,10 @@ This policy is not permanent by default. Revisit it on any of:
 - Current Dependabot configuration — `.github/dependabot.yml`.
 - Feature concept doc that originally noted SHA pinning was out of
   scope for the fork-safe CI work — `docs/features/fork-safe-docker-ci/concept.md`.
-- Issue tracker references: source finding
-  `ansible-all-my-things-urf`; enforcement follow-up
-  `ansible-all-my-things-v2u`; curl|sudo follow-up
-  `ansible-all-my-things-i3p`; parent epic
-  `ansible-all-my-things-86r`.
+- This ADR originated from a review of the mixed-pinning state in
+  the CI workflows. The enforcement CI lint, curl|sudo binary-download
+  supply-chain finding, and the parent code-review epic are all
+  tracked separately in the project issue tracker.
 - Methodology: ADR-001 uses a weighted decision matrix; ADR-002 uses
   MADR pros/cons because the options here represent categorically
   different risk models, not commensurable criteria.
