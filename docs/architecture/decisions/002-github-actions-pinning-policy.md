@@ -136,8 +136,8 @@ impact of every threat below.
     only gate; an inattentive merge of a malicious `uses:` line
     moves an attacker straight to T1/T2.
   - Owning option(s): A or B + G (allow-list) reduce; a future
-    `v2u` CI lint reduces further by blocking non-conforming pins
-    before review.
+    deferred SHA-enforcement CI lint reduces further by blocking
+    non-conforming pins before review.
 - **T6 — Bot-net abuse of forks.** A fork's CI compute is repurposed
   as a crypto miner, proxy, or other unrelated abuse target.
   - Scope: out of scope — a fork is the forker's compute, not ours.
@@ -225,12 +225,12 @@ dominate the trade-off when options conflict.
   patches via floating major tag, preserving patch velocity (D3) where
   credential risk is lowest.
 - Good, because the candidate SHA-resolving helpers (`pinact`,
-  `ratchet`) are free OSS tools — tool selection in `v2u` must
-  remain D5-compatible (free / OSS).
-- Bad, because the policy is human-enforced unless and until a CI
-  lint job (`v2u`) lands — partial coverage of T5 until that lint
-  exists. See "Enforcement reality" below for an honest framing of
-  this constraint.
+  `ratchet`) are free OSS tools — tool selection in the deferred
+  SHA-enforcement CI lint must remain D5-compatible (free / OSS).
+- Bad, because the policy is human-enforced unless and until the
+  deferred SHA-enforcement CI lint lands — partial coverage of T5
+  until that lint exists. See "Enforcement reality" below for an
+  honest framing of this constraint.
 - Bad, because Tier B's identity-and-capability constraint accepts a
   trust assumption about GitHub's own account-security posture for the
   `actions/` and `github/` organisations (residual T1/T2 exposure
@@ -243,14 +243,22 @@ dominate the trade-off when options conflict.
 - Lookup friction: a SHA-resolving helper such as `pinact` or
   `ratchet` can rewrite `owner/action@vX` to
   `owner/action@<sha> # vX` automatically. Tool selection and any
-  installation/documentation is deferred to `v2u`; this ADR does not
-  pre-commit either tool. Until then the lookup is manual.
+  installation/documentation is deferred to the deferred CI lint;
+  this ADR does not pre-commit either tool. Until then the lookup
+  is manual.
 - Per-action tightening: an individual Tier B action MAY be SHA-pinned
-  ad hoc with an inline comment of the form
-  `# tightened to SHA, ref: <issue-id>` and a corresponding tracking
-  issue in beads. This is policy-conformant, not a deviation. The
-  maintainer approves these by reviewing the PR that introduces them;
-  no separate governance is required.
+  ad hoc with a comment above the `uses:` line documenting the
+  reason, for example:
+
+  ```yaml
+  # SHA-pinned: downloads artefacts into the publish job (transitive Tier A)
+  uses: actions/download-artifact@<sha> # v8
+  ```
+
+  The comment makes the deviation visible without requiring a tracker
+  reference in the workflow file. This is policy-conformant, not a
+  deviation. The maintainer approves these by reviewing the PR that
+  introduces them; no separate governance is required.
 - Residual risk — `actions/` org compromise: this is not mitigated by
   the policy. It is accepted as the cost of D3 patch velocity for
   utility actions. The accepted residual is bounded by the fact that
@@ -293,7 +301,7 @@ dominate the trade-off when options conflict.
   (`groups: all-actions`); all SHA bumps land in one PR per cycle.
 - Contributor lookup burden is removed by `pinact run` / `ratchet pin`
   as discussed for Option A (same caveat: tool choice deferred to
-  `v2u`).
+  the deferred CI lint).
 
 **Rejected even with mitigations**: Option B+auto-merge+pinact closes
 the D3 gap but requires trusting GitHub's CI auto-merge for
@@ -366,7 +374,7 @@ exposures remain fully open.
 - Bad, because decisions drift over time as reviewers change or
   forget prior reasoning.
 - Bad, because consistency cannot be enforced by any automated check,
-  ruling out the later CI lint (`v2u`).
+  ruling out the deferred SHA-enforcement CI lint.
 - Bad, because it places the burden of supply-chain reasoning on
   every reviewer for every PR rather than encoding the answer once
   (T5 exposure scales with reviewer fatigue rather than being
@@ -380,8 +388,8 @@ exposures remain fully open.
 
 **Rejected even with mitigations**: A reviewer checklist that captures
 the pinning rule is functionally Option A with additional per-PR
-burden; adopting A directly is strictly better and enables the later
-v2u lint.
+burden; adopting A directly is strictly better and enables the deferred
+SHA-enforcement CI lint.
 
 #### Option F — Buy a hardening product (e.g. Harden-Runner)
 
@@ -424,16 +432,16 @@ v2u lint.
 - Good, because it can be combined with Option A: A defines what
   belongs in which tier; G prevents accidental addition of anything
   outside the allow-list.
+- Good, because it is a native GitHub repository setting with no
+  per-event or subscription cost (D5-positive).
 - Bad, because the allow-list lives in repository settings, not in
   git — drift between settings and policy is invisible to
   reviewers reading the repo.
 - Bad, because the allow-list does not distinguish SHA pin from tag
   pin per entry; enforcement of "SHA for Tier A" still requires the
-  later CI lint (`v2u`) or human review.
+  deferred SHA-enforcement CI lint or human review.
 - Neutral, because for a solo-maintainer repo the settings-vs-git
   drift risk is small (one person owns both).
-- Good, because it is a native GitHub repository setting with no
-  per-event or subscription cost (D5-positive).
 
 #### Option H — Fork-pin / internal mirror
 
@@ -486,7 +494,7 @@ to primary co-recommendation because it is free (D5-positive), additive,
 and mechanically addresses T5 (phishing/social-engineered PRs) at the
 introduction point — the only gap G does not close is pin-style
 enforcement (SHA vs tag per tier), which is reserved for the deferred
-`v2u` lint job.
+SHA-enforcement CI lint.
 
 The option×threat×mitigation matrix was re-walked after the Threat
 Model (T1–T6) and D5 driver landed:
@@ -602,10 +610,10 @@ SHA pin choice.
 ### Tier B Tightening Governance
 
 A Tier B action may be SHA-pinned ad hoc (see Mitigations above)
-with `# tightened to SHA, ref: <issue-id>` and a beads tracking
-issue. The PR that introduces the tightening is the approval; the
-tracking issue records the reason; the comment makes the deviation
-visible in the workflow file.
+with a comment above the `uses:` line that documents the reason
+for the tightening. The PR that introduces the tightening is the
+approval; the comment makes the deviation visible in the workflow
+file without requiring a tracker reference.
 
 ## Consequences
 
@@ -627,12 +635,12 @@ visible in the workflow file.
 - The G co-recommendation (GitHub repository allow-list) adds a
   zero-cost mechanical guard: once enabled under Settings → Actions,
   it prevents introduction of any action outside the allow-list without
-  requiring the v2u CI lint.
+  requiring the deferred SHA-enforcement CI lint.
 
 ### Negative
 
-- The policy is human-enforced indefinitely if `v2u` never lands; see
-  Enforcement Reality.
+- The policy is human-enforced indefinitely if the deferred
+  SHA-enforcement CI lint never lands; see Enforcement Reality.
 - A SHA-pinned third-party action can still execute arbitrary
   transitive code (composite-action chain, `run:` `curl | bash`,
   container image pull) that the SHA does not cover. Tier A reduces
@@ -702,15 +710,17 @@ This policy is not permanent by default. Revisit it on any of:
 
 ## More Information
 
-- Constitution Principle IX (CI/CD Pipeline Security) and Principle
-  IV (Simplicity / YAGNI) — `.specify/memory/constitution.md`.
-- Current Dependabot configuration — `.github/dependabot.yml`.
-- Feature concept doc that originally noted SHA pinning was out of
-  scope for the fork-safe CI work — `docs/features/fork-safe-docker-ci/concept.md`.
+- Constitution [Principle IX (CI/CD Pipeline Security)](../../../.specify/memory/constitution.md)
+  and [Principle IV (Simplicity / YAGNI)](../../../.specify/memory/constitution.md).
+- [Dependabot configuration](../../../.github/dependabot.yml) — monthly
+  grouped updates, ecosystem `github-actions`.
+- [Feature concept doc](../../features/fork-safe-docker-ci/concept.md) —
+  originally noted SHA pinning was out of scope for the fork-safe CI work.
 - This ADR originated from a review of the mixed-pinning state in
   the CI workflows. The enforcement CI lint, curl|sudo binary-download
   supply-chain finding, and the parent code-review epic are all
   tracked separately in the project issue tracker.
-- Methodology: ADR-001 uses a weighted decision matrix; ADR-002 uses
-  MADR pros/cons because the options here represent categorically
-  different risk models, not commensurable criteria.
+- Methodology: [ADR-001](001-command-restrictions.md) uses a weighted
+  decision matrix; ADR-002 uses MADR pros/cons because the options
+  here represent categorically different risk models, not commensurable
+  criteria.
