@@ -1,7 +1,7 @@
 # ADR-002: GitHub Actions Pinning Policy (SHA vs Version Tags)
 
 Date: 2026-05-16
-Status: Proposed
+Status: Accepted
 Deciders: Stefan (Product Owner)
 
 ## Context and Problem Statement
