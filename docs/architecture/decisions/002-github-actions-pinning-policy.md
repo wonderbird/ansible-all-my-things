@@ -166,6 +166,16 @@ dominate the trade-off when options conflict.
    "Reviewer cognitive load" and "maintenance burden" are merged into
    this driver because the repository has a single maintainer who is
    also the sole reviewer.
+5. **D5 — No recurring out-of-pocket cost.** This repository is a
+   single-maintainer open-source personal project. Mechanisms that
+   require a paid subscription or per-event metered cost are
+   unacceptable as a permanent pin-policy dependency; free / OSS /
+   free-tier-sufficient tooling only. Adopting a mechanism is
+   permitted only while it stays free at the scale this repository
+   operates at. D5 sits between D2 (auditability) and D3 (patch
+   velocity) in priority: a mechanism that fails D5 is rejected
+   outright, but among D5-compatible mechanisms the higher-priority
+   drivers still dominate.
 
 ## Considered Options
 
@@ -213,6 +223,9 @@ dominate the trade-off when options conflict.
 - Good, because Tier B actions still receive zero-touch security
   patches via floating major tag, preserving patch velocity (D3) where
   credential risk is lowest.
+- Good, because the candidate SHA-resolving helpers (`pinact`,
+  `ratchet`) are free OSS tools — tool selection in `v2u` must
+  remain D5-compatible (free / OSS).
 - Bad, because the policy is human-enforced unless and until a CI
   lint job (`v2u`) lands — partial coverage of T5 until that lint
   exists. See "Enforcement reality" below for an honest framing of
@@ -368,9 +381,11 @@ dominate the trade-off when options conflict.
 - Bad, because it adds an external runtime dependency and an extra
   workflow step on every job, increasing CI minutes and surface area.
 - Bad, because full feature sets (custom egress allow-lists, longer
-  audit retention, SSO) are paid-tier on most products evaluated;
+  audit retention, SSO) are paid-tier on most products evaluated
+  (**D5-violating, defer adoption** — paid-tier features fail D5);
   free-tier coverage is assumed sufficient at the time of writing
   (2026-05-16) and would need re-verification at adoption time.
+  Free-tier-only adoption remains permissible under D5.
 
 ##### Mitigations
 
@@ -397,6 +412,8 @@ dominate the trade-off when options conflict.
   later CI lint (`v2u`) or human review.
 - Neutral, because for a solo-maintainer repo the settings-vs-git
   drift risk is small (one person owns both).
+- Good, because it is a native GitHub repository setting with no
+  per-event or subscription cost (D5-positive).
 
 #### Option H — Fork-pin / internal mirror
 
@@ -406,7 +423,8 @@ dominate the trade-off when options conflict.
   compromise).
 - Bad, because mirror maintenance is a recurring task: every
   upstream release must be re-mirrored and the pin advanced manually
-  or via custom Dependabot configuration.
+  or via custom Dependabot configuration (D5-neutral: no recurring
+  cash cost, but a recurring time cost charged to D4).
 - Bad, because patch velocity (D3) drops to manual cadence for any
   mirrored action.
 - Bad, because the trust relocation is partial: the upstream
@@ -426,6 +444,8 @@ dominate the trade-off when options conflict.
   is either fully trusted (any of their actions can be tag-pinned)
   or not at all, which is a coarser knob than Tier A's
   per-capability test.
+- Neutral, because the trusted-publisher list is a plain repository
+  artefact with no recurring cost (D5-neutral).
 
 ## Recommendation
 
@@ -440,7 +460,11 @@ with G, and accepts T6 as out of scope. Options B, C, D, E, H, and I
 are not recommended for the reasons in the pros-and-cons sections
 above. Option F may be adopted additively at any later point without
 re-opening this decision; it would add defence-in-depth on T1 and T2
-on top of A's pin-shape control.
+on top of A's pin-shape control. D5 (no recurring out-of-pocket cost)
+does not change the A-over-B verdict — both A and B are
+D5-compatible — but it explicitly limits any future Option F
+adoption to free-tier features only; paid-tier features of
+hardening products are D5-violating and remain deferred.
 
 The sections below document the policy as it would read if Option A
 is accepted, so the decision-maker can review the rule before deciding.
