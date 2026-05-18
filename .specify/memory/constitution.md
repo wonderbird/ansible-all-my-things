@@ -9,10 +9,10 @@ Sync Impact Report — 1.7.0 → 1.8.0 (MINOR)
   ✅ .specify/templates/plan-template.md — no violations found
   ✅ .specify/templates/tasks-template.md — no violations found
   ✅ .specify/templates/spec-template.md — no violations found
-- AGENTS.md and CLAUDE.md spot-checked for pre-existing beads references
-  in durable contexts (informational only; a comprehensive sweep is
-  tracked separately as follow-up F2b/bq7 and is NOT performed in this
-  commit).
+- AGENTS.md and CLAUDE.md spot-checked for pre-existing tracker
+  references in durable contexts (informational only). A comprehensive
+  sweep of existing references is tracked as a separate follow-up and
+  is NOT performed in this commit.
 - No principles renamed or removed
 -->
 # ansible-all-my-things Constitution
