@@ -6,24 +6,23 @@ Deciders: Stefan (Product Owner)
 
 ## Context and Problem Statement
 
-The CI/CD workflow `.github/workflows/docker-publish.yml` builds, tests,
-signs, and publishes the `ansible-toolchain` container image to GHCR. It
-currently references third-party GitHub Actions using two different
-pinning styles:
+The CI/CD workflows under `.github/workflows/` build, test, sign, and
+publish the `ansible-toolchain` container image to GHCR, and run
+Molecule role tests. These workflows reference third-party GitHub
+Actions using two different pinning shapes:
 
-- **Commit-SHA pins with version comments** are used for
-  `docker/setup-buildx-action`, `docker/metadata-action`,
-  `docker/build-push-action`, `docker/login-action`, and
-  `sigstore/cosign-installer` — the actions that touch registry
-  credentials, sign artefacts, or build the image.
-- **Floating major-version tags** are used for `actions/checkout@v6`,
-  `actions/upload-artifact@v7`, and `actions/download-artifact@v8` in
-  `docker-publish.yml`, and for `actions/checkout@v6` and
-  `actions/setup-python@v6` in `molecule.yml`.
+- **Commit-SHA pins with version comments** are used for some
+  credential-bearing, signing, building, or publishing actions.
+- **Floating major-version tags** are used for some utility actions
+  that do not request elevated permissions.
 
-The split exists but is undocumented. Dependabot (`.github/dependabot.yml`)
-already updates both styles monthly and groups all `github-actions`
-updates into a single PR.
+See `.github/workflows/*.yml` for the live pin snapshot — that file
+set is the source of truth for which actions are currently in which
+shape.
+
+The split exists but is undocumented. Dependabot
+(`.github/dependabot.yml`) already updates both shapes monthly and
+groups all `github-actions` updates into a single PR.
 
 Constitution Principle IX (CI/CD Pipeline Security) requires "auditable
 artefact provenance" but does not currently specify a pinning policy.
