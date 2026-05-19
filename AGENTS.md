@@ -184,3 +184,15 @@ that is not yet compliant.
 tasks only block tasks) — follow-up tasks must block original tasks, follow-up
 epics must block original epics. On type mismatch, update the affected issue's
 type; do not create relay issues as adapters.
+
+**Signal the next action for the next session**: after wiring the deps, claim
+both the blocked issue and the immediate actionable follow-up:
+
+```bash
+bd update <blocked-issue> --claim   # signals "this goal is in flight"
+bd update <follow-up> --claim       # signals "work on this next"
+```
+
+Without claiming, triage ranks by graph score. A high-impact unrelated issue
+will outrank the follow-up you actually need to work on, causing the next
+session to pick up the wrong work.
