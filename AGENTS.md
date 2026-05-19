@@ -170,3 +170,16 @@ bv --recipe high-impact --robot-triage       # Pre-filter: top PageRank scores
 ```
 
 <!-- end-bv-agent-instructions -->
+
+## Beads Dependency Wiring — Cross-Tree Follow-Ups
+
+When an ADR acceptance, review, or policy decision produces follow-up epics
+that impose compliance requirements on in-flight work in a **different epic
+tree**, add those follow-ups as `bd dep` blockers on the affected issue
+immediately. Tracking a follow-up only under its own parent epic — without
+connecting it to the constrained feature — allows premature closure of work
+that is not yet compliant.
+
+**Type alignment**: beads enforces same-type blocking (epics only block epics,
+tasks only block tasks). If types mismatch, update the affected issue's type
+before adding the dep. Do not create relay issues as type adapters.

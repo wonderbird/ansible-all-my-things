@@ -1,18 +1,17 @@
 <!--
-Sync Impact Report — 1.7.0 → 1.8.0 (MINOR)
-- Added Principle X: No External-System References in Durable Artefacts
-  (forbids ephemeral tracker IDs — beads, Jira, Linear, transient GitHub
-  issue numbers — in code, Markdown, YAML, and any git-tracked artefact
-  intended to outlive a single ticket; substance must be inlined)
-- Templates checked for propagation (greps for `beads`,
-  `ansible-all-my-things-[a-z0-9]{3}`, and `bd `):
-  ✅ .specify/templates/plan-template.md — no violations found
-  ✅ .specify/templates/tasks-template.md — no violations found
-  ✅ .specify/templates/spec-template.md — no violations found
-- AGENTS.md and CLAUDE.md spot-checked for pre-existing tracker
-  references in durable contexts (informational only). A comprehensive
-  sweep of existing references is tracked as a separate follow-up and
-  is NOT performed in this commit.
+Sync Impact Report — 1.8.0 → 1.9.0 (MINOR)
+- Extended Principle VIII: added cross-tree follow-up blocking rule
+  (policy/review follow-ups that constrain in-flight work outside the
+  originating epic tree MUST be wired as explicit blockers before that
+  work closes; extended Rationale to cover cross-tree machine-readable
+  compliance tracking)
+- AGENTS.md updated: added "Beads Dependency Wiring — Cross-Tree
+  Follow-Ups" section with same-type constraint guidance (epics block
+  epics, tasks block tasks; no relay issues as type adapters)
+- Templates checked for propagation:
+  ✅ .specify/templates/plan-template.md — no changes required
+  ✅ .specify/templates/tasks-template.md — no changes required
+  ✅ .specify/templates/spec-template.md — no changes required
 - No principles renamed or removed
 -->
 # ansible-all-my-things Constitution
@@ -130,6 +129,12 @@ code-review observations, follow-up improvements, and technical debt — MUST
 be tracked as issues with the same priority as the source task. These issues
 MUST block the source task's cover or parent issue before that issue is closed.
 
+Policy or review follow-ups that impose compliance requirements on in-flight
+work outside the originating epic tree MUST be wired as explicit blocking
+dependencies on that in-flight work before it closes. Tracking a follow-up
+only under its own parent epic — without connecting it to the constrained
+feature — allows premature closure of work that is not yet compliant.
+
 Technical debt MUST NOT be left untracked unless explicitly agreed with the
 team. Such agreement MUST be recorded in the relevant issue before the source
 task is closed.
@@ -137,7 +142,10 @@ task is closed.
 **Rationale**: Untracked debt accumulates invisibly and degrades quality
 without appearing in any backlog. Matching priority and blocking status ensures
 findings are treated with the same urgency as the work that produced them,
-preventing silent quality erosion.
+preventing silent quality erosion. Cross-tree blocking makes compliance
+requirements machine-readable in the issue tracker and prevents in-flight
+features from being closed before a policy they must satisfy has been
+enforced.
 
 ### IX. CI/CD Pipeline Security
 
@@ -286,4 +294,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.8.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-18
+**Version**: 1.9.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-19
