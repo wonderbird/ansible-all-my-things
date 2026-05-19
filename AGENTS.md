@@ -181,5 +181,6 @@ connecting it to the constrained feature — allows premature closure of work
 that is not yet compliant.
 
 **Type alignment**: beads enforces same-type blocking (epics only block epics,
-tasks only block tasks). If types mismatch, update the affected issue's type
-before adding the dep. Do not create relay issues as type adapters.
+tasks only block tasks) — follow-up tasks must block original tasks, follow-up
+epics must block original epics. On type mismatch, update the affected issue's
+type; do not create relay issues as adapters.
