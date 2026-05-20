@@ -1,17 +1,14 @@
 <!--
-Sync Impact Report — 1.8.0 → 1.9.0 (MINOR)
-- Extended Principle VIII: added cross-tree follow-up blocking rule
-  (policy/review follow-ups that constrain in-flight work outside the
-  originating epic tree MUST be wired as explicit blockers before that
-  work closes; extended Rationale to cover cross-tree machine-readable
-  compliance tracking)
-- AGENTS.md updated: added "Beads Dependency Wiring — Cross-Tree
-  Follow-Ups" section with same-type constraint guidance (epics block
-  epics, tasks block tasks; no relay issues as type adapters)
+Sync Impact Report — 1.9.0 → 1.10.0 (MINOR)
+- Extended Principle IX: added rule 4 — GitHub Actions pinning (two-tier
+  policy: Tier A SHA-pin for credential/artefact/container/publish-chain
+  actions; Tier B floating major tag for actions/ or github/ org actions
+  without elevated permissions). Cross-reference to ADR-002 for full criteria.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
+- AGENTS.md checked: no propagation required
 - No principles renamed or removed
 -->
 # ansible-all-my-things Constitution
@@ -150,7 +147,7 @@ enforced.
 ### IX. CI/CD Pipeline Security
 
 CI/CD workflows that publish artefacts (container images, packages, signed
-binaries) MUST follow three rules:
+binaries) MUST follow four rules:
 
 1. **Least-privilege job permissions.** Each job declares only the permissions
    it needs. Write-level credentials (`packages: write`, `id-token: write`,
@@ -170,11 +167,27 @@ binaries) MUST follow three rules:
    keyless signing mechanism (e.g. cosign OIDC via Sigstore Fulcio), images
    MUST be signed after the push step.
 
+4. **GitHub Actions pinning.** All CI workflows MUST pin third-party actions
+   following the two-tier policy:
+   - **Tier A — SHA pin required** (`uses: owner/action@<sha> # vX.Y.Z`):
+     any action in a job holding `packages: write`, `id-token: write`,
+     `contents: write`, `security-events: write`, or cloud credentials; any
+     action that signs, builds, pushes, or releases an artefact; container
+     actions (`docker://...`); any action in a transitive publish chain
+     (e.g. `upload-artifact` feeding a publish job). Default for anything
+     not clearly Tier B.
+   - **Tier B — floating major tag permitted** (`@vN`): only actions from
+     the `actions/` or `github/` GitHub org that do NOT hold elevated
+     permissions.
+
+   See ADR-002 for full criteria, examples, and Dependabot interaction.
+
 **Rationale**: Overly broad job permissions expose write credentials to
 untrusted fork code and to steps that do not need them. Publishing before
 testing allows broken artefacts to reach consumers silently. Provenance labels
 and signatures make the build-to-publish chain auditable and enable consumers
-to verify what they pull.
+to verify what they pull. SHA-pinning credential-bearing and artefact-handling
+actions prevents supply-chain compromise via tag retargeting.
 
 ### X. No External-System References in Durable Artefacts
 
@@ -294,4 +307,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.9.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-19
+**Version**: 1.10.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-20
