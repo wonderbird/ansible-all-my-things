@@ -6,6 +6,10 @@ name: Docker
 #   No registry push. permissions: contents:read only.
 # - test: downloads artifact, loads image, runs container-structure-test.
 #   Identical path for PR and non-PR. No registry interaction.
+#   container-structure-test is installed from a pinned release tag (not /latest/).
+#   The binary is verified against the upstream-published checksums.txt (SHA256)
+#   before being moved into PATH. To upgrade: update CST_VERSION and the two
+#   expected SHA256 values (amd64/arm64) from the release's checksums.txt.
 # - push: non-PR only (needs: [build, test]). Loads artifact, pushes to ghcr.io
 #   with arch-gated tags (amd64 owns unqualified :latest and semver tags).
 #   Cosign signs after push. permissions: packages:write + id-token:write here only.
@@ -103,8 +107,15 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Install container-structure-test
+        env:
+          CST_VERSION: v1.22.1
+          CST_SHA256_AMD64: fa35e89512a8978585f76cf41397956d2e3a30c62c2ad3fb857b1597074d14ca
+          CST_SHA256_ARM64: 801826ed107222120eb6df8c143b7de752cfebbe3aebfeea576e7098486917c2
         run: |
-          curl -LO "https://github.com/GoogleContainerTools/container-structure-test/releases/latest/download/container-structure-test-linux-${{ matrix.arch }}"
+          curl -fsSL "https://github.com/GoogleContainerTools/container-structure-test/releases/download/${CST_VERSION}/container-structure-test-linux-${{ matrix.arch }}" \
+            -o container-structure-test-linux-${{ matrix.arch }}
+          EXPECTED_VAR="CST_SHA256_$(echo '${{ matrix.arch }}' | tr '[:lower:]' '[:upper:]' | tr '-' '_')"
+          echo "${!EXPECTED_VAR}  container-structure-test-linux-${{ matrix.arch }}" | sha256sum --check --strict
           chmod +x container-structure-test-linux-${{ matrix.arch }}
           sudo mv container-structure-test-linux-${{ matrix.arch }} /usr/local/bin/container-structure-test
 
