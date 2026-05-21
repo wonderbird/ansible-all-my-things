@@ -1,3 +1,5 @@
+.worktrees/
+
 # Oh My Claude Code
 .omc/state/
 .omc/sessions/
