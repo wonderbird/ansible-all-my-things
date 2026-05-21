@@ -21,13 +21,17 @@ truth and must be read and followed carefully.
 
 ## Skill index
 
-The table below lists every skill file in `.claude/skills/` with the description from
-their frontmatter. Use it to decide which skills to read for your current
+The table below lists every skill relevant to this project with its intended
+invocation trigger. Use it to decide which skills to invoke for your current
 task.
 
 | Skill | When to read |
 | --- | --- |
+| [commit](commit) | Invoke before creating any git commit. Authoritative source of truth for commit formatting: allowed prefixes, message format, small-increment requirements, and co-authorship rules (Principle V). |
+| [fix-problem](fix-problem) | Invoke when an unexpected obstacle arises (test failure, tooling error, regression, incorrect command output). Authoritative source of truth for the remediation protocol (Principle VII). |
+| [format-markdown](format-markdown) | Invoke once at the close of a task, after all Markdown files are finalized. Authoritative source of truth for the linting ruleset, tool invocation, and installation instructions (Principle VI). |
 | [molecule-testing](.claude/skills/molecule-testing/SKILL.md) | Pull in information about the molecule testing setup for Ansible roles. Use when implementing or modifying an Ansible role to set up or maintain its Molecule test scenario. |
+| [review-documentation](review-documentation) | Invoke once at the close of a task, before invoking `format-markdown`. Defines the documentation strategy, folder structure, and migration policy. |
 | [review-documentation-here](.claude/skills/review-documentation-here/SKILL.md) | Extends review-documentation by project-specific documentation structure, including co-located role documentation. Use when reviewing the project documentation. |
 | [technical-coach](.claude/skills/technical-coach/SKILL.md) | Use when expert knowledge of Ansible is required to advise and tutor on automating setup and maintenance of virtual machines. |
 
@@ -65,7 +69,8 @@ NOT be recorded in `CLAUDE.md` or agent-specific context files.
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
 ## Beads Issue Tracker
 
-This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
+This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full
+workflow context and commands.
 
 ### Quick Reference
 
@@ -78,13 +83,15 @@ bd close <id>         # Complete work
 
 ### Rules
 
-- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown TODO lists
+- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown
+  TODO lists
 - Run `bd prime` for detailed command reference and session close protocol
 - Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
 
 ## Session Completion
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+**When ending a work session**, you MUST complete ALL steps below. Work is NOT
+complete until `git push` succeeds.
 
 **MANDATORY WORKFLOW:**
 
@@ -92,17 +99,20 @@ bd close <id>         # Complete work
 2. **Run quality gates** (if code changed) - Tests, linters, builds
 3. **Update issue status** - Close finished work, update in-progress items
 4. **PUSH TO REMOTE** - This is MANDATORY:
+
    ```bash
    git pull --rebase
    bd dolt push
    git push
    git status  # MUST show "up to date with origin"
    ```
+
 5. **Clean up** - Clear stashes, prune remote branches
 6. **Verify** - All changes committed AND pushed
 7. **Hand off** - Provide context for next session
 
 **CRITICAL RULES:**
+
 - Work is NOT complete until `git push` succeeds
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
