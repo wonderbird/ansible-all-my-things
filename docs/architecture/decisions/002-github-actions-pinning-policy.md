@@ -603,6 +603,39 @@ This ADR is policy only. Two enforcement levels are possible:
    remains in effect as a human convention; that is an honest part of
    this decision, not a postponed deficit.
 
+### Allow-List Configuration
+
+The repository allow-list (Settings → Actions → General →
+"Allow select actions and reusable workflows") is the G mechanical
+guard. Each entry uses a per-repository wildcard so that version
+control stays in the workflow file while the allow-list controls
+which action repositories are permitted at all.
+
+**Current entries** (as of ADR-002 acceptance):
+
+```
+actions/checkout@*,
+actions/setup-python@*,
+actions/download-artifact@*,
+actions/upload-artifact@*,
+docker/build-push-action@*,
+docker/login-action@*,
+docker/metadata-action@*,
+docker/setup-buildx-action@*,
+sigstore/cosign-installer@*
+```
+
+**Fork setup (one-time):** The allow-list is a repository setting
+and does not transfer on fork. A maintainer forking this repository
+must re-enable it manually: Settings → Actions → General →
+"Allow select actions and reusable workflows" → add the entries above.
+
+**Adding a new action:** (1) Pin the action in the workflow file at
+the correct tier (SHA for Tier A, `@vN` for Tier B). (2) Add
+`owner/repo@*` to the allow-list in repository settings. (3) Open a
+PR; the PR description must note the tier classification. Both
+changes must land together.
+
 ### Cron and Scheduled Runs
 
 `docker-publish.yml` runs on a Monday 04:00 cron. Tag-retargeting on

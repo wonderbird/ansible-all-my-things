@@ -1,4 +1,10 @@
 <!--
+Sync Impact Report — 1.10.0 → 1.11.0 (MINOR)
+- Extended Principle IX rule 4: added two normative MUSTs — (1) each
+  repository instance must enable the GitHub Actions allow-list per ADR-002
+  § Allow-List Configuration; (2) when adding a new action, the
+  corresponding owner/repo@* entry must also be added to the allow-list.
+
 Sync Impact Report — 1.9.0 → 1.10.0 (MINOR)
 - Extended Principle IX: added rule 4 — GitHub Actions pinning (two-tier
   policy: Tier A SHA-pin for credential/artefact/container/publish-chain
@@ -180,7 +186,11 @@ binaries) MUST follow four rules:
      the `actions/` or `github/` GitHub org that do NOT hold elevated
      permissions.
 
-   See ADR-002 for full criteria, examples, and Dependabot interaction.
+   Each repository instance MUST also enable the GitHub Actions allow-list
+   per ADR-002 § Allow-List Configuration. When adding a new action to a
+   workflow, the corresponding `owner/repo@*` entry MUST also be added to
+   the repository allow-list. See ADR-002 for full criteria, examples,
+   Dependabot interaction, and fork setup instructions.
 
 **Rationale**: Overly broad job permissions expose write credentials to
 untrusted fork code and to steps that do not need them. Publishing before
@@ -307,4 +317,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.10.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-20
+**Version**: 1.11.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-21
