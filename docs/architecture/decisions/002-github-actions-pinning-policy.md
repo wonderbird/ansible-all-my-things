@@ -595,13 +595,14 @@ This ADR is policy only. Two enforcement levels are possible:
    repository allow-list under Settings → Actions can prevent
    accidental introduction of unallowed actions at zero implementation
    cost. It does not enforce Tier A vs Tier B per pin style.
-2. **Automated lint (open issue, deferred)**: a CI lint job that fails
-   on a Tier A action with a tag pin. The lint issue is open with no
-   committed timeline. With only ~12 `uses:` lines across two workflows
-   today, human enforcement by the maintainer-reviewer is realistic
-   indefinitely. If the lint job is never implemented, the policy
-   remains in effect as a human convention; that is an honest part of
-   this decision, not a postponed deficit.
+2. **Automated lint (implemented)**: `.github/workflows/pinning-lint.yml`
+   runs [zizmor](https://github.com/woodruffw/zizmor) on push and PR
+   for all workflow file changes. Configuration in `.github/zizmor.yml`
+   maps `actions/*` and `github/*` to `ref-pin` (Tier B) and all other
+   actions to `hash-pin` (Tier A). A tag-pinned Tier A action fails
+   the job with a high-severity `unpinned-uses` finding; a Tier B
+   floating tag passes. All other zizmor audits are disabled to keep
+   the job focused on pin-style enforcement only (Principle IV).
 
 ### Allow-List Configuration
 
@@ -751,11 +752,18 @@ file without requiring a tracker reference.
    in the artifact-publish chain and are now classified as Tier A
    under the transitive-publish-chain criterion. Update the pins using
    the SHA-resolving helper selected in the CI lint follow-up.
+<<<<<<< HEAD
 6. Evaluate and implement pinning policy enforcement: either add a
    constitution principle referencing the Tier A/B rules for future
    workflow changes, or create a dedicated project review skill that
    checks workflow files for pin-style compliance. The review skill
    approach also serves as a fallback until the deferred CI lint lands.
+=======
+6. ~~Evaluate and implement pinning policy enforcement~~ **Done**:
+   zizmor-based CI lint implemented in `.github/workflows/pinning-lint.yml`
+   with policy config in `.github/zizmor.yml`. See "Enforcement Reality"
+   above for details.
+>>>>>>> origin/v2u-ci-pinning-lint
 
 ## Revisit Triggers
 
