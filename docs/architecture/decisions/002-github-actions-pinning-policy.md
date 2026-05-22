@@ -623,7 +623,8 @@ docker/build-push-action@*,
 docker/login-action@*,
 docker/metadata-action@*,
 docker/setup-buildx-action@*,
-sigstore/cosign-installer@*
+sigstore/cosign-installer@*,
+zizmorcore/zizmor-action@*
 ```
 
 **Fork setup (one-time):** The allow-list is a repository setting
