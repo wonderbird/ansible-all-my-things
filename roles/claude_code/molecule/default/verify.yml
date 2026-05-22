@@ -77,6 +77,18 @@
         fail_msg: "oh-my-claudecode source repo not found at /home/testuser/Documents/Cline/oh-my-claudecode/.git"
         success_msg: "oh-my-claudecode source repo found at /home/testuser/Documents/Cline/oh-my-claudecode/.git"
 
+    - name: Check beads source repository exists
+      ansible.builtin.stat:
+        path: /home/testuser/Documents/Cline/beads/.git
+      register: beads_src_stat
+
+    - name: Assert beads source repository is cloned
+      ansible.builtin.assert:
+        that:
+          - beads_src_stat.stat.exists
+        fail_msg: "beads source repo not found at /home/testuser/Documents/Cline/beads/.git"
+        success_msg: "beads source repo found at /home/testuser/Documents/Cline/beads/.git"
+
     - name: Check jq is installed
       ansible.builtin.stat:
         path: /usr/bin/jq
