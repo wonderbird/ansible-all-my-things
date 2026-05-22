@@ -6,7 +6,7 @@
   become: true
   tasks:
     - name: Update apt cache
-      ansible.builtin.raw: apt-get update -o Acquire::Check-Valid-Until=false
+      ansible.builtin.raw: apt-get update
       become: false
       changed_when: true
 
