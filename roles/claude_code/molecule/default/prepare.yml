@@ -6,7 +6,7 @@
   become: true
   tasks:
     - name: Update apt cache
-      ansible.builtin.raw: apt-get update
+      ansible.builtin.raw: apt-get update -o Acquire::Check-Valid-Until=false
       # become: false — sudo is not yet installed; run directly as root
       become: false
       changed_when: true
