@@ -1,5 +1,96 @@
 # Agent Instructions
 
+<!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
+## Beads Issue Tracker
+
+This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
+
+### Quick Reference
+
+```bash
+bd ready              # Find available work
+bd show <id>          # View issue details
+bd update <id> --claim  # Claim work
+bd close <id>         # Complete work
+```
+
+### Rules
+
+- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown TODO lists
+- Run `bd prime` for detailed command reference and session close protocol
+- Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
+
+## Session Completion
+
+**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+
+**MANDATORY WORKFLOW:**
+
+1. **File issues for remaining work** - Create issues for anything that needs follow-up
+2. **Run quality gates** (if code changed) - Tests, linters, builds
+3. **Update issue status** - Close finished work, update in-progress items
+4. **PUSH TO REMOTE** - This is MANDATORY:
+   ```bash
+   git pull --rebase
+   bd dolt push
+   git push
+   git status  # MUST show "up to date with origin"
+   ```
+5. **Clean up** - Clear stashes, prune remote branches
+6. **Verify** - All changes committed AND pushed
+7. **Hand off** - Provide context for next session
+
+**CRITICAL RULES:**
+- Work is NOT complete until `git push` succeeds
+- NEVER stop before pushing - that leaves work stranded locally
+- NEVER say "ready to push when you are" - YOU must push
+- If push fails, resolve and retry until it succeeds
+<!-- END BEADS INTEGRATION -->
+
+## Beads: Issue Types and Dependency Rules
+
+### Issue Types
+
+Built-in types and when to use each:
+
+| Type        | Use when                                              |
+|-------------|-------------------------------------------------------|
+| `task`      | Default. General work item. (default when omitted)    |
+| `bug`       | Something broken that must be fixed.                  |
+| `feature`   | New user-facing capability.                           |
+| `chore`     | Maintenance, cleanup, non-functional work.            |
+| `epic`      | Large body of work grouping child issues.             |
+| `spike`     | Timeboxed investigation to reduce uncertainty.        |
+| `story`     | User story (user-centric feature description).        |
+| `decision`  | Architectural or design decision to document.         |
+| `milestone` | Marks completion of a set of related issues.          |
+| `gate`      | Async coordination checkpoint (blocks until cleared). |
+| `molecule`  | Beads work template — NOT Ansible Molecule testing.   |
+
+### Epic Gating and Attaching Issues to Epics
+
+Non-epic issues cannot block epics (`bd dep add epic non-epic` fails with
+"epics can only block other epics"). Use `--parent` instead:
+
+```shell
+bd update <child-id> --parent <epic-id>
+```
+
+This attaches the child to the epic and gates it: the epic is excluded from
+`bd ready` while any open child exists.
+
+**Common case — findings discovered during WIP:** when a bug or task is
+found while working on an epic (e.g. a test failure on the feature branch),
+attach it immediately:
+
+```shell
+bd update <finding-id> --parent <epic-id>
+```
+
+Do NOT attempt `bd dep add <epic-id> <finding-id>` — that errors.
+
+Among non-epics, any type may block any other type.
+
 ## Collaboration with the User
 
 - **Language**: chat is in English. For your thinking processes and
@@ -61,50 +152,3 @@ NOT be recorded in `CLAUDE.md` or agent-specific context files.
 
 - YAML (Ansible 2.19+) + `community.general` collection + `ansible.builtin.*`;
   Ubuntu `podman` apt package for rootless containers
-
-<!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
-## Beads Issue Tracker
-
-This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
-
-### Quick Reference
-
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --claim  # Claim work
-bd close <id>         # Complete work
-```
-
-### Rules
-
-- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown TODO lists
-- Run `bd prime` for detailed command reference and session close protocol
-- Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
-
-## Session Completion
-
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
-
-**MANDATORY WORKFLOW:**
-
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
-   ```bash
-   git pull --rebase
-   bd dolt push
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
-
-**CRITICAL RULES:**
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
-<!-- END BEADS INTEGRATION -->
