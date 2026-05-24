@@ -25,14 +25,6 @@ Follow setup instructions in
 - [Work with a VM](./docs/user-manual/work-with-vm.md)
 - [Synchronize Git Repositories with a VM](./docs/user-manual/synchronize-repos-with-vm.md)
 
-## CI
-
-Workflow pinning policy is enforced by
-[`.github/workflows/pinning-lint.yml`](./.github/workflows/pinning-lint.yml)
-on every push and pull request. See
-[ADR-002](./docs/architecture/decisions/002-github-actions-pinning-policy.md)
-for the two-tier pinning policy and tool-selection rationale.
-
 ## Documentation
 
 The [/docs](./docs/) folder contains documentation for some aspects of the system.

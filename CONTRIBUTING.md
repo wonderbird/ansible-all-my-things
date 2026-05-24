@@ -14,6 +14,10 @@ the two-tier pinning policy and allow-list requirements documented in
 That document also covers the one-time allow-list setup required when forking
 this repository.
 
+The pinning policy is enforced by
+[`.github/workflows/pinning-lint.yml`](./.github/workflows/pinning-lint.yml)
+on every push and pull request.
+
 ## Development Concepts
 
 Development concepts are documented in
