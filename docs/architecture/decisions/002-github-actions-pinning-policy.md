@@ -612,7 +612,7 @@ guard. Each entry uses a per-repository wildcard so that version
 control stays in the workflow file while the allow-list controls
 which action repositories are permitted at all.
 
-**Current entries** (as of ADR-002 acceptance):
+**Current entries** (as of ADR-002 acceptance, updated after fork-safe-docker-ci):
 
 ```
 actions/checkout@*,
@@ -623,9 +623,16 @@ docker/build-push-action@*,
 docker/login-action@*,
 docker/metadata-action@*,
 docker/setup-buildx-action@*,
+github/codeql-action/upload-sarif@*,
 sigstore/cosign-installer@*,
 zizmorcore/zizmor-action@*
 ```
+
+Note: `github/codeql-action/upload-sarif` is Tier A (requires
+`security-events: write`) and is called internally by
+`zizmorcore/zizmor-action` to upload SARIF scan results to Code
+Scanning. It must appear in the allow-list even though it is not
+directly referenced in any workflow file.
 
 **Fork setup (one-time):** The allow-list is a repository setting
 and does not transfer on fork. A maintainer forking this repository
