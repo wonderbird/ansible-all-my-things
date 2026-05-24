@@ -614,7 +614,7 @@ which action repositories are permitted at all.
 
 **Current entries** (as of ADR-002 acceptance, updated after fork-safe-docker-ci):
 
-```
+```text
 actions/checkout@*,
 actions/setup-python@*,
 actions/download-artifact@*,
@@ -643,7 +643,9 @@ must re-enable it manually: Settings → Actions → General →
 the correct tier (SHA for Tier A, `@vN` for Tier B). (2) Add
 `owner/repo@*` to the allow-list in repository settings. (3) Open a
 PR; the PR description must note the tier classification. Both
-changes must land together.
+changes must land together. The `pinning-lint` CI job (`.github/workflows/pinning-lint.yml`)
+verifies pin style automatically via the wildcard policies in
+`.github/zizmor.yml` — no per-action entry in `zizmor.yml` is required.
 
 ### Cron and Scheduled Runs
 
@@ -688,13 +690,10 @@ file without requiring a tracker reference.
   necessary but not sufficient supply-chain control.
 - First-party utility actions continue to receive security patches
   with minimal PR churn.
-- Current `docker-publish.yml` and `molecule.yml` already conform to
-  Tier A and Tier B rules for all actions except
-  `actions/upload-artifact` and `actions/download-artifact`, which
-  participate in the artifact-publish chain and require SHA pinning
-  under the new transitive-publish-chain Tier A criterion. Pinning
-  these two actions is a post-acceptance follow-up task (see below),
-  not a prerequisite for adopting this ADR.
+- `docker-publish.yml` and `molecule.yml` conform to Tier A and Tier B
+  rules for all actions. `actions/upload-artifact` and
+  `actions/download-artifact` participate in the artifact-publish chain
+  and are SHA-pinned under the transitive-publish-chain Tier A criterion.
 - The G co-recommendation (GitHub repository allow-list) adds a
   zero-cost mechanical guard: once enabled under Settings → Actions,
   it prevents introduction of any action outside the allow-list without
@@ -716,54 +715,14 @@ file without requiring a tracker reference.
 ### Neutral / known-unverified
 
 - The Dependabot SHA-plus-comment co-update behaviour is documented
-  by Dependabot but has not been observed in this repository. The
-  Confirmation step below verifies it on the first post-merge bump.
+  by Dependabot but has not been observed in this repository. Verify
+  on the first Dependabot Tier A PR: it MUST update both the SHA and
+  the trailing `# vX.Y.Z` comment together; if it does not, this
+  assumption fails and the ADR must be revisited.
 - The G allow-list guards against introduction of disallowed actions
   but does not enforce pin style (SHA vs tag) per entry; the
   Tier A vs Tier B distinction still relies on human review or the
   deferred CI lint.
-
-## Confirmation and Follow-up Tasks
-
-**Confirmation (evidence the decision worked):**
-
-- The first Dependabot PR after this ADR is merged that touches a
-  Tier A action MUST update the SHA and the trailing `# vX.Y.Z`
-  comment together. If it does not, the Dependabot assumption above
-  fails and the ADR must be revisited.
-- No new `uses:` line MAY be introduced after merge without the
-  reviewer (maintainer) noting the tier classification in the PR
-  description. This is the human-enforcement contract.
-- The repository Settings → Actions allow-list is enabled within 30
-  days of this ADR being accepted. If not enabled within that window,
-  the G co-recommendation is not yet operative; re-evaluate whether
-  human-only T5 enforcement is acceptable.
-
-**Follow-up tasks (after approval):**
-
-1. Update constitution Principle IX with a single informational
-   cross-reference to this ADR. This is a clarification, not a new
-   MUST, so a PATCH bump applies (1.8.0 → 1.8.1). If the
-   decision-maker prefers a normative reference (introducing a MUST
-   for ADR-002 conformance), a MINOR bump (1.8.0 → 1.9.0) applies
-   instead per the Governance section of the constitution.
-2. Close the source-finding issue for this ADR in the issue tracker
-   once the ADR is accepted.
-3. Leave the deferred CI lint issue open for the eventual SHA-enforcement automation;
-   accept that it may not land soon and that human enforcement is
-   the operative regime in the meantime.
-4. Enable the GitHub repository allow-list under Settings → Actions to
-   activate the G mechanical guard (see Confirmation above). This is a
-   one-time settings change with no implementation cost.
-5. SHA-pin `actions/upload-artifact` and `actions/download-artifact`
-   in `.github/workflows/docker-publish.yml`. Both actions participate
-   in the artifact-publish chain and are now classified as Tier A
-   under the transitive-publish-chain criterion. Update the pins using
-   the SHA-resolving helper selected in the CI lint follow-up.
-6. ~~Evaluate and implement pinning policy enforcement~~ **Done**:
-   zizmor-based CI lint implemented in `.github/workflows/pinning-lint.yml`
-   with policy config in `.github/zizmor.yml`. See "Enforcement Reality"
-   above for details.
 
 ## Revisit Triggers
 
