@@ -194,12 +194,6 @@ session to pick up the wrong work.
 - **Hidden files**: the LS tool does not show hidden files; use
   `ls -la <path>` via Bash to check for hidden files or directories.
 
-## Rules are stored in .specify/memory/constitution.md
-
-This project uses spec-kit for guiding the coding agent. Project rules are
-stored in `.specify/memory/constitution.md`. That file is the source of
-truth and must be read and followed carefully.
-
 ## Skill index
 
 The table below lists all skills relevant to this project. Local skills are in
