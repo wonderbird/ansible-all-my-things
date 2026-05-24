@@ -760,18 +760,10 @@ file without requiring a tracker reference.
    in the artifact-publish chain and are now classified as Tier A
    under the transitive-publish-chain criterion. Update the pins using
    the SHA-resolving helper selected in the CI lint follow-up.
-<<<<<<< HEAD
-6. Evaluate and implement pinning policy enforcement: either add a
-   constitution principle referencing the Tier A/B rules for future
-   workflow changes, or create a dedicated project review skill that
-   checks workflow files for pin-style compliance. The review skill
-   approach also serves as a fallback until the deferred CI lint lands.
-=======
 6. ~~Evaluate and implement pinning policy enforcement~~ **Done**:
    zizmor-based CI lint implemented in `.github/workflows/pinning-lint.yml`
    with policy config in `.github/zizmor.yml`. See "Enforcement Reality"
    above for details.
->>>>>>> origin/v2u-ci-pinning-lint
 
 ## Revisit Triggers
 
