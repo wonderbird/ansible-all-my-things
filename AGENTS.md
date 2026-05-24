@@ -180,6 +180,32 @@ Without claiming, triage ranks by graph score. A high-impact unrelated issue
 will outrank the follow-up you actually need to work on, causing the next
 session to pick up the wrong work.
 
+## Repository Remotes and Pull-Request Workflow
+
+This repository is a fork. Two remotes exist:
+
+- **`origin`** — `eudicy/ansible-all-my-things`: the fork and the agent's
+  workspace. **All pushes go to `origin` only.**
+- **`upstream`** — `wonderbird/ansible-all-my-things`: **READ-ONLY.** Never
+  push, force-push, merge, or otherwise write to it. Pull requests that target
+  `wonderbird` are merged manually by the user on GitHub. Never run
+  `gh pr merge`, push directly to `upstream`, or merge locally and push to
+  `upstream`.
+
+**`gh pr create` gotcha:** in a fork, `gh pr create` defaults the *target*
+repository to `upstream`, and without `--repo` it may not reference the fork
+where the commits actually live. For a cross-repo PR (fork branch → upstream
+`main`):
+
+```bash
+gh pr create --repo wonderbird/ansible-all-my-things \
+  --head eudicy:<branch> --base main
+```
+
+**Branch naming:** branch names MUST allow the associated epic (or work item)
+to be inferred, so work-in-progress can be recovered from the git branch alone
+when no issue is marked `in_progress`.
+
 ## Collaboration with the User
 
 - **Language**: chat is in English. For your thinking processes and
