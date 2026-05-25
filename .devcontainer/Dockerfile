@@ -12,7 +12,9 @@ FROM ubuntu:26.04 AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install build-time tools only (not carried into runtime image)
+# Install build-time tools only (not carried into runtime image).
+# gpg-agent is NOT an auto-dependency of gpg on Ubuntu (unlike Debian); it must
+# be listed explicitly or GPG key import during the aws-cli install fails.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update \
@@ -63,7 +65,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         jq \
         vim
 
-# Copy CLI tools built in the builder stage
+# Copy CLI tools built in the builder stage.
+# Do NOT `COPY --from=builder /usr/local/bin/aws` — that breaks the PyInstaller
+# bootloader. It resolves bundled libs (e.g. libpython3.*.so) relative to the
+# binary's own dir via $ORIGIN, so the binary must stay symlinked to the real
+# dist tree under /usr/local/aws-cli where those libs live.
 COPY --from=builder /usr/local/aws-cli /usr/local/aws-cli
 RUN ln -s /usr/local/aws-cli/v2/current/bin/aws /usr/local/bin/aws \
     && ln -s /usr/local/aws-cli/v2/current/bin/aws_completer /usr/local/bin/aws_completer

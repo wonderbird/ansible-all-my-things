@@ -1,11 +1,20 @@
 <!--
-Sync Impact Report — 1.5.1 → 1.6.0 (MINOR)
-- Added Principle VIII: No Untracked Technical Debt
-- Development Workflow: step 6 updated to require findings tracking
-- Templates requiring updates:
-  ✅ .specify/templates/plan-template.md — Constitution Check covers VIII automatically
-  ✅ .specify/templates/tasks-template.md — no change needed
-  ✅ .specify/templates/spec-template.md — no change needed
+Sync Impact Report — 1.10.0 → 1.11.0 (MINOR)
+- Extended Principle IX rule 4: added two normative MUSTs — (1) each
+  repository instance must enable the GitHub Actions allow-list per ADR-002
+  § Allow-List Configuration; (2) when adding a new action, the
+  corresponding owner/repo@* entry must also be added to the allow-list.
+
+Sync Impact Report — 1.9.0 → 1.10.0 (MINOR)
+- Extended Principle IX: added rule 4 — GitHub Actions pinning (two-tier
+  policy: Tier A SHA-pin for credential/artefact/container/publish-chain
+  actions; Tier B floating major tag for actions/ or github/ org actions
+  without elevated permissions). Cross-reference to ADR-002 for full criteria.
+- Templates checked for propagation:
+  ✅ .specify/templates/plan-template.md — no changes required
+  ✅ .specify/templates/tasks-template.md — no changes required
+  ✅ .specify/templates/spec-template.md — no changes required
+- AGENTS.md checked: no propagation required
 - No principles renamed or removed
 -->
 # ansible-all-my-things Constitution
@@ -123,6 +132,12 @@ code-review observations, follow-up improvements, and technical debt — MUST
 be tracked as issues with the same priority as the source task. These issues
 MUST block the source task's cover or parent issue before that issue is closed.
 
+Policy or review follow-ups that impose compliance requirements on in-flight
+work outside the originating epic tree MUST be wired as explicit blocking
+dependencies on that in-flight work before it closes. Tracking a follow-up
+only under its own parent epic — without connecting it to the constrained
+feature — allows premature closure of work that is not yet compliant.
+
 Technical debt MUST NOT be left untracked unless explicitly agreed with the
 team. Such agreement MUST be recorded in the relevant issue before the source
 task is closed.
@@ -130,7 +145,83 @@ task is closed.
 **Rationale**: Untracked debt accumulates invisibly and degrades quality
 without appearing in any backlog. Matching priority and blocking status ensures
 findings are treated with the same urgency as the work that produced them,
-preventing silent quality erosion.
+preventing silent quality erosion. Cross-tree blocking makes compliance
+requirements machine-readable in the issue tracker and prevents in-flight
+features from being closed before a policy they must satisfy has been
+enforced.
+
+### IX. CI/CD Pipeline Security
+
+CI/CD workflows that publish artefacts (container images, packages, signed
+binaries) MUST follow four rules:
+
+1. **Least-privilege job permissions.** Each job declares only the permissions
+   it needs. Write-level credentials (`packages: write`, `id-token: write`,
+   cloud push tokens) MUST be scoped to the job that performs the publish step
+   — never to build, test, or lint jobs. Pull-request events from forks MUST
+   NOT receive write-level permissions (gate publish steps with
+   `if: github.event_name != 'pull_request'` or equivalent).
+
+2. **Test-gated registry writes.** No artefact MUST reach a shared registry
+   without first passing automated tests. The publish job MUST express a hard
+   dependency on the test job (e.g. `needs: [build, test]` in GitHub Actions)
+   so that a failing test blocks the push automatically.
+
+3. **Artefact provenance.** Published container images MUST carry OCI
+   provenance labels (`org.opencontainers.image.source`, `.revision`,
+   `.created`) baked in at build time. Where the CI platform provides a
+   keyless signing mechanism (e.g. cosign OIDC via Sigstore Fulcio), images
+   MUST be signed after the push step.
+
+4. **GitHub Actions pinning.** All CI workflows MUST pin third-party actions
+   following the two-tier policy:
+   - **Tier A — SHA pin required** (`uses: owner/action@<sha> # vX.Y.Z`):
+     any action in a job holding `packages: write`, `id-token: write`,
+     `contents: write`, `security-events: write`, or cloud credentials; any
+     action that signs, builds, pushes, or releases an artefact; container
+     actions (`docker://...`); any action in a transitive publish chain
+     (e.g. `upload-artifact` feeding a publish job). Default for anything
+     not clearly Tier B.
+   - **Tier B — floating major tag permitted** (`@vN`): only actions from
+     the `actions/` or `github/` GitHub org that do NOT hold elevated
+     permissions.
+
+   Each repository instance MUST also enable the GitHub Actions allow-list
+   per ADR-002 § Allow-List Configuration. When adding a new action to a
+   workflow, the corresponding `owner/repo@*` entry MUST also be added to
+   the repository allow-list. See ADR-002 for full criteria, examples,
+   Dependabot interaction, and fork setup instructions.
+
+**Rationale**: Overly broad job permissions expose write credentials to
+untrusted fork code and to steps that do not need them. Publishing before
+testing allows broken artefacts to reach consumers silently. Provenance labels
+and signatures make the build-to-publish chain auditable and enable consumers
+to verify what they pull. SHA-pinning credential-bearing and artefact-handling
+actions prevents supply-chain compromise via tag retargeting.
+
+### X. No External-System References in Durable Artefacts
+
+Durable artefacts — code, Markdown documentation (including ADRs and this
+constitution), YAML configuration, and any file checked into git intended
+to outlive a single tracker ticket — MUST NOT reference beads issue IDs
+or any other ephemeral external-tracker identifier (Jira, Linear, GitHub
+issue numbers tied to a transient project, etc.). The substance of the
+referenced work MUST be inlined or summarised in the durable artefact
+itself.
+
+Beads (or equivalent) references remain permitted in:
+
+- pull-request descriptions (transient by definition);
+- commit message bodies (become immutable git history once committed);
+- `.omc/` working files (agent-session scratch, not durable);
+- the beads-tracker integration section of `AGENTS.md` (operational
+  guidance, not a substantive reference).
+
+**Rationale**: Ephemeral tracker IDs decay. A tracker can be migrated,
+renumbered, archived, or replaced; the durable artefact then carries a
+dangling identifier whose context has to be reconstructed. Inlining the
+substance keeps the durable artefact self-contained and outlives any
+tracker.
 
 ## Technology Stack
 
@@ -178,7 +269,6 @@ All durable knowledge MUST be committed to git:
 - Ansible patterns and prohibitions → this constitution
 - Skill-owned rules (Molecule, commit format, Markdown formatting,
   documentation review) → `.claude/skills/<skill>/SKILL.md`
-- Architecture decisions → `docs/architecture/decisions/`
 
 Never rely on in-session memory or local files for knowledge that must
 carry forward to the next agent session.
@@ -227,4 +317,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.6.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-15
+**Version**: 1.11.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-21

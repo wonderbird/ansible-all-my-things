@@ -1,3 +1,5 @@
+.worktrees/
+
 # Oh My Claude Code
 .omc/state/
 .omc/sessions/
@@ -353,6 +355,7 @@ $RECYCLE.BIN/
 .dolt/
 *.db
 .beads-credential-key
+.beads/issues.jsonl
 
 # bv (beads viewer) local config and caches
 .bv/
