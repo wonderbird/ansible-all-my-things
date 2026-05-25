@@ -42,4 +42,8 @@ jobs:
         with:
           config: .github/zizmor.yml
           inputs: .github/workflows/
+          # Upload SARIF to the canonical upstream repo only.
+          # Forks lack GHAS (GitHub Advanced Security) and their GITHUB_TOKEN
+          # cannot write to the security-events API — the upload would fail.
+          # Fork CI still gets the audit result via zizmor's exit code.
           advanced-security: ${{ github.repository == 'wonderbird/ansible-all-my-things' }}
