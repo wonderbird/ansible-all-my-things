@@ -42,4 +42,4 @@ jobs:
         with:
           config: .github/zizmor.yml
           inputs: .github/workflows/
-          advanced-security: ${{ github.event_name != 'pull_request' }}
+          advanced-security: ${{ github.repository == 'wonderbird/ansible-all-my-things' }}
