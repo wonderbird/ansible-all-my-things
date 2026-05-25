@@ -32,10 +32,15 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
+      # Required for SARIF upload on the canonical upstream repo.
+      # Scoped to this job; forks and fork PRs cannot write security-events
+      # regardless of this declaration — the upload is also gated by the
+      # advanced-security expression below.
+      security-events: write
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Run zizmor
         uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
@@ -45,5 +50,7 @@ jobs:
           # Upload SARIF to the canonical upstream repo only.
           # Forks lack GHAS (GitHub Advanced Security) and their GITHUB_TOKEN
           # cannot write to the security-events API — the upload would fail.
+          # Fork PRs run in the upstream context but the token is still
+          # restricted, so exclude pull_request events from forks.
           # Fork CI still gets the audit result via zizmor's exit code.
-          advanced-security: ${{ github.repository == 'wonderbird/ansible-all-my-things' }}
+          advanced-security: ${{ github.repository == 'wonderbird/ansible-all-my-things' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
