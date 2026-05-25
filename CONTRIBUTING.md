@@ -6,55 +6,49 @@
 can be used to extend this application. Consider installing the corresponding
 tools as described in the [Spec Kit Getting Started Guide](https://github.com/github/spec-kit).
 
-## Testing a role with Molecule (preferred)
+## CI/CD Pipeline Security
 
-Roles that can be exercised in a container are tested with Molecule. Activate
-the Python virtual environment first.
+Workflow changes (adding, updating, or removing GitHub Actions) must follow
+the two-tier pinning policy and allow-list requirements documented in
+[ADR-002](docs/architecture/decisions/002-github-actions-pinning-policy.md).
 
-From the role directory:
+The pinning policy is enforced by
+[`.github/workflows/pinning-lint.yml`](./.github/workflows/pinning-lint.yml)
+on every push and pull request.
 
-```shell
-cd roles/<role-name>
-molecule test
-```
+### Fork setup (one-time)
 
-From the project root:
+The GitHub Actions allow-list is a repository setting and does not transfer
+on fork. After forking, re-enable it in your fork:
 
-```shell
-./scripts/test-molecule-all.sh
-```
+1. Go to **Settings → Actions → General** in your fork.
+2. Under "Actions permissions", select
+   **"Allow select actions and reusable workflows"**.
+3. Paste the following entries into the allow-list field and save:
 
-Both forms run the full lifecycle: create → prepare → converge → idempotence →
-verify → destroy. All phases MUST pass before committing.
+   ```text
+   actions/checkout@*,
+   actions/setup-python@*,
+   actions/download-artifact@*,
+   actions/upload-artifact@*,
+   docker/build-push-action@*,
+   docker/login-action@*,
+   docker/metadata-action@*,
+   docker/setup-buildx-action@*,
+   github/codeql-action/upload-sarif@*,
+   sigstore/cosign-installer@*,
+   zizmorcore/zizmor-action@*
+   ```
 
-For scenario templates and known pitfalls when adding a Molecule scenario to a
-new role, see [`.claude/skills/molecule-testing/SKILL.md`](.claude/skills/molecule-testing/SKILL.md).
+The list above is the canonical source. When adding a new action, add its
+`owner/repo@*` entry here and to the allow-list in repository settings. For
+the two-tier pinning policy and rationale, see
+[ADR-002](docs/architecture/decisions/002-github-actions-pinning-policy.md).
 
-## Running a single role on a live host
+## Development Concepts
 
-```shell
-./scripts/run-role.sh <host> <role>
-```
+Development concepts are documented in
+[docs/architecture/concepts](./docs/architecture/concepts/):
 
-`<host>` must match an inventory entry. The script uses `my_ansible_user` and
-`desktop_users` variables from inventory, so those must be defined.
-
-## Testing a role with Vagrant (fallback for full-VM roles)
-
-Roles that require a full VM (e.g., desktop environment, display managers,
-hardware drivers) are tested against a local Vagrant/Tart VM:
-
-1. Create a Tart-based VM: [/docs/create-vm.md](./docs/create-vm.md)
-2. Insert the new role in the `configure-linux-roles.yml` playbook.
-3. Comment out all other roles in `configure-linux-roles.yml`, except the
-   new one.
-
-```shell
-cd test/tart
-ansible-playbook ../../configure-linux-roles.yml --skip-tags "not-supported-on-vagrant-arm64"
-```
-
-> [!WARNING]
->
-> When done, remember to uncomment the other roles in the
-> `configure-linux-roles.yml` playbook.
+- [Role development workflow](./docs/architecture/concepts/role-development-workflow.md)
+- [Toolchain docker image](./docs/architecture/concepts/toolchain-docker-image.md)

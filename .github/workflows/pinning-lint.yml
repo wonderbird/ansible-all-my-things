@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: MIT-0
+---
+name: Pinning Lint
+
+# Enforce the two-tier GitHub Actions pinning policy defined in
+# docs/architecture/decisions/002-github-actions-pinning-policy.md
+#
+# Tier A (hash-pin required): third-party actions and any action in a job
+# with elevated permissions (packages:write, id-token:write, signing, push).
+# Tier B (ref-pin permitted): actions/* and github/* org actions without
+# elevated permissions.
+#
+# Tool: zizmor (https://github.com/woodruffw/zizmor)
+# Policy config: .github/zizmor.yml
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/**"
+      - ".github/zizmor.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - ".github/workflows/**"
+      - ".github/zizmor.yml"
+  workflow_dispatch:
+
+jobs:
+  pinning-lint:
+    name: Check GitHub Actions pinning
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
+        with:
+          config: .github/zizmor.yml
+          inputs: .github/workflows/
+          # Upload SARIF to the canonical upstream repo only.
+          # Forks lack GHAS (GitHub Advanced Security) and their GITHUB_TOKEN
+          # cannot write to the security-events API — the upload would fail.
+          # Fork CI still gets the audit result via zizmor's exit code.
+          advanced-security: ${{ github.repository == 'wonderbird/ansible-all-my-things' }}

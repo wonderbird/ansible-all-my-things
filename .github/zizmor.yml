@@ -1,0 +1,63 @@
+# zizmor configuration — two-tier GitHub Actions pinning policy
+#
+# Only the unpinned-uses audit is enabled. All other zizmor audits are
+# disabled to keep this job focused on pinning enforcement only.
+# (Principle IV — YAGNI)
+#
+# Tier A (hash-pin required): any action outside actions/ or github/ orgs,
+# and any action in a job with elevated permissions (packages:write,
+# id-token:write, contents:write, security-events:write, signing/push).
+#
+# Tier B (ref-pin permitted): actions from the actions/ or github/ GitHub
+# orgs that do not hold elevated permissions.
+#
+# See docs/architecture/decisions/002-github-actions-pinning-policy.md
+
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        # Tier B: first-party GitHub orgs may use floating major tags (@vN)
+        "actions/*": ref-pin
+        "github/*": ref-pin
+        # Tier A: everything else must be SHA-pinned.
+        # The implicit "*": hash-pin default covers all remaining patterns.
+
+  # Disable all other audits — this workflow enforces pinning only.
+  # dependabot-cooldown: zizmor discovers dependabot.yml independent of the
+  # `inputs` directory target; disable explicitly so this pinning-only audit
+  # stays out of scope (added in zizmor v1.15.0, fires regardless of inputs).
+  dependabot-cooldown:
+    disable: true
+  artipacked:
+    disable: true
+  excessive-permissions:
+    disable: true
+  template-injection:
+    disable: true
+  dangerous-triggers:
+    disable: true
+  job-container-escape:
+    disable: true
+  known-vulnerable-actions:
+    disable: true
+  ref-confusion:
+    disable: true
+  self-hosted-runner:
+    disable: true
+  unpinned-images:
+    disable: true
+  unpinned-tools:
+    disable: true
+  unredacted-secrets:
+    disable: true
+  use-trusted-publishing:
+    disable: true
+  hardcoded-container-credentials:
+    disable: true
+  impostor-commit:
+    disable: true
+  cache-poisoning:
+    disable: true
+  overprovisioned-secrets:
+    disable: true
