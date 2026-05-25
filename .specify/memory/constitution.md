@@ -186,11 +186,12 @@ binaries) MUST follow four rules:
      the `actions/` or `github/` GitHub org that do NOT hold elevated
      permissions.
 
-   Each repository instance MUST also enable the GitHub Actions allow-list
-   per ADR-002 § Allow-List Configuration. When adding a new action to a
+   Each repository instance MUST also enable the GitHub Actions allow-list;
+   the canonical entry list and fork setup steps are in
+   `CONTRIBUTING.md § Fork setup (one-time)`. When adding a new action to a
    workflow, the corresponding `owner/repo@*` entry MUST also be added to
-   the repository allow-list. See ADR-002 for full criteria, examples,
-   Dependabot interaction, and fork setup instructions.
+   the list in `CONTRIBUTING.md` and to the allow-list in repository settings.
+   See ADR-002 for full criteria, examples, and Dependabot interaction.
 
 **Rationale**: Overly broad job permissions expose write credentials to
 untrusted fork code and to steps that do not need them. Publishing before

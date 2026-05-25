@@ -40,10 +40,10 @@ on fork. After forking, re-enable it in your fork:
    zizmorcore/zizmor-action@*
    ```
 
-The canonical entry list and rationale are in
-[ADR-002 § Allow-List Configuration](docs/architecture/decisions/002-github-actions-pinning-policy.md#allow-list-configuration).
-When adding a new action, also add its `owner/repo@*` entry to the allow-list
-as described there.
+The list above is the canonical source. When adding a new action, add its
+`owner/repo@*` entry here and to the allow-list in repository settings. For
+the two-tier pinning policy and rationale, see
+[ADR-002](docs/architecture/decisions/002-github-actions-pinning-policy.md).
 
 ## Development Concepts
 

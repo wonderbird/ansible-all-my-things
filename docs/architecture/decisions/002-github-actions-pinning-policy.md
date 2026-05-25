@@ -612,38 +612,20 @@ guard. Each entry uses a per-repository wildcard so that version
 control stays in the workflow file while the allow-list controls
 which action repositories are permitted at all.
 
-**Current entries** (as of ADR-002 acceptance, updated after fork-safe-docker-ci):
-
-```text
-actions/checkout@*,
-actions/setup-python@*,
-actions/download-artifact@*,
-actions/upload-artifact@*,
-docker/build-push-action@*,
-docker/login-action@*,
-docker/metadata-action@*,
-docker/setup-buildx-action@*,
-github/codeql-action/upload-sarif@*,
-sigstore/cosign-installer@*,
-zizmorcore/zizmor-action@*
-```
-
-Note: `github/codeql-action/upload-sarif` is Tier A (requires
-`security-events: write`) and is called internally by
-`zizmorcore/zizmor-action` to upload SARIF scan results to Code
-Scanning. It must appear in the allow-list even though it is not
-directly referenced in any workflow file.
-
-**Fork setup (one-time):** The allow-list is a repository setting
-and does not transfer on fork. A maintainer forking this repository
-must re-enable it manually: Settings → Actions → General →
-"Allow select actions and reusable workflows" → add the entries above.
+The current entry list and fork setup steps are maintained in
+[CONTRIBUTING.md § Fork setup](../../CONTRIBUTING.md#fork-setup-one-time),
+which is the canonical source. Note: `github/codeql-action/upload-sarif`
+is Tier A (requires `security-events: write`) and is called internally by
+`zizmorcore/zizmor-action` to upload SARIF scan results to Code Scanning.
+It must appear in the allow-list even though it is not directly referenced
+in any workflow file.
 
 **Adding a new action:** (1) Pin the action in the workflow file at
 the correct tier (SHA for Tier A, `@vN` for Tier B). (2) Add
-`owner/repo@*` to the allow-list in repository settings. (3) Open a
-PR; the PR description must note the tier classification. Both
-changes must land together. The `pinning-lint` CI job (`.github/workflows/pinning-lint.yml`)
+`owner/repo@*` to the entry list in `CONTRIBUTING.md` and to the
+allow-list in repository settings. (3) Open a PR; the PR description
+must note the tier classification. Both changes must land together.
+The `pinning-lint` CI job (`.github/workflows/pinning-lint.yml`)
 verifies pin style automatically via the wildcard policies in
 `.github/zizmor.yml` — no per-action entry in `zizmor.yml` is required.
 
