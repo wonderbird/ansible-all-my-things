@@ -24,6 +24,11 @@ rules:
         # The implicit "*": hash-pin default covers all remaining patterns.
 
   # Disable all other audits — this workflow enforces pinning only.
+  # dependabot-cooldown: zizmor discovers dependabot.yml independent of the
+  # `inputs` directory target; disable explicitly so this pinning-only audit
+  # stays out of scope (added in zizmor v1.15.0, fires regardless of inputs).
+  dependabot-cooldown:
+    disable: true
   artipacked:
     disable: true
   excessive-permissions:
