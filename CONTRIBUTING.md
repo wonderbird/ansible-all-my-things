@@ -11,12 +11,39 @@ tools as described in the [Spec Kit Getting Started Guide](https://github.com/gi
 Workflow changes (adding, updating, or removing GitHub Actions) must follow
 the two-tier pinning policy and allow-list requirements documented in
 [ADR-002](docs/architecture/decisions/002-github-actions-pinning-policy.md).
-That document also covers the one-time allow-list setup required when forking
-this repository.
 
 The pinning policy is enforced by
 [`.github/workflows/pinning-lint.yml`](./.github/workflows/pinning-lint.yml)
 on every push and pull request.
+
+### Fork setup (one-time)
+
+The GitHub Actions allow-list is a repository setting and does not transfer
+on fork. After forking, re-enable it in your fork:
+
+1. Go to **Settings → Actions → General** in your fork.
+2. Under "Actions permissions", select
+   **"Allow select actions and reusable workflows"**.
+3. Paste the following entries into the allow-list field and save:
+
+   ```text
+   actions/checkout@*,
+   actions/setup-python@*,
+   actions/download-artifact@*,
+   actions/upload-artifact@*,
+   docker/build-push-action@*,
+   docker/login-action@*,
+   docker/metadata-action@*,
+   docker/setup-buildx-action@*,
+   github/codeql-action/upload-sarif@*,
+   sigstore/cosign-installer@*,
+   zizmorcore/zizmor-action@*
+   ```
+
+The canonical entry list and rationale are in
+[ADR-002 § Allow-List Configuration](docs/architecture/decisions/002-github-actions-pinning-policy.md#allow-list-configuration).
+When adding a new action, also add its `owner/repo@*` entry to the allow-list
+as described there.
 
 ## Development Concepts
 
