@@ -1,4 +1,18 @@
 <!--
+Sync Impact Report — 1.11.0 → 1.12.0 (MINOR)
+- Added Principle XI: Avoid Duplication (DRY) — mandate extracting shared
+  abstractions over copying logic, configuration, or documentation.
+- Added Principle XII: Fail Loud — prohibit silent skips, empty fallbacks,
+  and undefined-variable fallthrough; require explicit errors with source context.
+- Added Governance rule: rules files (AGENTS.md, CLAUDE.md, skill SKILL.md)
+  must not contain version history or changelog entries; exception for
+  constitution Sync Impact Report comments.
+- Templates checked for propagation:
+  ✅ .specify/templates/plan-template.md — no changes required
+  ✅ .specify/templates/tasks-template.md — no changes required
+  ✅ .specify/templates/spec-template.md — no changes required
+- AGENTS.md checked: no propagation required
+
 Sync Impact Report — 1.10.0 → 1.11.0 (MINOR)
 - Extended Principle IX rule 4: added two normative MUSTs — (1) each
   repository instance must enable the GitHub Actions allow-list per ADR-002
@@ -224,6 +238,46 @@ dangling identifier whose context has to be reconstructed. Inlining the
 substance keeps the durable artefact self-contained and outlives any
 tracker.
 
+### XI. Avoid Duplication (DRY)
+
+Logic, configuration, and documentation defined in one place MUST NOT be
+restated or copied elsewhere. When reuse is required, extract a shared
+abstraction — role, task file, template, variable — rather than duplicating
+the implementation. References to the authoritative source are preferred over
+inline repetition.
+
+This applies equally to Ansible tasks, variable definitions, template content,
+and documentation, including rules files and specifications.
+
+**Rationale**: Duplication creates a maintenance burden — two definitions drift
+apart and the authoritative source becomes ambiguous. A single source of truth
+is easier to reason about, test, and update than distributed copies.
+
+### XII. Fail Loud
+
+Any task, playbook, or role that fetches, parses, computes, or depends on a
+required value MUST fail with an explicit, actionable error when that value
+cannot be obtained. Silent skips, empty-string fallbacks, and
+`None`/undefined variable fallthrough are prohibited.
+
+Concrete rules:
+
+- Use `assert` or `fail` to validate required variables before use.
+- `default(omit)` and `default('')` MUST NOT substitute for required values.
+- `ignore_errors: true` MUST NOT suppress genuine failure conditions.
+- Shell and command tasks that parse output MUST validate the result before
+  proceeding.
+- Failure messages MUST identify the source (variable name, URL, file path)
+  to enable diagnosis without guesswork.
+
+This principle is orthogonal to Principle I (Idempotency) but reinforces
+predictability: a loud failure at the point of the gap is easier to diagnose
+than a downstream symptom of undetected missing data.
+
+**Rationale**: Silent failures produce systems that appear healthy but are
+misconfigured. An explicit error at the point of failure is always faster to
+diagnose and fix than tracing downstream symptoms of an undetected data gap.
+
 ## Technology Stack
 
 - **Automation**: Ansible (playbooks, roles, inventory)
@@ -313,9 +367,16 @@ Complexity exceptions (violations of Principle IV) MUST be documented in the
 `Complexity Tracking` table of the relevant plan.md before implementation
 begins.
 
+Rules files (`AGENTS.md`, `CLAUDE.md`, and skill `SKILL.md` files) MUST NOT
+contain version history, changelogs, or amendment logs. These files document
+current operational rules only. Exception: this constitution tracks changes in
+Sync Impact Report comments (the HTML comment block at the top of this file)
+for propagation audits. Git history is the canonical record of changes for all
+other files.
+
 All agents working in this repository MUST read this constitution at the start
 of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.11.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-21
+**Version**: 1.12.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-26
