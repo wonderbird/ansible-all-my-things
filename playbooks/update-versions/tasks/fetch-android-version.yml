@@ -1,0 +1,48 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Sets facts: fetched_android_build, fetched_android_sha1
+
+- name: Fetch Android developer page
+  ansible.builtin.uri:
+    url: "https://developer.android.com/studio"
+    return_content: true
+    follow_redirects: all
+  register: _android_page_response
+
+- name: Extract Android cmdline-tools build number from page
+  ansible.builtin.set_fact:
+    _android_build_match: >-
+      {{ _android_page_response.content
+         | regex_search('commandlinetools-linux-(\d+)_latest\.zip', '\1')
+         | default([], true) }}
+
+- name: Fail if Android cmdline-tools build number not found on developer page
+  ansible.builtin.fail:
+    msg: >-
+      Android developer page (https://developer.android.com/studio) could not be parsed:
+      commandlinetools-linux build number not found.
+      The page structure may have changed.
+  when: _android_build_match | length == 0
+
+- name: Set Android build number fact
+  ansible.builtin.set_fact:
+    fetched_android_build: "{{ _android_build_match | first }}"
+
+- name: Extract Android cmdline-tools SHA-1 from page
+  ansible.builtin.set_fact:
+    _android_sha1_match: >-
+      {{ _android_page_response.content
+         | regex_search('commandlinetools-linux-' ~ fetched_android_build ~ '_latest\.zip[\s\S]{0,400}?([0-9a-f]{40})', '\1')
+         | default([], true) }}
+
+- name: Fail if Android cmdline-tools SHA-1 not found on developer page
+  ansible.builtin.fail:
+    msg: >-
+      Android developer page (https://developer.android.com/studio) could not be parsed:
+      cmdline-tools SHA-1 checksum not found near build {{ fetched_android_build }}.
+      The page structure may have changed.
+  when: _android_sha1_match | length == 0
+
+- name: Set Android SHA-1 fact
+  ansible.builtin.set_fact:
+    fetched_android_sha1: "{{ _android_sha1_match | first }}"
