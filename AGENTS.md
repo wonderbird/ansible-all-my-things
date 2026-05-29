@@ -208,6 +208,14 @@ when no issue is marked `in_progress`.
 
 ## Collaboration with the User
 
+- **Language and style**: Use English throughout. For all user-facing
+  content — chat, code, comments, documentation, beads issues — apply the
+  `caveman full` skill: drop articles, filler, and hedging; fragments OK;
+  short synonyms; technical terms exact. For internal thought processes and
+  inter-LLM communication (subagents, MCP, tool calls) apply the
+  `caveman wenyan-ultra` skill: maximum compression, classical Chinese
+  register. Code blocks, commit messages, and security warnings are always
+  written in normal English regardless of mode.
 - **Language**: chat is in English. For your thinking processes and
   communication with (sub-)agents use the "caveman wenyan-ultra" skill. For user
   facing writing (documentation, code, etc.) and chat use "caveman full".
