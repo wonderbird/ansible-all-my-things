@@ -2,7 +2,6 @@
 .dolt/
 *.db
 .beads-credential-key
-.beads/issues.jsonl
 
 # bv (beads viewer) local config and caches
 .bv/
