@@ -4,9 +4,6 @@
 .beads-credential-key
 .beads/issues.jsonl
 
-# ignore beads completely - we use backup / restore
-.beads/
-
 # bv (beads viewer) local config and caches
 .bv/
 
