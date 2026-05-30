@@ -1,0 +1,113 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Load role defaults for version reference
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../../defaults/main.yml"
+
+    - name: Get installed dolt version
+      ansible.builtin.command:
+        cmd: /usr/local/bin/dolt version
+      register: _verify_dolt_version
+      changed_when: false
+
+    - name: Assert dolt version matches pinned version
+      ansible.builtin.assert:
+        that:
+          - (dolt_version | regex_replace('^v', '')) in _verify_dolt_version.stdout
+        fail_msg: >-
+          Expected dolt version {{ dolt_version | regex_replace('^v', '') }}
+          but got: {{ _verify_dolt_version.stdout }}
+
+    - name: Check dolt config contains loopback host
+      ansible.builtin.command:
+        cmd: "grep -q 'host: 127.0.0.1' /etc/dolt/config.yaml"
+      changed_when: false
+      register: _verify_config_host
+
+    - name: Assert dolt config has loopback host
+      ansible.builtin.assert:
+        that:
+          - _verify_config_host.rc == 0
+        fail_msg: "/etc/dolt/config.yaml does not contain 'host: 127.0.0.1'"
+
+    - name: Stat dolt systemd service unit file
+      ansible.builtin.stat:
+        path: /etc/systemd/system/dolt-sql-server.service
+      register: _verify_service_stat
+
+    - name: Assert dolt service unit file exists
+      ansible.builtin.assert:
+        that:
+          - _verify_service_stat.stat.exists
+        fail_msg: "/etc/systemd/system/dolt-sql-server.service does not exist"
+
+    - name: Check dolt service unit contains Restart=always
+      ansible.builtin.command:
+        cmd: grep -q 'Restart=always' /etc/systemd/system/dolt-sql-server.service
+      changed_when: false
+      register: _verify_service_restart
+
+    - name: Assert dolt service unit has Restart=always
+      ansible.builtin.assert:
+        that:
+          - _verify_service_restart.rc == 0
+        fail_msg: "/etc/systemd/system/dolt-sql-server.service does not contain Restart=always"
+
+    - name: Check dolt service unit contains WantedBy=multi-user.target
+      ansible.builtin.command:
+        cmd: grep -q 'WantedBy=multi-user.target' /etc/systemd/system/dolt-sql-server.service
+      changed_when: false
+      register: _verify_service_wanted
+
+    - name: Assert dolt service unit has WantedBy=multi-user.target
+      ansible.builtin.assert:
+        that:
+          - _verify_service_wanted.rc == 0
+        fail_msg: "/etc/systemd/system/dolt-sql-server.service does not contain WantedBy=multi-user.target"
+
+    - name: Install packages for smoke test
+      ansible.builtin.apt:
+        name:
+          - default-mysql-client
+          - iproute2
+        state: present
+        update_cache: false
+
+    - name: Start dolt sql-server for smoke test
+      ansible.builtin.command:
+        cmd: /usr/local/bin/dolt sql-server --config /etc/dolt/config.yaml
+      async: 300
+      poll: 0
+      changed_when: true
+
+    - name: Wait for dolt SQL server to accept connections
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: 3306
+        timeout: 30
+
+    - name: Run SELECT 1 via mysql client
+      ansible.builtin.command:
+        cmd: mysql --host=127.0.0.1 --port=3306 --user=root --execute="SELECT 1"
+      register: _verify_select1
+      changed_when: false
+      failed_when: _verify_select1.rc != 0
+
+    - name: Check listener binding
+      ansible.builtin.command:
+        cmd: ss -tlnp
+      register: _verify_ss
+      changed_when: false
+
+    - name: Assert server listens on loopback only
+      ansible.builtin.assert:
+        that:
+          - "'127.0.0.1:3306' in _verify_ss.stdout"
+          - "'0.0.0.0:3306' not in _verify_ss.stdout"
+        fail_msg: >-
+          Expected 127.0.0.1:3306 (not 0.0.0.0:3306).
+          ss output: {{ _verify_ss.stdout }}
