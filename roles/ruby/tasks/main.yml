@@ -1,3 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
-- import_tasks: install-ruby.yml
+- name: Install Ruby
+  ansible.builtin.apt:
+    name: ruby
+    state: present
