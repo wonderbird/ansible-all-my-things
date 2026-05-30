@@ -1,0 +1,27 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Check ruby binary exists
+      ansible.builtin.stat:
+        path: /usr/bin/ruby
+      register: ruby_stat
+
+    - name: Assert ruby binary is present
+      ansible.builtin.assert:
+        that: ruby_stat.stat.exists
+        fail_msg: "ruby binary not found at /usr/bin/ruby"
+        success_msg: "ruby binary found at /usr/bin/ruby"
+
+    - name: Run ruby --version
+      ansible.builtin.command: ruby --version
+      register: ruby_version
+      changed_when: false
+
+    - name: Assert ruby --version succeeds
+      ansible.builtin.assert:
+        that: ruby_version.rc == 0
+        fail_msg: "ruby --version returned non-zero exit code"
+        success_msg: "ruby --version succeeded: {{ ruby_version.stdout }}"
