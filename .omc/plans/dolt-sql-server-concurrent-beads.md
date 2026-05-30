@@ -24,7 +24,7 @@ role; manual steps will not survive VM churn (Constitution: Agent Environment).
 | Per-project conn file | `.beads/.env` (gitignored, GH#2520) carries Dolt conn config |
 | systemd (user) | running; lingering required for headless boot start |
 | beads auto-start | `bd` auto-starts `dolt sql-server` transparently when needed |
-| Issue count in `issues.jsonl` | **116** (verified `wc -l .beads/issues.jsonl`) |
+| Issue count in `issues.jsonl` | **116** at plan-write time; **128** at migration (12 spike issues added+closed during Step 0) |
 | Pinned Dolt version | **2.0.8** (both `arm64` + `amd64` release assets confirmed to exist) |
 
 **CORRECTION (prior-revision error).** An earlier version of this plan claimed
@@ -384,11 +384,49 @@ internally by Dolt's WAL; all writes succeed.
 **Fresh-VM re-confirmation status:** NOT yet completed (no fresh VM available).
 The plan requires this before fully collapsing the role. Until then, the Branch
 A0 finding is provisional. If fresh-VM test contradicts, fall back to Branch B.
+**Tracked as:** beads issue `ansible-all-my-things-888`
+(spike type, P2 — created 2026-05-30).
 
 **Practical consequence:** Task 1l6's original goal (concurrent writes across parallel
 agents) is **already achieved** by beads v1.0.4's embedded mode + git-root resolution.
 The Dolt SQL server setup (the original deliverable) is YAGNI on the current machine.
-The remaining work is: (1) document this finding + PR, (2) migration (US-009).
+
+---
+
+### MIGRATION RECORD (recorded 2026-05-30): completed AFTER merge to main
+
+**Ordering evidence:** Migration ran after the feature branch
+(`1l6-dolt-sql-server`) was merged to the fork's main branch
+(`eudicy/ansible-all-my-things`) at approximately 2026-05-30T07:10Z.
+The merge commit is the no-ff merge `feat: document Branch A spike...`
+visible in `git log`. Migration commands ran in the same session,
+after push confirmed (`git push origin main` succeeded).
+
+**Issue count reconciliation:**
+
+| Point in time | Count | Notes |
+| --- | --- | --- |
+| Plan written (pre-spike) | 116 | Recorded in investigation table; this was `wc -l issues.jsonl` before spike |
+| Post-spike (12 issues created+closed) | 128 | 12 spike test issues added during Step 0 |
+| Pre-migration baseline | 128 | Verified: `bd stats` Total Issues = 128, `bd list \| wc -l` = 40 |
+| Post-migration count | 128 | Identical: `bd stats` Total Issues = 128, `bd list \| wc -l` = 40 |
+
+The 116→128 delta is 12 spike test issues created during Step 0
+and closed after the spike (`bd close` marks closed, does not delete).
+Count discrepancy between plan (116) and migration (128) is explained
+and expected — not a data loss.
+
+**Commands run:**
+
+```text
+bd backup sync       # synced in 121ms
+bd backup restore --force   # ✓ Restore complete
+```
+
+**Spot-checks (post-migration):** `ansible-all-my-things-1l6` ✅,
+`ansible-all-my-things-3qg` ✅, `ansible-all-my-things-xei` ✅
+
+**`bd doctor`:** not supported in embedded mode (expected, not an error).
 
 ---
 
