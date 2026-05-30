@@ -37,8 +37,12 @@ agent connects to the shared service without any manual steps.
 1. **Given** a VM provisioned for the first time, **When** the VM completes its boot
    sequence, **Then** the shared write service is running and accepting connections
    before any agent session can begin.
-2. **Given** a VM whose shared write service crashed, **When** the VM reboots,
-   **Then** the service restarts automatically.
+2. **Given** a running shared write service, **When** the service process is
+   killed (SIGKILL), **Then** the service restarts automatically within a few
+   seconds without any operator action (FR-003).
+3. **Given** a VM where the shared write service is installed and enabled,
+   **When** the VM reboots, **Then** the service is active and accepting
+   connections again before any agent session can begin (FR-002).
 
 ---
 
