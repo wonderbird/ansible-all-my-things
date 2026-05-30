@@ -1,0 +1,136 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Query upstream versions for tracked tools
+  hosts: localhost
+  gather_facts: false
+  vars:
+    _roles_dir: "{{ playbook_dir }}/../../roles"
+  tasks:
+    # --- Read current pins from role defaults ---
+    - name: Read flutter role defaults
+      ansible.builtin.slurp:
+        src: "{{ _roles_dir }}/flutter/defaults/main.yml"
+      register: _flutter_defaults_raw
+
+    - name: Read tmux role defaults
+      ansible.builtin.slurp:
+        src: "{{ _roles_dir }}/tmux/defaults/main.yml"
+      register: _tmux_defaults_raw
+
+    - name: Read android_studio role defaults
+      ansible.builtin.slurp:
+        src: "{{ _roles_dir }}/android_studio/defaults/main.yml"
+      register: _android_defaults_raw
+
+    - name: Read java role defaults
+      ansible.builtin.slurp:
+        src: "{{ _roles_dir }}/java/defaults/main.yml"
+      register: _java_defaults_raw
+
+    - name: Extract current pinned values from role defaults
+      vars:
+        _java_id_match: >-
+          {{ _java_defaults_raw.content | b64decode
+             | regex_search('java_sdkman_identifier:\s*"([^"]+)"', '\1')
+             | default([], true) }}
+      ansible.builtin.set_fact:
+        current_flutter_version: >-
+          {{ _flutter_defaults_raw.content | b64decode
+             | regex_search('flutter_version:\s*"([^"]+)"', '\1')
+             | default([], true) | first }}
+        current_tmux_gitmux_version: >-
+          {{ _tmux_defaults_raw.content | b64decode
+             | regex_search('tmux_gitmux_version:\s*"([^"]+)"', '\1')
+             | default([], true) | first }}
+        current_tmux_font_version: >-
+          {{ _tmux_defaults_raw.content | b64decode
+             | regex_search('tmux_font_version:\s*"([^"]+)"', '\1')
+             | default([], true) | first }}
+        current_android_build: >-
+          {{ _android_defaults_raw.content | b64decode
+             | regex_search('android_cmdlinetools_build:\s*"([^"]+)"', '\1')
+             | default([], true) | first }}
+        current_java_identifier: "{{ _java_id_match | first }}"
+        _current_java_major: "{{ (_java_id_match | first).split('.')[0] | int }}"
+
+    # --- Fetch upstream versions ---
+    - name: Fetch Flutter upstream version
+      ansible.builtin.include_tasks: tasks/fetch-flutter-version.yml
+
+    - name: Fetch gitmux upstream version
+      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
+      vars:
+        github_repo: "arl/gitmux"
+
+    - name: Save gitmux fetched tag
+      ansible.builtin.set_fact:
+        fetched_gitmux_tag: "{{ fetched_github_tag }}"
+
+    - name: Fetch Nerd Fonts (Hack) upstream version
+      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
+      vars:
+        github_repo: "ryanoasis/nerd-fonts"
+
+    - name: Save Nerd Fonts fetched tag
+      ansible.builtin.set_fact:
+        fetched_font_tag: "{{ fetched_github_tag }}"
+
+    - name: Fetch Java upstream version for major {{ _current_java_major }}
+      ansible.builtin.include_tasks: tasks/fetch-java-version.yml
+      vars:
+        java_sdkman_major: "{{ _current_java_major }}"
+
+    - name: Fetch Android cmdline-tools upstream version
+      ansible.builtin.include_tasks: tasks/fetch-android-version.yml
+
+    # --- Compare and report ---
+    - name: Report Flutter SDK version status
+      ansible.builtin.debug:
+        msg: >-
+          Flutter SDK:
+          current={{ current_flutter_version }},
+          upstream={{ fetched_flutter_version }},
+          status={{ 'UP TO DATE' if current_flutter_version == fetched_flutter_version else 'STALE' }}
+
+    - name: Report gitmux version status
+      ansible.builtin.debug:
+        msg: >-
+          gitmux:
+          current={{ current_tmux_gitmux_version }},
+          upstream={{ fetched_gitmux_tag }},
+          status={{ 'UP TO DATE' if current_tmux_gitmux_version == fetched_gitmux_tag else 'STALE' }}
+
+    - name: Report Nerd Fonts (Hack) version status
+      ansible.builtin.debug:
+        msg: >-
+          Nerd Fonts (Hack):
+          current={{ current_tmux_font_version }},
+          upstream={{ fetched_font_tag }},
+          status={{ 'UP TO DATE' if current_tmux_font_version == fetched_font_tag else 'STALE' }}
+
+    - name: Report Java (Temurin) version status
+      ansible.builtin.debug:
+        msg: >-
+          Java (Temurin):
+          current={{ current_java_identifier }},
+          upstream={{ fetched_java_identifier }},
+          status={{ 'UP TO DATE' if current_java_identifier == fetched_java_identifier else 'STALE' }}
+
+    - name: Report Android cmdline-tools version status
+      ansible.builtin.debug:
+        msg: >-
+          Android cmdline-tools:
+          current={{ current_android_build }},
+          upstream={{ fetched_android_build }},
+          status={{ 'UP TO DATE' if current_android_build == fetched_android_build else 'STALE' }}
+
+    - name: Fail if any version pins are stale
+      ansible.builtin.fail:
+        msg: >-
+          One or more version pins are stale. Run perform-updates.yml to apply updates.
+      when: >-
+        current_flutter_version != fetched_flutter_version or
+        current_tmux_gitmux_version != fetched_gitmux_tag or
+        current_tmux_font_version != fetched_font_tag or
+        current_java_identifier != fetched_java_identifier or
+        current_android_build != fetched_android_build

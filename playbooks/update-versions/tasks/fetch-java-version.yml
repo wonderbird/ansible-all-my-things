@@ -1,0 +1,31 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Required variable: java_sdkman_major (integer major version, e.g. 21)
+# Sets fact: fetched_java_identifier
+
+- name: Fetch SDKMAN Java version list
+  ansible.builtin.uri:
+    url: "https://api.sdkman.io/2/candidates/java/linuxx64/versions/all"
+    return_content: true
+  register: _sdkman_response
+
+- name: Filter and sort Java {{ java_sdkman_major }}.x.x-tem versions
+  vars:
+    _java_regex: "^{{ java_sdkman_major }}\\.\\d+\\.\\d+-tem$"
+  ansible.builtin.set_fact:
+    _java_filtered: >-
+      {{ _sdkman_response.content.split(',')
+         | map('trim')
+         | select('match', _java_regex)
+         | list }}
+
+- name: Fail if no Java {{ java_sdkman_major }}.x.x-tem version found via SDKMAN
+  ansible.builtin.fail:
+    msg: >-
+      SDKMAN API (https://api.sdkman.io/2/candidates/java/linuxx64/versions/all)
+      returned no Java {{ java_sdkman_major }}.x.x-tem versions
+  when: _java_filtered | length == 0
+
+- name: Set Java identifier fact to latest {{ java_sdkman_major }}.x.x-tem version
+  ansible.builtin.set_fact:
+    fetched_java_identifier: "{{ _java_filtered | community.general.version_sort | last }}"

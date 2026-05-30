@@ -1,0 +1,40 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Required variable: github_repo (e.g. "arl/gitmux")
+# Sets fact: fetched_github_tag
+
+- name: Fetch GitHub latest release for {{ github_repo }}
+  ansible.builtin.uri:
+    url: "https://api.github.com/repos/{{ github_repo }}/releases/latest"
+    headers:
+      Accept: "application/vnd.github+json"
+    status_code: [200, 403]
+  register: _github_release_response
+
+- name: Fail on GitHub API rate limit for {{ github_repo }}
+  ansible.builtin.fail:
+    msg: >-
+      GitHub API rate limit exceeded for {{ github_repo }}
+      (https://api.github.com/repos/{{ github_repo }}/releases/latest).
+      Rate limit resets at epoch: {{ _github_release_response.x_ratelimit_reset | default('unknown') }}.
+  when:
+    - _github_release_response.status == 403
+    - (_github_release_response.x_ratelimit_remaining | default('1') | int) == 0
+
+- name: Fail on unexpected GitHub API status for {{ github_repo }}
+  ansible.builtin.fail:
+    msg: >-
+      GitHub API (https://api.github.com/repos/{{ github_repo }}/releases/latest)
+      returned unexpected status {{ _github_release_response.status }}
+  when: _github_release_response.status != 200
+
+- name: Fail if tag_name missing from GitHub response for {{ github_repo }}
+  ansible.builtin.fail:
+    msg: >-
+      GitHub API (https://api.github.com/repos/{{ github_repo }}/releases/latest)
+      response does not contain 'tag_name' field
+  when: "'tag_name' not in _github_release_response.json"
+
+- name: Set GitHub tag fact for {{ github_repo }}
+  ansible.builtin.set_fact:
+    fetched_github_tag: "{{ _github_release_response.json.tag_name }}"

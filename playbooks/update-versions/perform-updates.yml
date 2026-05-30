@@ -1,0 +1,101 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Update pinned versions in role defaults files
+  hosts: localhost
+  gather_facts: false
+  vars:
+    _roles_dir: "{{ playbook_dir }}/../../roles"
+  tasks:
+    # --- Read current Java identifier to derive major version for fetch ---
+    - name: Read java role defaults
+      ansible.builtin.slurp:
+        src: "{{ _roles_dir }}/java/defaults/main.yml"
+      register: _java_defaults_raw
+
+    - name: Derive Java major version from current identifier
+      vars:
+        _java_id_match: >-
+          {{ _java_defaults_raw.content | b64decode
+             | regex_search('java_sdkman_identifier:\s*"([^"]+)"', '\1')
+             | default([], true) }}
+      ansible.builtin.set_fact:
+        _current_java_major: "{{ (_java_id_match | first).split('.')[0] | int }}"
+
+    # --- Fetch upstream versions ---
+    - name: Fetch Flutter upstream version
+      ansible.builtin.include_tasks: tasks/fetch-flutter-version.yml
+
+    - name: Fetch gitmux upstream version
+      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
+      vars:
+        github_repo: "arl/gitmux"
+
+    - name: Save gitmux fetched tag
+      ansible.builtin.set_fact:
+        fetched_gitmux_tag: "{{ fetched_github_tag }}"
+
+    - name: Fetch Nerd Fonts (Hack) upstream version
+      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
+      vars:
+        github_repo: "ryanoasis/nerd-fonts"
+
+    - name: Save Nerd Fonts fetched tag
+      ansible.builtin.set_fact:
+        fetched_font_tag: "{{ fetched_github_tag }}"
+
+    - name: Fetch Java upstream version for major {{ _current_java_major }}
+      ansible.builtin.include_tasks: tasks/fetch-java-version.yml
+      vars:
+        java_sdkman_major: "{{ _current_java_major }}"
+
+    - name: Fetch Android cmdline-tools upstream version
+      ansible.builtin.include_tasks: tasks/fetch-android-version.yml
+
+    # --- Apply updates to role defaults files ---
+
+    # Flutter SDK: version and sha256 updated together
+    - name: Update flutter_version in flutter role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/flutter/defaults/main.yml"
+        regexp: 'flutter_version:\s*"[^"]+"'
+        replace: 'flutter_version: "{{ fetched_flutter_version }}"'
+
+    - name: Update flutter_sha256 in flutter role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/flutter/defaults/main.yml"
+        regexp: 'flutter_sha256:\s*"[^"]+"'
+        replace: 'flutter_sha256: "{{ fetched_flutter_sha256 }}"'
+
+    # gitmux
+    - name: Update tmux_gitmux_version in tmux role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/tmux/defaults/main.yml"
+        regexp: 'tmux_gitmux_version:\s*"[^"]+"'
+        replace: 'tmux_gitmux_version: "{{ fetched_gitmux_tag }}"'
+
+    # Nerd Fonts (Hack)
+    - name: Update tmux_font_version in tmux role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/tmux/defaults/main.yml"
+        regexp: 'tmux_font_version:\s*"[^"]+"'
+        replace: 'tmux_font_version: "{{ fetched_font_tag }}"'
+
+    # Java (Temurin)
+    - name: Update java_sdkman_identifier in java role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/java/defaults/main.yml"
+        regexp: 'java_sdkman_identifier:\s*"[^"]+"'
+        replace: 'java_sdkman_identifier: "{{ fetched_java_identifier }}"'
+
+    # Android cmdline-tools: build number and sha1 updated together
+    - name: Update android_cmdlinetools_build in android_studio role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/android_studio/defaults/main.yml"
+        regexp: 'android_cmdlinetools_build:\s*"[^"]+"'
+        replace: 'android_cmdlinetools_build: "{{ fetched_android_build }}"'
+
+    - name: Update android_cmdlinetools_sha1 in android_studio role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/android_studio/defaults/main.yml"
+        regexp: 'android_cmdlinetools_sha1:\s*"[^"]+"'
+        replace: 'android_cmdlinetools_sha1: "{{ fetched_android_sha1 }}"'

@@ -53,6 +53,7 @@
 # - github.org
 # - github.repo
 
-sync.remote: "git+https://github.com/eudicy/ansible-all-my-things.git"
+sync.remote: "https://github.com/eudicy/ansible-all-my-things.git"
 
-export.auto: true
+export:
+  git-add: false

@@ -1,0 +1,39 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Fetch Flutter release manifest
+  ansible.builtin.uri:
+    url: "https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json"
+  register: _flutter_manifest_response
+
+- name: Extract stable Flutter releases sorted by release_date
+  ansible.builtin.set_fact:
+    _flutter_stable: >-
+      {{ _flutter_manifest_response.json.releases
+         | selectattr('channel', 'equalto', 'stable')
+         | sort(attribute='release_date')
+         | list }}
+
+- name: Fail if no stable Flutter release found in manifest
+  ansible.builtin.fail:
+    msg: >-
+      Flutter manifest
+      (https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json)
+      contains no stable release entries
+  when: _flutter_stable | length == 0
+
+- name: Fail if latest stable Flutter entry is missing required fields
+  vars:
+    _latest: "{{ _flutter_stable | last }}"
+  ansible.builtin.fail:
+    msg: >-
+      Flutter manifest
+      (https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json)
+      latest stable entry is missing 'version' or 'sha256' field
+  when: "'version' not in _latest or 'sha256' not in _latest"
+
+- name: Set Flutter version and sha256 facts
+  vars:
+    _latest: "{{ _flutter_stable | last }}"
+  ansible.builtin.set_fact:
+    fetched_flutter_version: "{{ _latest.version }}"
+    fetched_flutter_sha256: "{{ _latest.sha256 }}"
