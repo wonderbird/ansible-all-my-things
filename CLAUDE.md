@@ -10,3 +10,6 @@ runtime) and **`.specify/memory/constitution.md`** (project rules).
 
 Do not proceed until both are read. Do not duplicate rules here — update
 `AGENTS.md` or the constitution instead.
+
+<!-- bd-doctor-divergence: ok -->
+
