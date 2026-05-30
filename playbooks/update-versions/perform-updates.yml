@@ -51,6 +51,15 @@
     - name: Fetch Android cmdline-tools upstream version
       ansible.builtin.include_tasks: tasks/fetch-android-version.yml
 
+    - name: Fetch Dolt upstream version
+      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
+      vars:
+        github_repo: "dolthub/dolt"
+
+    - name: Save Dolt fetched tag
+      ansible.builtin.set_fact:
+        fetched_dolt_tag: "{{ fetched_github_tag }}"
+
     # --- Apply updates to role defaults files ---
 
     # Flutter SDK: version and sha256 updated together
@@ -99,3 +108,10 @@
         path: "{{ _roles_dir }}/android_studio/defaults/main.yml"
         regexp: 'android_cmdlinetools_sha1:\s*"[^"]+"'
         replace: 'android_cmdlinetools_sha1: "{{ fetched_android_sha1 }}"'
+
+    # Dolt
+    - name: Update dolt_version in dolt_sql_server role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/dolt_sql_server/defaults/main.yml"
+        regexp: 'dolt_version:\s*"[^"]+"'
+        replace: 'dolt_version: "{{ fetched_dolt_tag }}"'

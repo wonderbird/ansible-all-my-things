@@ -1,0 +1,12 @@
+#SPDX-License-Identifier: MIT-0
+---
+dolt_version: "v2.0.8"
+dolt_install_path: /usr/local/bin/dolt
+dolt_listen_host: 127.0.0.1
+dolt_listen_port: 3306
+dolt_data_dir: /var/lib/dolt
+dolt_config_dir: /etc/dolt
+dolt_config_path: "{{ dolt_config_dir }}/config.yaml"
+dolt_service_user: dolt
+dolt_service_name: dolt-sql-server
+dolt_readiness_timeout: 30

@@ -1,0 +1,8 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Restart dolt-sql-server
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+    name: "{{ dolt_service_name }}"
+    state: restarted
+  when: ansible_facts['service_mgr'] == 'systemd'

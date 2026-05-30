@@ -20,23 +20,25 @@ testable conditions that together deliver this guarantee.
 
 ### User Story 1 - SQL Server Starts Automatically on VM Boot (Priority: P1)
 
-Each VM is created fresh and destroyed regularly. The shared write service must be
-running before any agent session starts, without manual intervention after VM creation.
+Each VM is created fresh and destroyed regularly. The shared write service
+must be running before any agent session starts, without manual intervention
+after VM creation.
 
-After a VM is provisioned once, the shared write service starts automatically on every
-boot — including the initial boot after provisioning — without operator action.
+After a VM is provisioned once, the shared write service starts automatically
+on every boot — including the initial boot after provisioning — without
+operator action.
 
 **Why this priority**: Auto-startup is the foundational prerequisite. Without it,
 the shared service is absent when agents start, and no other story can deliver value.
 
-**Independent Test**: Provision a VM, reboot it, start an agent session. Verify the
-agent connects to the shared service without any manual steps.
+**Independent Test**: Provision a VM, reboot it, start an agent session.
+Verify the agent connects to the shared service without any manual steps.
 
 **Acceptance Scenarios**:
 
-1. **Given** a VM provisioned for the first time, **When** the VM completes its boot
-   sequence, **Then** the shared write service is running and accepting connections
-   before any agent session can begin.
+1. **Given** a VM provisioned for the first time, **When** the VM
+   completes its boot sequence, **Then** the shared write service is
+   running and accepting connections before any agent session can begin.
 2. **Given** a running shared write service, **When** the service process is
    killed (SIGKILL), **Then** the service restarts automatically within a few
    seconds without any operator action (FR-003).
@@ -46,36 +48,39 @@ agent connects to the shared service without any manual steps.
 
 ---
 
-### User Story 2 - Developer Initializes Repository with Dolt Backend (Priority: P2)
+### User Story 2 - Developer Initializes Repository with Dolt Backend (P2)
 
-A developer who wants to use the running Dolt SQL server for task tracking in their git
-repository runs `bd init --server` once in that repository. After initialization, tasks
-created in the repository are stored in the Dolt server. This is an explicit
-per-repository opt-in; only developers who choose server-backed task tracking need this
-step.
+A developer who wants to use the running Dolt SQL server for task tracking
+in their git repository runs `bd init --server` once in that repository.
+After initialization, tasks created in the repository are stored in the
+Dolt server. This is an explicit per-repository opt-in; only developers
+who choose server-backed task tracking need this step.
 
-**Why this priority**: Without this step no repository connects to the server. This is
-the opt-in that activates the feature for actual use in a project.
+**Why this priority**: Without this step no repository connects to the
+server. This is the opt-in that activates the feature for actual use in
+a project.
 
 **Independent Test**:
 
 1. Create a new directory, run `git init`, add a file and commit.
 2. Run `bd init --server`.
 3. Create a task with `bd create`.
-4. Query the Dolt server directly to verify the task record exists in the Dolt database
-   for the repository's prefix — proving storage landed in Dolt, not an embedded fallback.
+4. Query the Dolt server directly to verify the task record exists in the
+   Dolt database for the repository's prefix — proving storage landed in
+   Dolt, not an embedded fallback.
 
 **Acceptance Scenarios**:
 
-1. **Given** a git repository with at least one commit and the Dolt server running,
-   **When** `bd init --server` is run, **Then** beads initializes successfully with the
-   Dolt server as its backend.
-2. **Given** a repository initialized with `bd init --server`, **When** a task is
-   created via `bd create`, **Then** querying the Dolt server directly shows the task
-   present in the Dolt database for that repository's prefix.
-3. **Given** a repository initialized with `bd init --server`, **When** the Dolt server
-   is queried, **Then** a dedicated database exists for the repository's prefix,
-   confirming server-backed storage is active.
+1. **Given** a git repository with at least one commit and the Dolt server
+   running, **When** `bd init --server` is run, **Then** beads initializes
+   successfully with the Dolt server as its backend.
+2. **Given** a repository initialized with `bd init --server`, **When** a
+   task is created via `bd create`, **Then** querying the Dolt server
+   directly shows the task present in the Dolt database for that
+   repository's prefix.
+3. **Given** a repository initialized with `bd init --server`, **When**
+   the Dolt server is queried, **Then** a dedicated database exists for
+   the repository's prefix, confirming server-backed storage is active.
 
 ---
 
@@ -83,17 +88,18 @@ the opt-in that activates the feature for actual use in a project.
 
 - What if provisioning is re-run on a VM where the service is already running? The
   re-run must complete without disrupting or duplicating the running service.
-- What if `bd init --server` (new repo configuration) or `bd bootstrap` (restoring
-  tasks in a repo already configured with server backend) is run when the server is
-  not running? Both commands must fail with a clear, actionable error. Silent fallback
-  to embedded mode is not acceptable in either case.
+- What if `bd init --server` (new repo configuration) or `bd bootstrap`
+  (restoring tasks in a repo already configured with server backend) is
+  run when the server is not running? Both commands must fail with a
+  clear, actionable error. Silent fallback to embedded mode is not
+  acceptable in either case.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: The VM provisioning process MUST install the Dolt database binary on
-  each new VM as part of standard base setup.
+- **FR-001**: The VM provisioning process MUST install the Dolt database
+  binary on each new VM as part of standard base setup.
 - **FR-002**: The shared write service MUST start automatically when the VM boots,
   with no operator action required after provisioning.
 - **FR-003**: The shared write service MUST restart automatically if it stops

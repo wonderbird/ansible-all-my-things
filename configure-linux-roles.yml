@@ -15,6 +15,7 @@
     - podman
     - claude_code
     - tmux
+    - dolt_sql_server
     - role: google_chrome
       tags: not-supported-on-vagrant-arm64
 
