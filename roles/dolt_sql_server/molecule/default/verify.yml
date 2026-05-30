@@ -100,14 +100,6 @@
       changed_when: false
       failed_when: _verify_select1.rc != 0
 
-    - name: Assert SELECT 1 succeeded
-      ansible.builtin.assert:
-        that:
-          - _verify_select1.rc == 0
-        fail_msg: >-
-          mysql SELECT 1 failed (rc={{ _verify_select1.rc }}):
-          {{ _verify_select1.stderr }}
-
     - name: Check listener binding
       ansible.builtin.command:
         cmd: ss -tlnp
