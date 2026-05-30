@@ -31,7 +31,7 @@ All variables have safe defaults. None are required from the caller.
 | `dolt_readiness_timeout` | integer | `30` | Seconds to wait for the server to accept connections after start. |
 
 Overriding `dolt_listen_host` to a non-loopback address is rejected by an
-`assert` (FR-007).
+`assert` at role entry.
 
 ## Postconditions
 

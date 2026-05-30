@@ -26,7 +26,6 @@
       ansible.builtin.command:
         cmd: "grep -q 'host: 127.0.0.1' /etc/dolt/config.yaml"
       changed_when: false
-      failed_when: false
       register: _verify_config_host
 
     - name: Assert dolt config has loopback host
@@ -50,7 +49,6 @@
       ansible.builtin.command:
         cmd: grep -q 'Restart=always' /etc/systemd/system/dolt-sql-server.service
       changed_when: false
-      failed_when: false
       register: _verify_service_restart
 
     - name: Assert dolt service unit has Restart=always
@@ -63,7 +61,6 @@
       ansible.builtin.command:
         cmd: grep -q 'WantedBy=multi-user.target' /etc/systemd/system/dolt-sql-server.service
       changed_when: false
-      failed_when: false
       register: _verify_service_wanted
 
     - name: Assert dolt service unit has WantedBy=multi-user.target
