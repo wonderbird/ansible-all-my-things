@@ -5,6 +5,8 @@ After=network.target
 [Service]
 Type=simple
 User={{ dolt_service_user }}
+Environment=HOME={{ dolt_data_dir }}
+WorkingDirectory={{ dolt_data_dir }}
 ExecStart={{ dolt_install_path }} sql-server --config={{ dolt_config_path }}
 Restart=always
 RestartSec=2
