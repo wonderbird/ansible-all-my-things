@@ -40,40 +40,26 @@ Resolved by user (defaults accepted / role confirmed):
 - [x] Pinned port value — RESOLVED: pin a fixed port, default `3309`
   (role var `dolt_beads_port`).
 
-Still open — verify during the Step 0 spike / implementation (revised after
-Architect + Critic ITERATE):
+Resolved by Step 0 spike (2026-05-30 — Branch A confirmed):
 
-- [ ] Auto-start concurrency (THE GATE — Step 0 spike) — does beads'
-  transparent auto-start already support concurrent cross-worktree writes
-  via one shared server? Decides collapse (install+config only) vs full
-  Option A (systemd/linger/external data-dir). Matters because if yes, the
-  entire scaffold is YAGNI.
-- [ ] `config.yaml`-only server mode on fresh clone — with no
-  `metadata.json` (NOT git-tracked; absent on fresh clones), does `bd`
-  derive server mode from `config.yaml`, or regenerate `metadata.json`
-  defaulting to embedded (requiring a forced-mode task)? Matters because
-  fresh VMs have no `metadata.json`; server mode must survive a clone.
-- [ ] Auto-start controllability — can config alone stop beads from
-  spawning a second server in `.beads/dolt/`? If not, Option A's
-  single-server premise fails. Matters because split-brain (two
-  servers/data-dirs) would silently diverge issue data.
-- [ ] Fresh-VM auto-import — does beads auto-import `.beads/issues.jsonl`
-  on first connect to an empty server, or is `bd import` required? Step 5
-  includes an idempotent import; executor must verify and trim if
-  redundant (Principle IV). Matters because a fresh clone must
-  self-bootstrap its 116 issues or every new VM starts with an empty
-  tracker.
+- [x] Auto-start concurrency (THE GATE) — RESOLVED: Branch A. 10/10
+  concurrent writes from 2 sibling worktrees succeeded. beads resolves
+  `.beads/` to git root; all worktrees share one embedded DB. No server
+  needed. Entire server scaffold is YAGNI.
+- [x] Auto-start controllability — RESOLVED: moot in Branch A. No server
+  spawned; split-brain not possible in embedded mode.
+- [x] `config.yaml`-only server mode on fresh clone — RESOLVED: moot in
+  Branch A. Staying in embedded mode; no server-mode config needed.
+- [x] Fresh-VM auto-import — RESOLVED: moot in Branch A. `bd` bundles
+  Dolt statically; embedded mode works without a server or import step.
+- [x] Migration semantics — RESOLVED: `bd backup sync` +
+  `bd backup restore --force` (Dolt-native, user decision). Completed
+  2026-05-30 after merge to main. Count stable: 128 pre = 128 post.
+- [x] data-dir / Pinned version / Molecule — RESOLVED: all moot under
+  Branch A (no server role built).
 
-Decisions recorded in this revision (resolving Architect/Critic findings):
+Still open (tracked):
 
-- [x] Migration semantics — RESOLVED: JSONL bootstrap (export-then-import),
-  not raw Dolt DB move. Pre-cutover `bd export --all -o .beads/issues.jsonl`
-  is mandatory; uncommitted embedded state is dropped unless exported first.
-- [x] data-dir setting method — RESOLVED: ONLY via systemd `ExecStart
-  --data-dir` flag; NEVER `bd dolt set data-dir <abs>` (Principle X — no
-  machine-specific path in `metadata.json`).
-- [x] Pinned Dolt version — RESOLVED: `2.0.8` (arm64 + amd64 assets confirmed).
-- [x] Molecule/systemd feasibility — RESOLVED (recommended): Path B
-  Vagrant/Tart VM (reboot persistence cannot be proven in the existing
-  non-systemd container topology); Path A systemd-container is the documented
-  alternative. `molecule-testing` skill authors either harness.
+- [ ] Fresh-VM re-confirmation — tracked as `ansible-all-my-things-888`
+  (spike, P2). Must verify Branch A holds on cold start with no
+  `metadata.json` before fully collapsing any server-mode role.
