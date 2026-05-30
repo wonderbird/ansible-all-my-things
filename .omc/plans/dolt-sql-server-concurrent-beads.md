@@ -112,20 +112,21 @@ absolute paths committed to durable artefacts).
    connection persisted **via git-tracked `config.yaml` only** so every
    agent/worktree connects to the same server. (`metadata.json` does NOT
    propagate; a fresh clone must derive server mode from `config.yaml`.)
-3. Existing beads data migrated intact to the new server via **`bd backup sync`
-   + `bd backup restore --force`** (Dolt-native, preserves full history). Applies
-   to the current machine's embedded DB only; fresh VMs start with whatever beads
-   initialises on first run (no migration needed there).
+3. Existing beads data migrated intact to the new server via
+   **`bd backup sync` + `bd backup restore --force`**
+   (Dolt-native, preserves full history). Applies to the current machine's
+   embedded DB only; fresh VMs start with whatever beads initialises on first
+   run (no migration needed there).
 4. A validated test scenario for the role — **either** a Molecule scenario on a
-   systemd-capable container **or** a Vagrant/Tart VM procedure — proving install
-   + unit + linger + connectivity + single-server. The choice is decided and
-   justified in "Molecule/systemd feasibility decision" below.
+   systemd-capable container **or** a Vagrant/Tart VM procedure — proving
+   install + unit + linger + connectivity + single-server. The choice is
+   decided and justified in "Molecule/systemd feasibility decision" below.
 5. Concurrent writes from 2+ simultaneous `bd` clients succeed without lock
    errors — the acceptance proof for the whole task.
 
 ## Guardrails
 
-**Must Have**
+### Must Have
 
 - **Step 0 spike runs first** and its branch decision is recorded in the plan/PR
   before any role is scaffolded.
@@ -156,7 +157,7 @@ absolute paths committed to durable artefacts).
   the authoritative source) **regardless** of whether the chosen path is a
   container or a VM.
 
-**Must NOT Have**
+### Must NOT Have
 
 - No `bd dolt set data-dir <absolute-path>` anywhere (Principle X portability).
 - No claim that `metadata.json` propagates server mode through git (it does not).
@@ -198,18 +199,19 @@ VMs may clone the repo to different paths.
 
 - **A. Hardcode repo path as a role var** — couples the unit to one clone path;
   brittle on churning VMs / multiple worktrees.
-- **B. Env file resolving the repo path at provision time** — flexible but adds a
-  second source of truth for the path.
+- **B. Env file resolving the repo path at provision time** — flexible but adds
+  a second source of truth for the path.
 - **C. Fixed absolute data-dir outside the repo** (`~/.local/share/dolt-beads/`)
   — server owns a stable, clone-independent data dir; `bd` reaches it via
   host/port over TCP (not by path). Survives repo moves and multiple worktrees.
 
 **Decision: Option C (fixed absolute data-dir outside the repo).** In server
-mode, `bd` clients connect by **host/port over TCP**, not by filesystem path — so
-the server's data-dir need not live inside any clone. The data-dir path becomes a
-role var (`dolt_beads_data_dir`, default `~/.local/share/dolt-beads`), **injected
-ONLY into the systemd unit's `ExecStart --data-dir=` flag** — never via
-`bd dolt set data-dir` (Principle X). Acknowledge explicitly: because `bd`'s own
+mode, `bd` clients connect by **host/port over TCP**, not by filesystem path —
+so the server's data-dir need not live inside any clone. The data-dir path
+becomes a role var (`dolt_beads_data_dir`, default `~/.local/share/dolt-beads`),
+**injected ONLY into the systemd unit's `ExecStart --data-dir=` flag** — never
+via `bd dolt set data-dir` (Principle X). Acknowledge explicitly: because
+`bd`'s own
 transparent auto-start may use a *different* default data-dir (`.beads/dolt/`)
 than the systemd unit, **split-brain (two servers, two data-dirs) is the key
 safety risk** — handled by the designed single-server mechanism in Step 3.
@@ -264,7 +266,7 @@ linger / external-data-dir rows are **removed** and only the Dolt-install row
 remains.
 
 | Component | Why needed | Simpler alternative rejected |
-|-----------|-----------|------------------------------|
+| --------- | --------- | ---------------------------- |
 | User systemd unit (`dolt sql-server` direct) | Persistent single shared server decoupled from any `bd` invocation; survives the lifetime of any one agent/worktree | Rely on beads' transparent auto-start — rejected IF Step 0 shows auto-start spawns per-worktree servers / fails concurrent writes. If Step 0 shows it works, this row is deleted and the unit is not built. |
 | `loginctl enable-linger` | Boot/reboot persistence on a headless VM with no interactive login | Start server on first `bd` call — rejected: not reboot-persistent; agent VM after reboot would have no server until a manual/auto trigger. |
 | External fixed data-dir (`~/.local/share/dolt-beads`) | Clone-independent, shared by all worktrees over TCP; deterministic for the unit | In-repo `.beads/dolt/` — rejected: couples to one clone path, breaks on multiple worktrees / repo moves. `bd dolt set data-dir <abs>` — rejected per Principle X (commits machine-specific path to `metadata.json`). |
@@ -283,7 +285,7 @@ remains.
 
 ## Task Flow
 
-```
+```text
 [0 SPIKE: auto-start concurrency test] -gate->
   (A) auto-start suffices -> [collapse: install binary + commit config] -> [6 Test]
   (B) scaffold needed ->
@@ -349,7 +351,7 @@ remains.
 **Dev-machine findings:**
 
 | Observation | Result |
-|-------------|--------|
+| ----------- | ------ |
 | Two sibling worktrees created | ✅ `/tmp/beads-spike-wt` (detached HEAD) + main worktree |
 | Both worktrees share ONE database | ✅ Both resolve to `/home/galadriel/.../embeddeddolt` (git-root resolution) |
 | 2 simultaneous writes | ✅ Both succeeded, exit 0, no lock errors |
@@ -358,10 +360,11 @@ remains.
 | `.beads/dolt/` created | ❌ Not created (no auto-start server) |
 | Issues visible across worktrees | ✅ Both worktrees see all issues in the shared db |
 
-**Additional finding (not in original plan):** `bd` binary is 123.7 MB, links only to
-`libc.so.6` — Dolt is **statically embedded** in `bd`. System `/usr/local/bin/dolt`
-is needed ONLY for server mode (`dolt sql-server`); embedded mode requires no system
-Dolt binary. This eliminates the "install Dolt on fresh VMs" step for embedded mode.
+**Additional finding (not in original plan):** `bd` binary is 123.7 MB, links
+only to `libc.so.6` — Dolt is **statically embedded** in `bd`. System
+`/usr/local/bin/dolt` is needed ONLY for server mode (`dolt sql-server`);
+embedded mode requires no system Dolt binary. This eliminates the
+"install Dolt on fresh VMs" step for embedded mode.
 
 **Mechanism:** beads resolves `.beads/` by walking to the git root, not the current
 working directory. All worktrees of the same repo share the same git root and therefore
@@ -369,15 +372,18 @@ the same `.beads/embeddeddolt/` database path. Concurrent writes are serialized
 internally by Dolt's WAL; all writes succeed.
 
 **Branch A0 scope (what this means for the role):**
+
 - System Dolt binary install: **NOT needed** (bd bundles Dolt)
-- User systemd unit + linger: **NOT needed** (YAGNI — embedded mode handles concurrency)
+- User systemd unit + linger: **NOT needed** (YAGNI — embedded mode handles
+  concurrency)
 - External data-dir: **NOT needed** (shared via git root, not TCP)
 - config.yaml host/port: **NOT needed** for embedded mode (no server to point at)
-- Complexity Tracking rows (systemd, linger, data-dir, arch-aware install): **all removed**
+- Complexity Tracking rows (systemd, linger, data-dir, arch-aware install):
+  **all removed**
 
 **Fresh-VM re-confirmation status:** NOT yet completed (no fresh VM available).
-The plan requires this before fully collapsing the role. Until then, the Branch A0
-finding is provisional. If fresh-VM test contradicts, fall back to Branch B.
+The plan requires this before fully collapsing the role. Until then, the Branch
+A0 finding is provisional. If fresh-VM test contradicts, fall back to Branch B.
 
 **Practical consequence:** Task 1l6's original goal (concurrent writes across parallel
 agents) is **already achieved** by beads v1.0.4's embedded mode + git-root resolution.
@@ -414,7 +420,7 @@ The remaining work is: (1) document this finding + PR, (2) migration (US-009).
 - **Acceptance:** on a fresh target `dolt version` reports `2.0.8`; re-running the
   role reports `ok` (not `changed`) for install tasks.
 
-### Step 3 — Create the user systemd unit + linger + single-server mechanism (Branch B only)
+### Step 3 — User systemd unit + linger + single-server mechanism (Branch B)
 
 - Template `~/.config/systemd/user/dolt-beads.service` (as the service user, no
   `become`):
@@ -436,9 +442,9 @@ The remaining work is: (1) document this finding + PR, (2) migration (US-009).
     `.beads/dolt/` was **never created** (confirming auto-start did not spawn a
     second server in its default location).
   - **Spike-within-step:** if beads' auto-start cannot be controlled by config
-    alone (it always spawns its own server regardless of a running one), Option A
-    is undermined — STOP and document; reconsider the approach (link back to Step
-    0 branch C).
+    alone (it always spawns its own server regardless of a running one),
+    Option A is undermined — STOP and document; reconsider the approach
+    (link back to Step 0 branch C).
 - **Acceptance:** `systemctl --user is-active dolt-beads` = active; port bound on
   loopback only (`ss -tlnp`); **single-server assertion passes**; `.beads/dolt/`
   absent; after `systemctl --user restart` the server returns unattended;
@@ -623,8 +629,9 @@ validated by the chosen test harness.
 - Pros: only option reproducible on a fresh VM (Driver 1); uses beads' first-class
   server path; fixed external data-dir is clone-independent (TCP shared);
   test-gated per Principle II/III; idempotent (Principle I).
-- Cons: more upfront work than auto-start; requires the single-server mechanism +
-  assertion to defeat split-brain; depends on the Step 0 spike result.
+- Cons: more upfront work than auto-start; requires the single-server
+  mechanism + assertion to defeat split-brain; depends on the Step 0 spike
+  result.
 
 **Option A0 — Collapsed role (install binary + commit config only)** — *adopted
 only if Step 0 branch A holds.*
@@ -655,10 +662,10 @@ only if Step 0 branch A holds.*
 Option A is the minimum solution satisfying all three drivers using beads' own
 supported mechanism, packaged as a role to survive VM churn — **but only after**
 the Step 0 spike confirms the scaffold is actually needed (else Option A0). The
-`config.yaml`-only propagation, the single-server assertion, and the data-dir-in-unit
-constraint (Principle X) close the specific gaps Architect and Critic flagged. Options B and C add scope or bespoke
-surface that Principles IV/XI rule out absent a concrete failure of A (Step 0
-branch C).
+`config.yaml`-only propagation, the single-server assertion, and the
+data-dir-in-unit constraint (Principle X) close the specific gaps Architect and
+Critic flagged. Options B and C add scope or bespoke surface that Principles
+IV/XI rule out absent a concrete failure of A (Step 0 branch C).
 
 ---
 
@@ -670,18 +677,18 @@ Resolved by the user (defaults accepted):
 2. **Data dir location** — RESOLVED: Option C, fixed `~/.local/share/dolt-beads`
    outside the repo, injected ONLY via the systemd `ExecStart --data-dir` flag
    (never `bd dolt set data-dir`).
-3. **Reproduce as an Ansible role?** — RESOLVED: YES, required (pending the Step 0
-   spike, which may collapse it to install+config).
+3. **Reproduce as an Ansible role?** — RESOLVED: YES, required (pending the
+   Step 0 spike, which may collapse it to install+config).
 4. **Pinned port value** — RESOLVED: default `3309` (role var).
 5. **Pinned Dolt version** — RESOLVED: `2.0.8` (arm64 + amd64 assets confirmed).
 
 Still open — to verify during the Step 0 spike / implementation:
 
-6. **Auto-start concurrency (THE GATE)** — does beads' transparent auto-start
+1. **Auto-start concurrency (THE GATE)** — does beads' transparent auto-start
    already support concurrent cross-worktree writes via one shared server? Decides
    collapse vs full Option A. Why it matters: if yes, the entire systemd/linger/
    data-dir scaffold is YAGNI.
-7. **`config.yaml`-only server mode on fresh clone** — first, **does
+2. **`config.yaml`-only server mode on fresh clone** — first, **does
    `metadata.json` even exist on a fresh clone?** This machine's `metadata.json`
    is untracked only because of a local, never-cloned `.git/info/exclude`; a
    fresh clone does NOT inherit that exclude, so its presence depends on beads'
@@ -690,7 +697,7 @@ Still open — to verify during the Step 0 spike / implementation:
    mode from `config.yaml`, or regenerate/keep `metadata.json` defaulting to
    embedded (requiring a forced-mode task)? Why it matters: server mode must
    survive a clone regardless of how beads init treats `metadata.json`.
-8. **Auto-start controllability** — can config alone stop beads from spawning a
+3. **Auto-start controllability** — can config alone stop beads from spawning a
    second server in `.beads/dolt/`? If not, Option A's single-server premise
    fails. Why it matters: split-brain (two servers/data-dirs) would silently
    diverge issue data.
