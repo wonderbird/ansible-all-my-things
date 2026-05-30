@@ -20,6 +20,8 @@ All variables have safe defaults. None are required from the caller.
 | Variable | Type | Default | Description |
 | -------- | ---- | ------- | ----------- |
 | `dolt_version` | string | `"v2.0.8"` | Pinned Dolt release tag (`v`-prefixed). |
+| `dolt_sha256_amd64` | string | *(see defaults)* | SHA-256 of the `dolt-linux-amd64.tar.gz` tarball for `dolt_version`. Updated by `perform-updates.yml`. |
+| `dolt_sha256_arm64` | string | *(see defaults)* | SHA-256 of the `dolt-linux-arm64.tar.gz` tarball for `dolt_version`. Updated by `perform-updates.yml`. |
 | `dolt_install_path` | string | `/usr/local/bin/dolt` | Path where the `dolt` binary is placed. |
 | `dolt_listen_host` | string | `127.0.0.1` | Listener address. Must be `127.0.0.1` (loopback only; asserted). |
 | `dolt_listen_port` | integer | `3306` | Listener port. Must be 1–65535 (asserted). |

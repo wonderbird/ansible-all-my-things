@@ -115,3 +115,41 @@
         path: "{{ _roles_dir }}/dolt_sql_server/defaults/main.yml"
         regexp: 'dolt_version:\s*"[^"]+"'
         replace: 'dolt_version: "{{ fetched_dolt_tag }}"'
+
+    - name: Download dolt amd64 tarball for sha256 computation
+      ansible.builtin.get_url:
+        url: "https://github.com/dolthub/dolt/releases/download/{{ fetched_dolt_tag }}/dolt-linux-amd64.tar.gz"
+        dest: "/tmp/dolt-{{ fetched_dolt_tag }}-linux-amd64.tar.gz"
+        mode: '0644'
+
+    - name: Compute sha256 of dolt amd64 tarball
+      ansible.builtin.stat:
+        path: "/tmp/dolt-{{ fetched_dolt_tag }}-linux-amd64.tar.gz"
+        checksum_algorithm: sha256
+        get_checksum: true
+      register: _dolt_amd64_stat
+
+    - name: Update dolt_sha256_amd64 in dolt_sql_server role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/dolt_sql_server/defaults/main.yml"
+        regexp: 'dolt_sha256_amd64:\s*"[^"]+"'
+        replace: 'dolt_sha256_amd64: "{{ _dolt_amd64_stat.stat.checksum }}"'
+
+    - name: Download dolt arm64 tarball for sha256 computation
+      ansible.builtin.get_url:
+        url: "https://github.com/dolthub/dolt/releases/download/{{ fetched_dolt_tag }}/dolt-linux-arm64.tar.gz"
+        dest: "/tmp/dolt-{{ fetched_dolt_tag }}-linux-arm64.tar.gz"
+        mode: '0644'
+
+    - name: Compute sha256 of dolt arm64 tarball
+      ansible.builtin.stat:
+        path: "/tmp/dolt-{{ fetched_dolt_tag }}-linux-arm64.tar.gz"
+        checksum_algorithm: sha256
+        get_checksum: true
+      register: _dolt_arm64_stat
+
+    - name: Update dolt_sha256_arm64 in dolt_sql_server role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/dolt_sql_server/defaults/main.yml"
+        regexp: 'dolt_sha256_arm64:\s*"[^"]+"'
+        replace: 'dolt_sha256_arm64: "{{ _dolt_arm64_stat.stat.checksum }}"'

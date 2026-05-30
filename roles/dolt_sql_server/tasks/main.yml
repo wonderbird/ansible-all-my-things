@@ -60,6 +60,7 @@
       https://github.com/dolthub/dolt/releases/download/{{ dolt_version }}/dolt-linux-{{ _dolt_arch }}.tar.gz
     dest: "/tmp/dolt-{{ dolt_version }}-linux-{{ _dolt_arch }}.tar.gz"
     mode: '0644'
+    checksum: "sha256:{{ dolt_sha256_amd64 if _dolt_arch == 'amd64' else dolt_sha256_arm64 }}"
   when: _dolt_needs_install
 
 - name: Extract dolt release tarball
