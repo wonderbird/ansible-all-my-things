@@ -1,0 +1,127 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Validate required variables
+  ansible.builtin.assert:
+    that:
+      - dolt_version | length > 0
+      - dolt_listen_host == '127.0.0.1'
+      - dolt_listen_port | int >= 1
+      - dolt_listen_port | int <= 65535
+    fail_msg: >-
+      Variable validation failed: dolt_version must be non-empty,
+      dolt_listen_host must be 127.0.0.1 (loopback only),
+      dolt_listen_port must be an integer between 1 and 65535.
+
+- name: Create dolt service user
+  ansible.builtin.user:
+    name: "{{ dolt_service_user }}"
+    system: true
+    shell: /usr/sbin/nologin
+    create_home: false
+
+- name: Create dolt data and config directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ dolt_service_user }}"
+    group: "{{ dolt_service_user }}"
+    mode: '0750'
+  loop:
+    - "{{ dolt_data_dir }}"
+    - "{{ dolt_config_dir }}"
+
+- name: Check if dolt binary is installed
+  ansible.builtin.stat:
+    path: "{{ dolt_install_path }}"
+  register: _dolt_binary_stat
+
+- name: Get installed dolt version
+  ansible.builtin.command:
+    cmd: "{{ dolt_install_path }} version"
+  register: _dolt_installed_version
+  changed_when: false
+  when: _dolt_binary_stat.stat.exists
+
+- name: Determine if dolt installation is required
+  ansible.builtin.set_fact:
+    _dolt_needs_install: >-
+      {{ not _dolt_binary_stat.stat.exists or
+         (dolt_version | regex_replace('^v', '')) not in
+         (_dolt_installed_version.stdout | default('')) }}
+
+- name: Set dolt target architecture
+  ansible.builtin.set_fact:
+    _dolt_arch: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
+  when: _dolt_needs_install
+
+- name: Download dolt release tarball
+  ansible.builtin.get_url:
+    url: >-
+      https://github.com/dolthub/dolt/releases/download/{{ dolt_version }}/dolt-linux-{{ _dolt_arch }}.tar.gz
+    dest: "/tmp/dolt-{{ dolt_version }}-linux-{{ _dolt_arch }}.tar.gz"
+    mode: '0644'
+    checksum: "sha256:{{ dolt_sha256_amd64 if _dolt_arch == 'amd64' else dolt_sha256_arm64 }}"
+  when: _dolt_needs_install
+
+- name: Extract dolt release tarball
+  ansible.builtin.unarchive:
+    src: "/tmp/dolt-{{ dolt_version }}-linux-{{ _dolt_arch }}.tar.gz"
+    dest: /tmp
+    remote_src: true
+  when: _dolt_needs_install
+
+- name: Install dolt binary
+  ansible.builtin.copy:
+    src: "/tmp/dolt-linux-{{ _dolt_arch }}/bin/dolt"
+    dest: "{{ dolt_install_path }}"
+    remote_src: true
+    mode: '0755'
+    owner: root
+    group: root
+  when: _dolt_needs_install
+
+- name: Deploy dolt server config
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "{{ dolt_config_path }}"
+    owner: "{{ dolt_service_user }}"
+    group: "{{ dolt_service_user }}"
+    mode: '0640'
+  notify: Restart dolt-sql-server
+
+- name: Deploy dolt systemd service unit
+  ansible.builtin.template:
+    src: dolt-sql-server.service.j2
+    dest: "/etc/systemd/system/{{ dolt_service_name }}.service"
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Restart dolt-sql-server
+
+- name: Enable and start dolt-sql-server service
+  ansible.builtin.systemd_service:
+    name: "{{ dolt_service_name }}"
+    daemon_reload: true
+    enabled: true
+    state: started
+  when: ansible_facts['service_mgr'] == 'systemd'
+
+- name: Wait for dolt SQL server to be ready
+  ansible.builtin.wait_for:
+    host: "{{ dolt_listen_host }}"
+    port: "{{ dolt_listen_port }}"
+    timeout: "{{ dolt_readiness_timeout }}"
+  register: _dolt_readiness
+  when: ansible_facts['service_mgr'] == 'systemd'
+
+- name: Assert dolt SQL server is listening
+  ansible.builtin.assert:
+    that:
+      - _dolt_readiness.elapsed is defined
+    fail_msg: >-
+      Dolt SQL server failed to start on
+      {{ dolt_listen_host }}:{{ dolt_listen_port }}
+    success_msg: >-
+      Dolt SQL server is ready on
+      {{ dolt_listen_host }}:{{ dolt_listen_port }}
+  when: ansible_facts['service_mgr'] == 'systemd'

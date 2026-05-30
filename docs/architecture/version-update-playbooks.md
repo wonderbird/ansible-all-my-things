@@ -103,6 +103,7 @@ Tracked tools and their upstream sources:
 | Nerd Fonts (Hack) | `tmux` | `tmux_font_version` | — | GitHub Releases API (`ryanoasis/nerd-fonts`) |
 | Android cmdline-tools | `android_studio` | `android_cmdlinetools_build` | `android_cmdlinetools_sha1` (sha1) | HTML scrape `developer.android.com/studio` |
 | Java (Temurin) | `java` | `java_sdkman_identifier` | — | SDKMAN REST API |
+| Dolt | `dolt_sql_server` | `dolt_version` | `dolt_sha256_amd64` / `dolt_sha256_arm64` (sha256) | GitHub Releases API (`dolthub/dolt`) |
 
 `fetch-github-release.yml` is parametrized via a `github_repo`
 variable and called twice (once for gitmux, once for Nerd Fonts),

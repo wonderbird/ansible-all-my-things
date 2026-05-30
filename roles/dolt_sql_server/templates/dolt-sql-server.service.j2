@@ -1,0 +1,13 @@
+[Unit]
+Description=Dolt SQL Server
+After=network.target
+
+[Service]
+Type=simple
+User={{ dolt_service_user }}
+ExecStart={{ dolt_install_path }} sql-server --config={{ dolt_config_path }}
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
