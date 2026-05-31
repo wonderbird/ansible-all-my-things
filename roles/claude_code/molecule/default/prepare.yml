@@ -5,24 +5,6 @@
   gather_facts: false
   become: true
   tasks:
-    - name: Update apt cache
-      ansible.builtin.raw: apt-get update
-      # become: false — sudo is not yet installed; run directly as root
-      become: false
-      changed_when: true
-
-    - name: Install python3 and sudo
-      ansible.builtin.raw: apt-get install -y -qq python3 sudo
-      # become: false — sudo is not yet installed; run directly as root
-      become: false
-      changed_when: true
-
-    - name: Install git and curl
-      ansible.builtin.raw: apt-get install -y -qq git curl
-      # become: false — sudo is not yet installed; run directly as root
-      become: false
-      changed_when: true
-
     - name: Create testuser
       ansible.builtin.user:
         name: testuser
@@ -44,11 +26,15 @@
         creates: /home/testuser/.nvm/nvm.sh
       become: true
       become_user: testuser
+      environment:
+        HOME: /home/testuser
 
     - name: Install Node.js LTS via nvm
-      ansible.builtin.shell: source ~/.nvm/nvm.sh && nvm install --lts
+      ansible.builtin.shell: source /home/testuser/.nvm/nvm.sh && nvm install --lts
       args:
         executable: /bin/bash
       become: true
       become_user: testuser
+      environment:
+        HOME: /home/testuser
       changed_when: false
