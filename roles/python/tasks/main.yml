@@ -1,0 +1,8 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Install Python
+  ansible.builtin.apt:
+    name:
+      - python3-full
+      - pipx
+    state: present
