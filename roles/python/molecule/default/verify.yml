@@ -1,0 +1,65 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: apt
+
+    - name: Assert python3-full package is installed
+      ansible.builtin.assert:
+        that: "'python3-full' in ansible_facts.packages"
+        fail_msg: "python3-full package is not installed"
+        success_msg: "python3-full package is installed"
+
+    - name: Assert pipx package is installed
+      ansible.builtin.assert:
+        that: "'pipx' in ansible_facts.packages"
+        fail_msg: "pipx package is not installed"
+        success_msg: "pipx package is installed"
+
+    - name: Check python3 binary exists
+      ansible.builtin.stat:
+        path: /usr/bin/python3
+      register: python3_stat
+
+    - name: Assert python3 binary is present
+      ansible.builtin.assert:
+        that: python3_stat.stat.exists
+        fail_msg: "python3 binary not found at /usr/bin/python3"
+        success_msg: "python3 binary found at /usr/bin/python3"
+
+    - name: Run python3 --version
+      ansible.builtin.command: python3 --version
+      register: python3_version
+      changed_when: false
+
+    - name: Assert python3 --version succeeds
+      ansible.builtin.assert:
+        that: python3_version.rc == 0
+        fail_msg: "python3 --version returned non-zero exit code"
+        success_msg: "python3 --version succeeded: {{ python3_version.stdout }}"
+
+    - name: Check pipx binary exists
+      ansible.builtin.stat:
+        path: /usr/bin/pipx
+      register: pipx_stat
+
+    - name: Assert pipx binary is present
+      ansible.builtin.assert:
+        that: pipx_stat.stat.exists
+        fail_msg: "pipx binary not found at /usr/bin/pipx"
+        success_msg: "pipx binary found at /usr/bin/pipx"
+
+    - name: Run pipx --version
+      ansible.builtin.command: pipx --version
+      register: pipx_version
+      changed_when: false
+
+    - name: Assert pipx --version succeeds
+      ansible.builtin.assert:
+        that: pipx_version.rc == 0
+        fail_msg: "pipx --version returned non-zero exit code"
+        success_msg: "pipx --version succeeded: {{ pipx_version.stdout }}"

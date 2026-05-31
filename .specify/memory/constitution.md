@@ -1,35 +1,12 @@
 <!--
-Sync Impact Report — 1.11.0 → 1.12.0 (MINOR)
-- Added Principle XI: Avoid Duplication (DRY) — mandate extracting shared
-  abstractions over copying logic, configuration, or documentation.
-- Added Principle XII: Fail Loud — prohibit silent skips, empty fallbacks,
-  and undefined-variable fallthrough; require explicit errors with source context.
-- Added Governance rule: rules files (AGENTS.md, CLAUDE.md, skill SKILL.md)
-  must not contain version history or changelog entries; exception for
-  constitution Sync Impact Report comments.
+Sync Impact Report — 1.14.0 → 1.15.0 (MINOR)
+- Updated Governance: only the latest Sync Impact Report is retained in this
+  file; prior reports are available via git log.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
 - AGENTS.md checked: no propagation required
-
-Sync Impact Report — 1.10.0 → 1.11.0 (MINOR)
-- Extended Principle IX rule 4: added two normative MUSTs — (1) each
-  repository instance must enable the GitHub Actions allow-list per ADR-002
-  § Allow-List Configuration; (2) when adding a new action, the
-  corresponding owner/repo@* entry must also be added to the allow-list.
-
-Sync Impact Report — 1.9.0 → 1.10.0 (MINOR)
-- Extended Principle IX: added rule 4 — GitHub Actions pinning (two-tier
-  policy: Tier A SHA-pin for credential/artefact/container/publish-chain
-  actions; Tier B floating major tag for actions/ or github/ org actions
-  without elevated permissions). Cross-reference to ADR-002 for full criteria.
-- Templates checked for propagation:
-  ✅ .specify/templates/plan-template.md — no changes required
-  ✅ .specify/templates/tasks-template.md — no changes required
-  ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: no propagation required
-- No principles renamed or removed
 -->
 # ansible-all-my-things Constitution
 
@@ -278,6 +255,19 @@ than a downstream symptom of undetected missing data.
 misconfigured. An explicit error at the point of failure is always faster to
 diagnose and fix than tracing downstream symptoms of an undetected data gap.
 
+### XIII. No Empty Artefacts
+
+Directories tracked solely by a `.gitkeep` placeholder MUST be deleted (both
+the file and the directory). Files whose only content is an SPDX license header
+comment — optionally followed by a YAML `---` document-start marker — MUST be
+deleted. Role scaffolding templates MUST NOT include such placeholder files;
+files are created only when they carry real content.
+
+**Rationale**: Empty placeholder files inflate the file tree with noise, mislead
+readers into expecting content, and propagate silently through every role
+scaffolded from the template. If a directory or file is genuinely needed, it is
+added at that point with real content.
+
 ## Technology Stack
 
 - **Automation**: Ansible (playbooks, roles, inventory)
@@ -343,8 +333,10 @@ carry forward to the next agent session.
 6. **Peer/self review**: verify idempotency, simplicity and traceability before
    merging. Track all findings as issues with the same priority as the source
    task, blocking the source task's cover issue (Principle VIII).
-7. **Merge to main**: squash or rebase as appropriate; no merge commits unless
-   history clarity demands it.
+7. **Merge to main**: rebase the feature branch onto `main` first (only if
+   not yet pushed to the remote — rebasing a pushed branch rewrites shared
+   history). Merge with `--no-ff` to produce a merge commit. Squash merges
+   are prohibited.
 8. **Cloud apply**: run the playbook against cloud targets only after local
    validation passes.
 
@@ -369,14 +361,14 @@ begins.
 
 Rules files (`AGENTS.md`, `CLAUDE.md`, and skill `SKILL.md` files) MUST NOT
 contain version history, changelogs, or amendment logs. These files document
-current operational rules only. Exception: this constitution tracks changes in
-Sync Impact Report comments (the HTML comment block at the top of this file)
-for propagation audits. Git history is the canonical record of changes for all
-other files.
+current operational rules only. Exception: this constitution retains the
+**latest** Sync Impact Report in the HTML comment block at the top of the file
+for propagation audits. Prior reports MUST be removed on each amendment; git
+history is the canonical record of all past reports.
 
 All agents working in this repository MUST read this constitution at the start
 of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.12.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-26
+**Version**: 1.15.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-31

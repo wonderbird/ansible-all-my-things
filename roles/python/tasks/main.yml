@@ -1,6 +1,8 @@
 #SPDX-License-Identifier: MIT-0
 ---
-- name: Install Ruby
+- name: Install Python
   ansible.builtin.apt:
-    name: ruby-full
+    name:
+      - python3-full
+      - pipx
     state: present

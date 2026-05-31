@@ -13,6 +13,8 @@
   # to propagate the skip tag to inner tasks.
   roles:
     - podman
+    - ruby
+    - python
     - claude_code
     - tmux
     - dolt_sql_server

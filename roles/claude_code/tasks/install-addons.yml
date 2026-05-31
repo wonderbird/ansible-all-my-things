@@ -78,6 +78,30 @@
 # Install Claude Code plugins for each desktop user
 # -----
 
+- name: Check Claude Code plugin marketplaces
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin marketplace list
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  failed_when: false
+  changed_when: false
+  register: plugin_marketplace_check
+
+- name: Check Claude Code plugins installed
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin list
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  failed_when: false
+  changed_when: false
+  register: plugin_list_check
+
 - name: Add oh-my-claudecode plugin to Claude Code marketplace
   ansible.builtin.shell:
     cmd: /home/{{ item }}/.local/bin/claude plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
@@ -86,7 +110,7 @@
   environment:
     PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
   loop: "{{ desktop_user_names }}"
-  changed_when: false
+  when: "'  ❯ omc' not in (plugin_marketplace_check.results | selectattr('item', 'equalto', item) | first).stdout_lines"
 
 - name: Install oh-my-claudecode plugin
   ansible.builtin.shell:
@@ -96,7 +120,7 @@
   environment:
     PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
   loop: "{{ desktop_user_names }}"
-  changed_when: false
+  when: "'  ❯ oh-my-claudecode@omc' not in (plugin_list_check.results | selectattr('item', 'equalto', item) | first).stdout_lines"
 
 - name: Add caveman plugin to Claude Code marketplace
   ansible.builtin.shell:
@@ -106,7 +130,7 @@
   environment:
     PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
   loop: "{{ desktop_user_names }}"
-  changed_when: false
+  when: "'  ❯ caveman' not in (plugin_marketplace_check.results | selectattr('item', 'equalto', item) | first).stdout_lines"
 
 - name: Install caveman plugin
   ansible.builtin.shell:
@@ -116,4 +140,4 @@
   environment:
     PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
   loop: "{{ desktop_user_names }}"
-  changed_when: false
+  when: "'  ❯ caveman@caveman' not in (plugin_list_check.results | selectattr('item', 'equalto', item) | first).stdout_lines"

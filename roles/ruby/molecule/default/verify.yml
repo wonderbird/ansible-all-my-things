@@ -4,6 +4,16 @@
   hosts: all
   become: true
   tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: apt
+
+    - name: Assert ruby-full package is installed
+      ansible.builtin.assert:
+        that: "'ruby-full' in ansible_facts.packages"
+        fail_msg: "ruby-full package is not installed"
+        success_msg: "ruby-full package is installed"
+
     - name: Check ruby binary exists
       ansible.builtin.stat:
         path: /usr/bin/ruby
