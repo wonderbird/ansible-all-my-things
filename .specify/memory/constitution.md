@@ -1,4 +1,14 @@
 <!--
+Sync Impact Report — 1.13.0 → 1.14.0 (MINOR)
+- Updated Development Workflow step 7: squash merges prohibited; every merge
+  to main MUST use --no-ff (merge commit); rebase permitted only on branches
+  not yet pushed to origin.
+- Templates checked for propagation:
+  ✅ .specify/templates/plan-template.md — no changes required
+  ✅ .specify/templates/tasks-template.md — no changes required
+  ✅ .specify/templates/spec-template.md — no changes required
+- AGENTS.md checked: no propagation required
+
 Sync Impact Report — 1.12.0 → 1.13.0 (MINOR)
 - Added Principle XIII: No Empty Artefacts — prohibit directories tracked only
   by .gitkeep and files containing nothing beyond an SPDX license comment.
@@ -365,8 +375,10 @@ carry forward to the next agent session.
 6. **Peer/self review**: verify idempotency, simplicity and traceability before
    merging. Track all findings as issues with the same priority as the source
    task, blocking the source task's cover issue (Principle VIII).
-7. **Merge to main**: squash or rebase as appropriate; no merge commits unless
-   history clarity demands it.
+7. **Merge to main**: rebase the feature branch onto `main` first (only if
+   not yet pushed to the remote — rebasing a pushed branch rewrites shared
+   history). Merge with `--no-ff` to produce a merge commit. Squash merges
+   are prohibited.
 8. **Cloud apply**: run the playbook against cloud targets only after local
    validation passes.
 
@@ -401,4 +413,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.13.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-31
+**Version**: 1.14.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-31
