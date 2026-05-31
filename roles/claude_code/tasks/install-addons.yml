@@ -173,3 +173,17 @@
      | select('search', 'context7')
      | list
      | length == 0
+
+# -----
+# Install speckit CLI for each desktop user
+# -----
+
+- name: Install specify-cli via pipx
+  ansible.builtin.shell:
+    cmd: pipx install git+https://github.com/github/spec-kit.git@v0.8.18
+    creates: /home/{{ item }}/.local/bin/specify
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  loop: "{{ desktop_user_names }}"

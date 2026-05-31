@@ -200,3 +200,19 @@
           - "'context7' in mcp_list_result.stdout"
         fail_msg: "context7 not found in 'claude mcp list' output"
         success_msg: "context7 MCP server is registered"
+
+    - name: Run specify --version as testuser
+      ansible.builtin.command: specify --version
+      become: true
+      become_user: testuser
+      environment:
+        PATH: "/home/testuser/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+      register: specify_version_result
+      changed_when: false
+
+    - name: Assert specify --version succeeds
+      ansible.builtin.assert:
+        that:
+          - specify_version_result.rc == 0
+        fail_msg: "specify --version failed with rc {{ specify_version_result.rc }}"
+        success_msg: "specify-cli available: {{ specify_version_result.stdout }}"
