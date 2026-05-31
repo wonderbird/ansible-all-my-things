@@ -1,54 +1,12 @@
 <!--
-Sync Impact Report — 1.13.0 → 1.14.0 (MINOR)
-- Updated Development Workflow step 7: squash merges prohibited; every merge
-  to main MUST use --no-ff (merge commit); rebase permitted only on branches
-  not yet pushed to origin.
+Sync Impact Report — 1.14.0 → 1.15.0 (MINOR)
+- Updated Governance: only the latest Sync Impact Report is retained in this
+  file; prior reports are available via git log.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
 - AGENTS.md checked: no propagation required
-
-Sync Impact Report — 1.12.0 → 1.13.0 (MINOR)
-- Added Principle XIII: No Empty Artefacts — prohibit directories tracked only
-  by .gitkeep and files containing nothing beyond an SPDX license comment.
-- Templates checked for propagation:
-  ✅ .specify/templates/plan-template.md — no changes required
-  ✅ .specify/templates/tasks-template.md — no changes required
-  ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: no propagation required
-
-Sync Impact Report — 1.11.0 → 1.12.0 (MINOR)
-- Added Principle XI: Avoid Duplication (DRY) — mandate extracting shared
-  abstractions over copying logic, configuration, or documentation.
-- Added Principle XII: Fail Loud — prohibit silent skips, empty fallbacks,
-  and undefined-variable fallthrough; require explicit errors with source context.
-- Added Governance rule: rules files (AGENTS.md, CLAUDE.md, skill SKILL.md)
-  must not contain version history or changelog entries; exception for
-  constitution Sync Impact Report comments.
-- Templates checked for propagation:
-  ✅ .specify/templates/plan-template.md — no changes required
-  ✅ .specify/templates/tasks-template.md — no changes required
-  ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: no propagation required
-
-Sync Impact Report — 1.10.0 → 1.11.0 (MINOR)
-- Extended Principle IX rule 4: added two normative MUSTs — (1) each
-  repository instance must enable the GitHub Actions allow-list per ADR-002
-  § Allow-List Configuration; (2) when adding a new action, the
-  corresponding owner/repo@* entry must also be added to the allow-list.
-
-Sync Impact Report — 1.9.0 → 1.10.0 (MINOR)
-- Extended Principle IX: added rule 4 — GitHub Actions pinning (two-tier
-  policy: Tier A SHA-pin for credential/artefact/container/publish-chain
-  actions; Tier B floating major tag for actions/ or github/ org actions
-  without elevated permissions). Cross-reference to ADR-002 for full criteria.
-- Templates checked for propagation:
-  ✅ .specify/templates/plan-template.md — no changes required
-  ✅ .specify/templates/tasks-template.md — no changes required
-  ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: no propagation required
-- No principles renamed or removed
 -->
 # ansible-all-my-things Constitution
 
@@ -403,14 +361,14 @@ begins.
 
 Rules files (`AGENTS.md`, `CLAUDE.md`, and skill `SKILL.md` files) MUST NOT
 contain version history, changelogs, or amendment logs. These files document
-current operational rules only. Exception: this constitution tracks changes in
-Sync Impact Report comments (the HTML comment block at the top of this file)
-for propagation audits. Git history is the canonical record of changes for all
-other files.
+current operational rules only. Exception: this constitution retains the
+**latest** Sync Impact Report in the HTML comment block at the top of the file
+for propagation audits. Prior reports MUST be removed on each amendment; git
+history is the canonical record of all past reports.
 
 All agents working in this repository MUST read this constitution at the start
 of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.14.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-31
+**Version**: 1.15.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-31
