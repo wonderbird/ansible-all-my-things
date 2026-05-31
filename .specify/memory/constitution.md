@@ -1,4 +1,13 @@
 <!--
+Sync Impact Report — 1.12.0 → 1.13.0 (MINOR)
+- Added Principle XIII: No Empty Artefacts — prohibit directories tracked only
+  by .gitkeep and files containing nothing beyond an SPDX license comment.
+- Templates checked for propagation:
+  ✅ .specify/templates/plan-template.md — no changes required
+  ✅ .specify/templates/tasks-template.md — no changes required
+  ✅ .specify/templates/spec-template.md — no changes required
+- AGENTS.md checked: no propagation required
+
 Sync Impact Report — 1.11.0 → 1.12.0 (MINOR)
 - Added Principle XI: Avoid Duplication (DRY) — mandate extracting shared
   abstractions over copying logic, configuration, or documentation.
@@ -278,6 +287,19 @@ than a downstream symptom of undetected missing data.
 misconfigured. An explicit error at the point of failure is always faster to
 diagnose and fix than tracing downstream symptoms of an undetected data gap.
 
+### XIII. No Empty Artefacts
+
+Directories tracked solely by a `.gitkeep` placeholder MUST be deleted (both
+the file and the directory). Files whose only content is an SPDX license header
+comment — optionally followed by a YAML `---` document-start marker — MUST be
+deleted. Role scaffolding templates MUST NOT include such placeholder files;
+files are created only when they carry real content.
+
+**Rationale**: Empty placeholder files inflate the file tree with noise, mislead
+readers into expecting content, and propagate silently through every role
+scaffolded from the template. If a directory or file is genuinely needed, it is
+added at that point with real content.
+
 ## Technology Stack
 
 - **Automation**: Ansible (playbooks, roles, inventory)
@@ -379,4 +401,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.12.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-26
+**Version**: 1.13.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-31
