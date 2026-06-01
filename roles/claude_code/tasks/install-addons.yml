@@ -141,3 +141,49 @@
     PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
   loop: "{{ desktop_user_names }}"
   when: "'  ❯ caveman@caveman' not in (plugin_list_check.results | selectattr('item', 'equalto', item) | first).stdout_lines"
+
+- name: Add claude-plugins-official marketplace to Claude Code
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin marketplace add anthropics/claude-plugins-official
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  when: >-
+    (plugin_marketplace_check.results
+     | selectattr('item', 'equalto', item)
+     | first).stdout_lines
+     | select('match', '^\\s*❯\\s+claude-plugins-official$')
+     | list
+     | length == 0
+
+- name: Install context7 plugin
+  ansible.builtin.shell:
+    cmd: /home/{{ item }}/.local/bin/claude plugin install context7@claude-plugins-official
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+  loop: "{{ desktop_user_names }}"
+  when: >-
+    (plugin_list_check.results
+     | selectattr('item', 'equalto', item)
+     | first).stdout_lines
+     | select('search', 'context7')
+     | list
+     | length == 0
+
+# -----
+# Install speckit CLI for each desktop user
+# -----
+
+- name: Install specify-cli via pipx
+  ansible.builtin.shell:
+    cmd: pipx install git+https://github.com/github/spec-kit.git@v0.8.18
+    creates: /home/{{ item }}/.local/bin/specify
+  become: true
+  become_user: "{{ item }}"
+  environment:
+    PATH: "/home/{{ item }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  loop: "{{ desktop_user_names }}"
