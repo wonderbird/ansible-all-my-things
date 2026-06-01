@@ -46,16 +46,49 @@ The script copies `role-template/` to `roles/<role-name>/` and substitutes the
 **Do NOT modify per-role:**
 
 - `molecule.yml` — canonical; change only via this rule or `role-template/`
-- `prepare.yml` — canonical; change only via this rule or `role-template/`
+- `Dockerfile` — canonical base; add role-specific packages only when needed
+- `prepare.yml` — omit entirely when nothing remains after removing bootstrap tasks
 
 ## Required scenario files
 
 | File | Purpose |
 | --- | --- |
+| `Dockerfile` | Pre-bake python3+sudo (and any role-specific packages) into the test image |
 | `molecule.yml` | Driver, platform, provisioner, verifier, test sequence |
-| `prepare.yml` | Bootstrap the container before converge |
+| `prepare.yml` | Role-specific container setup after image build (omit if nothing remains) |
 | `converge.yml` | Apply the role under test |
 | `verify.yml` | Assert observable outcomes |
+
+## Dockerfile
+
+Pre-bake python3 and sudo into the container image. This avoids rootless podman
+killing the container during Ansible's pre-Python file-copy phase.
+
+**Do NOT add `&& rm -rf /var/lib/apt/lists/*`** — the apt package index must
+remain available so roles that use `update_cache: false` (or omit `update_cache`)
+can install packages during converge without a fresh `apt-get update`.
+
+Minimal Dockerfile (sufficient for most roles):
+
+```dockerfile
+FROM docker.io/library/ubuntu:24.04
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -qq \
+    && apt-get install -y -qq --no-install-recommends \
+       python3 sudo python3-apt
+```
+
+**`python3-apt` is required** whenever the role uses `ansible.builtin.apt`
+with `update_cache: false` (or no `update_cache` key). Without it the apt
+module fails to auto-install its Python binding.
+
+**`ca-certificates` is required** whenever the role downloads files from HTTPS
+URLs via `ansible.builtin.get_url`. Add it to the Dockerfile for those roles.
+
+Add other role-specific packages to the same `apt-get install` line when
+required at container-build time (e.g. `git fontconfig unzip` for roles that
+extract archives or manage fonts). Do NOT add packages that are installed by
+the role itself.
 
 ## molecule.yml
 
@@ -66,12 +99,14 @@ driver:
   name: podman
 platforms:
   - name: instance
-    image: docker.io/library/ubuntu:24.04
-    pre_build_image: true
+    image: molecule_<rolename>_instance
+    pre_build_image: false
+    dockerfile: Dockerfile
 provisioner:
   name: ansible
   env:
     ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/../"
+    ANSIBLE_PODMAN_MOUNT_DETECTION: "false"
 verifier:
   name: ansible
 scenario:
@@ -86,13 +121,17 @@ scenario:
     - destroy
 ```
 
+Replace `<rolename>` with the exact role directory name (e.g. `dolt_sql_server`,
+`java`, `ruby`). The image name follows the pattern `molecule_<rolename>_instance`.
+
 ## prepare.yml
 
-Bootstrap rules:
+With python3 and sudo pre-baked in the Dockerfile, `prepare.yml` is only needed
+for role-specific setup (e.g. creating a test user). If nothing remains after
+removing the bootstrap tasks, **delete the file** (Principle XIII — no empty
+artefacts).
 
-- Two **separate** `raw` tasks — do NOT chain with `&&` in a folded scalar
-- Both MUST have `become: false` (sudo not yet installed)
-- Further tasks after bootstrap may inherit play-level `become: true`
+When `prepare.yml` exists, it contains only role-specific tasks:
 
 ```yaml
 - name: Prepare container
@@ -100,16 +139,15 @@ Bootstrap rules:
   gather_facts: false
   become: true
   tasks:
-    - name: Update apt cache
-      ansible.builtin.raw: apt-get update
-      become: false
-      changed_when: true
-
-    - name: Install python3 and sudo
-      ansible.builtin.raw: apt-get install -y -qq python3 sudo
-      become: false
-      changed_when: true
+    - name: Create testuser
+      ansible.builtin.user:
+        name: testuser
+        state: present
+        create_home: true
 ```
+
+**Do NOT add raw apt bootstrap tasks to prepare.yml.** Those belong in the
+Dockerfile.
 
 ## converge.yml
 
