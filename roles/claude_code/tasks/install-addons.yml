@@ -187,3 +187,34 @@
   environment:
     PATH: "/home/{{ item }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   loop: "{{ desktop_user_names }}"
+
+# -----
+# Configure Exa MCP server for each desktop user
+# -----
+
+- name: Check if exa MCP server is already configured
+  ansible.builtin.shell:
+    cmd: /home/{{ item.name }}/.local/bin/claude mcp list
+  become: true
+  become_user: "{{ item.name }}"
+  environment:
+    PATH: "/home/{{ item.name }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  loop: "{{ desktop_users }}"
+  failed_when: false
+  changed_when: false
+  register: exa_mcp_check
+
+- name: Configure exa MCP server
+  ansible.builtin.shell:
+    cmd: >
+      /home/{{ item.name }}/.local/bin/claude mcp add --scope user exa
+      -e EXA_API_KEY={{ item.exa_api_key }} -- npx -y exa-mcp-server
+  become: true
+  become_user: "{{ item.name }}"
+  environment:
+    PATH: "/home/{{ item.name }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  loop: "{{ desktop_users }}"
+  when: >-
+    (exa_mcp_check.results
+     | selectattr('item.name', 'equalto', item.name)
+     | first).stdout is not search('exa')

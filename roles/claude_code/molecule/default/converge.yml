@@ -6,5 +6,9 @@
   vars:
     desktop_user_names:
       - testuser
+    desktop_users:
+      - name: testuser
+        password: testpassword
+        exa_api_key: test_fake_exa_key
   roles:
     - role: claude_code
