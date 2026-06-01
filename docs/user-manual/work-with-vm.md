@@ -48,8 +48,17 @@ ansible-playbook ./restore.yml
 
 ## After Restore
 
-After restoring Claude settings, follow the [Fresh Machine Setup Sequence](./machine-setup-sequence.md) to complete provisioning in the correct order.
+`provision.yml` / `configure-linux.yml` run the restore automatically.
+Two steps cannot be automated and must be done manually afterward:
 
---
+```shell
+claude login
+```
+
+```shell
+omc setup
+```
+
+---
 
 Previous: [Create a Virtual Machine](./create-vm.md)
