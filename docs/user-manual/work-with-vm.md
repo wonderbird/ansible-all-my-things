@@ -48,11 +48,7 @@ ansible-playbook ./restore.yml
 
 ## After Restore
 
-After restoring Claude settings, complete Claude Code setup manually:
-
-1. Run `omc setup` to reinstall plugins and configure the HUD
-2. Plugin re-installation is automated by the Ansible role on the next provision.
-   `omc setup` covers the interactive parts only.
+After restoring Claude settings, follow the [Fresh Machine Setup Sequence](./machine-setup-sequence.md) to complete provisioning in the correct order.
 
 --
 

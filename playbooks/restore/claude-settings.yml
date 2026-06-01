@@ -14,10 +14,10 @@
       vars:
         users: "{{ [restore_user] }}"
         backup_file: "claude-backup.tar.gz"
-        destination_beneath_home: ".claude"
+        destination_beneath_home: ".claude/projects"
         delete_before_beneath_home:
-          - ".claude"
-          - ".claude.json"
+          - ".claude/projects"
+          - ".claude/keybindings.json"
 
     # Plugin installation is handled by the claude_code Ansible role on fresh provision.
     # omc setup is interactive and must be run manually after restore — see docs/user-manual/work-with-vm.md
