@@ -13,21 +13,6 @@
       include_tasks: backup.yml
       vars:
         path:
-          - "/home/{{ backup_user }}/.claude"
-          - "/home/{{ backup_user }}/.claude.json"
+          - "/home/{{ backup_user }}/.claude/projects"
+          - "/home/{{ backup_user }}/.claude/keybindings.json"
         backup_file: "claude-backup.tar.gz"
-        exclusion_patterns:
-          - "*file-history*"
-          - "*history.json*"
-          - "*backups*"
-          - "*cache*"
-          - "*.credentials.json"
-          - "*sessions*"
-          - "*session-env*"
-          - "*shell-snapshots*"
-          - "*telemetry*"
-          - "*downloads*"
-          - "*plugins*"
-          - "*hud*"
-          - "*.omc/state*"
-          - "*.omc/logs*"

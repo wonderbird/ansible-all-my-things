@@ -409,3 +409,50 @@ provisioning tool.
 
 Open — accepted risk. Revisit when Google publishes SHA-256 checksums for
 cmdline-tools downloads.
+
+---
+
+## TD-010 — `destination_beneath_home` used as arcroot anchor, not destination
+
+- **Category:** Technical Debt
+- **Severity:** Low
+- **Affected file(s):**
+  - [playbooks/backup/claude-settings.yml](../../playbooks/backup/claude-settings.yml)
+  - [playbooks/restore/claude-settings.yml](../../playbooks/restore/claude-settings.yml)
+  - [playbooks/restore/restore.yml](../../playbooks/restore/restore.yml)
+- **Date added:** 2026-06-01
+
+### TD-010: Description
+
+`playbooks/restore/claude-settings.yml` passes `destination_beneath_home: '.claude/projects'`
+to `restore.yml`. A developer reading this expects restored files to land under
+`~/.claude/projects/`; they actually land under `~/.claude/`. The parameter is
+being used as an arcroot anchor — `restore.yml` computes
+`dest = dirname(destination_beneath_home)` — not as a literal destination path.
+
+Root cause: narrowing the backup path to `~/.claude/projects` and
+`~/.claude/keybindings.json` shifts the tar arcroot from `~/` to `~/.claude/`.
+Because `restore.yml` derives the restore destination as
+`dest = dirname(destination_beneath_home)`, the value `.claude/projects` was
+chosen to make `dirname` equal `.claude`, anchoring the extract to the correct
+directory. No comment explains this indirection, so the parameter value
+misleads any future developer who reads it.
+
+### TD-010: Ideas for solution
+
+Two approaches exist:
+
+- **Option A — Narrow by exclusion:** keep `backup path: ~/.claude` and exclude
+  everything except `projects/` and `keybindings.json`. The arcroot stays at
+  `~/`, so `destination_beneath_home: .claude` reads correctly as a literal
+  destination. Trade-off: a deny-list is fragile — new files added under
+  `~/.claude/` are silently included unless the exclusion list is updated.
+- **Option B — Explicit dest parameter:** extend `restore.yml` to accept an
+  explicit `dest` variable that bypasses the `dirname` computation entirely.
+  Callers set the true destination directly; the arcroot hack becomes
+  unnecessary.
+
+### TD-010: Status
+
+Open — no correctness impact today; risk is limited to misleading future
+developers. Resolve as part of a backup/restore refactor.
