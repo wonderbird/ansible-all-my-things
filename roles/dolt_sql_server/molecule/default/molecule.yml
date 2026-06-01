@@ -6,12 +6,14 @@ driver:
   name: podman
 platforms:
   - name: instance
-    image: docker.io/library/ubuntu:24.04
-    pre_build_image: true
+    image: molecule_dolt_sql_server_instance
+    pre_build_image: false
+    dockerfile: Dockerfile
 provisioner:
   name: ansible
   env:
     ANSIBLE_ROLES_PATH: "${MOLECULE_PROJECT_DIRECTORY}/../"
+    ANSIBLE_PODMAN_MOUNT_DETECTION: "false"
 verifier:
   name: ansible
 scenario:

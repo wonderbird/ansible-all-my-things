@@ -19,9 +19,5 @@
           - ".claude"
           - ".claude.json"
 
-    - name: Reinstall oh-my-claudecode (restores hud/ and plugins/)
-      shell: |
-        export NVM_DIR="$HOME/.nvm"
-        [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-        omc update
-      become_user: "{{ restore_user }}"
+    # Plugin installation is handled by the claude_code Ansible role on fresh provision.
+    # omc setup is interactive and must be run manually after restore — see docs/user-manual/work-with-vm.md

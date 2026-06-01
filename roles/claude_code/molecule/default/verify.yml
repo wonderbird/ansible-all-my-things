@@ -216,3 +216,17 @@
           - specify_version_result.rc == 0
         fail_msg: "specify --version failed with rc {{ specify_version_result.rc }}"
         success_msg: "specify-cli available: {{ specify_version_result.stdout }}"
+
+    - name: Check exa MCP server is configured
+      ansible.builtin.shell: /home/testuser/.local/bin/claude mcp list
+      become: true
+      become_user: testuser
+      changed_when: false
+      register: exa_mcp_list_result
+
+    - name: Assert exa MCP server is registered
+      ansible.builtin.assert:
+        that:
+          - "'exa' in exa_mcp_list_result.stdout"
+        fail_msg: "exa MCP server not found in 'claude mcp list' output"
+        success_msg: "exa MCP server is configured"
