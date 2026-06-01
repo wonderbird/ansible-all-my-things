@@ -4,8 +4,10 @@
 Ansible role that installs [Anthropic's Claude Code](https://claude.ai/code) CLI
 on Linux for each desktop user, verifies binary integrity, installs the
 [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) and
-[caveman](https://github.com/JuliusBrussee/caveman) Claude Code plugins, and
-configures the [Exa](https://exa.ai) MCP server for web search.
+[caveman](https://github.com/JuliusBrussee/caveman) Claude Code plugins,
+clones the [ai-agent-workspace](https://github.com/eudicy/ai-agent-workspace)
+with its skill library, and configures the [Exa](https://exa.ai) MCP server
+for web search.
 
 ## Requirements
 
@@ -56,9 +58,12 @@ None. See `meta/main.yml` for details.
 5. Adds `~/.local/bin` to each user's `PATH` via `.bashrc`
 6. Clones the oh-my-claudecode source repo to `~/Documents/Cline/oh-my-claudecode`
 7. Installs the [beads](https://github.com/steveyegge/beads) issue tracker (`bd`)
-8. Registers and installs the oh-my-claudecode Claude Code plugin
-9. Registers and installs the caveman Claude Code plugin
-10. Configures the [Exa](https://exa.ai) MCP server (`exa`) with the user's API
+8. Clones [ai-agent-workspace](https://github.com/eudicy/ai-agent-workspace) to
+   `~/Documents/Cline/ai-agent-workspace` and symlinks its skills into
+   `~/.claude/skills/` (idempotent; re-provision pulls updates and re-links)
+9. Registers and installs the oh-my-claudecode Claude Code plugin
+10. Registers and installs the caveman Claude Code plugin
+11. Configures the [Exa](https://exa.ai) MCP server (`exa`) with the user's API
     key (skipped if already registered)
 
 ## Post-install Manual Steps
