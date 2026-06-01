@@ -46,6 +46,14 @@ To restore a backup later manually, use the following command:
 ansible-playbook ./restore.yml
 ```
 
+## After Restore
+
+After restoring Claude settings, complete Claude Code setup manually:
+
+1. Run `omc setup` to reinstall plugins and configure the HUD
+2. Plugin re-installation is automated by the Ansible role on the next provision.
+   `omc setup` covers the interactive parts only.
+
 --
 
 Previous: [Create a Virtual Machine](./create-vm.md)
