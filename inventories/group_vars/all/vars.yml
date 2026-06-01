@@ -36,5 +36,7 @@ backup_from_host: "lorien"
 desktop_users:
   - name: "galadriel"
     password: "{{ vault_galadriel.password }}"
+    exa_api_key: "{{ vault_galadriel.exa_api_key }}"
 #  - name: "legolas"
 #    password: "{{ vault_legolas.password }}"
+#    exa_api_key: "{{ vault_legolas.exa_api_key }}"

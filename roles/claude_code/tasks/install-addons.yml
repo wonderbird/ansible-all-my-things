@@ -51,6 +51,62 @@
   loop: "{{ desktop_user_names }}"
 
 # -----
+# Clone ai-agent-workspace and symlink skills for each desktop user
+# -----
+
+- name: Clone ai-agent-workspace source repository
+  ansible.builtin.git:
+    repo: https://github.com/eudicy/ai-agent-workspace
+    dest: /home/{{ item }}/Documents/Cline/ai-agent-workspace
+    version: HEAD
+    update: yes
+    force: no
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+
+- name: Ensure ~/.claude/skills exists
+  ansible.builtin.file:
+    path: /home/{{ item }}/.claude/skills
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: "0755"
+  become: true
+  loop: "{{ desktop_user_names }}"
+
+- name: Discover ai-agent-workspace skill directories
+  ansible.builtin.find:
+    paths: /home/{{ item }}/Documents/Cline/ai-agent-workspace/.claude/skills
+    file_type: directory
+    recurse: false
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+  register: workspace_skill_dirs
+
+- name: Assert ai-agent-workspace has skill directories
+  ansible.builtin.assert:
+    that:
+      - item.matched > 0
+    fail_msg: "No skill directories found in ai-agent-workspace clone for {{ item.item }}"
+  loop: "{{ workspace_skill_dirs.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+- name: Symlink ai-agent-workspace skills into ~/.claude/skills
+  ansible.builtin.file:
+    src: "{{ item.1.path }}"
+    path: /home/{{ item.0.item }}/.claude/skills/{{ item.1.path | basename }}
+    state: link
+    force: no
+  become: true
+  become_user: "{{ item.0.item }}"
+  loop: "{{ workspace_skill_dirs.results | subelements('files') }}"
+  loop_control:
+    label: "{{ item.0.item }}:{{ item.1.path | basename }}"
+
+# -----
 # Install OMC CLI for each desktop user
 # -----
 
@@ -187,3 +243,34 @@
   environment:
     PATH: "/home/{{ item }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   loop: "{{ desktop_user_names }}"
+
+# -----
+# Configure Exa MCP server for each desktop user
+# -----
+
+- name: Check if exa MCP server is already configured
+  ansible.builtin.shell:
+    cmd: /home/{{ item.name }}/.local/bin/claude mcp list
+  become: true
+  become_user: "{{ item.name }}"
+  environment:
+    PATH: "/home/{{ item.name }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  loop: "{{ desktop_users }}"
+  failed_when: false
+  changed_when: false
+  register: exa_mcp_check
+
+- name: Configure exa MCP server
+  ansible.builtin.shell:
+    cmd: >
+      /home/{{ item.name }}/.local/bin/claude mcp add --scope user exa
+      -e EXA_API_KEY={{ item.exa_api_key }} -- npx -y exa-mcp-server
+  become: true
+  become_user: "{{ item.name }}"
+  environment:
+    PATH: "/home/{{ item.name }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+  loop: "{{ desktop_users }}"
+  when: >-
+    (exa_mcp_check.results
+     | selectattr('item.name', 'equalto', item.name)
+     | first).stdout is not search('exa')

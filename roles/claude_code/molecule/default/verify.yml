@@ -216,3 +216,56 @@
           - specify_version_result.rc == 0
         fail_msg: "specify --version failed with rc {{ specify_version_result.rc }}"
         success_msg: "specify-cli available: {{ specify_version_result.stdout }}"
+
+    - name: Check exa MCP server is configured
+      ansible.builtin.shell: /home/testuser/.local/bin/claude mcp list
+      become: true
+      become_user: testuser
+      changed_when: false
+      register: exa_mcp_list_result
+
+    - name: Assert exa MCP server is registered
+      ansible.builtin.assert:
+        that:
+          - "'exa' in exa_mcp_list_result.stdout"
+        fail_msg: "exa MCP server not found in 'claude mcp list' output"
+        success_msg: "exa MCP server is configured"
+
+    - name: Check ai-agent-workspace repository exists
+      ansible.builtin.stat:
+        path: /home/testuser/Documents/Cline/ai-agent-workspace/.git
+      register: workspace_repo_stat
+
+    - name: Assert ai-agent-workspace repository is cloned
+      ansible.builtin.assert:
+        that:
+          - workspace_repo_stat.stat.exists
+        fail_msg: "ai-agent-workspace not found at /home/testuser/Documents/Cline/ai-agent-workspace/.git"
+        success_msg: "ai-agent-workspace repository cloned"
+
+    - name: Check commit skill symlink exists
+      ansible.builtin.stat:
+        path: /home/testuser/.claude/skills/commit
+        follow: false
+      register: commit_skill_link_stat
+
+    - name: Assert commit skill symlink is present and points into clone
+      ansible.builtin.assert:
+        that:
+          - commit_skill_link_stat.stat.islnk
+          - commit_skill_link_stat.stat.lnk_source == "/home/testuser/Documents/Cline/ai-agent-workspace/.claude/skills/commit"
+        fail_msg: "commit skill symlink missing or pointing to wrong target"
+        success_msg: "commit skill symlink present and correct"
+
+    - name: Check commit skill symlink is not dangling
+      ansible.builtin.stat:
+        path: /home/testuser/.claude/skills/commit
+        follow: true
+      register: commit_skill_follow_stat
+
+    - name: Assert commit skill symlink resolves
+      ansible.builtin.assert:
+        that:
+          - commit_skill_follow_stat.stat.exists
+        fail_msg: "commit skill symlink is dangling"
+        success_msg: "commit skill symlink resolves to real directory"
