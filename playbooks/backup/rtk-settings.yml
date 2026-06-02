@@ -1,0 +1,77 @@
+---
+- name: Backup RTK settings
+  hosts: "{{ backup_from_host }}"
+  tags: not-supported-on-vagrant-docker
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    backup_user: "{{ desktop_users[0].name }}"
+
+  tasks:
+    - name: Resolve RTK database path
+      # Reads [tracking].database_path from config.toml via grep + sed (first
+      # occurrence wins; handles double- and single-quoted TOML string values).
+      # Falls back to the default path when config.toml is absent or the key is
+      # not set. Scope: config.toml and db only — filters.toml and debug tee
+      # files are intentionally excluded per issue spec.
+      shell: |
+        config_file="/home/{{ backup_user }}/.config/rtk/config.toml"
+        default_db="/home/{{ backup_user }}/.local/share/rtk/history.db"
+        home_dir="/home/{{ backup_user }}"
+
+        if [ -f "$config_file" ]; then
+          line=$(grep -E '^\s*database_path\s*=' "$config_file" | head -1)
+          if [ -n "$line" ]; then
+            db_path=$(echo "$line" | sed -n 's/.*=[[:space:]]*"\([^"]*\)".*/\1/p')
+            if [ -z "$db_path" ]; then
+              db_path=$(echo "$line" | sed -n "s/.*=[[:space:]]*'\([^']*\)'.*/\1/p")
+            fi
+            if [ -z "$db_path" ]; then
+              echo "RTK config.toml: could not parse database_path; expected a double- or single-quoted string." >&2
+              exit 1
+            fi
+            case "$db_path" in
+              /*) ;;
+              *) echo "RTK database_path '${db_path}' is not an absolute path." >&2; exit 1 ;;
+            esac
+            case "$db_path" in
+              "$home_dir/"*) ;;
+              *) echo "RTK database_path '${db_path}' is outside the user's home directory; backup not supported." >&2; exit 1 ;;
+            esac
+            case "$db_path" in
+              "$home_dir/.config/"*)
+                echo "RTK database_path '${db_path}' is under ~/.config, which shifts the backup arcroot; backup not supported from this location." >&2
+                exit 1
+                ;;
+            esac
+            echo "$db_path"
+          else
+            echo "$default_db"
+          fi
+        else
+          echo "$default_db"
+        fi
+      register: rtk_db_path_result
+      changed_when: false
+
+    - name: Set RTK database path fact
+      set_fact:
+        rtk_db_path: "{{ rtk_db_path_result.stdout | trim }}"
+
+    - name: Check if RTK files exist
+      stat:
+        path: "{{ item }}"
+      loop:
+        - "/home/{{ backup_user }}/.config/rtk/config.toml"
+        - "{{ rtk_db_path }}"
+      register: rtk_file_stats
+
+    - name: Backup RTK settings
+      include_tasks: backup.yml
+      vars:
+        path:
+          - "/home/{{ backup_user }}/.config/rtk/config.toml"
+          - "{{ rtk_db_path }}"
+        backup_file: "rtk-backup.tar.gz"
+      when: rtk_file_stats.results | selectattr('stat.exists') | list | length > 0
