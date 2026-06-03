@@ -456,3 +456,60 @@ Two approaches exist:
 
 Open — no correctness impact today; risk is limited to misleading future
 developers. Resolve as part of a backup/restore refactor.
+
+---
+
+## TD-011 — Backup scripts lack application installation guard
+
+- **Category:** Technical Debt
+- **Severity:** Low
+- **Affected file(s):**
+  - [playbooks/backup/chromium-settings.yml](../../playbooks/backup/chromium-settings.yml)
+  - [playbooks/backup/claude-settings.yml](../../playbooks/backup/claude-settings.yml)
+  - [playbooks/backup/cursor-settings.yml](../../playbooks/backup/cursor-settings.yml)
+  - [playbooks/backup/google-chrome-settings.yml](../../playbooks/backup/google-chrome-settings.yml)
+  - [playbooks/backup/home-folder-files.yml](../../playbooks/backup/home-folder-files.yml)
+  - [playbooks/backup/keyring.yml](../../playbooks/backup/keyring.yml)
+  - [playbooks/backup/vscode-settings.yml](../../playbooks/backup/vscode-settings.yml)
+- **Date added:** 2026-06-03
+
+### TD-011: Description
+
+None of the backup scripts listed above check whether the target application is
+installed before attempting to archive its files. If an application is absent
+from the host, the `archive` module receives non-existent paths and the play
+fails with a tar error instead of skipping gracefully.
+
+`playbooks/backup/rtk-settings.yml` was the first backup script to address this,
+using a `stat`-based file-existence guard. However, a file-existence check is
+weaker than an installation check: it silently skips backup when files are
+unexpectedly absent (corruption, wrong user, first-run before any history
+exists), and can produce partial archives when only some files are present. The
+correct pattern is to check for the application binary first (`which <app>` or
+equivalent), skip the entire play gracefully if not installed, and fail loud if
+installed but files are missing.
+
+### TD-011: Ideas for solution
+
+Use `playbooks/backup/rtk-settings.yml` as the reference implementation. That
+script was updated (ahead of this debt being addressed) to replace the
+file-existence guard with a binary installation check — the correct pattern to
+follow for each script listed above.
+
+For each affected script:
+
+1. Add an `ansible.builtin.command` task (e.g. `which chromium`, `which code`,
+   `which cursor`) with `failed_when: false` and `changed_when: false` to detect
+   installation.
+2. Set a boolean fact from the return code.
+3. Gate the entire backup on that fact: skip gracefully when not installed, fail
+   with an explicit error message when installed but files are missing.
+
+The `home-folder-files.yml` and `keyring.yml` scripts back up host-level artefacts
+(dotfiles, GNOME keyring) that are not tied to an installable binary; for these,
+a `stat` guard on the specific paths is the appropriate substitute.
+
+### TD-011: Status
+
+Open — to be addressed per-script. Priority matches the source backup hardening
+work.
