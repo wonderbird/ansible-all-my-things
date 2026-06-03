@@ -161,6 +161,14 @@ bd close <id>         # Complete work
 - Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
 - When an issue's implementation state changes materially, update its description
   to reflect the current state — stale descriptions mislead the next session
+- When a feature issue transitions to `in_progress`, instantiate the `pr-review-cycle`
+  molecule and attach its user story as a child of the feature:
+  ```bash
+  bd mol pour pr-review-cycle        # instantiate; note the returned story ID
+  bd update <story-id> --parent <feature-id>  # attach story to feature
+  ```
+  For each human review finding, create a task child of the story and wire it to
+  block the merge task: `bd dep add <merge-task-id> <finding-task-id>`
 
 ## Session Completion
 
