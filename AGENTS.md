@@ -345,6 +345,54 @@ gh pr create --repo wonderbird/ansible-all-my-things \
 to be inferred, so work-in-progress can be recovered from the git branch alone
 when no issue is marked `in_progress`.
 
+## PR Review Cycle Molecule
+
+Use the `pr-review-cycle` molecule when a feature branch is ready for human
+review and the PR needs a tracked merge gate.
+
+### When to instantiate
+
+- Feature implementation is complete; PR is open or about to be created
+- Feature issue is still `in_progress` and needs a review + findings gate
+
+### How to instantiate
+
+```bash
+# 1. Pour the molecule (creates story + merge task as siblings under molecule root)
+bd mol pour pr-review-cycle
+
+# 2. Note IDs from output — or inspect the molecule root:
+#    bd show <mol-root-id>
+#    story-id   = "Review PR and collect findings"
+#    merge-id   = "Merge feature branch to origin/main"
+
+# 3. Nest merge task under story (post-pour wiring)
+bd update <merge-id> --parent <story-id>
+
+# 4. Attach story as child of the feature issue
+bd update <story-id> --parent <feature-id>
+
+# 5. Close the now-empty molecule root
+bd close <mol-root-id> --reason "Replaced by post-pour wiring"
+```
+
+### Adding findings during review
+
+For each finding the human reviewer files:
+
+```bash
+# Create finding task as child of the story
+bd create --title="<finding>" --type=task --parent <story-id>
+
+# Wire it to block the merge task
+bd dep add <merge-id> <finding-id>
+```
+
+### Completing the cycle
+
+Once all findings are closed, the merge task becomes actionable. User merges
+the PR on GitHub, then the agent closes the merge task and the story.
+
 ## Collaboration with the User
 
 - **Language and style**: Use English throughout. For all user-facing
