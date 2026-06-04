@@ -29,9 +29,7 @@ def resolve(home_dir: str) -> str:
         )
         sys.exit(1)
 
-    try:
-        db_path.relative_to(home)
-    except ValueError:
+    if not db_path.is_relative_to(home):
         print(
             f"RTK database_path '{db_path_str}' is outside the user's home directory;"
             " backup not supported.",
@@ -39,16 +37,13 @@ def resolve(home_dir: str) -> str:
         )
         sys.exit(1)
 
-    try:
-        db_path.relative_to(home / ".config")
+    if db_path.is_relative_to(home / ".config"):
         print(
             f"RTK database_path '{db_path_str}' is under ~/.config, which shifts the"
             " backup arcroot; backup not supported from this location.",
             file=sys.stderr,
         )
         sys.exit(1)
-    except ValueError:
-        pass
 
     return str(db_path)
 
