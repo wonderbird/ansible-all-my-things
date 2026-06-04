@@ -18,7 +18,7 @@
 
     - name: Resolve RTK database path
       ansible.builtin.script:
-        cmd: scripts/backup/resolve_rtk_db_path.py /home/{{ backup_user }}
+        cmd: "{{ playbook_dir }}/../../scripts/backup/resolve_rtk_db_path.py /home/{{ backup_user }}"
       register: rtk_db_path_result
       changed_when: false
       when: rtk_binary_check.rc == 0
