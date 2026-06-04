@@ -281,18 +281,6 @@ bd update <child-id> --parent <epic-id>
 This attaches the child to the epic and gates it: the epic is excluded from
 `bd ready` while any open child exists.
 
-**Common case — findings discovered during WIP:** when a bug or task is
-found while working on an epic (e.g. a test failure on the feature branch),
-attach it immediately:
-
-```shell
-bd update <finding-id> --parent <epic-id>
-```
-
-Do NOT attempt `bd dep add <epic-id> <finding-id>` — that errors.
-
-Among non-epics, any type may block any other type.
-
 ### Beads Dependency Wiring — Cross-Tree Follow-Ups
 
 When an ADR acceptance, review, or policy decision produces follow-up epics
@@ -301,11 +289,6 @@ tree**, add those follow-ups as `bd dep` blockers on the affected issue
 immediately. Tracking a follow-up only under its own parent epic — without
 connecting it to the constrained feature — allows premature closure of work
 that is not yet compliant.
-
-**Type alignment**: beads restricts `blocks` only at the epic boundary — epics
-may only block other epics, non-epics may block any other non-epic type.
-On epic/non-epic mismatch, use `parent-child` instead; do not create relay
-issues as adapters.
 
 **Signal the next action for the next session**: after wiring the deps, claim
 both the blocked issue and the immediate actionable follow-up:
@@ -344,54 +327,6 @@ gh pr create --repo wonderbird/ansible-all-my-things \
 **Branch naming:** branch names MUST allow the associated epic (or work item)
 to be inferred, so work-in-progress can be recovered from the git branch alone
 when no issue is marked `in_progress`.
-
-## PR Review Cycle Molecule
-
-Use the `pr-review-cycle` molecule when a feature branch is ready for human
-review and the PR needs a tracked merge gate.
-
-### When to instantiate
-
-- Feature implementation is complete; PR is open or about to be created
-- Feature issue is still `in_progress` and needs a review + findings gate
-
-### How to instantiate
-
-```bash
-# 1. Pour the molecule (creates story + merge task as siblings under molecule root)
-bd mol pour pr-review-cycle
-
-# 2. Note IDs from output — or inspect the molecule root:
-#    bd show <mol-root-id>
-#    story-id   = "Review PR and collect findings"
-#    merge-id   = "Merge feature branch to origin/main"
-
-# 3. Nest merge task under story (post-pour wiring)
-bd update <merge-id> --parent <story-id>
-
-# 4. Attach story as child of the feature issue
-bd update <story-id> --parent <feature-id>
-
-# 5. Close the now-empty molecule root
-bd close <mol-root-id> --reason "Replaced by post-pour wiring"
-```
-
-### Adding findings during review
-
-For each finding the human reviewer files:
-
-```bash
-# Create finding task as child of the story
-bd create --title="<finding>" --type=task --parent <story-id>
-
-# Wire it to block the merge task
-bd dep add <merge-id> <finding-id>
-```
-
-### Completing the cycle
-
-Once all findings are closed, the merge task becomes actionable. User merges
-the PR on GitHub, then the agent closes the merge task and the story.
 
 ## Collaboration with the User
 
