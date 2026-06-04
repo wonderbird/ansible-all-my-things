@@ -176,14 +176,20 @@ bd blocked
 # Step 4: Understand a specific parent's work scope
 bd show <parent-id>   # CHILDREN section shows sub-tasks
 
-# Step 5: Understand dependency chain for a specific issue
-bd dep list <id> --direction down   # what is blocking this issue
-bd dep list <id> --direction up     # what this issue is blocking
+# Step 5: Understand stored dependency edges for a specific issue
+# WARNING: parent-child entries in --direction down are NOT blockers (display-only)
+# Use bd blocked (Step 3) as the ONLY authoritative blocker source
+bd dep list <id> --direction down   # what is stored as depending on this issue
+                                    # parent-child entries here are NOT blockers
+bd dep list <id> --direction up     # what depends on this issue (who it gates)
 
-# Step 6: Detect wiring errors
+# Step 6: Detect explicit dep wiring errors
 bd dep cycles   # must return "No cycles"
-                # NOTE: does NOT detect antiparallel parent-child + explicit edges
-                # because parent-child edges are excluded from cycle detection
+                # NOTE: does NOT detect antiparallel wiring — if you mixed --parent
+                # and bd dep add between the same two issues, manually verify:
+                #   bd dep list <id-A> --direction up   (who depends on A)
+                #   bd dep list <id-A> --direction down (what A depends on)
+                # Antiparallel = A appears in up AND down for the same pair
 
 # Step 7 (supplementary only — do NOT use for readiness decisions)
 bv --robot-triage --format toon

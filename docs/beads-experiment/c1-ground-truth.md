@@ -5,6 +5,12 @@
 **Branch:** worktree-spike+8p1t-bd-bv-semantics  
 **Issue:** ansible-all-my-things-8p1t.1
 
+> **⚠ SUPERSEDED IN PART by C3** — Experiments in `c3-experiment-matrix.md`
+> refute the parent-gating claims in §2 and §5 of this document. **C3 is
+> authoritative where the two documents conflict.** Specifically: `--parent`
+> does NOT gate any parent type in bd v1.0.4; parents remain in `bd ready`
+> regardless of open children.
+
 ---
 
 ## 1. Command Inventory for "Next Immediate Action"
@@ -94,18 +100,25 @@ including parent-child; `bd` does not honor that direction for child readiness.
 
 ## 5. Canonical Wiring Rule
 
+> **⚠ SUPERSEDED by C3 EXP-C and EXP-A** — The "parent is gated" claim below
+> is the DESIRED behavior, NOT observed behavior in bd v1.0.4. C3 experiments
+> prove parents appear in `bd ready` regardless of open children. The
+> `bd ready | grep <parent-id>  # must NOT appear` assertion is WRONG.
+> See `c3-experiment-matrix.md` for corrected rules.
+
 ```
-# CORRECT: attach child to parent → parent is gated, children are free
+# CORRECT: attach child to parent → children are free; parent display-only gated
+# NOTE (bd v1.0.4): parent is NOT excluded from bd ready — --parent is display-only
 bd update <child-id> --parent <parent-id>
 
 # Verify: children appear in bd ready immediately
 bd ready | grep <child-id>   # must appear
 
-# Verify: parent is gated while children open
-bd ready | grep <parent-id>  # must NOT appear
+# NOTE: in bd v1.0.4 the parent ALSO appears in bd ready (gating not enforced)
+bd ready | grep <parent-id>  # APPEARS (contradicts intended design)
 
-# WRONG (for sub-tasks): creates a true blocking dep — child excluded from bd ready
-bd dep add <child-id> <parent-id>   # child blocked until parent closed
+# To ACTUALLY block a child: use explicit dep add (creates true blocker)
+bd dep add <child-id> <parent-id>   # child excluded from bd ready until parent closed
 ```
 
 When you need children to be **sequentially blocked** (C2 cannot start until
