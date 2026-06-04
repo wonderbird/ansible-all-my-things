@@ -5,23 +5,15 @@ import tomllib
 from pathlib import Path
 
 
-def resolve(home_dir: str) -> str:
-    home = Path(home_dir)
-    default_db = home / ".local" / "share" / "rtk" / "history.db"
-    config_file = home / ".config" / "rtk" / "config.toml"
-
+def _read_configured_db_path(config_file: Path) -> str | None:
     if not config_file.exists():
-        return str(default_db)
-
+        return None
     with open(config_file, "rb") as fh:
         config = tomllib.load(fh)
+    return config.get("tracking", {}).get("database_path")
 
-    db_path_str = config.get("tracking", {}).get("database_path")
-    if db_path_str is None:
-        return str(default_db)
 
-    db_path = Path(db_path_str)
-
+def _validate_db_path(db_path: Path, db_path_str: str, home: Path) -> None:
     if not db_path.is_absolute():
         print(
             f"RTK database_path '{db_path_str}' is not an absolute path.",
@@ -37,6 +29,7 @@ def resolve(home_dir: str) -> str:
         )
         sys.exit(1)
 
+    # ~/.config is a separate backup domain; a db there shifts the archive root.
     if db_path.is_relative_to(home / ".config"):
         print(
             f"RTK database_path '{db_path_str}' is under ~/.config, which shifts the"
@@ -45,6 +38,18 @@ def resolve(home_dir: str) -> str:
         )
         sys.exit(1)
 
+
+def resolve(home_dir: str) -> str:
+    home = Path(home_dir)
+    default_db = home / ".local" / "share" / "rtk" / "history.db"
+    config_file = home / ".config" / "rtk" / "config.toml"
+
+    db_path_str = _read_configured_db_path(config_file)
+    if db_path_str is None:
+        return str(default_db)
+
+    db_path = Path(db_path_str)
+    _validate_db_path(db_path, db_path_str, home)
     return str(db_path)
 
 
