@@ -1,0 +1,20 @@
+---
+- name: Restore RTK settings
+  hosts: linux
+  tags: not-supported-on-vagrant-docker
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    restore_user: "{{ desktop_users[0].name }}"
+
+  tasks:
+    - name: Restore RTK settings
+      include_tasks: restore.yml
+      vars:
+        users: "{{ [restore_user] }}"
+        backup_file: "rtk-backup.tar.gz"
+        destination_beneath_home: ""
+        delete_before_beneath_home:
+          - ".config/rtk/config.toml"
+          - ".local/share/rtk/history.db"

@@ -8,4 +8,5 @@
 - import_playbook: playbooks/restore/claude-settings.yml
 #- import_playbook: playbooks/restore/cursor-settings.yml
 - import_playbook: playbooks/restore/google-chrome-settings.yml
+- import_playbook: playbooks/restore/rtk-settings.yml
 - import_playbook: playbooks/restore/vscode-settings.yml

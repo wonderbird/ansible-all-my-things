@@ -161,6 +161,12 @@ bd close <id>         # Complete work
 - Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
 - When an issue's implementation state changes materially, update its description
   to reflect the current state — stale descriptions mislead the next session
+- When a feature issue transitions to `in_progress`, instantiate the `pr-review-cycle`
+  molecule and attach its user story as a child of the feature:
+  ```bash
+  bd mol pour pr-review-cycle        # instantiate; note the returned story ID
+  bd update <story-id> --parent <feature-id>  # attach story to feature
+  ```
 
 ## Session Completion
 
@@ -281,18 +287,6 @@ bd update <child-id> --parent <epic-id>
 This attaches the child to the epic and gates it: the epic is excluded from
 `bd ready` while any open child exists.
 
-**Common case — findings discovered during WIP:** when a bug or task is
-found while working on an epic (e.g. a test failure on the feature branch),
-attach it immediately:
-
-```shell
-bd update <finding-id> --parent <epic-id>
-```
-
-Do NOT attempt `bd dep add <epic-id> <finding-id>` — that errors.
-
-Among non-epics, any type may block any other type.
-
 ### Beads Dependency Wiring — Cross-Tree Follow-Ups
 
 When an ADR acceptance, review, or policy decision produces follow-up epics
@@ -301,11 +295,6 @@ tree**, add those follow-ups as `bd dep` blockers on the affected issue
 immediately. Tracking a follow-up only under its own parent epic — without
 connecting it to the constrained feature — allows premature closure of work
 that is not yet compliant.
-
-**Type alignment**: beads restricts `blocks` only at the epic boundary — epics
-may only block other epics, non-epics may block any other non-epic type.
-On epic/non-epic mismatch, use `parent-child` instead; do not create relay
-issues as adapters.
 
 **Signal the next action for the next session**: after wiring the deps, claim
 both the blocked issue and the immediate actionable follow-up:

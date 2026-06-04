@@ -1,0 +1,57 @@
+---
+- name: Backup RTK settings
+  hosts: "{{ backup_from_host }}"
+  tags: not-supported-on-vagrant-docker
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    backup_user: "{{ desktop_users[0].name }}"
+
+  tasks:
+    - name: Check RTK binary installation
+      ansible.builtin.command:
+        cmd: which rtk
+      changed_when: false
+      failed_when: false
+      register: rtk_binary_check
+
+    - name: Resolve RTK database path
+      ansible.builtin.script:
+        cmd: "{{ playbook_dir }}/../../scripts/backup/resolve_rtk_db_path.py /home/{{ backup_user }}"
+      register: rtk_db_path_result
+      changed_when: false
+      when: rtk_binary_check.rc == 0
+
+    - name: Set RTK database path fact
+      ansible.builtin.set_fact:
+        rtk_db_path: "{{ rtk_db_path_result.stdout | trim }}"
+      when: rtk_binary_check.rc == 0
+
+    - name: Assert RTK files exist
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - "/home/{{ backup_user }}/.config/rtk/config.toml"
+        - "{{ rtk_db_path }}"
+      register: rtk_file_stats
+      when: rtk_binary_check.rc == 0
+
+    - name: Fail if RTK files are missing
+      ansible.builtin.fail:
+        msg: "RTK is installed but {{ item.item }} does not exist. Cannot back up incomplete RTK data."
+      loop: "{{ rtk_file_stats.results | default([]) }}"
+      loop_control:
+        label: "{{ item.item }}"
+      when:
+        - rtk_binary_check.rc == 0
+        - not item.stat.exists
+
+    - name: Backup RTK settings
+      ansible.builtin.include_tasks: backup.yml
+      vars:
+        path:
+          - "/home/{{ backup_user }}/.config/rtk/config.toml"
+          - "{{ rtk_db_path }}"
+        backup_file: "rtk-backup.tar.gz"
+      when: rtk_binary_check.rc == 0
