@@ -57,13 +57,13 @@ bv --robot-triage --format toon  # 6. priority ranking only — never readiness
    `dep list`, or `bv unblocks_ids`.
 2. An issue absent from `bd blocked` is not blocked, regardless of `dep list`.
 3. To enforce work order, use `bd dep add`. For sub-tasks that must block their
-   epic: `bd dep add <epic> <sub-task>` (sub-task blocks epic). `--parent` alone
-   sequences nothing.
+   parent container: `bd dep add <parent> <sub-task>` (sub-task blocks parent).
+   `--parent` alone sequences nothing.
 
-   **Cycle-detector blind spot:** this hazard is not epic-specific — it applies
-   to any container. If the child was already attached with
-   `--parent <container>`, the gating `bd dep add` adds an edge antiparallel to
-   that `--parent` edge — the exact pair `bd dep cycles` cannot detect (see the
+   **Cycle-detector blind spot:** this hazard is applies to any container.
+   If the child was already attached with `--parent <container>`, the gating
+   `bd dep add` adds an edge antiparallel to that `--parent` edge — the exact
+   pair `bd dep cycles` cannot detect (see the
    [caveat above](#what-the-experiment-proved)). Do not apply this
    container-gating pattern in bulk; reserve it for deliberate one-offs and
    audit each one manually with `bd dep list <id> --direction up|down`.
