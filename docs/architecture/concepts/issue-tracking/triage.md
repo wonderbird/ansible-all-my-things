@@ -60,10 +60,11 @@ bv --robot-triage --format toon  # 6. priority ranking only — never readiness
    epic: `bd dep add <epic> <sub-task>` (sub-task blocks epic). `--parent` alone
    sequences nothing.
 
-   **Cycle-detector blind spot:** if the sub-task was created with
-   `--parent <epic>`, this `bd dep add` places an edge antiparallel to the
-   existing `--parent` edge — the exact pair `bd dep cycles` cannot detect
-   (see the [caveat above](#what-the-experiment-proved)). Do not apply this
+   **Cycle-detector blind spot:** this hazard is not epic-specific — it applies
+   to any container. If the child was already attached with
+   `--parent <container>`, the gating `bd dep add` adds an edge antiparallel to
+   that `--parent` edge — the exact pair `bd dep cycles` cannot detect (see the
+   [caveat above](#what-the-experiment-proved)). Do not apply this
    container-gating pattern in bulk; reserve it for deliberate one-offs and
    audit each one manually with `bd dep list <id> --direction up|down`.
 
