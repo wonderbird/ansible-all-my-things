@@ -216,17 +216,24 @@ Built-in types and when to use each:
 | `gate`      | Async coordination checkpoint (blocks until cleared). |
 | `molecule`  | Beads work template — NOT Ansible Molecule testing.   |
 
-### Epic Gating and Attaching Issues to Epics
+### Attaching Issues to Epics (epics cannot be gated)
 
-Non-epic issues cannot block epics (`bd dep add epic non-epic` fails with
-"epics can only block other epics"). Use `--parent` instead:
+An epic cannot be excluded from `bd ready` by its children:
+
+- `bd dep add <epic> <non-epic>` is rejected ("epics can only block other
+  epics"), so a non-epic cannot block its epic.
+- `--parent` attaches a child for display/scope only. It does NOT gate
+  readiness and does NOT exclude the parent from `bd ready`.
 
 ```shell
 bd update <child-id> --parent <epic-id>
 ```
 
-This attaches the child to the epic and gates it: the epic is excluded from
-`bd ready` while any open child exists.
+An epic with open children therefore REMAINS in `bd ready`. Do not rely on
+`bd ready` exclusion to track epic scope — read the epic's CHILDREN section
+via `bd show <epic-id>` instead. See
+[triage.md](docs/architecture/concepts/issue-tracking/triage.md) for the
+validated `--parent` / `bd ready` semantics (bd v1.0.4 spike).
 
 ### Beads Dependency Wiring — Cross-Tree Follow-Ups
 
