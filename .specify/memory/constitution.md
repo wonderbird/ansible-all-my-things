@@ -1,7 +1,6 @@
 <!--
-Sync Impact Report — 1.14.0 → 1.15.0 (MINOR)
-- Updated Governance: only the latest Sync Impact Report is retained in this
-  file; prior reports are available via git log.
+Sync Impact Report — 1.15.0 → 1.16.0 (MINOR)
+- Added version-update registration mandate to Principle II; extended Rationale.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
@@ -52,9 +51,25 @@ Roles that cannot be exercised in a container (e.g., desktop environment
 configuration, display managers, hardware drivers) MUST instead be validated
 on a local Vagrant/Tart VM as described in `CONTRIBUTING.md`.
 
+Every role that pins a tool version in `defaults/main.yml` MUST also register
+the tool in the version-update mechanism:
+
+- A fetch task file under `playbooks/update-versions/tasks/` implementing the
+  upstream version query.
+- A read-current-pin task and an upstream-query task in
+  `playbooks/update-versions/query-versions.yml`.
+- An update task and matching fetch task include in
+  `playbooks/update-versions/perform-updates.yml`.
+
+A role that installs a versioned tool without this wiring silently escapes
+version tracking. The mechanism structure is documented in
+`docs/architecture/version-update-playbooks.md`.
+
 **Rationale**: Roles keep the codebase modular and reusable across different
 target hosts without duplicating logic. Molecule container tests provide fast,
-repeatable, local validation without requiring a full VM.
+repeatable, local validation without requiring a full VM. Version-update
+registration prevents pinned tools from drifting silently behind upstream
+releases.
 
 ### III. Test Locally Before Cloud
 
@@ -371,4 +386,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.15.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-05-31
+**Version**: 1.16.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-06-05
