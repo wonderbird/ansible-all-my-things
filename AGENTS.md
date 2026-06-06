@@ -216,26 +216,43 @@ Built-in types and when to use each:
 | `gate`      | Async coordination checkpoint (blocks until cleared). |
 | `molecule`  | Beads work template — NOT Ansible Molecule testing.   |
 
-### Epic Gating and Attaching Issues to Epics
+### Attaching Issues to Epics (epics cannot be gated)
 
-Non-epic issues cannot block epics (`bd dep add epic non-epic` fails with
-"epics can only block other epics"). Use `--parent` instead:
+`bd dep add` connects **any pair of issue types except `epic`** — an epic
+connects only to another epic. So an epic cannot be gated out of `bd ready`
+by its non-epic children:
+
+- `bd dep add` between an epic and a non-epic is rejected in **both**
+  directions (`<epic> <non-epic>` and `<non-epic> <epic>`), each printing
+  `Error: epics can only block other epics, not tasks` (the message always
+  says "not tasks", whatever the real type). A non-epic therefore cannot block
+  its epic. Epic↔epic edges ARE permitted; non-epic pairs gate normally (a
+  task can block a task, a feature, etc.).
+- `--parent` attaches a child for display/scope only. It does NOT gate
+  readiness and does NOT exclude the parent from `bd ready`.
 
 ```shell
 bd update <child-id> --parent <epic-id>
 ```
 
-This attaches the child to the epic and gates it: the epic is excluded from
-`bd ready` while any open child exists.
+An epic with open children therefore REMAINS in `bd ready`. Do not rely on
+`bd ready` exclusion to track epic scope — read the epic's CHILDREN section
+via `bd show <epic-id>` instead. See
+[triage.md](docs/architecture/concepts/issue-tracking/triage.md) for the
+validated dep-add type matrix and `--parent` / `bd ready` semantics
+(bd v1.0.4).
 
 ### Beads Dependency Wiring — Cross-Tree Follow-Ups
 
-When an ADR acceptance, review, or policy decision produces follow-up epics
-that impose compliance requirements on in-flight work in a **different epic
-tree**, add those follow-ups as `bd dep` blockers on the affected issue
-immediately. Tracking a follow-up only under its own parent epic — without
-connecting it to the constrained feature — allows premature closure of work
-that is not yet compliant.
+Operationalizes Principle VIII (cross-tree blocking). When a policy or review
+decision constrains in-flight work in another tree, wire the blocking dep
+**immediately** — but mind the type rule: `bd dep add` cannot make an `epic`
+block a non-epic (rejected; see "Attaching Issues to Epics" above). If the
+follow-up is tracked as an epic, use a **non-epic** issue as the actual
+blocker — a concrete task under that epic, or a `gate` checkpoint (verified:
+a `gate` blocks a non-epic and gates it out of `bd ready`). Wire it as
+`bd dep add <in-flight-issue> <non-epic-blocker>` (in-flight depends on
+blocker).
 
 **Signal the next action for the next session**: after wiring the deps, claim
 both the blocked issue and the immediate actionable follow-up:
@@ -277,18 +294,12 @@ when no issue is marked `in_progress`.
 
 ## Collaboration with the User
 
-- **Language and style**: Use English throughout. For all user-facing
-  content — chat, code, comments, documentation, beads issues — apply the
-  `caveman full` skill: drop articles, filler, and hedging; fragments OK;
-  short synonyms; technical terms exact. For internal thought processes and
-  inter-LLM communication (subagents, MCP, tool calls) apply the
-  `caveman wenyan-ultra` skill: maximum compression, classical Chinese
-  register. Code blocks, commit messages, and security warnings are always
-  written in normal English regardless of mode.
-- **Language**: chat is in English. For your thinking processes and
-  communication with (sub-)agents use the "caveman wenyan-ultra" skill. For user
-  facing writing (documentation, code, etc.) and chat use "caveman full".
-  Consider all files in `.omc` folder not user facing inter-agent communication.
+- **Language**: English throughout. Apply the caveman skill by audience —
+  `caveman full` for user-facing content (chat, code, comments, documentation,
+  beads issues); `caveman wenyan-ultra` for internal and inter-agent content
+  (thinking, subagents, MCP, tool calls, all files under `.omc/`). Code blocks,
+  commit messages, and security warnings stay in normal English regardless of
+  mode. The skills define each mode.
 - **One question at a time**: when asking the user a question, ask one
   question at a time so they can focus.
 - **Avoid ambiguity**: if instructions are unclear, contradictory, or
@@ -299,20 +310,17 @@ when no issue is marked `in_progress`.
 
 ## Skill index
 
-The table below lists all skills relevant to this project. Local skills are in
-`.claude/skills/`; global skills are installed with the agent runtime. Use it
-to decide which skills to invoke for your current task.
+Skills carrying a constitution-mandated invocation. The agent runtime injects
+the full skill catalog (names + descriptions) each session; only the mandatory
+skill→principle bindings are restated here.
 
-| Skill | Scope | When to invoke |
+| Skill | Invoke when | Principle |
 | --- | --- | --- |
-| [developer](.claude/skills/developer/SKILL.md) | local | Use when expert knowledge of Ansible is required to analyze, implement, or fix features. Project scope: setting up and maintaining virtual machines. |
-| [molecule-testing](.claude/skills/molecule-testing/SKILL.md) | local | Pull in information about the molecule testing setup for Ansible roles. Use when implementing or modifying an Ansible role to set up or maintain its Molecule test scenario. |
-| [review-documentation-here](.claude/skills/review-documentation-here/SKILL.md) | local | Extends review-documentation by project-specific documentation structure, including co-located role documentation. Use when reviewing the project documentation. |
-| [technical-coach](.claude/skills/technical-coach/SKILL.md) | local | Use when expert knowledge of Ansible is required to advise and tutor on automating setup and maintenance of virtual machines. |
-| `commit` | global | Authoritative source for commit format, allowed prefixes, message structure, and co-authorship rules. MUST invoke before creating any commit (Principle V). |
-| `format-markdown` | global | Authoritative Markdown linting ruleset. MUST invoke once at close of task after all Markdown files are finalized (Principle VI). |
-| `fix-problem` | global | Remediation protocol for unexpected obstacles (test failure, tooling error, regression). MUST invoke before attempting fixes (Principle VII). |
-| `review-documentation` | global | Base documentation review strategy and folder structure. Extended by `review-documentation-here` for this project. |
+| `commit` | before creating any commit | V |
+| `format-markdown` | at task close, after all Markdown finalized | VI |
+| `fix-problem` | before fixing any unexpected obstacle | VII |
+| `molecule-testing` | when creating/modifying a role's Molecule scenario | II |
+| `review-documentation-here` | at task close, before `format-markdown` | Documentation Standards |
 
 ## Test environment host architecture
 
@@ -339,8 +347,3 @@ Architecture Decision Records are in
 
 These are the canonical locations for architectural decisions; they MUST
 NOT be recorded in `CLAUDE.md` or agent-specific context files.
-
-## Active Technologies
-
-- YAML (Ansible 2.19+) + `community.general` collection + `ansible.builtin.*`;
-  Ubuntu `podman` apt package for rootless containers
