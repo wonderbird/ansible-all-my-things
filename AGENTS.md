@@ -196,6 +196,50 @@ bd close <id>         # Complete work
 <!-- END BEADS INTEGRATION -->
 <!-- markdownlint-enable MD013 MD031 MD032 -->
 
+## Beads: Data Safety and Workflow Rules
+
+### Export after every mutation (bd v1.0.4)
+
+<!-- bd-version: 1.0.4 -->
+
+On bd v1.0.4 every command prints `auto-importing N bytes ... into empty
+database` and rehydrates the working DB from `.beads/issues.jsonl`. A mutation
+not yet flushed to the JSONL file is **silently reverted** by the next
+command's re-import. Observed data loss: a `bd dep rm` rolled back before the
+next command saw it; a later `bd dep add` then reported a phantom cycle.
+
+**Mandatory workaround (bd 1.0.4 only):** export after **every** mutation —
+never bundle exports at the end of a response:
+
+```bash
+bd export --all -o .beads/issues.jsonl   # run after EACH bd mutation
+```
+
+Re-evaluate when a bd release fixes auto-import without the v1.0.5 regression.
+
+### Suppress git-add warning
+
+If you see `auto-export: git add failed: exit status 1` after a bd mutation,
+the cause is `export.git-add=true` (default) trying to stage
+`.beads/issues.jsonl`, which is gitignored. Fix permanently:
+
+```yaml
+# .beads/config.yaml
+export:
+  git-add: false
+```
+
+This keeps local export (beads viewer stays in sync) while disabling git
+staging.
+
+### Findings are always tied to WIP
+
+A finding discovered during implementation must be filed as an issue and
+connected to the active WIP (`in_progress` issue or current branch). A finding
+not tied to active WIP must be converted to a normal feature request: its
+headline must **not** contain the word "Finding", though the description may
+note provenance.
+
 ## Beads: Issue Types and Dependency Rules
 
 ### Issue Types
