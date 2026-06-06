@@ -1,6 +1,6 @@
 # Specification Quality Checklist: Create and Destroy VM Playbooks
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning
+**Purpose**: Validate specification completeness and quality before planning
 **Created**: 2026-06-06
 **Feature**: [spec.md](../spec.md)
 
