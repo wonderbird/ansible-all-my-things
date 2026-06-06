@@ -47,8 +47,8 @@ leaving no dangling entries.
 incomplete without clean teardown. Dangling VMs accumulate cost and stale
 inventory entries cause confusion.
 
-**Independent Test**: Given a running VM `lorien`, run `destroy-vm.yml` with
-`hostname=lorien`. Verify the VM no longer exists and `lorien` is absent from
+**Independent Test**: Given a running VM `vulcan`, run `destroy-vm.yml` with
+`hostname=vulcan`. Verify the VM no longer exists and `vulcan` is absent from
 inventory.
 
 **Acceptance Scenarios**:
@@ -70,8 +70,9 @@ inventory.
 - What happens when `destroy-vm.yml` is given a hostname that exists in
   inventory but the VM is already gone? The playbook attempts cleanup, removes
   the stale inventory entry, and warns the engineer.
-- What if two operators run `create-vm.yml` concurrently? Pool allocation must
-  not assign the same hostname to both.
+- What if two operators run `create-vm.yml` concurrently? No locking is
+  implemented; duplicate hostname assignment is possible but accepted as
+  out-of-scope for a single-operator project.
 
 ## Requirements *(mandatory)*
 
@@ -79,15 +80,21 @@ inventory.
 
 - **FR-001**: The system MUST create one new VM per `create-vm.yml`
   invocation; it MUST NOT reuse or reprovision an existing VM.
-- **FR-002**: `create-vm.yml` MUST create the VM as a local Linux VM and
-  require no extra-vars for the common case.
+- **FR-002**: `create-vm.yml` MUST create the VM as a local Ubuntu 24.04 LTS
+  VM using Vagrant with the Tart provider on macOS ARM64, and require no
+  extra-vars for the common case.
 - **FR-003**: The system MUST draw the VM hostname from a single shared ordered
-  list of LOTR place names. Hostnames are assigned sequentially; the first name
-  not already present in inventory is selected on each invocation.
+  list of Star Trek TNG planet names defined in
+  `playbooks/vars/hostname_pool.yml`. Hostnames are assigned sequentially; the
+  first name not already present in inventory is selected on each invocation.
 - **FR-004**: The system MUST register each newly created VM in inventory
   before `create-vm.yml` completes, so configuration automation can target it.
-- **FR-005**: The system MUST update the static inventory file on both create
-  and destroy.
+- **FR-005**: The system MUST update `inventories/vagrant_tart.yml` (YAML
+  format, groups `all` / `linux` / `vagrant_tart`) on both create and destroy.
+  On create, the new entry MUST include `ansible_host` (VM IP), `ansible_port`
+  (22), `ansible_user` (`admin`), and `ansible_ssh_private_key_file` (path
+  to the Tart-generated private key). On destroy, all group references to the
+  hostname MUST be removed.
 - **FR-006**: `create-vm.yml` MUST print the assigned hostname on successful
   completion.
 - **FR-007**: When the hostname pool is exhausted, `create-vm.yml` MUST fail
@@ -99,17 +106,22 @@ inventory.
   completion.
 - **FR-010**: `destroy-vm.yml` MUST fail with a clear, actionable error if the
   specified hostname is not found in inventory.
-- **FR-011**: The hostname pool ships with ten ordered LOTR place names. The
-  first five entries are the existing hostnames (`hobbiton`, `rivendell`,
-  `lorien`, `dagorlad`, `moria`) so they are never reassigned. The pool is
-  extensible: operators may append names at any time.
+- **FR-011**: `playbooks/vars/hostname_pool.yml` ships with ten ordered Star
+  Trek TNG planet names: `vulcan`, `romulus`, `betazed`, `qonos`, `risa`,
+  `cardassia`, `bajor`, `veridian`, `remus`, `baku`. All entries are available
+  for assignment; none are pre-reserved. The pool is extensible: operators may
+  append names to this file at any time.
+- **FR-012**: The VM MUST be created with Ansible-variable-defined resource
+  defaults: 4 vCPU, 8 GB RAM, 45 GB disk. Operators may override these via
+  extra-vars without modifying the Vagrantfile template.
 
 ### Key Entities
 
-- **Hostname Pool**: A single shared ordered list of LOTR place names. Ships
-  with ten names; the first five are the existing hostnames. Entries are either
-  available or in use and are allocated sequentially — the first name not
-  already in inventory is chosen next.
+- **Hostname Pool**: An ordered list of Star Trek TNG planet names defined in
+  `playbooks/vars/hostname_pool.yml`. Ships with ten names; all entries are
+  available for assignment. Entries are either available or in use and are
+  allocated sequentially — the first name not already in inventory is chosen
+  next.
 - **Inventory Entry**: A record of a VM's hostname, connection details, and
   group membership, persisted in the static inventory file so automation can
   target the VM.
@@ -125,17 +137,40 @@ inventory.
 - **SC-003**: Pool exhaustion is detected and reported before any
   infrastructure change is attempted, with an error message naming the depleted
   pool.
-- **SC-004**: Concurrent VM creation never assigns the same hostname to two
-  VMs.
+- **SC-004**: Concurrent VM creation is not a supported use case; no locking
+  mechanism is implemented. Simultaneous invocations may assign the same
+  hostname. This risk is accepted for a single-operator project (YAGNI).
 
 ## Assumptions
 
-- The hostname pool ships with ten names. The first five are the existing
-  hostnames; five additional LOTR names are chosen during planning. Because a
-  single shared sequential pool is used, the chosen names need not encode any
-  region or platform.
-- Local validation is performed on a host capable of running the local VM
-  platform; the platform has no container-based test path.
+- The hostname pool ships with ten Star Trek TNG planet names (`vulcan`,
+  `romulus`, `betazed`, `qonos`, `risa`, `cardassia`, `bajor`, `veridian`,
+  `remus`, `baku`), all available for assignment. There are no pre-existing
+  VMs to reserve; the pool is a clean slate.
+- Local validation is performed on a macOS ARM64 host with Vagrant and the
+  Tart provider installed; the platform has no container-based test path.
 - If a VM exists on the platform but is absent from the static inventory,
   `destroy-vm.yml` treats it as unknown and fails; manual cleanup of orphaned
   VMs is out of scope.
+
+## Clarifications
+
+### Session 2026-06-06
+
+- Q: What happens to existing LOTR-named VMs when switching to TNG planet
+  names? → A: No existing VMs; clean slate. Pool is all TNG planets, no
+  pre-reserved entries.
+- Q: Which 10 TNG planet names form the hostname pool? → A: `vulcan`,
+  `romulus`, `betazed`, `qonos`, `risa`, `cardassia`, `bajor`, `veridian`,
+  `remus`, `baku`.
+- Q: Which local VM platform does `create-vm.yml` target? → A: Vagrant + Tart
+  (macOS ARM64 only); VM OS: Ubuntu 24.04 LTS.
+- Q: Which file (path + format) is the static inventory? → A:
+  `inventories/vagrant_tart.yml`, YAML, groups `all` / `linux` /
+  `vagrant_tart`.
+- Q: Where does the ordered hostname pool list live? → A:
+  `playbooks/vars/hostname_pool.yml`, included by both playbooks.
+- Q: How should concurrent hostname assignment be prevented? → A: Best-effort
+  only; no locking mechanism; single-operator project (YAGNI).
+- Q: Default VM resource specs and where defined? → A: 4 vCPU, 8 GB RAM,
+  45 GB disk; Ansible variables (operator-overridable via extra-vars).
