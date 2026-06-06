@@ -294,18 +294,12 @@ when no issue is marked `in_progress`.
 
 ## Collaboration with the User
 
-- **Language and style**: Use English throughout. For all user-facing
-  content — chat, code, comments, documentation, beads issues — apply the
-  `caveman full` skill: drop articles, filler, and hedging; fragments OK;
-  short synonyms; technical terms exact. For internal thought processes and
-  inter-LLM communication (subagents, MCP, tool calls) apply the
-  `caveman wenyan-ultra` skill: maximum compression, classical Chinese
-  register. Code blocks, commit messages, and security warnings are always
-  written in normal English regardless of mode.
-- **Language**: chat is in English. For your thinking processes and
-  communication with (sub-)agents use the "caveman wenyan-ultra" skill. For user
-  facing writing (documentation, code, etc.) and chat use "caveman full".
-  Consider all files in `.omc` folder not user facing inter-agent communication.
+- **Language**: English throughout. Apply the caveman skill by audience —
+  `caveman full` for user-facing content (chat, code, comments, documentation,
+  beads issues); `caveman wenyan-ultra` for internal and inter-agent content
+  (thinking, subagents, MCP, tool calls, all files under `.omc/`). Code blocks,
+  commit messages, and security warnings stay in normal English regardless of
+  mode. The skills define each mode.
 - **One question at a time**: when asking the user a question, ask one
   question at a time so they can focus.
 - **Avoid ambiguity**: if instructions are unclear, contradictory, or
@@ -316,20 +310,17 @@ when no issue is marked `in_progress`.
 
 ## Skill index
 
-The table below lists all skills relevant to this project. Local skills are in
-`.claude/skills/`; global skills are installed with the agent runtime. Use it
-to decide which skills to invoke for your current task.
+Skills carrying a constitution-mandated invocation. The agent runtime injects
+the full skill catalog (names + descriptions) each session; only the mandatory
+skill→principle bindings are restated here.
 
-| Skill | Scope | When to invoke |
+| Skill | Invoke when | Principle |
 | --- | --- | --- |
-| [developer](.claude/skills/developer/SKILL.md) | local | Use when expert knowledge of Ansible is required to analyze, implement, or fix features. Project scope: setting up and maintaining virtual machines. |
-| [molecule-testing](.claude/skills/molecule-testing/SKILL.md) | local | Pull in information about the molecule testing setup for Ansible roles. Use when implementing or modifying an Ansible role to set up or maintain its Molecule test scenario. |
-| [review-documentation-here](.claude/skills/review-documentation-here/SKILL.md) | local | Extends review-documentation by project-specific documentation structure, including co-located role documentation. Use when reviewing the project documentation. |
-| [technical-coach](.claude/skills/technical-coach/SKILL.md) | local | Use when expert knowledge of Ansible is required to advise and tutor on automating setup and maintenance of virtual machines. |
-| `commit` | global | Authoritative source for commit format, allowed prefixes, message structure, and co-authorship rules. MUST invoke before creating any commit (Principle V). |
-| `format-markdown` | global | Authoritative Markdown linting ruleset. MUST invoke once at close of task after all Markdown files are finalized (Principle VI). |
-| `fix-problem` | global | Remediation protocol for unexpected obstacles (test failure, tooling error, regression). MUST invoke before attempting fixes (Principle VII). |
-| `review-documentation` | global | Base documentation review strategy and folder structure. Extended by `review-documentation-here` for this project. |
+| `commit` | before creating any commit | V |
+| `format-markdown` | at task close, after all Markdown finalized | VI |
+| `fix-problem` | before fixing any unexpected obstacle | VII |
+| `molecule-testing` | when creating/modifying a role's Molecule scenario | II |
+| `review-documentation-here` | at task close, before `format-markdown` | Documentation Standards |
 
 ## Test environment host architecture
 
