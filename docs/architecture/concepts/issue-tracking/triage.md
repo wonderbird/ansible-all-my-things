@@ -1,6 +1,7 @@
 # Issue triage and next-action determination with beads
 
-> **Validated for:** bd v1.0.4 (ce242a879) · bv v0.16.2 — 2026-06-04.
+> **Validated for:** bd v1.0.4 (ce242a879) · bv v0.16.2 — 2026-06-04;
+> dep-add type matrix re-validated 2026-06-06.
 > Re-validate after bd v1.0.5 only if its changelog mentions parent-child
 > gating, hierarchy/readiness, or `bd ready` behaviour.
 
@@ -31,17 +32,23 @@ A sandbox repo was used to change one wiring variable at a time and record
 | `--parent` (feature / task / epic) | Yes — not gated | No | No |
 | `bd dep add <blocked> <blocker>` (same type) | N/A (blocker is ready) | Yes — absent | Yes |
 | `bd dep add <sib2> <sib1>` | N/A | Yes — sib2 absent | Yes |
-| `bd dep add` across types (epic↔task) | N/A | N/A — rejected | N/A |
+| `bd dep add` non-epic cross-type (e.g. feature←task) | N/A | Yes — blocked absent | Yes |
+| `bd dep add` epic←epic | N/A | Yes | Yes |
+| `bd dep add` epic↔non-epic (either direction) | N/A | N/A — rejected | N/A |
 
 So in bd v1.0.4 `--parent` never blocks anything. It only adds the CHILDREN
 section to `bd show`, a `← parent` annotation in `bd ready`, a non-blocking
 `dep list --direction down` entry, and a (misleading) edge in `bv` graph metrics.
 
-Separately, `bd dep add` only connects two issues of the **same type**. An
-epic↔task edge is refused in both directions — "epics can only block other
-epics, not tasks" and "tasks can only block other tasks, not epics" — and a
-`--parent` link does NOT create an exception (verified epic↔task, both
-directions, with and without `--parent`).
+Separately, `bd dep add` accepts **any pair of issue types except `epic`**: an
+epic connects only to another epic. Only epic↔non-epic edges are refused — in
+**both** directions, with the same error: `Error: epics can only block other
+epics, not tasks` (printed verbatim even when the non-epic is a feature,
+milestone, or gate — the message always says "not tasks"). Every non-epic
+pairing is accepted, same- or cross-type (verified 2026-06-06: `task←task`,
+`feature←task`, `milestone←task`, `gate←task` succeed; `epic←epic` succeeds;
+`epic↔non-epic` rejected both directions). A `--parent` link neither adds nor
+removes any of these — it gates nothing.
 
 **Caveat:** `bd dep cycles` does not catch a cycle formed by mixing `--parent`
 and `bd dep add` in opposite directions between the same two issues. Audit
@@ -63,17 +70,20 @@ bv --robot-triage --format toon  # 6. priority ranking only — never readiness
 1. An issue in `bd ready` is actionable, period — regardless of `dep tree`,
    `dep list`, or `bv unblocks_ids`.
 2. An issue absent from `bd blocked` is not blocked, regardless of `dep list`.
-3. To enforce work order, use `bd dep add` — but a dep edge only connects two
-   issues of the **same type**. `bd dep add <parent> <sub-task>` gates the
-   parent only when both share a type; across types it is rejected (e.g.
-   `bd dep add <epic> <task>` → "epics can only block other epics, not tasks").
-   So a non-epic sub-task CANNOT gate its epic, and an epic CANNOT be gated out
-   of `bd ready` at all (see AGENTS.md "Attaching Issues to Epics"). `--parent`
-   alone sequences nothing and does not lift the same-type restriction.
+3. To enforce work order, use `bd dep add` — it connects **any pair of issue
+   types except `epic`**, which connects only to another epic.
+   `bd dep add <blocked> <blocker>` gates the blocked (first-arg) issue whenever
+   the pair is permitted (any non-epic pair, or epic↔epic). Tasks **can** block
+   tasks. Only epic↔non-epic is rejected — in **both** directions, emitting the
+   same error regardless of argument order or the non-epic's actual type
+   (`Error: epics can only block other epics, not tasks`). So a non-epic
+   sub-task CANNOT gate its epic, and an epic CANNOT be gated out of `bd ready`
+   by any non-epic (see AGENTS.md "Attaching Issues to Epics"). `--parent` alone
+   sequences nothing.
 
-   **Cycle-detector blind spot:** this hazard applies to any same-type
-   container/child pair (cross-type `bd dep add` is rejected, so only same-type
-   pairs can form the edge). If the child was already attached with
+   **Cycle-detector blind spot:** this hazard applies to ANY pair that can form
+   a `bd dep add` edge — any non-epic pair (same- or cross-type) and epic↔epic.
+   If the child was already attached with
    `--parent <container>`, the gating `bd dep add` adds an edge antiparallel to
    that `--parent` edge — the exact pair `bd dep cycles` cannot detect (see the
    [caveat above](#what-the-experiment-proved)). Do not apply this
@@ -82,4 +92,5 @@ bv --robot-triage --format toon  # 6. priority ranking only — never readiness
 
 ---
 
-*Derived from the bd/bv semantics spike (`ansible-all-my-things-8p1t`).*
+*Derived from a bd/bv semantics spike (sandbox experiment, 2026-06-04;
+dep-add type matrix re-validated 2026-06-06).*

@@ -218,10 +218,16 @@ Built-in types and when to use each:
 
 ### Attaching Issues to Epics (epics cannot be gated)
 
-An epic cannot be excluded from `bd ready` by its children:
+`bd dep add` connects **any pair of issue types except `epic`** — an epic
+connects only to another epic. So an epic cannot be gated out of `bd ready`
+by its non-epic children:
 
-- `bd dep add <epic> <non-epic>` is rejected ("epics can only block other
-  epics"), so a non-epic cannot block its epic.
+- `bd dep add` between an epic and a non-epic is rejected in **both**
+  directions (`<epic> <non-epic>` and `<non-epic> <epic>`), each printing
+  `Error: epics can only block other epics, not tasks` (the message always
+  says "not tasks", whatever the real type). A non-epic therefore cannot block
+  its epic. Epic↔epic edges ARE permitted; non-epic pairs gate normally (a
+  task can block a task, a feature, etc.).
 - `--parent` attaches a child for display/scope only. It does NOT gate
   readiness and does NOT exclude the parent from `bd ready`.
 
@@ -233,16 +239,20 @@ An epic with open children therefore REMAINS in `bd ready`. Do not rely on
 `bd ready` exclusion to track epic scope — read the epic's CHILDREN section
 via `bd show <epic-id>` instead. See
 [triage.md](docs/architecture/concepts/issue-tracking/triage.md) for the
-validated `--parent` / `bd ready` semantics (bd v1.0.4 spike).
+validated dep-add type matrix and `--parent` / `bd ready` semantics
+(bd v1.0.4).
 
 ### Beads Dependency Wiring — Cross-Tree Follow-Ups
 
-When an ADR acceptance, review, or policy decision produces follow-up epics
-that impose compliance requirements on in-flight work in a **different epic
-tree**, add those follow-ups as `bd dep` blockers on the affected issue
-immediately. Tracking a follow-up only under its own parent epic — without
-connecting it to the constrained feature — allows premature closure of work
-that is not yet compliant.
+Operationalizes Principle VIII (cross-tree blocking). When a policy or review
+decision constrains in-flight work in another tree, wire the blocking dep
+**immediately** — but mind the type rule: `bd dep add` cannot make an `epic`
+block a non-epic (rejected; see "Attaching Issues to Epics" above). If the
+follow-up is tracked as an epic, use a **non-epic** issue as the actual
+blocker — a concrete task under that epic, or a `gate` checkpoint (verified:
+a `gate` blocks a non-epic and gates it out of `bd ready`). Wire it as
+`bd dep add <in-flight-issue> <non-epic-blocker>` (in-flight depends on
+blocker).
 
 **Signal the next action for the next session**: after wiring the deps, claim
 both the blocked issue and the immediate actionable follow-up:
