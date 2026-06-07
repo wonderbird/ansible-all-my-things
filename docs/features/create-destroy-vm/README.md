@@ -9,7 +9,7 @@ Manage local Ubuntu 24.04 VMs on macOS ARM64 using Vagrant with the Tart provide
 - [`tart`](https://github.com/cirruslabs/tart) CLI
 - [`sshpass`](https://github.com/hudochenkov/sshpass) — required for password-based SSH authentication
   ```bash
-  brew install hudochenkov/sshpass/sshpass
+  brew install sshpass
   ```
 - `ANSIBLE_VAULT_PASSWORD` environment variable set (see [Credentials](#credentials))
 
