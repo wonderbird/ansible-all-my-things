@@ -27,8 +27,8 @@ playbook runs. The path is deterministic from the hostname alone.
 
 ## VM IP Retrieval After `vagrant up`
 
-**Decision** (superseded — see live implementation): Use `tart ip <hostname>`
-polled in an Ansible `until` loop (`retries: 30`, `delay: 10`).
+**Decision**: Use `tart ip <hostname>` polled in an Ansible `until` loop
+(`retries: 30`, `delay: 10`).
 
 **Rationale**: `vagrant ssh-config` was the original plan but was never
 implemented. The live code at `playbooks/tasks/create/tart.yml:99-106` uses
@@ -180,7 +180,7 @@ image download time is excluded; images are cached in practice.
 
 **Run 1** (2026-06-07): wall-clock **19:59** (m:ss), vagrant up delta **19:53**.
 
-```
+```text
 vagrant up started:  2026-06-07 19:48:44
 vagrant up ended:    2026-06-07 20:08:38 (rc=255, killed by operator)
 ```
@@ -188,7 +188,8 @@ vagrant up ended:    2026-06-07 20:08:38 (rc=255, killed by operator)
 Vagrant output sequence:
 
 1. Clone: `Cloning instance romulus` → `Instance romulus cloned` — fast (seconds)
-2. Configure + Start: `Configuring instance romulus` → `Instance romulus started` — fast
+2. Configure + Start: `Configuring instance romulus` →
+   `Instance romulus started` — fast
 3. SSH wait: `Waiting for machine to boot` → `SSH address: 192.168.64.63:22` →
    `Warning: Host unreachable. Retrying...` — **repeated for ~19 minutes until
    operator kill**
@@ -224,34 +225,92 @@ This changes the option analysis:
 - **Option C** (vagrant-tart tuning): cannot eliminate cloud-init time.
   May reduce vagrant overhead marginally but does not address the 17-minute gap.
 
-### Remaining experiments
+### Experiment A and C — invalidated
 
-Experiments A and C are deprioritised given the root-cause finding. Option B
-(pre-built image) is the recommended path to investigate next.
+- **Option C (vagrant tuning)**: no-hostname experiment (removed
+  `node.vm.hostname` from Vagrantfile) was canceled after 5 min — still
+  unacceptably slow. No Vagrantfile knob can remove vagrant-tart's cloud-init
+  injection. Invalidated by measurement.
+- **Option A (direct tart CLI)**: collapsed into the Option B experiment —
+  bare tart of the OCI image achieved SSH-ready in 6s (see below). A and B
+  converge to the same outcome when vagrant is replaced by direct tart calls.
 
-Concrete approach for Option B:
-1. Run a fresh clone to completion (let cloud-init finish, ~17 min).
-2. Stop the VM (`tart stop <name>`).
-3. Export/snapshot it as a new local tart image (`tart export` or copy the
-   stopped VM directory under a new name in `~/.tart/vms/`).
-4. Measure: `tart clone <pre-built-image> <new-name>` + `tart run` + time to
-   SSH-ready. Expected: seconds, not minutes.
-5. If confirmed fast: evaluate whether to maintain this pre-built image as a
-   versioned artefact (triggers Principle II version-update wiring) or rebuild
-   it on demand.
+### Experiment B — pre-built image / bare tart run
 
-### Failure-fidelity note
+**Date**: 2026-06-07. Same host as baseline (M1 Max, tart 2.32.1).
+OCI image `ghcr.io/cirruslabs/ubuntu:24.04` in warm local tart cache.
+No concurrent VMs other than lorien.
 
-Any Option B implementation must preserve the rescue/cleanup/fail-loud
-guarantees of `playbooks/tasks/create/tart.yml:161-178`. If Vagrant is retained
-(wrapping the pre-built image), the rescue block is unchanged. If Vagrant is
-dropped (direct tart CLI), the rescue block must be re-implemented in shell or
-Ansible tasks: `tart stop <name>`, `tart delete <name>`, remove VM dir, fail
-with message.
+**Method**: `tart clone ghcr.io/cirruslabs/ubuntu:24.04 spike-source` +
+`tart run spike-source --no-graphics`. Poll `tart ip spike-source` then
+`nc -z <IP> 22`. Record SSH-ready time. Stop VM. Clone `spike-source` three
+times; measure SSH-ready time per clone using the same poll method.
 
-### Recommendation (preliminary — Option B experiment pending)
+**Source creation** (bare tart, no vagrant): SSH ready in **6s**.
 
-Pursue a pre-built tart image with cloud-init already completed as the
-implementation approach. This is the only option that addresses the measured
-root cause. A full Option B experiment should confirm SSH-ready time is under
-the 300-second target before committing to the approach.
+**Clone SSH-ready times** (3 runs):
+
+| Run | SSH-ready (s) |
+|-----|---------------|
+| 1   | 7             |
+| 2   | 6             |
+| 3   | 7             |
+
+**Min: 6s — Median: 7s — Target: 300s — TARGET MET (43× margin).**
+
+Reduction from baseline: ~17 min → 7s median (approximately 140× faster).
+
+SSH-readiness confirmed for all three runs: `tart ip` returned a non-empty IP
+and `nc -z <IP> 22` confirmed port 22 accepting connections, matching the bar
+at `tart.yml:99-124`.
+
+**Failure-fidelity**: bare tart has no equivalent of the `rescue` block at
+`tart.yml:161-178`. Reimplementation cost is bounded: replace `vagrant destroy
+-f` + dir-remove + `fail` with `tart stop <name>` + `tart delete <name>` +
+dir-remove + `fail`. The guarantees (teardown on failure, fail-loud rollback)
+are fully preservable.
+
+**Root-cause inference**: bare tart (6–7s) versus all vagrant-based experiments
+(17 min minimum, any Vagrantfile configuration) implicates **vagrant-tart's
+cloud-init injection** as the proximate cause of the delay. vagrant-tart injects
+cloud-init configuration (SSH credentials, user setup) via the nocloud
+datasource before first boot. Without this injection, cloud-init completes in
+seconds on this image.
+
+### Recommendation — Option A: replace vagrant with direct tart CLI
+
+**Decision**: replace vagrant in `playbooks/tasks/create/tart.yml` with direct
+`tart` CLI calls (`tart clone`, `tart run`, `tart stop`, `tart delete`). This
+removes vagrant-tart's cloud-init injection — the proximate cause of the delay.
+
+**Decision drivers**:
+
+1. **Boot time**: 6–7s SSH-ready without vagrant — 43× inside the 300s target
+   and approximately 140× faster than baseline.
+2. **Root cause addressed**: direct tart eliminates the cloud-init injection;
+   no amount of vagrant-tart tuning can.
+3. **Failure-handling fidelity**: rescue block reimplementable as Ansible tasks
+   with equivalent guarantees; cost is bounded.
+
+**Alternatives rejected**:
+
+- **Option B (custom pre-built image, vagrant retained)**: achieves similar
+  timing but requires maintaining a versioned image artefact. YAGNI — the stock
+  OCI image is already fast when run without vagrant.
+- **Option C (vagrant-tart tuning)**: no tuning removes vagrant-tart's
+  cloud-init injection. Measured: still > 5 min with any tested Vagrantfile
+  configuration.
+
+**Consequences**:
+
+- `playbooks/tasks/create/tart.yml`: `vagrant up` replaced with `tart clone` +
+  `tart run` as Ansible `command` tasks; idempotency via `creates:`.
+- Rescue block (`tart.yml:161-178`) reimplemented as `tart stop`, `tart delete`,
+  dir-remove, `fail`.
+- **SSH credentials**: vagrant-tart currently injects the `admin` password via
+  cloud-init. Without vagrant, an alternative is required — either a
+  cloud-init `user-data` seed injected before first boot (nocloud datasource),
+  or an SSH key pre-provisioned on the OCI image. This is the primary
+  implementation decision for the follow-up issue.
+- vagrant and vagrant-tart dependencies can be removed if create-vm is their
+  sole use in the project.
