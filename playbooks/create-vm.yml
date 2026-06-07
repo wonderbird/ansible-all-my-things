@@ -5,7 +5,6 @@
   vars:
     vm_cpus: 4
     vm_memory_mb: 8192
-    vm_disk_gb: 45
   tasks:
     - name: Run VM creation tasks
       ansible.builtin.include_tasks: tasks/create/tart.yml
