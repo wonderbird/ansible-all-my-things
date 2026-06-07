@@ -27,26 +27,20 @@ playbook runs. The path is deterministic from the hostname alone.
 
 ## VM IP Retrieval After `vagrant up`
 
-**Decision**: Parse `vagrant ssh-config <hostname>` output after `vagrant up`
-completes, extracting the `HostName` field.
+**Decision** (superseded — see live implementation): Use `tart ip <hostname>`
+polled in an Ansible `until` loop (`retries: 30`, `delay: 10`).
 
-**Rationale**: `vagrant ssh-config` outputs stable, human-readable key-value
-pairs (`HostName`, `Port`, `IdentityFile`) immediately after provisioning.
-Parsing is a single `grep`/`awk` shell pipeline. No additional tooling required.
+**Rationale**: `vagrant ssh-config` was the original plan but was never
+implemented. The live code at `playbooks/tasks/create/tart.yml:99-106` uses
+`tart ip <hostname>` directly, which returns the IP from tart's DHCP lease
+without requiring SSH to be ready first. This avoids the fragile
+`vagrant ssh-config` parse and does not require Vagrant's SSH machinery.
 
-**Implementation sketch**:
+**Alternatives that were considered and rejected**:
 
-```yaml
-- name: Get VM connection details
-  shell: vagrant ssh-config {{ hostname }} | grep HostName | awk '{print $2}'
-  args:
-    chdir: "~/.local/share/ansible-vms/{{ hostname }}"
-  register: vm_ip
-  changed_when: false
-```
-
-**Alternatives considered**:
-
+- `vagrant ssh-config`: original plan (documented here); never implemented
+  because it requires Vagrant's SSH wait to complete before it returns,
+  making it unsuitable as the IP-discovery step.
 - `tart list --format json`: requires parsing JSON and matching by VM name;
   tart VM names include the Vagrant-assigned prefix (e.g. `vagrant_<name>`),
   making the match fragile across Vagrant versions.
@@ -160,3 +154,104 @@ taking `[0]`.
 
 The `fail` task MUST precede the `set_fact` for `hostname` and all VM/infra
 actions (Principle XII).
+
+---
+
+## Spike Findings: Faster Tart VM Boot (r5vs)
+
+### Test environment
+
+| Property | Value |
+|----------|-------|
+| Chip | Apple M1 Max |
+| Cores | 10 (8P + 2E) |
+| RAM | 64 GB |
+| macOS | 26.5.1 (Build 25F80) |
+| tart | 2.32.1 |
+| Vagrant | 2.4.9 |
+| vagrant-tart | 0.0.7 |
+| Image | `ghcr.io/cirruslabs/ubuntu:24.04` (OCI, cached locally) |
+| Concurrent VMs | `lorien` running throughout (pre-existing) |
+
+All measurements are warm-image (OCI image already in tart local cache). Cold
+image download time is excluded; images are cached in practice.
+
+### Baseline — current `vagrant up` flow
+
+**Run 1** (2026-06-07): wall-clock **19:59** (m:ss), vagrant up delta **19:53**.
+
+```
+vagrant up started:  2026-06-07 19:48:44
+vagrant up ended:    2026-06-07 20:08:38 (rc=255, killed by operator)
+```
+
+Vagrant output sequence:
+
+1. Clone: `Cloning instance romulus` → `Instance romulus cloned` — fast (seconds)
+2. Configure + Start: `Configuring instance romulus` → `Instance romulus started` — fast
+3. SSH wait: `Waiting for machine to boot` → `SSH address: 192.168.64.63:22` →
+   `Warning: Host unreachable. Retrying...` — **repeated for ~19 minutes until
+   operator kill**
+
+The rescue block fired correctly on kill: vagrant destroy + directory removal +
+fail-loud message. Idempotency and fail-loud guarantees held.
+
+**SSH-readiness**: operator confirmed manual SSH to the VM succeeded at ~20:05
+(~17 minutes after VM start). Port 22 became reachable only after cloud-init
+completed on the first-boot clone.
+
+**Root cause identified**: the bottleneck is not vagrant overhead — tart clones
+and starts the VM in seconds. The delay is cloud-init initialization on the
+cirruslabs ubuntu:24.04 OCI image. On a fresh clone, cloud-init expands the
+filesystem, configures the network stack, and starts services (including sshd)
+before SSH is reachable. This takes approximately 15–17 minutes on first boot
+from the OCI image on this hardware.
+
+### Key finding
+
+> The "unacceptably slow boot" is cloud-init on first-boot OCI clones, not
+> vagrant overhead. Tart VM clone + start completes in ~10–30 seconds. The
+> remaining ~17 minutes is sshd becoming available after cloud-init.
+
+This changes the option analysis:
+
+- **Option A** (direct tart CLI): faces the **same cloud-init delay**. Bypassing
+  vagrant does not help if the root cause is cloud-init, not vagrant.
+- **Option B** (pre-built image with SSH pre-enabled / cloud-init pre-run):
+  directly addresses the root cause. A tart image cloned from a VM that has
+  already completed cloud-init would be SSH-ready seconds after `tart run`.
+  **This is the highest-leverage option.**
+- **Option C** (vagrant-tart tuning): cannot eliminate cloud-init time.
+  May reduce vagrant overhead marginally but does not address the 17-minute gap.
+
+### Remaining experiments
+
+Experiments A and C are deprioritised given the root-cause finding. Option B
+(pre-built image) is the recommended path to investigate next.
+
+Concrete approach for Option B:
+1. Run a fresh clone to completion (let cloud-init finish, ~17 min).
+2. Stop the VM (`tart stop <name>`).
+3. Export/snapshot it as a new local tart image (`tart export` or copy the
+   stopped VM directory under a new name in `~/.tart/vms/`).
+4. Measure: `tart clone <pre-built-image> <new-name>` + `tart run` + time to
+   SSH-ready. Expected: seconds, not minutes.
+5. If confirmed fast: evaluate whether to maintain this pre-built image as a
+   versioned artefact (triggers Principle II version-update wiring) or rebuild
+   it on demand.
+
+### Failure-fidelity note
+
+Any Option B implementation must preserve the rescue/cleanup/fail-loud
+guarantees of `playbooks/tasks/create/tart.yml:161-178`. If Vagrant is retained
+(wrapping the pre-built image), the rescue block is unchanged. If Vagrant is
+dropped (direct tart CLI), the rescue block must be re-implemented in shell or
+Ansible tasks: `tart stop <name>`, `tart delete <name>`, remove VM dir, fail
+with message.
+
+### Recommendation (preliminary — Option B experiment pending)
+
+Pursue a pre-built tart image with cloud-init already completed as the
+implementation approach. This is the only option that addresses the measured
+root cause. A full Option B experiment should confirm SSH-ready time is under
+the 300-second target before committing to the approach.
