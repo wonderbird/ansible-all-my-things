@@ -317,19 +317,15 @@ This repository is a fork. Two remotes exist:
 - **`origin`** — `eudicy/ansible-all-my-things`: the fork and the agent's
   workspace. **All pushes go to `origin` only.**
 - **`upstream`** — `wonderbird/ansible-all-my-things`: **READ-ONLY.** Never
-  push, force-push, merge, or otherwise write to it. Pull requests that target
-  `wonderbird` are merged manually by the user on GitHub. Never run
-  `gh pr merge`, push directly to `upstream`, or merge locally and push to
-  `upstream`.
+  push, force-push, merge, or otherwise write to it.
 
 **`gh pr create` gotcha:** in a fork, `gh pr create` defaults the *target*
 repository to `upstream`, and without `--repo` it may not reference the fork
-where the commits actually live. For a cross-repo PR (fork branch → upstream
-`main`):
+where the commits actually live. Always specify the target repo explicitly:
 
 ```bash
-gh pr create --repo wonderbird/ansible-all-my-things \
-  --head eudicy:<branch> --base main
+gh pr create --repo eudicy/ansible-all-my-things \
+  --head <branch> --base main
 ```
 
 **Branch naming:** branch names MUST allow the associated epic (or work item)
