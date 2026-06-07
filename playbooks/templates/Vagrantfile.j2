@@ -2,7 +2,11 @@
 # vi: set ft=ruby :
 
 Vagrant.configure("2") do |config|
-  config.vm.communicator = "none"
+  config.vm.boot_timeout = 0
+
+  config.ssh.username = "admin"
+  config.ssh.password = "{{ vagrant_tart_admin_password }}"
+  config.ssh.insert_key = false
 
   config.vm.provider "tart" do |tart|
     tart.image = "ghcr.io/cirruslabs/ubuntu:24.04"
