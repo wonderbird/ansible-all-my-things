@@ -63,6 +63,8 @@ playbooks/
 ├── destroy-vm.yml                 # Orchestrates inventory-check → destroy → inventory update
 ├── vars/
 │   └── hostname_pool.yml          # Ordered TNG planet name list (10 entries)
+├── templates/
+│   └── Vagrantfile.j2             # Jinja2 template rendered per-VM at create time
 └── tasks/
     ├── create/
     │   └── tart.yml               # Vagrant+Tart VM creation tasks
