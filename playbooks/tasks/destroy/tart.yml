@@ -1,0 +1,73 @@
+---
+- name: Load current inventory
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../inventories/vagrant_tart.yml"
+    name: current_inventory
+
+- name: Assert hostname variable is defined
+  ansible.builtin.assert:
+    that: hostname is defined and hostname | length > 0
+    fail_msg: >-
+      Required variable 'hostname' is not defined.
+      Run: ansible-playbook playbooks/destroy-vm.yml -e hostname=<name>
+
+- name: Assert hostname is present in inventory
+  ansible.builtin.assert:
+    that: hostname in (current_inventory.all.hosts | default({}))
+    fail_msg: >-
+      Hostname '{{ hostname }}' is not present in inventories/vagrant_tart.yml.
+      Verify the hostname or check available entries in the inventory file.
+
+- name: Set VM directory path
+  ansible.builtin.set_fact:
+    vm_dir: "{{ ansible_env.HOME }}/.local/share/ansible-vms/{{ hostname }}"
+
+- name: Check if VM directory exists
+  ansible.builtin.stat:
+    path: "{{ vm_dir }}"
+  register: vm_dir_stat
+
+- name: Warn if VM directory is absent (stale inventory entry)
+  ansible.builtin.debug:
+    msg: >-
+      WARNING: VM directory '{{ vm_dir }}' does not exist but '{{ hostname }}' is in
+      inventory. Proceeding with inventory cleanup only.
+  when: not vm_dir_stat.stat.exists
+
+- name: Destroy VM with vagrant
+  ansible.builtin.shell:
+    cmd: vagrant destroy -f
+    chdir: "{{ vm_dir }}"
+  when: vm_dir_stat.stat.exists
+  changed_when: vm_dir_stat.stat.exists
+
+- name: Build cleaned inventory without destroyed host
+  ansible.builtin.set_fact:
+    cleaned_inventory: >-
+      {{
+        {
+          'all': {
+            'hosts': (current_inventory.all.hosts | default({}) | dict2items
+                      | selectattr('key', '!=', hostname) | list | items2dict)
+          },
+          'linux': {
+            'hosts': (current_inventory.linux.hosts | default({}) | dict2items
+                      | selectattr('key', '!=', hostname) | list | items2dict)
+          },
+          'vagrant_tart': {
+            'hosts': (current_inventory.vagrant_tart.hosts | default({}) | dict2items
+                      | selectattr('key', '!=', hostname) | list | items2dict)
+          }
+        }
+      }}
+
+- name: Write cleaned inventory
+  ansible.builtin.copy:
+    content: "{{ cleaned_inventory | to_nice_yaml(indent=2) }}"
+    dest: "{{ playbook_dir }}/../inventories/vagrant_tart.yml"
+    mode: "0644"
+
+- name: Assert hostname removed from inventory
+  ansible.builtin.assert:
+    that: hostname not in (cleaned_inventory.all.hosts | default({}))
+    fail_msg: "Failed to remove '{{ hostname }}' from inventories/vagrant_tart.yml"

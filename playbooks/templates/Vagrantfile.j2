@@ -1,0 +1,21 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.provider "tart" do |tart|
+    tart.image = "ghcr.io/cirruslabs/ubuntu:24.04"
+    tart.name = "{{ hostname }}"
+    tart.cpus = {{ vm_cpus }}
+    tart.memory = {{ vm_memory_mb }}
+    tart.disk = {{ vm_disk_gb }}
+  end
+
+  config.ssh.username = "admin"
+  config.ssh.password = "admin"
+
+  config.vm.define "{{ hostname }}" do |node|
+    node.vm.hostname = "{{ hostname }}"
+  end
+
+end
