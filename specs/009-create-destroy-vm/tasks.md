@@ -34,8 +34,11 @@ No test tasks — not requested in the specification.
 
 - [ ] T003 Create `playbooks/templates/Vagrantfile.j2` — Jinja2 template for per-VM
   Vagrantfiles; variables: `hostname`, `vm_cpus`, `vm_memory_mb`, `vm_disk_gb`;
-  modelled on `test/tart/Vagrantfile`; image `ghcr.io/cirruslabs/ubuntu:latest`;
-  SSH user `admin`/`admin`
+  modelled on `test/tart/Vagrantfile`; image `ghcr.io/cirruslabs/ubuntu:24.04`
+  (verify exact tag at implementation — `:latest` not pinned to 24.04 LTS;
+  FR-002 requires 24.04 LTS explicitly); SSH user `admin`/`admin`; machine MUST
+  be defined as `config.vm.define "{{ hostname }}"` so
+  `vagrant ssh-config {{ hostname }}` in T006 resolves correctly
 
 **Checkpoint**: Template ready — US1 implementation can begin.
 
@@ -57,10 +60,14 @@ contains the new host entry in all three groups.
   `playbooks/vars/hostname_pool.yml`) **before any VM or infra action** (FR-007,
   Principle XII), set `hostname` to first unused pool entry
 - [ ] T005 [US1] Extend `playbooks/tasks/create/tart.yml` — VM creation block:
-  create `~/.local/share/ansible-vms/{{ hostname }}/` via `file` module, render
-  `Vagrantfile.j2` into that directory via `template` module; run `vagrant up`
-  via `shell` with `creates: ~/.local/share/ansible-vms/{{ hostname }}/.vagrant`
-  guard (Principle I); `chdir` to vm\_dir
+  set `vm_dir` via `set_fact` to
+  `"{{ ansible_env.HOME }}/.local/share/ansible-vms/{{ hostname }}"`;
+  create `vm_dir` via `file` module, render `Vagrantfile.j2` into `vm_dir` via
+  `template` module; run `vagrant up` via `shell` with `creates:` set to
+  `"{{ vm_dir }}/.vagrant/machines/{{ hostname }}/tart/private_key"`
+  (Principle I — key exists only after successful `vagrant up` and is removed
+  by `vagrant destroy`, preventing stale-guard skips on hostname reuse);
+  `chdir` to `vm_dir`
 - [ ] T006 [US1] Extend `playbooks/tasks/create/tart.yml` — IP retrieval: run
   `vagrant ssh-config {{ hostname }} | grep HostName | awk '{print $2}'` via
   `shell`, `chdir` vm\_dir, `changed_when: false`; assert result non-empty
@@ -95,10 +102,12 @@ and `vulcan` is absent from all groups in `inventories/vagrant_tart.yml`.
   in `all.hosts` with actionable error message (FR-010, Principle XII) **before
   any VM or infra action**
 - [ ] T010 [US2] Extend `playbooks/tasks/destroy/tart.yml` — VM destruction block:
-  set `vm_dir` to `~/.local/share/ansible-vms/{{ hostname }}`; run `vagrant
-  destroy -f` via `shell`, `chdir` vm\_dir, `when: vm_dir stat exists`; emit
-  `warn` if vm\_dir absent (VM already gone — stale inventory entry; spec edge
-  case)
+  set `vm_dir` to `~/.local/share/ansible-vms/{{ hostname }}`; run
+  `ansible.builtin.stat` on `vm_dir`, register `vm_dir_stat`; run `vagrant
+  destroy -f` via `shell`, `chdir` vm_dir,
+  `when: vm_dir_stat.stat.exists` (Principle I); emit `ansible.builtin.debug`
+  warn message `when: not vm_dir_stat.stat.exists` (VM already gone — stale
+  inventory entry; spec edge case)
 - [ ] T011 [US2] Extend `playbooks/tasks/destroy/tart.yml` — inventory cleanup:
   load `inventories/vagrant_tart.yml` (include\_vars), rebuild each group's
   `hosts` dict via `dict2items | selectattr('key','!=',hostname) | items2dict`;
