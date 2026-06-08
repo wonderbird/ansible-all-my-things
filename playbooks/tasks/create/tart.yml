@@ -76,7 +76,7 @@
     - name: Clone VM from OCI image
       ansible.builtin.command:
         cmd: "tart clone ghcr.io/cirruslabs/ubuntu:24.04 {{ hostname }}"
-        creates: "{{ ansible_env.HOME }}/.tart/vms/{{ hostname }}"
+        creates: "{{ ansible_facts['env']['HOME'] }}/.tart/vms/{{ hostname }}"
 
     - name: Get VM running state
       ansible.builtin.shell:
