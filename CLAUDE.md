@@ -1,3 +1,4 @@
+<!-- bd-doctor-divergence: ok -->
 # CLAUDE.md
 
 This project's authoritative guidance lives in **`AGENTS.md`** (agent
@@ -11,5 +12,7 @@ runtime) and **`.specify/memory/constitution.md`** (project rules).
 Do not proceed until both are read. Do not duplicate rules here — update
 `AGENTS.md` or the constitution instead.
 
-<!-- bd-doctor-divergence: ok -->
+## End of file
 
+This file must not be extended. Write to `AGENTS.md` or the constitution
+instead.

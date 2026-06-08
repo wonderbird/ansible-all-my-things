@@ -1,0 +1,14 @@
+---
+- name: Destroy Tart VM
+  hosts: localhost
+  gather_facts: true
+  pre_tasks:
+    - name: Assert hostname variable is defined
+      ansible.builtin.assert:
+        that: hostname is defined and hostname | length > 0
+        fail_msg: >-
+          Required variable 'hostname' is not defined.
+          Run: ansible-playbook playbooks/destroy-vm.yml -e hostname=<name>
+  tasks:
+    - name: Run VM destruction tasks
+      ansible.builtin.include_tasks: tasks/destroy/tart.yml

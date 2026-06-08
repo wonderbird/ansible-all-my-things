@@ -1,0 +1,11 @@
+hostname_pool:
+  - vulcan
+  - romulus
+  - betazed
+  - qonos
+  - risa
+  - cardassia
+  - bajor
+  - veridian
+  - remus
+  - baku
