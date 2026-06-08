@@ -128,7 +128,7 @@
       delegate_to: "{{ vm_ip }}"
       vars:
         ansible_user: admin
-        ansible_ssh_pass: "{{ tart_admin_password }}"
+        ansible_ssh_pass: "{{ hostvars[inventory_hostname]['tart_admin_password'] }}"
         ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
     - name: Build updated inventory with new host
