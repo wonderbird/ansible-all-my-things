@@ -122,11 +122,14 @@
         vm_ip: "{{ vm_ip_result.stdout | trim }}"
 
     - name: Wait for SSH on VM
-      ansible.builtin.wait_for:
-        host: "{{ vm_ip }}"
-        port: 22
+      ansible.builtin.wait_for_connection:
         timeout: 300
         delay: 5
+      delegate_to: "{{ vm_ip }}"
+      vars:
+        ansible_user: admin
+        ansible_ssh_pass: "{{ tart_admin_password }}"
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
     - name: Build updated inventory with new host
       ansible.builtin.set_fact:
