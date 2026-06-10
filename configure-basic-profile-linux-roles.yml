@@ -1,0 +1,15 @@
+---
+- name: Configure basic profile linux roles
+  hosts: tart
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+
+  roles:
+    - podman
+    - ruby
+    - python
+    - dolt_sql_server
+    - claude_code

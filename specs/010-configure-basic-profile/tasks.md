@@ -122,7 +122,7 @@ repository documentation/quality gates.
 `quickstart.md` Prerequisites and AGENTS.md "Test environment host
 architecture" — check `uname -m` if running on an unfamiliar host).
 
-- [ ] T004 [US1] [US2] Run the quickstart end-to-end validation from
+- [x] T004 [US1] [US2] Run the quickstart end-to-end validation from
   `specs/010-configure-basic-profile/quickstart.md` on a macOS ARM64 host:
   (1) `ansible-playbook create-vm.yml` to create a fresh tart VM; (2) run
   `ansible-playbook configure-basic-profile.yml` with no extra-vars
