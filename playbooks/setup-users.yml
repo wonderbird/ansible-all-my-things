@@ -50,11 +50,12 @@
       loop: "{{ all_users }}"
 
     - name: Disable password authentication for SSH
-      lineinfile:
-        path: /etc/ssh/sshd_config
-        regexp: '^PasswordAuthentication'
-        line: 'PasswordAuthentication no'
-        state: present
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/10-disable-password-auth.conf
+        content: "PasswordAuthentication no\n"
+        owner: root
+        group: root
+        mode: '0644'
       notify: Restart SSH
 
     - name: .bash_profile must exist
