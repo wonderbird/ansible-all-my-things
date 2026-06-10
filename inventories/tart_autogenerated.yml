@@ -1,0 +1,15 @@
+# AUTO-GENERATED — do not edit manually. Overwritten by create-vm.yml and destroy-vm.yml.
+all:
+  hosts:
+    cardassia:
+      ansible_host: 192.168.64.86
+      ansible_port: 22
+      ansible_ssh_common_args: -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+      ansible_ssh_pass: admin
+      ansible_user: admin
+linux:
+  hosts:
+    cardassia: {}
+tart:
+  hosts:
+    cardassia: {}
