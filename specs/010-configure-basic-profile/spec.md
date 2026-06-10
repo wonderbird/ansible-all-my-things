@@ -1,6 +1,6 @@
 # Feature Specification: Configure Basic Profile for Tart VMs
 
-**Feature Branch**: `010-configure-basic-profile`
+**Feature Branch**: `010-configure-profile`
 **Created**: 2026-06-10
 **Status**: Draft
 
@@ -11,7 +11,7 @@
 An operator has just created a new tart Linux VM with `create-vm.yml`. The VM
 is in its bare cloud-image state: it has only a default pre-existing account,
 no configured users, default packages, default timezone, and no development
-tooling. The operator runs `configure-basic-profile.yml` against the `tart`
+tooling. The operator runs `configure-profile.yml` against the `tart`
 inventory group with no extra-vars. The playbook sets up user accounts and SSH
 access, brings the OS packages and timezone to the project's standard, installs
 the Node.js toolchain for desktop users, installs and configures the standard
@@ -22,7 +22,7 @@ ready for development work.
 freshly-created VM requires manual, error-prone setup before it can be used.
 
 **Independent Test**: Run `create-vm.yml` to create a new tart VM, then run
-`configure-basic-profile.yml` against the `tart` group with no extra-vars.
+`configure-profile.yml` against the `tart` group with no extra-vars.
 Verify the operator can SSH in as `my_ansible_user` and as each configured
 desktop user using their SSH key (no password), and that podman, ruby,
 python, the Dolt SQL server, and the Claude Code CLI are all available.
@@ -30,7 +30,7 @@ python, the Dolt SQL server, and the Claude Code CLI are all available.
 **Acceptance Scenarios**:
 
 1. **Given** a freshly created tart VM reachable only via its default
-   pre-existing account, **When** `configure-basic-profile.yml` runs against
+   pre-existing account, **When** `configure-profile.yml` runs against
    the `tart` group with no extra-vars, **Then** the playbook completes
    successfully and `my_ansible_user` and all `desktop_users` exist as members
    of the sudo group, each with their SSH public key installed for passwordless
@@ -52,14 +52,14 @@ python, the Dolt SQL server, and the Claude Code CLI are all available.
    server, and the Claude Code CLI are all installed and configured.
 6. **Given** a VM configured by Scenario 1 where the OS reports a pending
    reboot is required (e.g. after a kernel update), **When**
-   `configure-basic-profile.yml` runs, **Then** the VM reboots and the
+   `configure-profile.yml` runs, **Then** the VM reboots and the
    playbook waits for it to come back online before completing successfully.
 
 ---
 
 ### User Story 2 - Re-running the playbook is a no-op (Priority: P2)
 
-An operator has already run `configure-basic-profile.yml` successfully once
+An operator has already run `configure-profile.yml` successfully once
 against a tart VM. They run it again — for example, to confirm the VM's
 configuration still matches the desired baseline, or because they are unsure
 whether the first run completed. The second run reports that nothing changed.
@@ -70,13 +70,13 @@ side-effect-free, so it can be used as a routine "make sure the VM is in the
 right state" check.
 
 **Independent Test**: After completing User Story 1's scenario, run
-`configure-basic-profile.yml` again against the same VM with no extra-vars and
+`configure-profile.yml` again against the same VM with no extra-vars and
 verify the run reports no changes to any task.
 
 **Acceptance Scenarios**:
 
 1. **Given** a tart VM already configured by a successful run of
-   `configure-basic-profile.yml`, **When** the playbook is run again with no
+   `configure-profile.yml`, **When** the playbook is run again with no
    extra-vars, **Then** every task reports no change and the playbook
    completes successfully.
 
@@ -84,7 +84,7 @@ verify the run reports no changes to any task.
 
 ### Edge Cases
 
-- What happens if `configure-basic-profile.yml` is run against a VM that was
+- What happens if `configure-profile.yml` is run against a VM that was
   never processed by `create-vm.yml` (e.g. a VM that already has
   `my_ansible_user` configured, but not via the default bootstrap account)?
   The playbook is expected to be run against tart-group VMs in their
@@ -107,7 +107,7 @@ verify the run reports no changes to any task.
 ### Functional Requirements
 
 - **FR-001**: The system MUST provide a single playbook,
-  `configure-basic-profile.yml`, runnable against the `tart` inventory group
+  `configure-profile.yml`, runnable against the `tart` inventory group
   with no extra-vars required for the common case.
 - **FR-002**: The system MUST be able to connect to a freshly created tart VM
   using its pre-existing default account (which exists before
@@ -151,7 +151,7 @@ verify the run reports no changes to any task.
   wait for it to come back online before the playbook completes
   successfully. If no reboot is required, the playbook completes without
   rebooting.
-- **FR-020**: Every task performed by `configure-basic-profile.yml` MUST be
+- **FR-020**: Every task performed by `configure-profile.yml` MUST be
   idempotent: running the playbook again against an already-configured VM MUST
   report no further changes.
 - **FR-021**: The system MUST NOT require any new Ansible Galaxy collections
@@ -178,7 +178,7 @@ verify the run reports no changes to any task.
 - **SC-001**: An operator brings a freshly created tart VM to a fully
   configured, development-ready baseline with a single command and no
   extra-vars.
-- **SC-002**: After one successful run of `configure-basic-profile.yml`, all
+- **SC-002**: After one successful run of `configure-profile.yml`, all
   configured users (`my_ansible_user` and every `desktop_users` entry) can log
   in to the VM via SSH using their key, with no password prompt, and SSH
   password authentication is rejected.
@@ -189,13 +189,13 @@ verify the run reports no changes to any task.
   `prettier`, and `typescript` available as global commands.
 - **SC-005**: After one successful run, podman, Ruby, Python, the Dolt SQL
   server, and the Claude Code CLI are all installed and configured on the VM.
-- **SC-006**: A second run of `configure-basic-profile.yml` against the same
+- **SC-006**: A second run of `configure-profile.yml` against the same
   VM, with no extra-vars, reports zero changed tasks.
 
 ## Assumptions
 
-- `configure-basic-profile.yml` is run manually as the second step of a
-  two-step workflow (`create-vm.yml` then `configure-basic-profile.yml`)
+- `configure-profile.yml` is run manually as the second step of a
+  two-step workflow (`create-vm.yml` then `configure-profile.yml`)
   against VMs in the `tart` inventory group, in the state `create-vm.yml`
   leaves them in (default account only, no `my_ansible_user` yet).
 - The default bootstrap account name for the `tart` inventory group is

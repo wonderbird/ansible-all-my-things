@@ -6,7 +6,7 @@ document records the decisions and the precedent each one follows.
 
 ## Decision: Orchestrator playbook structure
 
-**Decision**: `configure-basic-profile.yml` is a flat `import_playbook` chain
+**Decision**: `configure-profile.yml` is a flat `import_playbook` chain
 at the repository root:
 
 ```yaml
@@ -14,13 +14,13 @@ at the repository root:
 - import_playbook: playbooks/setup-users.yml
 - import_playbook: playbooks/setup-basics.yml
 - import_playbook: playbooks/setup-nodejs.yml
-- import_playbook: configure-basic-profile-linux-roles.yml
+- import_playbook: configure-profile-roles.yml
 - import_playbook: playbooks/reboot-if-required.yml
 ```
 
 **Rationale**: `configure-linux.yml` (existing, repo root) already establishes
 this exact pattern — a sequence of `import_playbook` statements with no
-inline tasks. `configure-basic-profile.yml` reuses the same building blocks
+inline tasks. `configure-profile.yml` reuses the same building blocks
 minus the desktop-only steps (`setup-homebrew.yml`, `setup-desktop.yml`,
 `setup-keyring.yml`, `setup-desktop-apps.yml`, `restore.yml`) that FR-018
 explicitly excludes for a tart VM with no desktop environment.
@@ -30,7 +30,7 @@ explicitly excludes for a tart VM with no desktop environment.
 - *Inline tasks in a single playbook*: rejected — violates Principle II
   (playbooks MUST only orchestrate roles/playbooks, no implementation logic).
 - *New shared "basic" sub-playbook included by both `configure-linux.yml` and
-  `configure-basic-profile.yml`*: rejected as premature abstraction
+  `configure-profile.yml`*: rejected as premature abstraction
   (Principle IV, YAGNI) — the four reused playbooks (`setup-users.yml`,
   `setup-basics.yml`, `setup-nodejs.yml`, `reboot-if-required.yml`) are
   already independently reusable `import_playbook` targets; no new
@@ -38,7 +38,7 @@ explicitly excludes for a tart VM with no desktop environment.
 
 ## Decision: Roles-application playbook scoped to `tart` group
 
-**Decision**: `configure-basic-profile-linux-roles.yml` mirrors
+**Decision**: `configure-profile-roles.yml` mirrors
 `configure-linux-roles.yml`'s structure (`become: true`, `ansible_user:
 {{ my_ansible_user }}`, `desktop_user_names` derived the same way) but targets
 `hosts: tart` and lists only the five roles required by FR-013–FR-017:
@@ -126,15 +126,15 @@ Principle IV (YAGNI) both require avoiding unused dependencies.
 
 ## Decision: End-to-end validation strategy (Principle III)
 
-**Decision**: `configure-basic-profile.yml` itself is validated by running it
+**Decision**: `configure-profile.yml` itself is validated by running it
 against a real tart VM created via `create-vm.yml` (the two-step operator
 workflow documented in [quickstart.md](quickstart.md)). No new Molecule
 scenario is created for the orchestrator playbooks.
 
 **Rationale**: The five composed roles are each independently covered by a
 passing `molecule/default/` scenario (Principle II is already satisfied for
-each role). `configure-basic-profile.yml` and
-`configure-basic-profile-linux-roles.yml` contain zero implementation logic of
+each role). `configure-profile.yml` and
+`configure-profile-roles.yml` contain zero implementation logic of
 their own — there is nothing role-shaped to test in a container. This mirrors
 how `create-vm.yml`/`destroy-vm.yml` (an orchestration-only feature, see
 `specs/009-create-destroy-vm/plan.md`) were validated: end-to-end on the real
@@ -142,9 +142,9 @@ target, not via Molecule.
 
 **Alternatives considered**:
 
-- *New Molecule scenario for `configure-basic-profile-linux-roles.yml`*:
+- *New Molecule scenario for `configure-profile-roles.yml`*:
   rejected — Molecule's container driver cannot exercise the full
   `setup-users.yml` SSH-key/sudo flow realistically (no SSH daemon
   reconfiguration semantics needed there), and the role-level scenarios
-  already cover the role content that `configure-basic-profile-linux-roles.yml`
+  already cover the role content that `configure-profile-roles.yml`
   merely lists.

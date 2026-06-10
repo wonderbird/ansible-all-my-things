@@ -13,7 +13,7 @@
 ### Step 1: Create the VM
 
 ```bash
-ansible-playbook create-vm.yml
+ansible-playbook playbooks/create-vm.yml
 ```
 
 Prints the assigned hostname on completion. The VM is registered in
@@ -23,7 +23,7 @@ groups, reachable via the default `admin` bootstrap account.
 ### Step 2: Configure the basic profile
 
 ```bash
-ansible-playbook configure-basic-profile.yml
+ansible-playbook playbooks/configure-profile.yml
 ```
 
 No extra-vars required. On completion:
@@ -48,7 +48,7 @@ human-required steps are the one-time host **Prerequisites** above (tart,
 sshpass, vault secrets); everything below is agent-executable.
 
 Run the **Two-step operator workflow** above first (`create-vm.yml` then
-`configure-basic-profile.yml`), capturing the hostname `create-vm.yml`
+`configure-profile.yml`), capturing the hostname `create-vm.yml`
 prints. Then run the following as a single shell session:
 
 ```bash
@@ -118,7 +118,7 @@ fi
 # Scenario 6: reboot-if-required
 reboot_pending=$(ssh_run "$ADMIN_USER" "ls /var/run/reboot-required* 2>/dev/null")
 if [ -z "$reboot_pending" ]; then
-  echo "Scenario 6: PASS (no pending reboot; the preceding configure-basic-profile.yml run must also have completed with failed=0)"
+  echo "Scenario 6: PASS (no pending reboot; the preceding configure-profile.yml run must also have completed with failed=0)"
 else
   echo "Scenario 6: FAIL - reboot still pending: [$reboot_pending]"
 fi
@@ -127,14 +127,14 @@ fi
 ## Re-run check (US2 idempotency)
 
 ```bash
-ansible-playbook configure-basic-profile.yml --limit "$HOSTNAME" -v 2>&1 \
-  | sed -E 's/\x1b\[[0-9;]*m//g' > /tmp/configure-basic-profile-rerun.log
+ansible-playbook playbooks/configure-profile.yml --limit "$HOSTNAME" -v 2>&1 \
+  | sed -E 's/\x1b\[[0-9;]*m//g' > /tmp/configure-profile-rerun.log
 
-if grep -qE "^$HOSTNAME +: ok=[0-9]+ +changed=0 " /tmp/configure-basic-profile-rerun.log; then
+if grep -qE "^$HOSTNAME +: ok=[0-9]+ +changed=0 " /tmp/configure-profile-rerun.log; then
   echo "US2: PASS"
 else
   echo "US2: FAIL - changed tasks present, see below"
-  grep -B8 "changed: \[$HOSTNAME\]" /tmp/configure-basic-profile-rerun.log
+  grep -B8 "changed: \[$HOSTNAME\]" /tmp/configure-profile-rerun.log
 fi
 ```
 

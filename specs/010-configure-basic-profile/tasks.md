@@ -5,8 +5,8 @@ description: "Task list for Configure Basic Profile for Tart VMs"
 
 # Tasks: Configure Basic Profile for Tart VMs
 
-**Input**: Design documents from `/specs/010-configure-basic-profile/`
-**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/configure-basic-profile.md, quickstart.md
+**Input**: Design documents from `/specs/010-configure-profile/`
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/configure-profile.md, quickstart.md
 
 **Tests**: No automated test tasks are generated. Per `research.md`'s "End-to-end
 validation strategy" decision, the five composed roles already have passing
@@ -39,7 +39,7 @@ root.
 
 ## Phase 1: User Story 1 - Bring a fresh tart VM to a baseline (Priority: P1) 🎯 MVP
 
-**Goal**: A single playbook, `configure-basic-profile.yml`, run with no
+**Goal**: A single playbook, `configure-profile.yml`, run with no
 extra-vars against the `tart` inventory group, brings a freshly-created tart
 VM (from `create-vm.yml`) to a development-ready baseline: configured users
 with SSH/sudo access, OS packages and timezone baseline, Node.js toolchain for
@@ -47,7 +47,7 @@ desktop users, the five standard development tool roles (podman, ruby, python,
 dolt_sql_server, claude_code), and a conditional reboot.
 
 **Independent Test**: Run `create-vm.yml` to create a new tart VM, then run
-`ansible-playbook configure-basic-profile.yml` against the `tart` group with
+`ansible-playbook configure-profile.yml` against the `tart` group with
 no extra-vars. Verify the operator can SSH in as `my_ansible_user` and as each
 configured desktop user using their SSH key (no password), and that podman,
 ruby, python, the Dolt SQL server, and the Claude Code CLI are all available.
@@ -62,7 +62,7 @@ ruby, python, the Dolt SQL server, and the Claude Code CLI are all available.
   by `playbooks/setup-users.yml` as the initial `ansible_user` for hosts in
   the `tart` group (FR-002, data-model.md "Default Bootstrap Account").
 
-- [x] T002 [US1] Create `configure-basic-profile-linux-roles.yml` (repo root):
+- [x] T002 [US1] Create `configure-profile-roles.yml` (repo root):
   a single play with `name: Configure basic profile linux roles`,
   `hosts: tart`, `become: true`, `vars: { ansible_user: "{{ my_ansible_user }}",
   desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}" }`,
@@ -73,16 +73,16 @@ ruby, python, the Dolt SQL server, and the Claude Code CLI are all available.
   Depends on: T001 (admin_user_on_fresh_system must resolve for the `tart`
   group before any play in the chain runs).
 
-- [x] T003 [US1] Create `configure-basic-profile.yml` (repo root): a flat
+- [x] T003 [US1] Create `configure-profile.yml` (repo root): a flat
   `import_playbook` chain, in order —
   `playbooks/setup-users.yml`, `playbooks/setup-basics.yml`,
-  `playbooks/setup-nodejs.yml`, `configure-basic-profile-linux-roles.yml`,
+  `playbooks/setup-nodejs.yml`, `configure-profile-roles.yml`,
   `playbooks/reboot-if-required.yml` — mirroring `configure-linux.yml`'s
   pattern minus the desktop-only steps excluded by FR-018
   (research.md "Orchestrator playbook structure"). Depends on: T002 (the
-  orchestrator imports `configure-basic-profile-linux-roles.yml`).
+  orchestrator imports `configure-profile-roles.yml`).
 
-**Checkpoint**: User Story 1 is fully implemented. `configure-basic-profile.yml`
+**Checkpoint**: User Story 1 is fully implemented. `configure-profile.yml`
 can be run end-to-end against a freshly-created tart VM (validated manually in
 Phase 3, since this is a macOS ARM64 host requirement per AGENTS.md).
 
@@ -90,12 +90,12 @@ Phase 3, since this is a macOS ARM64 host requirement per AGENTS.md).
 
 ## Phase 2: User Story 2 - Re-running the playbook is a no-op (Priority: P2)
 
-**Goal**: A second run of `configure-basic-profile.yml` against an
+**Goal**: A second run of `configure-profile.yml` against an
 already-configured tart VM, with no extra-vars, reports zero changed tasks
 (FR-020, SC-006).
 
 **Independent Test**: After completing User Story 1's independent test, run
-`ansible-playbook configure-basic-profile.yml` again against the same VM with
+`ansible-playbook configure-profile.yml` again against the same VM with
 no extra-vars and verify the run reports `changed=0` across all plays.
 
 ### Implementation for User Story 2
@@ -103,7 +103,7 @@ no extra-vars and verify the run reports `changed=0` across all plays.
 This story requires no new or modified files beyond those created in User
 Story 1 (T001–T003). It is a verification-only activity confirming the
 already-idempotent composed playbooks/roles (per `contracts/
-configure-basic-profile.md`'s "Idempotency" section) behave idempotently when
+configure-profile.md`'s "Idempotency" section) behave idempotently when
 chained together by this feature's new orchestrator. The verification itself
 is performed in Phase 3 (T004, second invocation).
 
@@ -123,22 +123,22 @@ repository documentation/quality gates.
 architecture" — check `uname -m` if running on an unfamiliar host).
 
 - [x] T004 [US1] [US2] Run the quickstart end-to-end validation from
-  `specs/010-configure-basic-profile/quickstart.md` on a macOS ARM64 host:
+  `specs/010-configure-profile/quickstart.md` on a macOS ARM64 host:
   (1) `ansible-playbook create-vm.yml` to create a fresh tart VM; (2) run
-  `ansible-playbook configure-basic-profile.yml` with no extra-vars
+  `ansible-playbook configure-profile.yml` with no extra-vars
   (User Story 1) — verify it completes successfully, `my_ansible_user` and all
   `desktop_users` can SSH in via key with sudo, password SSH auth is rejected,
   apt cache/timezone (`Europe/Berlin`) are correct, NVM/Node LTS/global npm
   tools (`eslint`, `markdownlint-cli`, `prettier`, `typescript`) are present
   for each desktop user, and `podman`, `ruby`, `python3`, `claude` are all
-  installed; (3) run `ansible-playbook configure-basic-profile.yml` again with
+  installed; (3) run `ansible-playbook configure-profile.yml` again with
   no extra-vars (User Story 2) — verify the run reports `changed=0` across all
   plays (FR-020/SC-006). Depends on: T001, T002, T003.
 
 - [x] T005 [P] Invoke the `review-documentation-here` skill to confirm no
   documentation updates (e.g. `README.md`, `docs/architecture/`) are required
-  for the new `configure-basic-profile.yml` /
-  `configure-basic-profile-linux-roles.yml` playbooks and
+  for the new `configure-profile.yml` /
+  `configure-profile-roles.yml` playbooks and
   `inventories/group_vars/tart/vars.yml`, per Constitution "Documentation
   Standards" (invoked at task close, before `format-markdown`).
 
@@ -176,8 +176,8 @@ Markdown quality gates passed.
 ### Within Phase 1
 
 - T001 before T002 before T003 (each file is consumed by the next in the
-  chain: `vars.yml` → `configure-basic-profile-linux-roles.yml` →
-  `configure-basic-profile.yml`). No `[P]` markers — all three touch the
+  chain: `vars.yml` → `configure-profile-roles.yml` →
+  `configure-profile.yml`). No `[P]` markers — all three touch the
   dependency chain in sequence and are small enough that sequential execution
   is simplest (Principle IV).
 
@@ -201,7 +201,7 @@ Markdown quality gates passed.
 1. Complete T001 → T002 → T003 (the entire implementation: 3 files,
    ~25 lines total).
 2. **STOP and VALIDATE**: Run T004's first invocation
-   (`create-vm.yml` + `configure-basic-profile.yml`) on a macOS ARM64 host to
+   (`create-vm.yml` + `configure-profile.yml`) on a macOS ARM64 host to
    confirm User Story 1's acceptance scenarios.
 3. This already delivers the full feature — User Story 2 requires no
    additional code.

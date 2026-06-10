@@ -37,7 +37,7 @@ ansible-playbook playbooks/create-vm.yml \
 ## Configure a VM
 
 ```bash
-ansible-playbook configure-basic-profile.yml
+ansible-playbook configure-profile.yml
 ```
 
 No extra variables required. Run this against a VM created by

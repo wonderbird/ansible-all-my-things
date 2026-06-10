@@ -4,7 +4,7 @@
 - import_playbook: playbooks/setup-nodejs.yml
 
 # Apply linux roles
-- import_playbook: configure-basic-profile-linux-roles.yml
+- import_playbook: configure-profile-roles.yml
 
 # Finally, reboot the system if required
 - import_playbook: playbooks/reboot-if-required.yml

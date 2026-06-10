@@ -1,15 +1,15 @@
-# Contract: configure-basic-profile.yml
+# Contract: configure-profile.yml
 
 ## Invocation
 
 ```bash
-ansible-playbook configure-basic-profile.yml
+ansible-playbook configure-profile.yml
 ```
 
 No extra-vars are required for the common case (FR-001, SC-001).
 
-`configure-basic-profile.yml` runs against the `tart` inventory group. The
-play in `configure-basic-profile-linux-roles.yml` explicitly targets
+`configure-profile.yml` runs against the `tart` inventory group. The
+play in `configure-profile-roles.yml` explicitly targets
 `hosts: tart`; the four reused playbooks
 (`playbooks/setup-users.yml`, `playbooks/setup-basics.yml`,
 `playbooks/setup-nodejs.yml`, `playbooks/reboot-if-required.yml`) target
@@ -70,7 +70,7 @@ inherited unchanged from the reused playbooks and roles.
 ## Idempotency
 
 Fully idempotent (FR-020, SC-006). A second run of
-`ansible-playbook configure-basic-profile.yml` against an already-configured
+`ansible-playbook configure-profile.yml` against an already-configured
 VM, with no extra-vars, reports zero changed tasks across every imported
 playbook and every applied role — each of the five development tool roles
 already passes its `molecule/default/` idempotence check, and the four reused

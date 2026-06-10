@@ -24,7 +24,7 @@ is defined and how the entities relate.
 |-----------|-------|
 | Definition | `my_ansible_user` group variable |
 | Defined in | `inventories/group_vars/all/vars.yml` (existing, unmodified — value `"gandalf"`) |
-| Relationships | Becomes a member of the `sudo` group (FR-003) and gains passwordless sudo (FR-004) via `playbooks/setup-users.yml`'s `console_users` list; receives an SSH public key (FR-005) from `my_ssh_public_key`; used as `ansible_user` for all subsequent plays after `setup-users.yml` (e.g. `configure-basic-profile-linux-roles.yml` sets `ansible_user: "{{ my_ansible_user }}"`) |
+| Relationships | Becomes a member of the `sudo` group (FR-003) and gains passwordless sudo (FR-004) via `playbooks/setup-users.yml`'s `console_users` list; receives an SSH public key (FR-005) from `my_ssh_public_key`; used as `ansible_user` for all subsequent plays after `setup-users.yml` (e.g. `configure-profile-roles.yml` sets `ansible_user: "{{ my_ansible_user }}"`) |
 | Created by | `playbooks/setup-users.yml` (existing, unmodified) — this feature does not change how the admin user is created |
 
 ### Desktop User (`desktop_users`)
@@ -33,7 +33,7 @@ is defined and how the entities relate.
 |-----------|-------|
 | Definition | `desktop_users` list of `{name, password, ...}` objects |
 | Defined in | `inventories/group_vars/all/vars.yml` (existing, unmodified — currently one entry, `galadriel`) |
-| Relationships | Each entry becomes a member of the `sudo` group and receives an SSH public key (FR-003, FR-005) via `setup-users.yml`'s `all_users = console_users + desktop_users`; each entry's `.name` is extracted into `desktop_user_names` (a list of strings) by both `playbooks/setup-nodejs.yml` and `configure-basic-profile-linux-roles.yml` via `desktop_users \| map(attribute='name') \| list` |
+| Relationships | Each entry becomes a member of the `sudo` group and receives an SSH public key (FR-003, FR-005) via `setup-users.yml`'s `all_users = console_users + desktop_users`; each entry's `.name` is extracted into `desktop_user_names` (a list of strings) by both `playbooks/setup-nodejs.yml` and `configure-profile-roles.yml` via `desktop_users \| map(attribute='name') \| list` |
 | Receives | Node Version Manager, Node.js LTS (default version), and global npm tools `eslint`, `markdownlint-cli`, `prettier`, `typescript` (FR-010–FR-012) via `playbooks/setup-nodejs.yml` (existing, unmodified) |
 
 ### Development Tool Role
@@ -42,7 +42,7 @@ is defined and how the entities relate.
 |-----------|-------|
 | Definition | One of five existing Ansible roles under `roles/` |
 | Members | `podman` (FR-013), `ruby` (FR-014), `python` (FR-015), `dolt_sql_server` (FR-016), `claude_code` (FR-017) |
-| Applied by | `configure-basic-profile-linux-roles.yml` (NEW, this feature) — `roles:` list, `hosts: tart`, `become: true` |
+| Applied by | `configure-profile-roles.yml` (NEW, this feature) — `roles:` list, `hosts: tart`, `become: true` |
 | Test coverage | Each role already has a passing `molecule/default/` scenario under `roles/<role>/molecule/default/` (Constitution Principle II — already satisfied, no new Molecule work) |
 | Excluded by FR-018 | `tmux`, `google_chrome` (both present in `configure-linux-roles.yml`'s role list but intentionally omitted here as desktop-only/no-desktop-environment tooling) |
 
@@ -72,7 +72,7 @@ inventories/group_vars/all/vars.yml         │
                               for each name in desktop_user_names
                                                    │
                                                    ▼
-                              configure-basic-profile-linux-roles.yml (NEW)
+                              configure-profile-roles.yml (NEW)
                               hosts: tart
                               roles: podman, ruby, python,
                                      dolt_sql_server, claude_code
@@ -82,5 +82,5 @@ inventories/group_vars/all/vars.yml         │
                               → reboot + wait if /var/run/reboot-required exists
 ```
 
-All five layers above are chained by `configure-basic-profile.yml` (NEW) via
+All five layers above are chained by `configure-profile.yml` (NEW) via
 `import_playbook`, in the order shown.

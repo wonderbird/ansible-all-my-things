@@ -1,13 +1,13 @@
 # Implementation Plan: Configure Basic Profile for Tart VMs
 
-**Branch**: `010-configure-basic-profile` | **Date**: 2026-06-10 | **Spec**: [spec.md](spec.md)
-**Input**: Feature specification from `/specs/010-configure-basic-profile/spec.md`
+**Branch**: `010-configure-profile` | **Date**: 2026-06-10 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `/specs/010-configure-profile/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
 ## Summary
 
-Provide a single orchestration playbook, `configure-basic-profile.yml`, that
+Provide a single orchestration playbook, `configure-profile.yml`, that
 brings a freshly created tart Linux VM (from `create-vm.yml`) to a
 development-ready baseline with no extra-vars: user accounts and SSH access,
 OS package/timezone baseline, Node.js toolchain for desktop users, the five
@@ -31,7 +31,7 @@ already present; zero new Galaxy collections
 **Testing**: Each of the 5 development tool roles already has a passing
 `molecule/default/` scenario (run via `scripts/test-molecule-all.sh`); no new
 Molecule scenarios are needed for this feature. End-to-end validation of
-`configure-basic-profile.yml` happens by running it against a real tart VM
+`configure-profile.yml` happens by running it against a real tart VM
 created by `create-vm.yml` (Constitution Principle III) — mirroring how
 `create-vm.yml`/`destroy-vm.yml` are validated, since this is an orchestration
 playbook composed entirely of already-validated roles/playbooks.
@@ -71,23 +71,23 @@ roles, 0 modified existing playbooks
 ### Documentation (this feature)
 
 ```text
-specs/010-configure-basic-profile/
+specs/010-configure-profile/
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output (/speckit.plan command)
 ├── data-model.md         # Phase 1 output (/speckit.plan command)
 ├── quickstart.md          # Phase 1 output (/speckit.plan command)
 ├── contracts/             # Phase 1 output (/speckit.plan command)
-│   └── configure-basic-profile.md
+│   └── configure-profile.md
 └── tasks.md              # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
-configure-basic-profile.yml              # NEW: top-level orchestrator playbook
+configure-profile.yml              # NEW: top-level orchestrator playbook
                                           # (import_playbook chain, mirrors configure-linux.yml)
 
-configure-basic-profile-linux-roles.yml  # NEW: roles-application playbook
+configure-profile-roles.yml  # NEW: roles-application playbook
                                           # (hosts: tart; roles: podman, ruby, python,
                                           #  dolt_sql_server, claude_code;
                                           #  mirrors configure-linux-roles.yml)
