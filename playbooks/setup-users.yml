@@ -25,7 +25,7 @@
       no_log: true # Prevent logging the passwords
       user:
         name: "{{ item.name }}"
-        password: "{{ item.password | password_hash('sha512') }}"
+        password: "{{ item.password | password_hash('sha512', 65534 | random(seed=item.name) | string) }}"
         shell: /bin/bash
         groups: sudo
         append: yes
