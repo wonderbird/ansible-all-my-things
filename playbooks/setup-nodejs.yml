@@ -18,13 +18,23 @@
     - name: Install LTS/Jod Node.js
       shell: |
         . /home/{{ item }}/.nvm/nvm.sh
-        nvm install lts/jod
+        prev_default=$(nvm version default 2>/dev/null || echo none)
+        install_output=$(nvm install lts/jod 2>&1)
+        echo "$install_output"
         nvm use lts/jod
         nvm alias default lts/jod
+        new_default=$(nvm version default)
+        if echo "$install_output" | grep -q "is already installed" && [ "$prev_default" = "$new_default" ]; then
+          echo NO_CHANGE
+        else
+          echo CHANGED
+        fi
       args:
         executable: /bin/bash
       become_user: "{{ item }}"
       loop: "{{ desktop_user_names }}"
+      register: nvm_install_result
+      changed_when: "'CHANGED' in nvm_install_result.stdout"
 
     - name: Identify current Node.js version
       shell: |
@@ -34,6 +44,7 @@
         executable: /bin/bash
       become_user: "{{ first_desktop_user }}"
       register: nvm_current_output
+      changed_when: false
 
     - name: Install frequently used global npm packages
       shell: |
