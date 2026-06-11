@@ -9,10 +9,18 @@ runtime) and **`.specify/memory/constitution.md`** (project rules).
 1. Read `AGENTS.md`
 2. Read `.specify/memory/constitution.md`
 
-Do not proceed until both are read. Do not duplicate rules here — update
-`AGENTS.md` or the constitution instead.
+Do not proceed until both are read.
+
+Do not duplicate rules here — update `AGENTS.md` or the constitution instead.
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+<!-- SPECKIT END -->
 
 ## End of file
 
 This file must not be extended. Write to `AGENTS.md` or the constitution
 instead.
+
+
