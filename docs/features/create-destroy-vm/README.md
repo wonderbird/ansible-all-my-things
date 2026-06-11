@@ -34,6 +34,21 @@ ansible-playbook playbooks/create-vm.yml \
   -e vm_cpus=2 -e vm_memory_mb=4096 -e vm_disk_size_gb=60
 ```
 
+## Configure a VM
+
+```bash
+ansible-playbook playbooks/configure-profile.yml
+```
+
+No extra variables required. Run this against a VM created by
+`playbooks/create-vm.yml` (it connects via the default `admin` account
+defined in `inventories/group_vars/tart/vars.yml`). It creates the
+configured users with SSH/sudo access, applies OS package and timezone
+baselines, installs the Node.js toolchain for desktop users, installs the
+standard development tool roles (podman, ruby, python, dolt_sql_server,
+claude_code), and reboots the VM if required. Re-running the playbook on an
+already-configured VM is a no-op.
+
 ## Destroy a VM
 
 ```bash
