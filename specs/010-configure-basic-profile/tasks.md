@@ -5,8 +5,9 @@ description: "Task list for Configure Basic Profile for Tart VMs"
 
 # Tasks: Configure Basic Profile for Tart VMs
 
-**Input**: Design documents from `/specs/010-configure-profile/`
-**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/configure-profile.md, quickstart.md
+**Input**: Design documents from `/specs/010-configure-basic-profile/`
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md,
+contracts/configure-basic-profile.md, quickstart.md
 
 **Tests**: No automated test tasks are generated. Per `research.md`'s "End-to-end
 validation strategy" decision, the five composed roles already have passing
@@ -47,7 +48,7 @@ desktop users, the five standard development tool roles (podman, ruby, python,
 dolt_sql_server, claude_code), and a conditional reboot.
 
 **Independent Test**: Run `create-vm.yml` to create a new tart VM, then run
-`ansible-playbook configure-profile.yml` against the `tart` group with
+`ansible-playbook playbooks/configure-profile.yml` against the `tart` group with
 no extra-vars. Verify the operator can SSH in as `my_ansible_user` and as each
 configured desktop user using their SSH key (no password), and that podman,
 ruby, python, the Dolt SQL server, and the Claude Code CLI are all available.
@@ -62,7 +63,7 @@ ruby, python, the Dolt SQL server, and the Claude Code CLI are all available.
   by `playbooks/setup-users.yml` as the initial `ansible_user` for hosts in
   the `tart` group (FR-002, data-model.md "Default Bootstrap Account").
 
-- [x] T002 [US1] Create `configure-profile-roles.yml` (repo root):
+- [x] T002 [US1] Create `playbooks/configure-profile-roles.yml`:
   a single play with `name: Configure basic profile linux roles`,
   `hosts: tart`, `become: true`, `vars: { ansible_user: "{{ my_ansible_user }}",
   desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}" }`,
@@ -73,7 +74,7 @@ ruby, python, the Dolt SQL server, and the Claude Code CLI are all available.
   Depends on: T001 (admin_user_on_fresh_system must resolve for the `tart`
   group before any play in the chain runs).
 
-- [x] T003 [US1] Create `configure-profile.yml` (repo root): a flat
+- [x] T003 [US1] Create `playbooks/configure-profile.yml`: a flat
   `import_playbook` chain, in order —
   `playbooks/setup-users.yml`, `playbooks/setup-basics.yml`,
   `playbooks/setup-nodejs.yml`, `configure-profile-roles.yml`,
@@ -95,7 +96,7 @@ already-configured tart VM, with no extra-vars, reports zero changed tasks
 (FR-020, SC-006).
 
 **Independent Test**: After completing User Story 1's independent test, run
-`ansible-playbook configure-profile.yml` again against the same VM with
+`ansible-playbook playbooks/configure-profile.yml` again against the same VM with
 no extra-vars and verify the run reports `changed=0` across all plays.
 
 ### Implementation for User Story 2
@@ -103,7 +104,7 @@ no extra-vars and verify the run reports `changed=0` across all plays.
 This story requires no new or modified files beyond those created in User
 Story 1 (T001–T003). It is a verification-only activity confirming the
 already-idempotent composed playbooks/roles (per `contracts/
-configure-profile.md`'s "Idempotency" section) behave idempotently when
+configure-basic-profile.md`'s "Idempotency" section) behave idempotently when
 chained together by this feature's new orchestrator. The verification itself
 is performed in Phase 3 (T004, second invocation).
 
@@ -123,15 +124,15 @@ repository documentation/quality gates.
 architecture" — check `uname -m` if running on an unfamiliar host).
 
 - [x] T004 [US1] [US2] Run the quickstart end-to-end validation from
-  `specs/010-configure-profile/quickstart.md` on a macOS ARM64 host:
-  (1) `ansible-playbook create-vm.yml` to create a fresh tart VM; (2) run
-  `ansible-playbook configure-profile.yml` with no extra-vars
+  `specs/010-configure-basic-profile/quickstart.md` on a macOS ARM64 host:
+  (1) `ansible-playbook playbooks/create-vm.yml` to create a fresh tart VM;
+  (2) run `ansible-playbook playbooks/configure-profile.yml` with no extra-vars
   (User Story 1) — verify it completes successfully, `my_ansible_user` and all
   `desktop_users` can SSH in via key with sudo, password SSH auth is rejected,
   apt cache/timezone (`Europe/Berlin`) are correct, NVM/Node LTS/global npm
   tools (`eslint`, `markdownlint-cli`, `prettier`, `typescript`) are present
   for each desktop user, and `podman`, `ruby`, `python3`, `claude` are all
-  installed; (3) run `ansible-playbook configure-profile.yml` again with
+  installed; (3) run `ansible-playbook playbooks/configure-profile.yml` again with
   no extra-vars (User Story 2) — verify the run reports `changed=0` across all
   plays (FR-020/SC-006). Depends on: T001, T002, T003.
 

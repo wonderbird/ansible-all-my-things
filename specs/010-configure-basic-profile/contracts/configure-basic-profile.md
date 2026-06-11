@@ -3,7 +3,7 @@
 ## Invocation
 
 ```bash
-ansible-playbook configure-profile.yml
+ansible-playbook playbooks/configure-profile.yml
 ```
 
 No extra-vars are required for the common case (FR-001, SC-001).
@@ -70,7 +70,7 @@ inherited unchanged from the reused playbooks and roles.
 ## Idempotency
 
 Fully idempotent (FR-020, SC-006). A second run of
-`ansible-playbook configure-profile.yml` against an already-configured
+`ansible-playbook playbooks/configure-profile.yml` against an already-configured
 VM, with no extra-vars, reports zero changed tasks across every imported
 playbook and every applied role — each of the five development tool roles
 already passes its `molecule/default/` idempotence check, and the four reused

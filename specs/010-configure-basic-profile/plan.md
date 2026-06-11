@@ -1,7 +1,7 @@
 # Implementation Plan: Configure Basic Profile for Tart VMs
 
-**Branch**: `010-configure-profile` | **Date**: 2026-06-10 | **Spec**: [spec.md](spec.md)
-**Input**: Feature specification from `/specs/010-configure-profile/spec.md`
+**Branch**: `010-configure-basic-profile` | **Date**: 2026-06-10 | **Spec**: [spec.md](spec.md)
+**Input**: Feature specification from `/specs/010-configure-basic-profile/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
@@ -71,23 +71,23 @@ roles, 0 modified existing playbooks
 ### Documentation (this feature)
 
 ```text
-specs/010-configure-profile/
+specs/010-configure-basic-profile/
 ├── plan.md              # This file (/speckit.plan command output)
 ├── research.md          # Phase 0 output (/speckit.plan command)
 ├── data-model.md         # Phase 1 output (/speckit.plan command)
 ├── quickstart.md          # Phase 1 output (/speckit.plan command)
 ├── contracts/             # Phase 1 output (/speckit.plan command)
-│   └── configure-profile.md
+│   └── configure-basic-profile.md
 └── tasks.md              # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
 ```
 
-### Source Code (repository root)
+### Source Code (repository)
 
 ```text
-configure-profile.yml              # NEW: top-level orchestrator playbook
+playbooks/configure-profile.yml        # NEW: top-level orchestrator playbook
                                           # (import_playbook chain, mirrors configure-linux.yml)
 
-configure-profile-roles.yml  # NEW: roles-application playbook
+playbooks/configure-profile-roles.yml  # NEW: roles-application playbook
                                           # (hosts: tart; roles: podman, ruby, python,
                                           #  dolt_sql_server, claude_code;
                                           #  mirrors configure-linux-roles.yml)
@@ -110,9 +110,9 @@ roles/dolt_sql_server/
 roles/claude_code/
 ```
 
-**Structure Decision**: Repo-root playbook layout, mirroring the existing
-`configure-linux.yml` / `configure-linux-roles.yml` pair exactly, scoped down
-to the basic-profile subset of playbooks and roles. The new group_vars file
+**Structure Decision**: `playbooks/` playbook layout, mirroring the existing
+`configure-linux.yml` / `configure-linux-roles.yml` pair's structure, scoped
+down to the basic-profile subset of playbooks and roles. The new group_vars file
 follows the existing per-inventory-group `vars.yml` convention (one directory
 per group under `inventories/group_vars/`), as already used by
 `vagrant_tart`, `windows`, `hcloud_linux`, `vagrant_docker`, and

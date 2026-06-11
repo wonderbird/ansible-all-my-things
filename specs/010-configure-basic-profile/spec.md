@@ -1,6 +1,6 @@
 # Feature Specification: Configure Basic Profile for Tart VMs
 
-**Feature Branch**: `010-configure-profile`
+**Feature Branch**: `010-configure-basic-profile`
 **Created**: 2026-06-10
 **Status**: Draft
 
