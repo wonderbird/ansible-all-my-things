@@ -1,6 +1,12 @@
 # Create and Destroy VMs
 
-Manage local Ubuntu 24.04 VMs on macOS ARM64 using the `tart` CLI directly.
+Manage local Ubuntu VMs using `playbooks/create-vm.yml` /
+`playbooks/destroy-vm.yml`. Two providers are available, selected via
+`-e provider=<tart|docker>` (default: `tart`):
+
+- **`tart`** (default, this document) — macOS ARM64 only, described below.
+- **`docker`** — any host with a Docker daemon, see
+  [specs/011-docker-vm-provider/quickstart.md](../../../specs/011-docker-vm-provider/quickstart.md).
 
 ## Requirements
 
