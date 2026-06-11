@@ -1,11 +1,19 @@
 ---
-- name: Create Tart VM
+- name: Create VM
   hosts: localhost
   gather_facts: true
   vars:
+    provider: tart
     vm_cpus: 4
     vm_memory_mb: 8192
     vm_disk_size_gb: 20
+  pre_tasks:
+    - name: Assert provider is supported
+      ansible.builtin.assert:
+        that: provider in ['tart', 'docker']
+        fail_msg: >-
+          Unsupported provider '{{ provider }}'. Allowed values: tart, docker.
+          Run: ansible-playbook playbooks/create-vm.yml -e provider=<tart|docker>
   tasks:
     - name: Run VM creation tasks
-      ansible.builtin.include_tasks: tasks/create/tart.yml
+      ansible.builtin.include_tasks: "tasks/create/{{ provider }}.yml"

@@ -1,0 +1,15 @@
+# Hostname pool for the Docker provider (provider=docker).
+# Independent from, and disjoint with, playbooks/vars/hostname_pool.yml
+# (the Tart provider's pool). Star Wars planet names vs. Star Trek planet
+# names keeps the two pools visually distinct and non-colliding.
+hostname_pool:
+  - tatooine
+  - coruscant
+  - naboo
+  - alderaan
+  - hoth
+  - dagobah
+  - endor
+  - kamino
+  - mustafar
+  - yavin
