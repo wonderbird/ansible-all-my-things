@@ -111,7 +111,7 @@ The reusable, idempotently-built image artefact.
 | Field | Value | Notes |
 |-------|-------|-------|
 | Tag | `ansible-vm-docker:latest` | Fixed name (FR-013) |
-| Source | `playbooks/files/docker/Dockerfile` | `ubuntu:24.10` base, systemd entrypoint, sshd enabled |
+| Source | `playbooks/files/docker/Dockerfile` | `ubuntu:24.04` base, systemd entrypoint, sshd enabled |
 | Build trigger | `docker image inspect ansible-vm-docker:latest` returns non-zero | Build-once, no auto-rebuild (FR-013, clarified 2026-06-11) |
 | Build arg | `DOCKER_ROOT_PASSWORD` | Sourced from `docker_root_password` (`playbooks/vars/docker_credentials.yml`); baked into the image via `chpasswd` |
 

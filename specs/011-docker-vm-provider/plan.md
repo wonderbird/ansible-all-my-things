@@ -47,7 +47,7 @@ container per invocation
 | Principle | Status | Notes |
 |-----------|--------|-------|
 | I. Idempotency | PASS (constrained) | Image build guarded by an existence check on `ansible-vm-docker:latest` (idempotent `creates:`-equivalent, FR-013). Container run is NOT idempotent by design — each invocation creates a new container with a new pool hostname (FR-002), mirroring `tart clone`'s per-invocation semantics. Inventory update via load→modify→write is idempotent. Pool check via inventory membership is idempotent. Shell tasks parsing `docker port` / `docker inspect` output use `changed_when: false` and explicit validation (Principle XII). |
-| II. Role-First | JUSTIFIED EXCEPTION (same as 009) | Runs entirely on `localhost`, orchestrating the local Docker daemon as a VM-provider — not against managed hosts. Identical exception already accepted for the Tart provider in `specs/009-create-destroy-vm/plan.md`; the new task files (`playbooks/tasks/create/docker.yml`, `playbooks/tasks/destroy/docker.yml`) extend that same accepted pattern rather than introducing a new one. No Molecule scenario (control-node orchestration of `docker` CLI itself, not a target-host role). No versioned tool pins introduced → version-update registration N/A (the `ubuntu:24.10` base image tag is fixed per FR-013, not a pinned tool version). |
+| II. Role-First | JUSTIFIED EXCEPTION (same as 009) | Runs entirely on `localhost`, orchestrating the local Docker daemon as a VM-provider — not against managed hosts. Identical exception already accepted for the Tart provider in `specs/009-create-destroy-vm/plan.md`; the new task files (`playbooks/tasks/create/docker.yml`, `playbooks/tasks/destroy/docker.yml`) extend that same accepted pattern rather than introducing a new one. No Molecule scenario (control-node orchestration of `docker` CLI itself, not a target-host role). No versioned tool pins introduced → version-update registration N/A (the `ubuntu:24.04` base image tag is fixed per FR-013, not a pinned tool version). |
 | III. Test Locally Before Cloud | PASS | Feature is local-container management only; cloud targets not applicable. Validate by running both playbooks with `-e provider=docker` on a host with Docker before any cloud work, per `CONTRIBUTING.md`. |
 | IV. Simplicity (YAGNI) | PASS | Two providers only (`tart`, `docker`), dispatched via a single `provider` extra-var with a documented default. No locking. No image rebuild-on-change detection (FR-013). Resource limits (`--cpus`, `--memory`) are simple Ansible variables with defaults, mirroring `vm_cpus`/`vm_memory_mb` in `create-vm.yml`. |
 | XII. Fail Loud | PASS (constrained) | Docker hostname pool exhaustion MUST assert before any container build/run action (FR-007). Unknown hostname on destroy MUST fail before any Docker action (FR-010). `docker port` output parsing MUST be validated (assert non-empty port) before writing inventory. Docker daemon unavailability surfaces as an explicit task failure (no `ignore_errors`). |
@@ -84,7 +84,7 @@ playbooks/
 │   └── docker_credentials.yml     # NEW — docker_root_password
 ├── files/
 │   └── docker/
-│       └── Dockerfile             # NEW — ubuntu:24.10 + systemd + sshd, root/password auth
+│       └── Dockerfile             # NEW — ubuntu:24.04 + systemd + sshd, root/password auth
 └── tasks/
     ├── create/
     │   ├── tart.yml                # UNCHANGED

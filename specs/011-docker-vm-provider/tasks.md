@@ -30,7 +30,7 @@ Docker provider depends on. None of these touch Tart-provider files.
   on `playbooks/vars/tart_credentials.yml`'s structure and header-comment
   style (default credential, not a project secret; FR-005, FR-013)
 - [ ] T003 [P] Create `playbooks/files/docker/Dockerfile` — base
-  `ubuntu:24.10`; install `systemd`, `openssh-server`, `sudo`, `dbus` (and any
+  `ubuntu:24.04`; install `systemd`, `openssh-server`, `sudo`, `dbus` (and any
   other package required for `--privileged` systemd boot); enable
   `PermitRootLogin yes` and `PasswordAuthentication yes` via
   `/etc/ssh/sshd_config` or a drop-in under `/etc/ssh/sshd_config.d/`; accept
