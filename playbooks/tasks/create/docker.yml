@@ -78,6 +78,20 @@
   when: docker_image_check.rc != 0
   changed_when: true
 
+- name: Check sshpass is installed
+  ansible.builtin.shell:
+    cmd: command -v sshpass
+  changed_when: false
+  failed_when: false
+  register: sshpass_check
+
+- name: Fail if sshpass is not installed
+  ansible.builtin.fail:
+    msg: >-
+      sshpass is required for ansible_ssh_pass authentication but is not installed.
+      Install with: apt-get install sshpass
+  when: sshpass_check.rc != 0
+
 - block:
     - name: Set Docker container resource defaults
       ansible.builtin.set_fact:
