@@ -182,7 +182,7 @@ requirements with no novel logic.
 
 ## Dockerfile: systemd + sshd + root/password auth (FR-013)
 
-**Decision**: Base on `ubuntu:24.10`. Install `systemd`, `openssh-server`,
+**Decision**: Base on `ubuntu:24.04`. Install `systemd`, `openssh-server`,
 `sudo` (and any package needed for `--privileged` systemd boot, e.g.
 `dbus`). Set `PermitRootLogin yes` and `PasswordAuthentication yes` in
 `/etc/ssh/sshd_config` (or a drop-in under `/etc/ssh/sshd_config.d/`). Set
@@ -203,9 +203,12 @@ constraint and the Tart provider's equivalent (`tart_credentials.yml` /
 
 **Rationale**: This is the standard documented approach for running systemd
 under Docker with `--privileged` (used widely for systemd-based test/CI
-images). `ubuntu:24.10` is specified by FR-013 directly. Password auth
-mirrors the Tart provider's `ansible_ssh_pass` mechanism (FR-005), keeping
-`sshpass` as the sole new-dependency-free auth path (per Assumptions).
+images). `ubuntu:24.04` is an LTS release, giving the longest support window
+of any currently-available Ubuntu base image, and aligns the Docker
+provider's base OS with the Tart provider's image (also Ubuntu 24.04),
+keeping both providers on the same guest OS version. Password auth mirrors
+the Tart provider's `ansible_ssh_pass` mechanism (FR-005), keeping `sshpass`
+as the sole new-dependency-free auth path (per Assumptions).
 
 **Alternatives considered**:
 
