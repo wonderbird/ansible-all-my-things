@@ -1,6 +1,6 @@
 # Docker provider VM image: systemd-enabled Ubuntu with sshd, root/password
 # auth. Run with `docker run --privileged ...` so systemd can manage cgroups.
-FROM ubuntu:24.10
+FROM ubuntu:24.04
 
 ARG DOCKER_ROOT_PASSWORD
 
