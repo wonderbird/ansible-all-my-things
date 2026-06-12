@@ -98,6 +98,10 @@
           ansible-vm-docker:latest
       changed_when: true
 
+    # The container was started with '-p 127.0.0.1::22' (no host port given),
+    # so Docker picked a free host port and mapped it to container port 22.
+    # 'docker port <name> 22/tcp' returns e.g. '127.0.0.1:54321'; strip
+    # everything up to the last ':' to get the host port number.
     - name: Discover published SSH port
       ansible.builtin.command:
         cmd: "docker port {{ hostname }} 22/tcp"
