@@ -4,13 +4,11 @@
   gather_facts: true
   vars:
     provider: tart
+    assert_provider_usage_hint: >-
+      Run: ansible-playbook playbooks/destroy-vm.yml -e provider=<tart|docker> -e hostname=<name>
   pre_tasks:
     - name: Assert provider is supported
-      ansible.builtin.assert:
-        that: provider in ['tart', 'docker']
-        fail_msg: >-
-          Unsupported provider '{{ provider }}'. Allowed values: tart, docker.
-          Run: ansible-playbook playbooks/destroy-vm.yml -e provider=<tart|docker> -e hostname=<name>
+      ansible.builtin.import_tasks: tasks/assert-provider.yml
 
     - name: Assert hostname variable is defined
       ansible.builtin.assert:

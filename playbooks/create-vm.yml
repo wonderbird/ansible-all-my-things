@@ -7,13 +7,11 @@
     vm_cpus: 4
     vm_memory_mb: 8192
     vm_disk_size_gb: 20
+    assert_provider_usage_hint: >-
+      Run: ansible-playbook playbooks/create-vm.yml -e provider=<tart|docker>
   pre_tasks:
     - name: Assert provider is supported
-      ansible.builtin.assert:
-        that: provider in ['tart', 'docker']
-        fail_msg: >-
-          Unsupported provider '{{ provider }}'. Allowed values: tart, docker.
-          Run: ansible-playbook playbooks/create-vm.yml -e provider=<tart|docker>
+      ansible.builtin.import_tasks: tasks/assert-provider.yml
   tasks:
     - name: Run VM creation tasks
       ansible.builtin.include_tasks: "tasks/create/{{ provider }}.yml"
