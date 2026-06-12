@@ -6,6 +6,10 @@
 can be used to extend this application. Consider installing the corresponding
 tools as described in the [Spec Kit Getting Started Guide](https://github.com/github/spec-kit).
 
+After upgrading Spec Kit, check whether any `.claude/commands/speckit.*.md` file
+now duplicates a `.claude/skills/speckit-*/` entry, and delete the command file
+if so — spec-kit's updater does not remove superseded files from older installs.
+
 ## CI/CD Pipeline Security
 
 Workflow changes (adding, updating, or removing GitHub Actions) must follow
