@@ -9,7 +9,7 @@
 ---
 - name: Load hostname pool
   ansible.builtin.include_vars:
-    file: "{{ playbook_dir }}/vars/hostname_pool.yml"
+    file: "{{ playbook_dir }}/vars/hostname_pool_tart.yml"
 
 - name: Load VM credentials
   ansible.builtin.include_vars:
@@ -64,7 +64,7 @@
 - name: Fail if hostname pool is exhausted
   ansible.builtin.fail:
     msg: >-
-      Hostname pool exhausted. All names in playbooks/vars/hostname_pool.yml are
+      Hostname pool exhausted. All names in playbooks/vars/hostname_pool_tart.yml are
       in use. Add more entries to that file to provision additional VMs.
   when: (hostname_pool | difference(used_hostnames)) | length == 0
 

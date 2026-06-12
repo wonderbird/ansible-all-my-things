@@ -78,7 +78,7 @@ playbooks/
 ├── create-vm.yml                  # MODIFIED: dispatch on `provider` (default tart)
 ├── destroy-vm.yml                 # MODIFIED: dispatch on `provider` (default tart)
 ├── vars/
-│   ├── hostname_pool.yml          # UNCHANGED — Tart pool
+│   ├── hostname_pool_tart.yml          # UNCHANGED — Tart pool
 │   ├── hostname_pool_docker.yml   # NEW — Star Wars planet name pool (10 entries)
 │   ├── tart_credentials.yml       # UNCHANGED
 │   └── docker_credentials.yml     # NEW — docker_root_password

@@ -67,7 +67,7 @@ pool.
 ## Hostname Pool
 
 VMs are assigned names sequentially from a Star Trek TNG planet pool
-(defined in `playbooks/vars/hostname_pool.yml`):
+(defined in `playbooks/vars/hostname_pool_tart.yml`):
 
 `vulcan`, `romulus`, `betazed`, `qonos`, `risa`, `cardassia`, `bajor`,
 `veridian`, `remus`, `baku`

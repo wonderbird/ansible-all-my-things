@@ -23,7 +23,7 @@ between providers.
 ### Docker Hostname Pool
 
 Ordered list of available container hostnames, independent from and disjoint
-with the Tart hostname pool (`playbooks/vars/hostname_pool.yml`).
+with the Tart hostname pool (`playbooks/vars/hostname_pool_tart.yml`).
 
 | Field | Type | Source | Notes |
 |-------|------|--------|-------|
@@ -37,7 +37,7 @@ with the Tart hostname pool (`playbooks/vars/hostname_pool.yml`).
 - List MUST be non-empty at playbook start (Principle XII)
 - All names MUST be lowercase strings (Docker container/hostname
   constraints; consistency with Tart pool)
-- MUST NOT collide with `hostname_pool.yml` (Tart pool) — disjoint by
+- MUST NOT collide with `hostname_pool_tart.yml` (Tart pool) — disjoint by
   construction (Star Wars vs. Star Trek naming)
 
 **State**: Append-only, identical semantics to the Tart pool — names are
