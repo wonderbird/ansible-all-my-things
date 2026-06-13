@@ -7,7 +7,7 @@ playbooks/
   create-vm.yml
   destroy-vm.yml
   vars/
-    hostname_pool.yml
+    hostname_pool_tart.yml
   tasks/
     create/
       tart.yml
@@ -17,13 +17,13 @@ playbooks/
 
 ## Name Pool Design
 
-The hostname pool is defined in `playbooks/vars/hostname_pool.yml` as a single
+The hostname pool is defined in `playbooks/vars/hostname_pool_tart.yml` as a single
 shared ordered list of Star Trek TNG planet names. Both playbooks include this
 file.
 
 At runtime, `create-vm.yml`:
 
-1. Loads the pool from `playbooks/vars/hostname_pool.yml`.
+1. Loads the pool from `playbooks/vars/hostname_pool_tart.yml`.
 2. Reads `inventories/vagrant_tart.yml` to determine which names are already
    in use.
 3. Selects the first name not present in inventory.
@@ -69,7 +69,7 @@ them via extra-vars without modifying the Vagrantfile template:
   extra-vars required for the common case.
 - VM resources default to 4 vCPU / 8 GB RAM / 45 GB disk and are overridable
   via extra-vars.
-- Assigned hostname is drawn from `playbooks/vars/hostname_pool.yml` (TNG
+- Assigned hostname is drawn from `playbooks/vars/hostname_pool_tart.yml` (TNG
   planet names) and printed on completion.
 - Pool exhaustion fails loud with an actionable error before any infrastructure
   action.

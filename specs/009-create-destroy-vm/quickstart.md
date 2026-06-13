@@ -42,5 +42,5 @@ sshpass -p admin ssh -o StrictHostKeyChecking=no admin@<ansible_host>
 
 ## Pool management
 
-Available hostnames live in `playbooks/vars/hostname_pool.yml`. Append new
+Available hostnames live in `playbooks/vars/hostname_pool_tart.yml`. Append new
 names to extend the pool. Names are allocated sequentially; no restart needed.

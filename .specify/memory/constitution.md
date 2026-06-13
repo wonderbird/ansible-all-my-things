@@ -1,11 +1,19 @@
 <!--
-Sync Impact Report — 1.15.0 → 1.16.0 (MINOR)
-- Added version-update registration mandate to Principle II; extended Rationale.
+Sync Impact Report — 1.16.0 → 1.16.1 (PATCH)
+- Clarified Governance: the rules-files exemption from version
+  history/changelogs (AGENTS.md, CLAUDE.md, skill SKILL.md files, this
+  constitution's own Sync Impact Report) applies only to those files.
+  Feature specifications under specs/NNN-*/ are NOT exempt: they MUST stay
+  consistent with the current codebase (file paths, names, interfaces) for
+  any feature they describe; git history records how an implementation
+  evolved, not an outdated spec.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
 - AGENTS.md checked: no propagation required
+- CLAUDE.md checked: no propagation required
+- .claude/skills/*/SKILL.md checked: no propagation required
 -->
 # ansible-all-my-things Constitution
 
@@ -381,9 +389,15 @@ current operational rules only. Exception: this constitution retains the
 for propagation audits. Prior reports MUST be removed on each amendment; git
 history is the canonical record of all past reports.
 
+This exemption applies only to the rules files named above. Feature
+specifications under `specs/NNN-*/` are not exempt: they MUST stay consistent
+with the current codebase (file paths, names, interfaces) for any feature they
+describe, since they serve as the blueprint for recreating the system. Git
+history, not an outdated spec, is the record of how an implementation evolved.
+
 All agents working in this repository MUST read this constitution at the start
 of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.16.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-06-05
+**Version**: 1.16.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-06-13

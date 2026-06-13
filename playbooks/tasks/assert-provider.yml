@@ -1,0 +1,7 @@
+---
+- name: Assert provider is supported
+  ansible.builtin.assert:
+    that: provider in ['tart', 'docker']
+    fail_msg: >-
+      Unsupported provider '{{ provider }}'. Allowed values: tart, docker.
+      {{ assert_provider_usage_hint }}

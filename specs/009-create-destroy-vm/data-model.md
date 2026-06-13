@@ -8,7 +8,7 @@ Ordered list of available VM hostnames. Defined once; shared by both playbooks.
 
 | Field | Type | Source | Notes |
 |-------|------|--------|-------|
-| `hostname_pool` | `list[str]` | `playbooks/vars/hostname_pool.yml` | Ordered; allocation is sequential (first unused) |
+| `hostname_pool` | `list[str]` | `playbooks/vars/hostname_pool_tart.yml` | Ordered; allocation is sequential (first unused) |
 
 **Initial values**: `vulcan`, `romulus`, `betazed`, `qonos`, `risa`,
 `cardassia`, `bajor`, `veridian`, `remus`, `baku`

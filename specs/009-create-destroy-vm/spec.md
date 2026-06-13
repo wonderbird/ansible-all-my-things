@@ -85,7 +85,7 @@ inventory.
   extra-vars for the common case.
 - **FR-003**: The system MUST draw the VM hostname from a single shared ordered
   list of Star Trek TNG planet names defined in
-  `playbooks/vars/hostname_pool.yml`. Hostnames are assigned sequentially; the
+  `playbooks/vars/hostname_pool_tart.yml`. Hostnames are assigned sequentially; the
   first name not already present in inventory is selected on each invocation.
 - **FR-004**: The system MUST register each newly created VM in inventory
   before `create-vm.yml` completes, so configuration automation can target it.
@@ -106,7 +106,7 @@ inventory.
   completion.
 - **FR-010**: `destroy-vm.yml` MUST fail with a clear, actionable error if the
   specified hostname is not found in inventory.
-- **FR-011**: `playbooks/vars/hostname_pool.yml` ships with ten ordered Star
+- **FR-011**: `playbooks/vars/hostname_pool_tart.yml` ships with ten ordered Star
   Trek TNG planet names: `vulcan`, `romulus`, `betazed`, `qonos`, `risa`,
   `cardassia`, `bajor`, `veridian`, `remus`, `baku`. All entries are available
   for assignment; none are pre-reserved. The pool is extensible: operators may
@@ -118,7 +118,7 @@ inventory.
 ### Key Entities
 
 - **Hostname Pool**: An ordered list of Star Trek TNG planet names defined in
-  `playbooks/vars/hostname_pool.yml`. Ships with ten names; all entries are
+  `playbooks/vars/hostname_pool_tart.yml`. Ships with ten names; all entries are
   available for assignment. Entries are either available or in use and are
   allocated sequentially — the first name not already in inventory is chosen
   next.
@@ -169,7 +169,7 @@ inventory.
   `inventories/vagrant_tart.yml`, YAML, groups `all` / `linux` /
   `vagrant_tart`.
 - Q: Where does the ordered hostname pool list live? → A:
-  `playbooks/vars/hostname_pool.yml`, included by both playbooks.
+  `playbooks/vars/hostname_pool_tart.yml`, included by both playbooks.
 - Q: How should concurrent hostname assignment be prevented? → A: Best-effort
   only; no locking mechanism; single-operator project (YAGNI).
 - Q: Default VM resource specs and where defined? → A: 4 vCPU, 8 GB RAM,
