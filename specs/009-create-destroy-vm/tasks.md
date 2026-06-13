@@ -20,7 +20,7 @@ No test tasks — not requested in the specification.
 - [x] T001 Reset `inventories/vagrant_tart.yml` to empty-hosts state: keep groups
   `all`, `linux`, `vagrant_tart` each with `hosts: {}` — removes stale `lorien`
   entry so the pool is a clean slate per spec Assumptions
-- [x] T002 Create `playbooks/vars/hostname_pool.yml` with the ordered list of ten
+- [x] T002 Create `playbooks/vars/hostname_pool_tart.yml` with the ordered list of ten
   Star Trek TNG planet names: `vulcan`, `romulus`, `betazed`, `qonos`, `risa`,
   `cardassia`, `bajor`, `veridian`, `remus`, `baku` (FR-011)
 
@@ -54,10 +54,10 @@ extra-vars; verify a VM is created, a hostname is printed, and `inventories/vagr
 contains the new host entry in all three groups.
 
 - [x] T004 [US1] Create `playbooks/tasks/create/tart.yml` — pool-check block:
-  load `playbooks/vars/hostname_pool.yml` (include\_vars), load
+  load `playbooks/vars/hostname_pool_tart.yml` (include\_vars), load
   `inventories/vagrant_tart.yml` (include\_vars), compute `used_hostnames` from
   `all.hosts.keys()`, assert pool not exhausted (`fail` task with message naming
-  `playbooks/vars/hostname_pool.yml`) **before any VM or infra action** (FR-007,
+  `playbooks/vars/hostname_pool_tart.yml`) **before any VM or infra action** (FR-007,
   Principle XII), set `hostname` to first unused pool entry
 - [x] T005 [US1] Extend `playbooks/tasks/create/tart.yml` — VM creation block:
   set `vm_dir` via `set_fact` to

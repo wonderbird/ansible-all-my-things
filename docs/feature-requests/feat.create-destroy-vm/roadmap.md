@@ -136,3 +136,26 @@ Phase 6 (provider-encoded names) — independent; reassess any time, default dro
 Provider ordering after Phase 1 is adjustable; the only hard constraint is that
 Phase 7 (deletion) must not run until every provider that `provision.yml` /
 `destroy.yml` currently serves has a working replacement.
+
+## Outlook: podman as a third local provider
+
+During review of the docker provider (Phase 2), the idea of a `podman`
+provider came up. Podman is comparable in size to the docker provider and
+could reuse `docker.yml`'s skeleton: `podman build`, `podman run -d
+--privileged`, `podman port`.
+
+Open risks to resolve before estimating:
+
+- Rootless vs. rootful systemd-in-container behaviour (cgroup v2 delegation,
+  subuid/subgid mapping) under `--privileged`.
+- The output format of `podman port <name> 22/tcp` versus the regex used for
+  `docker_ssh_port` — these may not match.
+- Podman's native `--systemd=true` support may simplify cgroup setup compared
+  to docker's privileged-systemd approach.
+- A new hostname pool file and a `podman` inventory group would be needed,
+  mirroring the docker provider pattern.
+
+This is **low priority** for now: no Linux box is needed today for VM
+provisioning, and docker engine without Docker Desktop remains free. If this
+becomes relevant, a short spike against a real podman host is recommended
+before estimating further.

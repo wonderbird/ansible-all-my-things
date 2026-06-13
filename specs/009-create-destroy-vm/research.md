@@ -124,7 +124,7 @@ in `plan.md`.
 ## Hostname Pool — Sequential Allocation
 
 **Decision**: Determine the next available hostname by loading
-`playbooks/vars/hostname_pool.yml` and filtering out names already present in
+`playbooks/vars/hostname_pool_tart.yml` and filtering out names already present in
 `inventories/vagrant_tart.yml` using an Ansible `difference()` filter, then
 taking `[0]`.
 
@@ -133,7 +133,7 @@ taking `[0]`.
 ```yaml
 - name: Load hostname pool
   include_vars:
-    file: "{{ playbook_dir }}/vars/hostname_pool.yml"
+    file: "{{ playbook_dir }}/vars/hostname_pool_tart.yml"
 
 - name: Determine used hostnames
   set_fact:
@@ -147,7 +147,7 @@ taking `[0]`.
   fail:
     msg: >-
       Hostname pool exhausted. All names in
-      playbooks/vars/hostname_pool.yml are in use.
+      playbooks/vars/hostname_pool_tart.yml are in use.
       Add more names to the pool or destroy an existing VM.
   when: hostname_pool | difference(used_hostnames) | length == 0
 ```
