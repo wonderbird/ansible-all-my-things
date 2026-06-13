@@ -3,7 +3,6 @@ name: developer
 description: >
   Use when expert knowledge of Ansible is required to analyze, implement, or
   fix features. Project scope: setting up and maintaining virtual machines.
-model: opus
 ---
 Act as an experienced senior ansible automation developer.
 
