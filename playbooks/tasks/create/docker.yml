@@ -63,17 +63,21 @@
   ansible.builtin.set_fact:
     used_hostnames: "{{ current_inventory.all.hosts.keys() | list }}"
 
+- name: Compute available Docker hostnames in pool order
+  ansible.builtin.set_fact:
+    available_hostnames: "{{ hostname_pool | reject('in', used_hostnames) | list }}"
+
 - name: Fail if Docker hostname pool is exhausted
   ansible.builtin.fail:
     msg: >-
       Docker hostname pool exhausted. All names in
       playbooks/vars/hostname_pool_docker.yml are in use. Add more entries to
       that file to provision additional containers.
-  when: (hostname_pool | difference(used_hostnames)) | length == 0
+  when: available_hostnames | length == 0
 
 - name: Set hostname to next available pool entry
   ansible.builtin.set_fact:
-    hostname: "{{ (hostname_pool | difference(used_hostnames)) | first }}"
+    hostname: "{{ available_hostnames | first }}"
 
 - name: Check whether the Docker image already exists
   ansible.builtin.command:
