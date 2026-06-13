@@ -11,6 +11,7 @@ RUN apt-get update \
         openssh-server \
         sudo \
         dbus \
+        python3 \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
