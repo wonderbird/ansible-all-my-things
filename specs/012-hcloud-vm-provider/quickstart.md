@@ -18,8 +18,8 @@ ansible-playbook playbooks/create-vm.yml -e provider=hcloud
 
 - Picks the next unused hostname from
   `playbooks/vars/hostname_pool_hcloud.yml`
-  (`rivendell`, `hobbiton`, `bree`, `edoras`, `minas-tirith`, `mordor`,
-  `isengard`, `moria`, `lothlorien`, `helms-deep`).
+  (`gondor`, `fangorn`, `bree`, `edoras`, `minas-tirith`, `mordor`,
+  `isengard`, `rohan`, `lothlorien`, `helms-deep`).
 - Creates the server with the default type/location/image (overridable via
   `-e hcloud_server_type=...`, `-e hcloud_server_location=...`,
   `-e image=...`).

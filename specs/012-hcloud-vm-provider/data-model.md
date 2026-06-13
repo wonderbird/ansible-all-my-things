@@ -11,14 +11,14 @@ and the fields within it.
 
 ```yaml
 hostname_pool:
-  - rivendell
-  - hobbiton
+  - gondor
+  - fangorn
   - bree
   - edoras
   - minas-tirith
   - mordor
   - isengard
-  - moria
+  - rohan
   - lothlorien
   - helms-deep
 ```
@@ -48,7 +48,7 @@ hostname_pool:
 # AUTO-GENERATED — do not edit manually. Overwritten by create-vm.yml and destroy-vm.yml.
 all:
   hosts:
-    rivendell:
+    gondor:
       ansible_host: <public IPv4 from hetzner.hcloud.server>
       ansible_port: 22
       ansible_user: root
@@ -57,10 +57,10 @@ all:
         -o UserKnownHostsFile=<repo>/inventories/hcloud_known_hosts
 linux:
   hosts:
-    rivendell: {}
+    gondor: {}
 hcloud:
   hosts:
-    rivendell: {}
+    gondor: {}
 ```
 
 - **Fields per host** (FR-005):
