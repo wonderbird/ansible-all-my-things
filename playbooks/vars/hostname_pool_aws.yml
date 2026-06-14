@@ -1,0 +1,17 @@
+# Hostname pool for the AWS EC2 provider (provider=aws).
+# Independent from, and disjoint with, playbooks/vars/hostname_pool_tart.yml
+# (Star Trek planets), playbooks/vars/hostname_pool_docker.yml (Star Wars
+# planets), and playbooks/vars/hostname_pool_hcloud.yml (Lord of the Rings
+# place names). Dune place names keep this pool visually distinct and
+# non-colliding.
+hostname_pool:
+  - arrakis
+  - caladan
+  - giedi-prime
+  - kaitain
+  - ix
+  - chusuk
+  - tleilax
+  - salusa-secundus
+  - wallach-ix
+  - ginaz
