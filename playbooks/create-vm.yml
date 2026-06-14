@@ -8,7 +8,7 @@
     vm_memory_mb: 8192
     vm_disk_size_gb: 20
     assert_provider_usage_hint: >-
-      Run: ansible-playbook playbooks/create-vm.yml -e provider=<tart|docker>
+      Run: ansible-playbook playbooks/create-vm.yml -e provider=<tart|docker|hcloud>
   pre_tasks:
     - name: Assert provider is supported
       ansible.builtin.import_tasks: tasks/assert-provider.yml
