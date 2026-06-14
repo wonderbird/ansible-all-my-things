@@ -131,7 +131,6 @@
         delay: 5
       delegate_to: "{{ hcloud_server_ip }}"
       vars:
-        ansible_host: "{{ hcloud_server_ip }}"
         ansible_port: 22
         ansible_user: root
         ansible_ssh_common_args: "-o StrictHostKeyChecking=accept-new -o UserKnownHostsFile={{ hcloud_known_hosts_file }}"
