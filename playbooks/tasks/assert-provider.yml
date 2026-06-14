@@ -1,7 +1,7 @@
 ---
 - name: Assert provider is supported
   ansible.builtin.assert:
-    that: provider in ['tart', 'docker']
+    that: provider in ['tart', 'docker', 'hcloud']
     fail_msg: >-
-      Unsupported provider '{{ provider }}'. Allowed values: tart, docker.
+      Unsupported provider '{{ provider }}'. Allowed values: tart, docker, hcloud.
       {{ assert_provider_usage_hint }}

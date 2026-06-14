@@ -5,7 +5,7 @@
   vars:
     provider: tart
     assert_provider_usage_hint: >-
-      Run: ansible-playbook playbooks/destroy-vm.yml -e provider=<tart|docker> -e hostname=<name>
+      Run: ansible-playbook playbooks/destroy-vm.yml -e provider=<tart|docker|hcloud> -e hostname=<name>
   pre_tasks:
     - name: Assert provider is supported
       ansible.builtin.import_tasks: tasks/assert-provider.yml

@@ -1,0 +1,16 @@
+# Hostname pool for the Hetzner Cloud provider (provider=hcloud).
+# Independent from, and disjoint with, playbooks/vars/hostname_pool_tart.yml
+# (Star Trek planets) and playbooks/vars/hostname_pool_docker.yml (Star Wars
+# planets). Lord of the Rings place names keep this pool visually distinct
+# and non-colliding.
+hostname_pool:
+  - gondor
+  - fangorn
+  - bree
+  - edoras
+  - minas-tirith
+  - mordor
+  - isengard
+  - rohan
+  - lothlorien
+  - helms-deep
