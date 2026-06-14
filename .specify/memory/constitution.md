@@ -1,12 +1,10 @@
 <!--
-Sync Impact Report — 1.16.0 → 1.16.1 (PATCH)
-- Clarified Governance: the rules-files exemption from version
-  history/changelogs (AGENTS.md, CLAUDE.md, skill SKILL.md files, this
-  constitution's own Sync Impact Report) applies only to those files.
-  Feature specifications under specs/NNN-*/ are NOT exempt: they MUST stay
-  consistent with the current codebase (file paths, names, interfaces) for
-  any feature they describe; git history records how an implementation
-  evolved, not an outdated spec.
+Sync Impact Report — 1.16.1 → 1.17.0 (MINOR)
+- Added Principle XIV (SSH Host-Key Verification by Exposure): cloud /
+  internet-exposed SSH targets MUST verify the host key (accept-new +
+  project-scoped, gitignored known_hosts, removed on teardown); laptop-local
+  targets MAY disable it. Rule states the directive; full rationale, threat
+  model, and alternatives live in ADR-003.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
@@ -291,6 +289,24 @@ readers into expecting content, and propagate silently through every role
 scaffolded from the template. If a directory or file is genuinely needed, it is
 added at that point with real content.
 
+### XIV. SSH Host-Key Verification by Exposure
+
+SSH connections to internet-exposed hosts (cloud servers such as Hetzner Cloud
+or AWS) MUST verify the host key: `StrictHostKeyChecking=accept-new` against a
+project-scoped, gitignored `known_hosts` file, with the key removed idempotently
+on teardown. Connections whose network path never leaves the local machine
+(loopback, host-only, or NAT-bridged targets such as Tart VMs and Docker
+containers) MAY disable verification (`StrictHostKeyChecking=no`,
+`UserKnownHostsFile=/dev/null`), since a man-in-the-middle there presupposes an
+already-compromised host. A changed host key on a known address MUST fail
+loudly (Principle XII), never be silently re-trusted. Full rationale, threat
+model, and rejected alternatives are in ADR-003.
+
+**Rationale**: Disabling host-key checks on a public network path exposes
+automation runs — which may push secrets — to undetected man-in-the-middle
+attacks. Matching verification to exposure protects the untrusted path without
+adding host-key churn on local targets where the threat is negligible.
+
 ## Technology Stack
 
 - **Automation**: Ansible (playbooks, roles, inventory)
@@ -400,4 +416,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.16.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-06-13
+**Version**: 1.17.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-06-13
