@@ -4,13 +4,13 @@
 # planets). Lord of the Rings place names keep this pool visually distinct
 # and non-colliding.
 hostname_pool:
-  - gondor
-  - fangorn
-  - bree
   - edoras
-  - minas-tirith
-  - mordor
+  - shire
+  - osgiliath
+  - bree
   - isengard
   - rohan
-  - lothlorien
+  - angmar
+  - minas-tirith
   - helms-deep
+  - mordor
