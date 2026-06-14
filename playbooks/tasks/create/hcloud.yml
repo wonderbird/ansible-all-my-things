@@ -133,7 +133,7 @@
       vars:
         ansible_port: 22
         ansible_user: root
-        ansible_ssh_common_args: "-o StrictHostKeyChecking=accept-new -o UserKnownHostsFile={{ hcloud_known_hosts_file }}"
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=accept-new -o UserKnownHostsFile={{ hostvars[inventory_hostname]['hcloud_known_hosts_file'] }}"
 
     - name: Build updated inventory with new host
       ansible.builtin.set_fact:
