@@ -165,10 +165,13 @@ before this feature, touching only `playbooks/vars/hostname_pool_tart.yml` and
 - **FR-005**: On create with `provider=docker`, the new inventory entry MUST
   include `ansible_host: 127.0.0.1`, `ansible_port` (the host port dynamically
   published for container port 22, discovered via `docker port`),
-  `ansible_user: root`, `ansible_ssh_pass` (from `docker_root_password` in
-  `playbooks/vars/docker_credentials.yml`), and `ansible_ssh_common_args`
-  disabling strict host key checking (each fresh container has a new SSH host
-  key, mirroring the Tart provider's existing inventory entries).
+  `ansible_user: root`, and `ansible_ssh_common_args` disabling strict host key
+  checking (each fresh container has a new SSH host key, mirroring the Tart
+  provider's inventory entries). The entry MUST NOT include `ansible_ssh_pass`:
+  authentication is key-based (ADR-004). The operator's `my_ssh_public_key` is
+  installed into the container's `/root/.ssh/authorized_keys` at create time
+  over a one-time password connection (`docker_root_password`, via `sshpass`),
+  and the inventory then connects by key, matching the cloud providers.
 - **FR-006**: `create-vm.yml -e provider=docker` MUST print the assigned
   hostname on successful completion.
 - **FR-007**: When the Docker hostname pool is exhausted, `create-vm.yml -e
