@@ -85,7 +85,7 @@ inventory.
   extra-vars for the common case.
 - **FR-003**: The system MUST draw the VM hostname from a single shared ordered
   list of Star Trek TNG planet names defined in
-  `playbooks/vars/hostname_pool_tart.yml`. Hostnames are assigned sequentially; the
+  `playbooks/vars/hostname_pool_tart.yml`. Names assigned in sequence; the
   first name not already present in inventory is selected on each invocation.
 - **FR-004**: The system MUST register each newly created VM in inventory
   before `create-vm.yml` completes, so configuration automation can target it.
