@@ -136,6 +136,49 @@
         ansible_ssh_pass: "{{ hostvars[inventory_hostname]['tart_admin_password'] }}"
         ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 
+    # Install the operator's public key over the one-time password channel so
+    # the VM authenticates the same way as cloud providers (key-based). Without
+    # this, the first configure run disables password auth and the second run
+    # can no longer log in as admin (publickey denied).
+    - name: Install SSH public key for admin on the VM
+      ansible.builtin.authorized_key:
+        user: admin
+        key: "{{ my_ssh_public_key }}"
+        state: present
+      delegate_to: "{{ vm_ip }}"
+      vars:
+        ansible_user: admin
+        ansible_ssh_pass: "{{ hostvars[inventory_hostname]['tart_admin_password'] }}"
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+    # Fail loud at create time if the controller cannot authenticate with the
+    # private key matching my_ssh_public_key. PasswordAuthentication=no and
+    # BatchMode=yes forbid any password/interactive fallback, so a pass here
+    # proves key auth genuinely works (not a false pass via the still-enabled
+    # VM password).
+    - name: Verify admin can log in by SSH key (fail loud)
+      block:
+        - name: Probe key-only SSH login as admin
+          ansible.builtin.wait_for_connection:
+            timeout: 30
+            delay: 0
+          delegate_to: "{{ vm_ip }}"
+          vars:
+            ansible_user: admin
+            ansible_ssh_common_args: >-
+              -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+              -o PreferredAuthentications=publickey -o PasswordAuthentication=no
+              -o BatchMode=yes
+      rescue:
+        - name: Fail with actionable key-auth message
+          ansible.builtin.fail:
+            msg: >-
+              Key-based SSH login as admin failed on VM {{ hostname }}.
+              The public key from my_ssh_public_key was installed, but the
+              controller could not authenticate with the matching private key.
+              Load the private key matching my_ssh_public_key into your SSH agent
+              (ssh-add) or ~/.ssh, then re-run create-vm.yml -e provider=tart.
+
     - name: Build updated inventory with new host
       ansible.builtin.set_fact:
         updated_inventory: >-
@@ -147,7 +190,6 @@
                     'ansible_host': vm_ip,
                     'ansible_port': 22,
                     'ansible_user': 'admin',
-                    'ansible_ssh_pass': tart_admin_password,
                     'ansible_ssh_common_args': '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
                   }
                 })

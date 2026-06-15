@@ -57,8 +57,13 @@ is "known" if and only if its hostname appears in `all.hosts`.
 | `ansible_host` | `str` | Yes | Always `127.0.0.1` (FR-005) |
 | `ansible_port` | `int` | Yes | Host port dynamically published for container port 22, discovered via `docker port <hostname> 22/tcp` |
 | `ansible_user` | `str` | Yes | Always `root` (FR-005) |
-| `ansible_ssh_pass` | `str` | Yes | From `docker_root_password` in `playbooks/vars/docker_credentials.yml` |
 | `ansible_ssh_common_args` | `str` | Yes | Disables host-key checking (each fresh container has a new SSH host key) |
+
+No `ansible_ssh_pass` field — auth is key-based (ADR-004). At create time the
+operator's `my_ssh_public_key` is installed into the container's
+`/root/.ssh/authorized_keys` over a one-time password connection
+(`docker_root_password`, requires `sshpass`); the inventory then connects by key
+via the operator's SSH agent, matching the cloud providers.
 
 **Group membership** (all three groups updated on create/destroy):
 

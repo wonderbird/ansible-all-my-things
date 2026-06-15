@@ -48,6 +48,12 @@ destroy.
 Out of scope: SSH authentication method (key vs password, already decided per
 provider), and network attack-surface controls (firewalls, source-IP scoping).
 
+> **Note (superseded by ADR-004):** The "authentication method already decided
+> per provider" assumption above no longer holds. ADR-004 standardises all
+> providers — including the laptop-local `docker` and `tart` — on key-based
+> authentication for the bootstrap user. The host-key verification policy in
+> this ADR is unchanged by that decision.
+
 ### Blast Radius
 
 Single-maintainer repository for personal VM setup. Cloud targets are
