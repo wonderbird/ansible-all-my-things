@@ -146,10 +146,61 @@
         delay: 2
       delegate_to: 127.0.0.1
       vars:
+        ansible_connection: ssh
+        ansible_python_interpreter: auto_silent
         ansible_port: "{{ docker_ssh_port }}"
         ansible_user: root
         ansible_ssh_pass: "{{ docker_root_password }}"
         ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+    # Install the operator's public key over the one-time password channel so
+    # the container authenticates the same way as cloud providers (key-based).
+    # Without this, the first configure run disables password auth and the
+    # second run can no longer log in as root (publickey denied).
+    - name: Install SSH public key for root on the container
+      ansible.builtin.authorized_key:
+        user: root
+        key: "{{ my_ssh_public_key }}"
+        state: present
+      delegate_to: 127.0.0.1
+      vars:
+        ansible_connection: ssh
+        ansible_python_interpreter: auto_silent
+        ansible_port: "{{ docker_ssh_port }}"
+        ansible_user: root
+        ansible_ssh_pass: "{{ docker_root_password }}"
+        ansible_ssh_common_args: "-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
+    # Fail loud at create time if the controller cannot authenticate with the
+    # private key matching my_ssh_public_key. PasswordAuthentication=no and
+    # BatchMode=yes forbid any password/interactive fallback, so a pass here
+    # proves key auth genuinely works (not a false pass via the still-enabled
+    # container password).
+    - name: Verify root can log in by SSH key (fail loud)
+      block:
+        - name: Probe key-only SSH login as root
+          ansible.builtin.wait_for_connection:
+            timeout: 30
+            delay: 0
+          delegate_to: 127.0.0.1
+          vars:
+            ansible_connection: ssh
+            ansible_python_interpreter: auto_silent
+            ansible_port: "{{ docker_ssh_port }}"
+            ansible_user: root
+            ansible_ssh_common_args: >-
+              -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
+              -o PreferredAuthentications=publickey -o PasswordAuthentication=no
+              -o BatchMode=yes
+      rescue:
+        - name: Fail with actionable key-auth message
+          ansible.builtin.fail:
+            msg: >-
+              Key-based SSH login as root failed on container {{ hostname }}.
+              The public key from my_ssh_public_key was installed, but the
+              controller could not authenticate with the matching private key.
+              Load the private key matching my_ssh_public_key into your SSH agent
+              (ssh-add) or ~/.ssh, then re-run create-vm.yml -e provider=docker.
 
     - name: Build updated inventory with new host
       ansible.builtin.set_fact:
@@ -162,7 +213,6 @@
                     'ansible_host': '127.0.0.1',
                     'ansible_port': docker_ssh_port | int,
                     'ansible_user': 'root',
-                    'ansible_ssh_pass': docker_root_password,
                     'ansible_ssh_common_args': '-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null'
                   }
                 })
