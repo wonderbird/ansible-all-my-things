@@ -14,3 +14,5 @@
 # For a list of available locations, check `hcloud location list`.
 #
 hcloud_default_location: "fsn1"
+
+admin_user_on_fresh_system: "root"
