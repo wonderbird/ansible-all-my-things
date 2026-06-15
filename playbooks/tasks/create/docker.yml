@@ -147,6 +147,7 @@
       delegate_to: 127.0.0.1
       vars:
         ansible_connection: ssh
+        ansible_python_interpreter: auto_silent
         ansible_port: "{{ docker_ssh_port }}"
         ansible_user: root
         ansible_ssh_pass: "{{ docker_root_password }}"
@@ -164,6 +165,7 @@
       delegate_to: 127.0.0.1
       vars:
         ansible_connection: ssh
+        ansible_python_interpreter: auto_silent
         ansible_port: "{{ docker_ssh_port }}"
         ansible_user: root
         ansible_ssh_pass: "{{ docker_root_password }}"
@@ -183,6 +185,7 @@
           delegate_to: 127.0.0.1
           vars:
             ansible_connection: ssh
+            ansible_python_interpreter: auto_silent
             ansible_port: "{{ docker_ssh_port }}"
             ansible_user: root
             ansible_ssh_common_args: >-
