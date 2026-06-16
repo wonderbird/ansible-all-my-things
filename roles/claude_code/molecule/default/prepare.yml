@@ -43,7 +43,6 @@
       ansible.builtin.shell: source /home/testuser/.nvm/nvm.sh && nvm install --lts
       args:
         executable: /bin/bash
-      become: true
       become_user: testuser
       environment:
         HOME: /home/testuser
