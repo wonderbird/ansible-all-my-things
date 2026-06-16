@@ -19,15 +19,25 @@
         group: testuser
         mode: '0755'
 
+    - name: Download NVM install script
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
+        dest: /tmp/nvm-install.sh
+        mode: '0755'
+
     - name: Install nvm for testuser
-      ansible.builtin.shell: curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/HEAD/install.sh | bash
-      args:
-        executable: /bin/bash
+      ansible.builtin.shell:
+        cmd: /tmp/nvm-install.sh
         creates: /home/testuser/.nvm/nvm.sh
-      become: true
       become_user: testuser
       environment:
         HOME: /home/testuser
+
+    - name: Install curl for nvm runtime
+      ansible.builtin.apt:
+        name: curl
+        state: present
+        update_cache: true
 
     - name: Install Node.js LTS via nvm
       ansible.builtin.shell: source /home/testuser/.nvm/nvm.sh && nvm install --lts
