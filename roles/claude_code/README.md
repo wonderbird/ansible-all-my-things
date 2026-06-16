@@ -13,7 +13,6 @@ for web search.
 
 - Ansible 2.19+
 - `git` present on target hosts (not managed by this role)
-- `curl` present on target hosts (used by the beads installer)
 - Internet access from target hosts (downloads Claude Code, plugins, beads)
 
 ## Role Variables
