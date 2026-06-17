@@ -320,7 +320,7 @@ unchanged.
 
 **Purpose**: Repository-wide closing tasks mandated by the constitution.
 
-- [ ] T011 Run `review-documentation-here` then `format-markdown` across any
+- [x] T011 Run `review-documentation-here` then `format-markdown` across any
   Markdown touched by this feature (constitution Principle VI and
   Documentation Standards). Confirm `playbooks/vars/hostname_pool_hcloud.yml`'s
   header comment and the two task files' algorithm comments are consistent

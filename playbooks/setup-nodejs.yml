@@ -1,16 +1,22 @@
 ---
 - hosts: linux
   become: true
-  
+
   vars:
     ansible_user: "{{ my_ansible_user }}"
     desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
     first_desktop_user: "{{ desktop_user_names[0] }}"
 
   tasks:
+    - name: Download NVM install script
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
+        dest: /tmp/nvm-install.sh
+        mode: '0755'
+
     - name: Install NVM
-      shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
-      args:
+      ansible.builtin.shell:
+        cmd: /tmp/nvm-install.sh
         creates: "/home/{{ item }}/.nvm/nvm.sh"
       become_user: "{{ item }}"
       loop: "{{ desktop_user_names }}"
@@ -54,7 +60,7 @@
           markdownlint-cli \
           prettier \
           typescript
-      # Note: Last package is used in the `creates` check below for idempotency. 
+      # Note: Last package is used in the `creates` check below for idempotency.
       args:
         executable: /bin/bash
         creates: "/home/{{ item }}/.nvm/versions/node/{{ nvm_current_output.stdout_lines[0] }}/lib/node_modules/typescript"
