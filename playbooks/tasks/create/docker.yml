@@ -158,7 +158,7 @@
     # Without this, the first configure run disables password auth and the
     # second run can no longer log in as root (publickey denied).
     - name: Install SSH public key for root on the container
-      ansible.builtin.authorized_key:
+      ansible.posix.authorized_key:
         user: root
         key: "{{ my_ssh_public_key }}"
         state: present
