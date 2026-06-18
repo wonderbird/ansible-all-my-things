@@ -12,6 +12,12 @@
     state: present
   become: true
 
+- name: Install pipx
+  ansible.builtin.apt:
+    name: pipx
+    state: present
+  become: true
+
 - name: Check if rtk binary already exists
   ansible.builtin.stat:
     path: /usr/local/bin/rtk

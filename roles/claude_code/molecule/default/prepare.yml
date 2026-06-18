@@ -25,6 +25,12 @@
         dest: /tmp/nvm-install.sh
         mode: '0755'
 
+    - name: Install curl for nvm runtime
+      ansible.builtin.apt:
+        name: curl
+        state: present
+        update_cache: true
+
     - name: Install nvm for testuser
       ansible.builtin.shell:
         cmd: /tmp/nvm-install.sh
@@ -32,12 +38,6 @@
       become_user: testuser
       environment:
         HOME: /home/testuser
-
-    - name: Install curl for nvm runtime
-      ansible.builtin.apt:
-        name: curl
-        state: present
-        update_cache: true
 
     - name: Install Node.js LTS via nvm
       ansible.builtin.shell: source /home/testuser/.nvm/nvm.sh && nvm install --lts
