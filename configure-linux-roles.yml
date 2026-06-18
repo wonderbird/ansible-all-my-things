@@ -17,7 +17,8 @@
     - ruby
     - python
     - claude_code
-    - tmux # tmux_install_nerd_font (vars above) enables the Hack Nerd Font install for this desktop play
+    # tmux_install_nerd_font (vars above) enables the Hack Nerd Font install for this desktop play
+    - tmux
     - dolt_sql_server
     - role: google_chrome
       tags: not-supported-on-vagrant-arm64
