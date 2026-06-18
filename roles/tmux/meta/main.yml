@@ -3,7 +3,7 @@ galaxy_info:
   author: Stefan Boos
   namespace: wonderbird
   role_name: tmux
-  description: Install and configure tmux with plugins for desktop users on Linux
+  description: Install and configure tmux with plugins on Linux; optionally installs Hack Nerd Font for desktop users (tmux_install_nerd_font)
   company: n.a.
   issue_tracker_url: http://github.com/wonderbird/ansible-all-my-things/issues
   license: MIT

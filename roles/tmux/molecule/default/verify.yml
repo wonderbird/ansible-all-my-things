@@ -80,13 +80,13 @@
         fail_msg: ".gitmux.conf not found at /home/testuser/.gitmux.conf"
         success_msg: ".gitmux.conf found at /home/testuser/.gitmux.conf"
 
-    - name: Check Hack Nerd Font is installed
+    - name: Check Hack Nerd Font is not installed
       ansible.builtin.stat:
         path: /home/testuser/.local/share/fonts/HackNerdFont-Regular.ttf
       register: tmux_font_stat
 
-    - name: Assert Hack Nerd Font is present
+    - name: Assert Hack Nerd Font is absent (console-only default)
       ansible.builtin.assert:
-        that: tmux_font_stat.stat.exists
-        fail_msg: "HackNerdFont-Regular.ttf not found at /home/testuser/.local/share/fonts/"
-        success_msg: "HackNerdFont-Regular.ttf found at /home/testuser/.local/share/fonts/"
+        that: not tmux_font_stat.stat.exists
+        fail_msg: "HackNerdFont-Regular.ttf was installed despite tmux_install_nerd_font defaulting to false"
+        success_msg: "HackNerdFont-Regular.ttf correctly absent when tmux_install_nerd_font is false"

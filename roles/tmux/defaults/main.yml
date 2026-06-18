@@ -2,6 +2,7 @@
 ---
 tmux_gitmux_version: "v0.11.5"
 tmux_font_version: "v3.4.0"
+tmux_install_nerd_font: false
 tmux_gitmux_arch_map:
   x86_64: amd64
   aarch64: arm64
