@@ -1,6 +1,6 @@
 ---
 - name: Configure basic profile linux roles
-  hosts: tart
+  hosts: linux
   become: true
 
   vars:
