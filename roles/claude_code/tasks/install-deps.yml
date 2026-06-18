@@ -6,6 +6,12 @@
     state: present
   become: true
 
+- name: Install git
+  ansible.builtin.apt:
+    name: git
+    state: present
+  become: true
+
 - name: Check if rtk binary already exists
   ansible.builtin.stat:
     path: /usr/local/bin/rtk
