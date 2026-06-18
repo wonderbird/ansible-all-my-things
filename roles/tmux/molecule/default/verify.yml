@@ -88,5 +88,5 @@
     - name: Assert Hack Nerd Font is absent (console-only default)
       ansible.builtin.assert:
         that: not tmux_font_stat.stat.exists
-        fail_msg: "HackNerdFont-Regular.ttf was installed despite tmux_install_nerd_font defaulting to false"
-        success_msg: "HackNerdFont-Regular.ttf correctly absent when tmux_install_nerd_font is false"
+        fail_msg: "HackNerdFont-Regular.ttf was installed despite tmux_install_iconic_font defaulting to false"
+        success_msg: "HackNerdFont-Regular.ttf correctly absent when tmux_install_iconic_font is false"
