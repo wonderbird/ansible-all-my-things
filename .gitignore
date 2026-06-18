@@ -10,8 +10,8 @@
 .worktrees/
 
 # Oh My Claude Code
-.omc/state/
-.omc/sessions/
+**/.omc/state/
+**/.omc/sessions/
 .omc/prd.json
 .omc/project-memory.json
 .omc/progress.txt
