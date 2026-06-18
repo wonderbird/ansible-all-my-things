@@ -8,6 +8,12 @@
     first_desktop_user: "{{ desktop_user_names[0] }}"
 
   tasks:
+    - name: Install curl
+      ansible.builtin.apt:
+        name: curl
+        state: present
+        update_cache: true
+
     - name: Download NVM install script
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh
