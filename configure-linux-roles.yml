@@ -6,6 +6,7 @@
   vars:
     ansible_user: "{{ my_ansible_user }}"
     desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    tmux_install_iconic_font: true
 
   # In this play, some roles carry the not-supported-on-vagrant-arm64 tag.
   # If any of them is ever invoked via ansible.builtin.include_role,
@@ -16,6 +17,7 @@
     - ruby
     - python
     - claude_code
+    # tmux_install_iconic_font (vars above) enables the iconic font install for this desktop play
     - tmux
     - dolt_sql_server
     - role: google_chrome
