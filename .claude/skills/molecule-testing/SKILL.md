@@ -223,6 +223,21 @@ molecule test
 All phases MUST pass before committing. The two podman schema warnings are
 expected and acceptable.
 
+## Concurrency
+
+When multiple agent sessions might run `molecule test` concurrently on the
+same host, all `molecule/*/molecule.yml` files hardcode the podman container
+name `instance` — a single shared resource even across separate git worktrees.
+Concurrent runs can collide. Use the wrapper script:
+
+```shell
+cd roles/<role-name>
+../../scripts/with-molecule-lock.sh molecule test
+```
+
+The wrapper serializes molecule test runs host-wide, ensuring the shared
+`instance` container is only in use by one session at a time.
+
 ## Troubleshooting: molecule not found
 
 If `molecule` is not on PATH, the project `.venv` is missing or stale.
