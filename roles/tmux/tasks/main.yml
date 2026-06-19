@@ -3,5 +3,6 @@
 - import_tasks: install-tmux.yml
 - import_tasks: install-gitmux.yml
 - import_tasks: install-font.yml
+  when: tmux_install_iconic_font
 - import_tasks: install-plugins.yml
 - import_tasks: configure.yml

@@ -1,0 +1,12 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Prepare container
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Create testuser
+      ansible.builtin.user:
+        name: testuser
+        state: present
+        create_home: true
