@@ -1,8 +1,11 @@
 #SPDX-License-Identifier: MIT-0
 ---
-- name: Install jq
+- name: Install jq, git and pipx
   ansible.builtin.apt:
-    name: jq
+    name:
+      - jq
+      - git
+      - pipx
     state: present
   become: true
 
