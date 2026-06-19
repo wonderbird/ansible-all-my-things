@@ -9,6 +9,7 @@
 
   roles:
     - podman
+    - tmux
     - ruby
     - python
     - dolt_sql_server
