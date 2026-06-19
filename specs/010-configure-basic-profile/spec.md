@@ -2,7 +2,7 @@
 
 **Feature Branch**: `010-configure-basic-profile`
 **Created**: 2026-06-10
-**Status**: Draft
+**Status**: Implemented
 
 ## User Scenarios & Testing *(mandatory)*
 

@@ -19,17 +19,17 @@ No test tasks — not requested in the specification.
 **Purpose**: New variable files and the container image definition that the
 Docker provider depends on. None of these touch Tart-provider files.
 
-- [ ] T001 [P] Create `playbooks/vars/hostname_pool_docker.yml` with the
+- [X] T001 [P] Create `playbooks/vars/hostname_pool_docker.yml` with the
   variable `hostname_pool` set to the ordered list of ten Star Wars planet
   names: `tatooine`, `coruscant`, `naboo`, `alderaan`, `hoth`, `dagobah`,
   `endor`, `kamino`, `mustafar`, `yavin` (FR-011); add a header comment noting
   this pool is independent from and disjoint with
   `playbooks/vars/hostname_pool_tart.yml` (Tart pool, FR-003)
-- [ ] T002 [P] Create `playbooks/vars/docker_credentials.yml` with the
+- [X] T002 [P] Create `playbooks/vars/docker_credentials.yml` with the
   variable `docker_root_password` set to a default password value, modelled
   on `playbooks/vars/tart_credentials.yml`'s structure and header-comment
   style (default credential, not a project secret; FR-005, FR-013)
-- [ ] T003 [P] Create `playbooks/files/docker/Dockerfile` — base
+- [X] T003 [P] Create `playbooks/files/docker/Dockerfile` — base
   `ubuntu:24.04`; install `systemd`, `openssh-server`, `sudo`, `dbus` (and any
   other package required for `--privileged` systemd boot); enable
   `PermitRootLogin yes` and `PasswordAuthentication yes` via
@@ -55,7 +55,7 @@ seam both US1 and US2 plug into, and is also where US3 (no-`provider` /
 until this phase is complete. (The task files themselves, T006/T010 etc., can
 still be authored in parallel — see Parallel Opportunities.)
 
-- [ ] T004 [US3] Modify `playbooks/create-vm.yml` — add a top-level
+- [X] T004 [US3] Modify `playbooks/create-vm.yml` — add a top-level
   `provider: tart` default var; add a `pre_tasks` (or first task) `assert`
   that `provider` is one of `tart`/`docker`, failing loudly with an actionable
   message before any dispatch (Principle XII, data-model.md "Provider
@@ -65,7 +65,7 @@ still be authored in parallel — see Parallel Opportunities.)
   existing `vm_cpus`/`vm_memory_mb`/`vm_disk_size_gb` vars and
   `tasks/create/tart.yml` itself MUST remain byte-for-byte unchanged
   (FR-001, FR-017, research.md "Provider Dispatch")
-- [ ] T005 [US3] Modify `playbooks/destroy-vm.yml` — add the same top-level
+- [X] T005 [US3] Modify `playbooks/destroy-vm.yml` — add the same top-level
   `provider: tart` default var and `provider` `assert` as T004; replace
   `ansible.builtin.include_tasks: tasks/destroy/tart.yml` with
   `ansible.builtin.include_tasks: "tasks/destroy/{{ provider }}.yml"`; the
@@ -90,7 +90,7 @@ assigned hostname.
 extra-vars; verify the command completes, prints a hostname, and the container
 is reachable via SSH using the registered inventory entry.
 
-- [ ] T006 [US1] Create `playbooks/tasks/create/docker.yml` — pool-check
+- [X] T006 [US1] Create `playbooks/tasks/create/docker.yml` — pool-check
   block: load `playbooks/vars/hostname_pool_docker.yml` and
   `playbooks/vars/docker_credentials.yml` (`include_vars`); assert
   `docker_root_password | length > 0`; check for
@@ -103,7 +103,7 @@ is reachable via SSH using the registered inventory entry.
   `(hostname_pool | difference(used_hostnames)) | length == 0` (FR-003,
   FR-007, Principle XII) **before any Docker action**; set `hostname` to the
   first unused pool entry
-- [ ] T007 [US1] Extend `playbooks/tasks/create/docker.yml` — image build
+- [X] T007 [US1] Extend `playbooks/tasks/create/docker.yml` — image build
   guard: run `docker image inspect ansible-vm-docker:latest`
   (`ansible.builtin.command`, `register: docker_image_check`,
   `changed_when: false`, `failed_when: false`); run
@@ -111,7 +111,7 @@ is reachable via SSH using the registered inventory entry.
   DOCKER_ROOT_PASSWORD={{ docker_root_password }} {{ playbook_dir }}/files/docker`
   `when: docker_image_check.rc != 0`, `changed_when: true` (FR-013,
   research.md "Docker Image Build Guard")
-- [ ] T008 [US1] Extend `playbooks/tasks/create/docker.yml` — container-run
+- [X] T008 [US1] Extend `playbooks/tasks/create/docker.yml` — container-run
   block (wrapped in `block:` for the rescue in T009): set
   `docker_vm_cpus`/`docker_vm_memory` defaults (`2`/`4g`) if not already
   provided as extra-vars (FR-012); run
@@ -123,7 +123,7 @@ is reachable via SSH using the registered inventory entry.
   from `docker_port_result.stdout` (format `127.0.0.1:<port>`) and assert it
   is non-empty/numeric before use (FR-005, Principle XII, research.md
   "Container Run, Port Discovery, and SSH Readiness")
-- [ ] T009 [US1] Extend `playbooks/tasks/create/docker.yml` — SSH readiness
+- [X] T009 [US1] Extend `playbooks/tasks/create/docker.yml` — SSH readiness
   and inventory write (still inside the T008 `block:`): poll SSH readiness on
   `127.0.0.1:<discovered-port>` via `ansible.builtin.wait_for_connection` (or
   `wait_for: port=<port> host=127.0.0.1`), mirroring the `tart ip` poll in
@@ -138,7 +138,7 @@ is reachable via SSH using the registered inventory entry.
   `# AUTO-GENERATED` header comment (mirrors
   `playbooks/tasks/create/tart.yml:160-164`); emit a `debug` task printing
   `"VM created with hostname: {{ hostname }}"` (FR-006)
-- [ ] T010 [US1] Extend `playbooks/tasks/create/docker.yml` — add the `rescue:`
+- [X] T010 [US1] Extend `playbooks/tasks/create/docker.yml` — add the `rescue:`
   block for the T008 `block:`: run `docker stop {{ hostname }}` and
   `docker rm {{ hostname }}` (both `ansible.builtin.command`,
   `failed_when: false`), then `ansible.builtin.fail` with a message naming the
@@ -162,7 +162,7 @@ references from `inventories/docker_autogenerated.yml`.
 verify the container no longer exists and `tatooine` is absent from
 `inventories/docker_autogenerated.yml`.
 
-- [ ] T011 [US2] Create `playbooks/tasks/destroy/docker.yml` — inventory check
+- [X] T011 [US2] Create `playbooks/tasks/destroy/docker.yml` — inventory check
   block: assert `hostname is defined and hostname | length > 0` (mirrors
   `playbooks/tasks/destroy/tart.yml:8-13`); check for
   `inventories/docker_autogenerated.yml` via `stat`, load it with
@@ -171,7 +171,7 @@ verify the container no longer exists and `tatooine` is absent from
   identifying the unknown hostname if `hostname` is not in
   `current_inventory.all.hosts` **before any Docker action** (FR-010,
   Principle XII, data-model.md "Docker Inventory Entry" validation rules)
-- [ ] T012 [US2] Extend `playbooks/tasks/destroy/docker.yml` — container
+- [X] T012 [US2] Extend `playbooks/tasks/destroy/docker.yml` — container
   existence check and teardown: run `docker container inspect {{ hostname }}`
   (`ansible.builtin.command`, `register: docker_container_check`,
   `changed_when: false`, `failed_when: false`); when
@@ -182,7 +182,7 @@ verify the container no longer exists and `tatooine` is absent from
   (`changed_when: true`) (mirrors `playbooks/tasks/destroy/tart.yml:45-68`,
   substituting `docker container inspect` for the Tart `stat` check per
   research.md "Destroy Flow: Stale Inventory / Stale Container Handling")
-- [ ] T013 [US2] Extend `playbooks/tasks/destroy/docker.yml` — inventory
+- [X] T013 [US2] Extend `playbooks/tasks/destroy/docker.yml` — inventory
   cleanup: rebuild `all.hosts`, `linux.hosts`, and `docker.hosts` via
   `dict2items | selectattr('key', '!=', hostname) | list | items2dict`
   (mirrors `playbooks/tasks/destroy/tart.yml:70-88`); write back to
@@ -214,13 +214,13 @@ commands behave exactly as before, touching only
 > after US1/US2 exist so the `provider=docker` paths can also be exercised for
 > contrast.
 
-- [ ] T014 [P] [US3] Manually validate FR-001/FR-017/SC-005: run
+- [X] T014 [P] [US3] Manually validate FR-001/FR-017/SC-005: run
   `ansible-playbook playbooks/create-vm.yml` (no `provider` extra-var);
   confirm a Tart VM is created exactly as before, only
   `playbooks/vars/hostname_pool_tart.yml` and `inventories/tart_autogenerated.yml`
   are touched, and `inventories/docker_autogenerated.yml` /
   `playbooks/vars/hostname_pool_docker.yml` are untouched
-- [ ] T015 [P] [US3] Manually validate FR-001/FR-017/SC-005 for destroy: run
+- [X] T015 [P] [US3] Manually validate FR-001/FR-017/SC-005 for destroy: run
   `ansible-playbook playbooks/destroy-vm.yml -e hostname=<tart-hostname>` (no
   `provider` extra-var, using a hostname created in T014); confirm identical
   behavior to pre-feature `destroy-vm.yml`, touching only
@@ -236,32 +236,32 @@ path confirmed unchanged.
 **Purpose**: Verify the remaining failure-mode contracts and out-of-scope
 guarantees from spec.md / contracts/.
 
-- [ ] T016 [P] Manually validate FR-007 (Docker pool exhaustion): populate
+- [X] T016 [P] Manually validate FR-007 (Docker pool exhaustion): populate
   `inventories/docker_autogenerated.yml` with all 10 Star Wars hostnames as
   dummy `all.hosts` entries; run
   `ansible-playbook playbooks/create-vm.yml -e provider=docker`; confirm the
   playbook fails immediately with an error naming
   `playbooks/vars/hostname_pool_docker.yml`, **before** any `docker build` or
   `docker run` is invoked; restore the inventory afterwards
-- [ ] T017 [P] Manually validate FR-010 (unknown hostname on destroy): run
+- [X] T017 [P] Manually validate FR-010 (unknown hostname on destroy): run
   `ansible-playbook playbooks/destroy-vm.yml -e provider=docker -e hostname=nonexistent`;
   confirm immediate failure with an actionable error identifying the unknown
   hostname, and that no `docker` command was executed
-- [ ] T018 [P] Manually validate FR-009 (stale inventory entry on destroy):
+- [X] T018 [P] Manually validate FR-009 (stale inventory entry on destroy):
   manually `docker rm -f` a container created via US1 without running
   `destroy-vm.yml`, leaving its inventory entry in place; run
   `ansible-playbook playbooks/destroy-vm.yml -e provider=docker -e hostname=<that-hostname>`;
   confirm a warning is printed, the `docker stop`/`docker rm` steps are
   skipped gracefully, and the hostname is still removed from
   `inventories/docker_autogenerated.yml`
-- [ ] T019 [P] Manually validate an invalid `provider` value: run
+- [X] T019 [P] Manually validate an invalid `provider` value: run
   `ansible-playbook playbooks/create-vm.yml -e provider=bogus`; confirm the
   T004 `assert` fails immediately with an actionable error, before
   `include_tasks` is reached
-- [ ] T020 [P] Confirm FR-016 (out of scope): `git status` /
+- [X] T020 [P] Confirm FR-016 (out of scope): `git status` /
   `git diff` after T001–T018 show no changes to
   `inventories/vagrant_docker.yml` or any file under `test/docker/`
-- [ ] T021 Run `quickstart.md` end-to-end on a host with a working Docker
+- [X] T021 Run `quickstart.md` end-to-end on a host with a working Docker
   daemon: image build on first run, container creation, SSH via
   `sshpass`/`ansible <hostname> -m ping`, resource override
   (`-e docker_vm_cpus=4 -e docker_vm_memory=8g`), and destroy

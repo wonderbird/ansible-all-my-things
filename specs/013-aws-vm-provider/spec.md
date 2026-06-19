@@ -2,7 +2,7 @@
 
 **Feature Branch**: `013-aws-vm-provider`
 **Created**: 2026-06-14
-**Status**: Draft
+**Status**: Implemented
 
 ## User Scenarios & Testing *(mandatory)*
 
