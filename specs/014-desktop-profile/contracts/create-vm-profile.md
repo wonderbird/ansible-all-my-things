@@ -10,7 +10,7 @@ ansible-playbook playbooks/create-vm.yml [-e provider=<tart|docker|hcloud|aws>] 
 ## Preconditions (checked in this order, before any infrastructure action)
 
 1. `provider` is one of `tart`, `docker`, `hcloud`, `aws` (existing
-   `tasks/assert-provider.yml`, unchanged).
+   `tasks/assert-provider-profile.yml`, unchanged).
 2. `profile` is one of `basic`, `desktop` (FR-001; new assertion).
 3. The combination `provider=docker` with `profile=desktop` is rejected with
    an explicit error naming both values (FR-006; new assertion).

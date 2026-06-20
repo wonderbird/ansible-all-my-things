@@ -57,7 +57,7 @@ build on it.
       `playbooks/tasks/destroy/hcloud.yml`
 - [ ] T009 [P] Same group-key removal in `playbooks/tasks/destroy/aws.yml`
 - [ ] T010 Add `profile` value validation (`basic`|`desktop`) to
-      `playbooks/tasks/assert-provider.yml`, run in `create-vm.yml`'s
+      `playbooks/tasks/assert-provider-profile.yml`, run in `create-vm.yml`'s
       `pre_tasks` before `tasks/create/{{ provider }}.yml` is included
       (depends on T001)
 - [ ] T011 [P] Re-scope `playbooks/configure-profile-roles.yml`'s existing
@@ -121,8 +121,8 @@ failure naming both values, with no container created.
 ### Implementation for User Story 2
 
 - [ ] T015 [US2] Add a `provider == 'docker' and profile == 'desktop'`
-      rejection assertion to `playbooks/tasks/assert-provider.yml`, run in
-      `create-vm.yml`'s `pre_tasks` (depends on T010)
+      rejection assertion to `playbooks/tasks/assert-provider-profile.yml`,
+      run in `create-vm.yml`'s `pre_tasks` (depends on T010)
 - [ ] T016 [US2] Validate: `create-vm.yml -e provider=docker -e
       profile=desktop` fails immediately with an explicit error naming both
       values, before any container is created; `create-vm.yml -e
@@ -200,7 +200,7 @@ basic VM's does not.
 - T011 can run in parallel with T002-T009 (distinct file)
 - Once Foundational (Phase 2) completes, US1, US2, and US3 can proceed in
   parallel — they touch disjoint files (`configure-profile*.yml` for US1;
-  `assert-provider.yml` for US2; `tasks/create/aws.yml` for US3, already
+  `assert-provider-profile.yml` for US2; `tasks/create/aws.yml` for US3, already
   touched once in T005 but the US3 edit is additive)
 - T019 and T020 (Polish) can run in parallel
 

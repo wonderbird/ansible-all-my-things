@@ -11,8 +11,8 @@
     assert_provider_usage_hint: >-
       Run: ansible-playbook playbooks/create-vm.yml -e provider=<tart|docker|hcloud|aws>
   pre_tasks:
-    - name: Assert provider is supported
-      ansible.builtin.import_tasks: tasks/assert-provider.yml
+    - name: Assert provider and profile are supported
+      ansible.builtin.import_tasks: tasks/assert-provider-profile.yml
   tasks:
     - name: Run VM creation tasks
       ansible.builtin.include_tasks: "tasks/create/{{ provider }}.yml"

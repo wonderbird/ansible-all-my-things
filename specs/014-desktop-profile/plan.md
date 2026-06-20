@@ -76,13 +76,13 @@ II (Role-First Organisation — exception logged in Complexity Tracking), IV
 XI (DRY — reuses `desktop_users`/`inventories/group_vars/all/vars.yml`
 unchanged, no duplicated user-list logic), XII (Fail Loud —
 `provider=docker profile=desktop` rejected before any infrastructure action,
-mirroring the existing `assert-provider.yml` pattern). FR-001 through FR-012
+mirroring the existing `assert-provider-profile.yml` pattern). FR-001 through FR-012
 in [spec.md](./spec.md) are the binding requirements.
 
 **Scale/Scope**: 8 existing task files modified (`tasks/{create,destroy}/
 {tart,docker,hcloud,aws}.yml` — add one inventory-group key each),
 `create-vm.yml`/`destroy-vm.yml` (add `profile` var + validation),
-`tasks/assert-provider.yml` or a new sibling assertion task (validate
+`tasks/assert-provider-profile.yml` or a new sibling assertion task (validate
 `profile` value and reject the `docker`+`desktop` combination),
 `configure-profile-roles.yml` (re-scope existing play to `hosts: basic`, add
 a `desktop`-targeted play), `configure-profile.yml` (add `desktop` branch),
@@ -106,7 +106,7 @@ top-level playbooks beyond what already exists.
 | IX. CI/CD Pipeline Security | N/A | No CI workflow changes. |
 | X. Self-Contained Durable Artefacts | PASS | This plan and the spec contain no tracker IDs standing in for substance; the one parenthetical issue reference above is non-load-bearing (strip test: removing it loses no meaning). |
 | XI. Avoid Duplication (DRY) | PASS | `desktop_users`/`inventories/group_vars/all/vars.yml` reused unchanged across both the existing `basic` play and the new `desktop` play — not redefined. |
-| XII. Fail Loud | PASS | `provider=docker` + `profile=desktop` rejected via `assert`/`fail` before any container/VM/API action (FR-006), mirroring the existing `assert-provider.yml` pattern. |
+| XII. Fail Loud | PASS | `provider=docker` + `profile=desktop` rejected via `assert`/`fail` before any container/VM/API action (FR-006), mirroring the existing `assert-provider-profile.yml` pattern. |
 | XIII. No Empty Artefacts | PASS | No placeholder files created. |
 | XIV. SSH Host-Key Verification by Exposure | N/A | This feature does not change any provider's SSH connection/host-key handling; it only adds an inventory-group key and a security-group rule. |
 
@@ -141,7 +141,7 @@ playbooks/
 │                                        #         add a `hosts: desktop` play importing
 │                                        #         configure-linux-roles.yml's role list verbatim
 └── tasks/
-    ├── assert-provider.yml             # MODIFY: validate `profile` value;
+    ├── assert-provider-profile.yml             # MODIFY: validate `profile` value;
     │                                   #         reject docker+desktop
     ├── create/
     │   ├── tart.yml                   # MODIFY: add basic/desktop group key to inventory write

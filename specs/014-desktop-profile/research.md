@@ -56,16 +56,16 @@ already proven idempotent four times over.
   established (if duplicative) per-provider style, and the duplication here
   is 4 nearly-identical one-line dict entries, not complex logic.
 
-## Decision: Reject docker+desktop via a new assert-provider.yml task
+## Decision: Reject docker+desktop via a new assert-provider-profile.yml task
 
-**Decision**: Add a new task to the existing `assert-provider.yml` that
+**Decision**: Add a new task to the existing `assert-provider-profile.yml` that
 fails loudly when `provider == 'docker' and profile == 'desktop'`, run in
 `create-vm.yml`'s `pre_tasks`, before `tasks/create/{{ provider }}.yml` is
 included.
 
-**Rationale**: `assert-provider.yml` already establishes the "fail before any
-infrastructure action" pattern for an invalid `provider` value
-(`tasks/assert-provider.yml`). The desktop/docker incompatibility is the
+**Rationale**: `assert-provider-profile.yml` already establishes the "fail
+before any infrastructure action" pattern for an invalid `provider` value
+(`tasks/assert-provider-profile.yml`). The desktop/docker incompatibility is the
 same shape of pre-condition — a value combination that must never reach the
 provider-specific task file — and reuses the existing `pre_tasks` slot.
 
