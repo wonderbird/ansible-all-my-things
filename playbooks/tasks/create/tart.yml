@@ -199,6 +199,9 @@
               },
               'tart': {
                 'hosts': (current_inventory.tart.hosts | default({})) | combine({hostname: {}})
+              },
+              profile: {
+                'hosts': ((current_inventory[profile] | default({})).hosts | default({})) | combine({hostname: {}})
               }
             }, recursive=true)
           }}

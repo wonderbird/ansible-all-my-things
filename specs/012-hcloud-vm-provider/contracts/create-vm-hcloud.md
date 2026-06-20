@@ -10,7 +10,7 @@ ansible-playbook playbooks/create-vm.yml -e provider=hcloud \
 ## Preconditions (checked in this order, before any Hetzner Cloud API call)
 
 1. `provider` is one of `tart`, `docker`, `hcloud` (existing
-   `tasks/assert-provider.yml`, extended).
+   `tasks/assert-provider-profile.yml`, extended).
 2. `HCLOUD_TOKEN` environment variable is set and non-empty (FR-012). Failure
    message identifies `HCLOUD_TOKEN` by name.
 3. At least one entry in `playbooks/vars/hostname_pool_hcloud.yml`

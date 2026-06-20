@@ -72,7 +72,7 @@ in [spec.md](./spec.md) are the binding requirements.
 **Scale/Scope**: 2 new task files (`playbooks/tasks/create/hcloud.yml`,
 `playbooks/tasks/destroy/hcloud.yml`), 1 new vars file
 (`playbooks/vars/hostname_pool_hcloud.yml`), small edits to
-`playbooks/tasks/assert-provider.yml` and the `assert_provider_usage_hint`
+`playbooks/tasks/assert-provider-profile.yml` and the `assert_provider_usage_hint`
 strings in `create-vm.yml`/`destroy-vm.yml`, 1 new line in `.gitignore`.
 
 ## Constitution Check
@@ -125,7 +125,7 @@ playbooks/
 │   ├── hostname_pool_docker.yml        # unchanged
 │   └── hostname_pool_hcloud.yml        # NEW: 10 LOTR place names (FR-011)
 └── tasks/
-    ├── assert-provider.yml             # MODIFY: allow 'hcloud' in provider list
+    ├── assert-provider-profile.yml             # MODIFY: allow 'hcloud' in provider list
     ├── create/
     │   ├── tart.yml                    # unchanged
     │   ├── docker.yml                  # unchanged

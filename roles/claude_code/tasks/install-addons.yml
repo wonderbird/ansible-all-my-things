@@ -270,6 +270,7 @@
   environment:
     PATH: "/home/{{ item.name }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   loop: "{{ desktop_users }}"
+  no_log: true
   failed_when: false
   changed_when: false
   register: exa_mcp_check
@@ -281,6 +282,7 @@
       -e EXA_API_KEY={{ item.exa_api_key }} -- npx -y exa-mcp-server
   become: true
   become_user: "{{ item.name }}"
+  no_log: true
   environment:
     PATH: "/home/{{ item.name }}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
   loop: "{{ desktop_users }}"

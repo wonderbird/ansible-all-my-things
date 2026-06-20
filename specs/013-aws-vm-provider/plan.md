@@ -76,7 +76,7 @@ host-key verification by exposure, per ADR-003). FR-001 through FR-017 in
 **Scale/Scope**: 2 new task files (`playbooks/tasks/create/aws.yml`,
 `playbooks/tasks/destroy/aws.yml`), 1 new vars file
 (`playbooks/vars/hostname_pool_aws.yml`), small edits to
-`playbooks/tasks/assert-provider.yml` and the `assert_provider_usage_hint`
+`playbooks/tasks/assert-provider-profile.yml` and the `assert_provider_usage_hint`
 strings in `create-vm.yml`/`destroy-vm.yml`, 1 new line in `.gitignore`.
 
 ## Constitution Check
@@ -130,7 +130,7 @@ playbooks/
 │   ├── hostname_pool_hcloud.yml        # unchanged
 │   └── hostname_pool_aws.yml           # NEW: 10 Dune place names (FR-011)
 └── tasks/
-    ├── assert-provider.yml             # MODIFY: allow 'aws' in provider list
+    ├── assert-provider-profile.yml             # MODIFY: allow 'aws' in provider list
     ├── create/
     │   ├── tart.yml                    # unchanged
     │   ├── docker.yml                  # unchanged

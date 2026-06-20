@@ -3,6 +3,15 @@
 - import_playbook: setup-basics.yml
 - import_playbook: setup-nodejs.yml
 
+# Desktop profile only (FR-005, FR-012): verbatim-imported, unmodified,
+# scoped to the desktop group so basic-profile hosts are never affected.
+- import_playbook: setup-desktop.yml
+  when: "'desktop' in group_names"
+- import_playbook: setup-keyring.yml
+  when: "'desktop' in group_names"
+- import_playbook: setup-desktop-apps.yml
+  when: "'desktop' in group_names"
+
 # Apply linux roles
 - import_playbook: configure-profile-roles.yml
 
