@@ -106,16 +106,57 @@ inventory group plus desktop roles — and map it in
 `configure-profile-roles.yml`. Once added, `profile` becomes a meaningful
 choice on `create-vm.yml` rather than a fixed default.
 
-**Value**: completes the create → configure lifecycle for both profiles.
+The legacy stack (`provision.yml` → `provisioners/{hcloud,aws}-linux.yml` →
+`configure-linux.yml` → `configure-linux-roles.yml` /
+`setup-desktop.yml` / `setup-keyring.yml` / `setup-desktop-apps.yml`) is
+currently the **only** thing that delivers a desktop environment at all —
+none of that capability exists as a role yet, and none of it is reachable
+through `create-vm.yml` / `configure-profile.yml`. Retiring the legacy stack
+(Phase 6) before the `desktop` profile is functionally equivalent under the
+new playbooks would silently delete desktop support for every provider that
+has it today.
+
+**Sub-phase 5a — unify provisioning (accepted Principle II exception)**:
+fold the desktop profile into the new playbooks by reusing the legacy
+playbooks verbatim, instead of extracting roles first:
+
+- `configure-profile-roles.yml`: add a `profile: desktop` branch that
+  imports `configure-linux-roles.yml`'s role list as-is.
+- `configure-profile.yml`: desktop branch also imports `setup-desktop.yml`,
+  `setup-keyring.yml`, `setup-desktop-apps.yml` verbatim.
+- `create-vm.yml`: register a `desktop` inventory group; reject
+  `profile=desktop` with `provider=docker` loudly — desktop is incompatible
+  with the minimized docker image (`not-supported-on-vagrant-docker` tag on
+  all three legacy desktop playbooks confirms this is a pre-existing,
+  deliberate limitation, not a new restriction).
+- AWS: add the missing `3389` (RDP) security-group rule for the desktop
+  case — the new `tasks/create/aws.yml` only opens `22`; the legacy
+  provisioner opened both (`purge_rules: false` already allows the
+  additive rule without touching the existing `22` rule).
+- `setup-homebrew.yml` is dropped from scope (arm64-unsupported, low value).
+- `restore.yml` (personal backup/settings restore) is ported last, as the
+  final step immediately before the legacy stack is deleted in Phase 6 — not
+  as part of the initial unification.
+- Real role extraction from the legacy desktop playbooks (true Principle II
+  compliance) is deferred to its own follow-up work, tracked separately.
+
+**Value**: completes the create → configure lifecycle for both profiles
+through a single provisioning path per provider, without blocking on a full
+role rewrite first.
 
 ### Phase 6 — Retire superseded artefacts (migration) (NOT STARTED)
 
-Depends on every provider that `provision.yml` / `destroy.yml` currently
-serves having a working replacement under `create-vm.yml` / `destroy-vm.yml`.
-Delete `provision.yml`, `destroy.yml`, `provisioners/`, and the legacy static
-inventory files (`inventories/vagrant_tart.yml`, `inventories/vagrant_docker.yml`,
-`inventories/hcloud.yml`). Update `docs/user-manual/create-vm.md`; remove all
-user-facing references to `provision.yml` / `destroy.yml`.
+Depends on (a) every provider that `provision.yml` / `destroy.yml` currently
+serves having a working replacement under `create-vm.yml` / `destroy-vm.yml`,
+**and** (b) the `desktop` profile (Phase 5) being functionally equivalent
+under the new playbooks — including the ported `restore.yml` step. Delete
+`provision.yml`, `destroy.yml`, `provisioners/`, the legacy
+`configure-linux.yml` / `configure-linux-roles.yml` / `setup-desktop.yml` /
+`setup-keyring.yml` / `setup-desktop-apps.yml` entrypoints, and the legacy
+static inventory files (`inventories/vagrant_tart.yml`,
+`inventories/vagrant_docker.yml`, `inventories/hcloud.yml`). Update
+`docs/user-manual/create-vm.md`; remove all user-facing references to
+`provision.yml` / `destroy.yml`.
 
 **Value**: a single, consistent VM-lifecycle mechanism with no legacy
 dispatch paths.
@@ -131,9 +172,11 @@ Phase 1 (tart, DONE)
                                └─> Phase 6 (retire legacy, NOT STARTED)
 ```
 
-Phase 6 (deletion) depends only on every provider that `provision.yml` /
+Phase 6 (deletion) depends on every provider that `provision.yml` /
 `destroy.yml` currently serves having a working replacement under the new
-playbooks — not on Phase 5 (the `desktop` profile).
+playbooks, **and** on Phase 5 (the `desktop` profile) reaching parity with
+the legacy stack — the desktop profile is not an independent, skippable
+branch of this graph.
 
 ## Outlook: podman as a third local provider
 
