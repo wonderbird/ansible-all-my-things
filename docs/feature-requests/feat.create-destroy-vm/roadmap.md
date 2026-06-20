@@ -151,14 +151,13 @@ steps. The first three clear the two critical gaps an architect review
 surfaced — the missing governance home for the Principle II exception, and
 the absence of profile→group scoping — before any legacy import runs.
 
-1. **Extract the nerd font into its own role.** The `tmux` role installs an
-   iconic Nerd Font gated by `tmux_install_iconic_font`; legacy
-   `configure-linux-roles.yml` overrides that flag to `true` as a play-var,
-   which the verbatim import would carry onto `basic` hosts. Move the font
-   to a dedicated role, re-point its version-update
-   wiring, and drop the flag — desktop includes the role, `basic` omits it.
-   Standalone, Molecule-tested, no governance gate; do it first so the
-   import is conflict-free. (tracked in ansible-all-my-things-mtps)
+1. **Extract the nerd font into its own role (DONE).** The `tmux` role used
+   to install an iconic Nerd Font gated by `tmux_install_iconic_font`;
+   legacy `configure-linux-roles.yml` overrode that flag to `true` as a
+   play-var, which a verbatim import would have carried onto `basic` hosts.
+   The font now lives in a dedicated `nerd_font` role with its own
+   version-update wiring; the flag is gone — `configure-linux-roles.yml`
+   includes the role directly. (tracked in ansible-all-my-things-mtps)
 2. **Spec the desktop phase; log the Principle II exception.** Create a
    `specs/NNN-desktop-profile/` spec whose `plan.md` Complexity Tracking
    table records the verbatim-import exception, satisfying the Governance

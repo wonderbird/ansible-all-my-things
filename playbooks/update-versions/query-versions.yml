@@ -17,6 +17,11 @@
         src: "{{ _roles_dir }}/tmux/defaults/main.yml"
       register: _tmux_defaults_raw
 
+    - name: Read nerd_font role defaults
+      ansible.builtin.slurp:
+        src: "{{ _roles_dir }}/nerd_font/defaults/main.yml"
+      register: _nerd_font_defaults_raw
+
     - name: Read android_studio role defaults
       ansible.builtin.slurp:
         src: "{{ _roles_dir }}/android_studio/defaults/main.yml"
@@ -47,9 +52,9 @@
           {{ _tmux_defaults_raw.content | b64decode
              | regex_search('tmux_gitmux_version:\s*"([^"]+)"', '\1')
              | default([], true) | first }}
-        current_tmux_font_version: >-
-          {{ _tmux_defaults_raw.content | b64decode
-             | regex_search('tmux_font_version:\s*"([^"]+)"', '\1')
+        current_nerd_font_version: >-
+          {{ _nerd_font_defaults_raw.content | b64decode
+             | regex_search('nerd_font_version:\s*"([^"]+)"', '\1')
              | default([], true) | first }}
         current_android_build: >-
           {{ _android_defaults_raw.content | b64decode
@@ -122,9 +127,9 @@
       ansible.builtin.debug:
         msg: >-
           Nerd Fonts (Hack):
-          current={{ current_tmux_font_version }},
+          current={{ current_nerd_font_version }},
           upstream={{ fetched_font_tag }},
-          status={{ 'UP TO DATE' if current_tmux_font_version == fetched_font_tag else 'STALE' }}
+          status={{ 'UP TO DATE' if current_nerd_font_version == fetched_font_tag else 'STALE' }}
 
     - name: Report Java (Temurin) version status
       ansible.builtin.debug:
@@ -157,7 +162,7 @@
       when: >-
         current_flutter_version != fetched_flutter_version or
         current_tmux_gitmux_version != fetched_gitmux_tag or
-        current_tmux_font_version != fetched_font_tag or
+        current_nerd_font_version != fetched_font_tag or
         current_java_identifier != fetched_java_identifier or
         current_android_build != fetched_android_build or
         current_dolt_version != fetched_dolt_tag

@@ -44,7 +44,7 @@
 
 ### Implementation
 
-- [ ] T007 [US1] Write `playbooks/update-versions/query-versions.yml` — `hosts: localhost`, `gather_facts: false`; import each fetch task file with correct parameters; read current pinned values from `roles/*/defaults/main.yml` using `ansible.builtin.slurp` + `b64decode` + `regex_search`; compare fetched vs current per tracked tool as plain string equality (GitHub `tag_name` already includes the `v` prefix matching `tmux_gitmux_version` / `tmux_font_version` defaults; Flutter and Java values are pin-format identical to upstream — no normalization required); report results per tool via `ansible.builtin.debug`; use `ansible.builtin.fail` (or `any_errors_fatal`) to exit non-zero when any version is stale
+- [ ] T007 [US1] Write `playbooks/update-versions/query-versions.yml` — `hosts: localhost`, `gather_facts: false`; import each fetch task file with correct parameters; read current pinned values from `roles/*/defaults/main.yml` using `ansible.builtin.slurp` + `b64decode` + `regex_search`; compare fetched vs current per tracked tool as plain string equality (GitHub `tag_name` already includes the `v` prefix matching `tmux_gitmux_version` / `nerd_font_version` defaults; Flutter and Java values are pin-format identical to upstream — no normalization required); report results per tool via `ansible.builtin.debug`; use `ansible.builtin.fail` (or `any_errors_fatal`) to exit non-zero when any version is stale
 
 **Checkpoint**: Running `query-versions.yml` reports accurate drift for all five tracked tools. Exits 0 when all current, non-zero when any stale.
 
