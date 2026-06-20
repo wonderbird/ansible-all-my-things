@@ -1,4 +1,5 @@
 hostname_pool:
+  - vulcan
   - romulus
   - betazed
   - qonos
