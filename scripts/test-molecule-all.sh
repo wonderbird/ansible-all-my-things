@@ -22,7 +22,7 @@ for role in "${PROJECT_ROOT}"/roles/*/; do
   if [ -f "${role}molecule/default/molecule.yml" ]; then
     name="$(basename "${role}")"
     echo "==> Testing ${name}"
-    if (cd "${role}" && molecule test); then
+    if (cd "${role}" && "${PROJECT_ROOT}/scripts/with-molecule-lock.sh" molecule test); then
       passed+=("${name}")
     else
       failed+=("${name}")
