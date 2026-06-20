@@ -5,3 +5,21 @@
     fail_msg: >-
       Unsupported provider '{{ provider }}'. Allowed values: tart, docker, hcloud, aws.
       {{ assert_provider_usage_hint }}
+
+# profile is only defined by create-vm.yml (default basic). destroy-vm.yml
+# shares this task file but never sets profile, so these checks are skipped
+# there — destroy infers profile group membership from the inventory instead.
+- name: Assert profile is supported
+  ansible.builtin.assert:
+    that: profile in ['basic', 'desktop']
+    fail_msg: >-
+      Unsupported profile '{{ profile }}'. Allowed values: basic, desktop.
+  when: profile is defined
+
+- name: Reject unsupported provider/profile combination
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported combination: provider=docker is incompatible with
+      profile=desktop (the minimized docker image has no desktop support).
+      Use provider=tart, hcloud, or aws for a desktop VM.
+  when: profile is defined and provider == 'docker' and profile == 'desktop'

@@ -222,6 +222,9 @@
               },
               'docker': {
                 'hosts': (current_inventory.docker.hosts | default({})) | combine({hostname: {}})
+              },
+              profile: {
+                'hosts': ((current_inventory[profile] | default({})).hosts | default({})) | combine({hostname: {}})
               }
             }, recursive=true)
           }}

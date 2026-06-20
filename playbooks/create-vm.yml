@@ -4,6 +4,7 @@
   gather_facts: true
   vars:
     provider: tart
+    profile: basic
     vm_cpus: 4
     vm_memory_mb: 8192
     vm_disk_size_gb: 20
