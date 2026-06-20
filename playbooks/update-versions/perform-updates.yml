@@ -83,11 +83,11 @@
         replace: 'tmux_gitmux_version: "{{ fetched_gitmux_tag }}"'
 
     # Nerd Fonts (Hack)
-    - name: Update tmux_font_version in tmux role defaults
+    - name: Update nerd_font_version in nerd_font role defaults
       ansible.builtin.replace:
-        path: "{{ _roles_dir }}/tmux/defaults/main.yml"
-        regexp: 'tmux_font_version:\s*"[^"]+"'
-        replace: 'tmux_font_version: "{{ fetched_font_tag }}"'
+        path: "{{ _roles_dir }}/nerd_font/defaults/main.yml"
+        regexp: 'nerd_font_version:\s*"[^"]+"'
+        replace: 'nerd_font_version: "{{ fetched_font_tag }}"'
 
     # Java (Temurin)
     - name: Update java_sdkman_identifier in java role defaults

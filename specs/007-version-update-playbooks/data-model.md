@@ -22,7 +22,7 @@ Represents a tool whose version pin is managed by the update playbooks.
 |------|------|-------------|--------------|-----------|
 | Flutter SDK | `flutter` | `flutter_version` | `flutter_sha256` | sha256 |
 | gitmux | `tmux` | `tmux_gitmux_version` | — | — |
-| Nerd Fonts (Hack) | `tmux` | `tmux_font_version` | — | — |
+| Nerd Fonts (Hack) | `nerd_font` | `nerd_font_version` | — | — |
 | Android cmdline-tools | `android_studio` | `android_cmdlinetools_build` | `android_cmdlinetools_sha1` | sha1 |
 | Java (Temurin) | `java` | `java_sdkman_identifier` | — | — |
 
