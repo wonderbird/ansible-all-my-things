@@ -1,15 +1,20 @@
 <!--
-Sync Impact Report — 1.16.1 → 1.17.0 (MINOR)
-- Added Principle XIV (SSH Host-Key Verification by Exposure): cloud /
-  internet-exposed SSH targets MUST verify the host key (accept-new +
-  project-scoped, gitignored known_hosts, removed on teardown); laptop-local
-  targets MAY disable it. Rule states the directive; full rationale, threat
-  model, and alternatives live in ADR-003.
+Sync Impact Report — 1.17.0 → 1.18.0 (MINOR)
+- Principle X renamed "No External-System References in Durable Artefacts" →
+  "Self-Contained Durable Artefacts". Blanket tracker-ID ban replaced by a
+  universal "strip test": a durable file must stay meaningful with every
+  tracker ID removed. A non-load-bearing pointer beside inlined substance is
+  now permitted (e.g. "(tracked in <id>)"); a bare "see <id>" substituting for
+  the substance stays prohibited. Feature specs named as durable; the verbose
+  permitted-context bullets condensed to one exemption sentence.
+- Existing parenthetical beads IDs in specs/013 plan.md / tasks.md and
+  specs/010 quickstart.md pass the strip test → now compliant; no cleanup.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: no propagation required
+- AGENTS.md checked: beads-integration section cites commands, not issue IDs;
+  no propagation required
 - CLAUDE.md checked: no propagation required
 - .claude/skills/*/SKILL.md checked: no propagation required
 -->
@@ -212,29 +217,25 @@ and signatures make the build-to-publish chain auditable and enable consumers
 to verify what they pull. SHA-pinning credential-bearing and artefact-handling
 actions prevents supply-chain compromise via tag retargeting.
 
-### X. No External-System References in Durable Artefacts
+### X. Self-Contained Durable Artefacts
 
-Durable artefacts — code, Markdown documentation (including ADRs and this
-constitution), YAML configuration, and any file checked into git intended
-to outlive a single tracker ticket — MUST NOT reference beads issue IDs
-or any other ephemeral external-tracker identifier (Jira, Linear, GitHub
-issue numbers tied to a transient project, etc.). The substance of the
-referenced work MUST be inlined or summarised in the durable artefact
-itself.
+Durable artefacts — any file in git meant to outlive a tracker ticket (code,
+Markdown including ADRs and this constitution, YAML, feature specs) — MUST
+pass the **strip test**: delete every ephemeral tracker ID (beads, Jira,
+Linear, transient GitHub issue numbers, etc.); if any statement then loses
+meaning, the substance was not inlined — inline it. A tracker ID MAY remain
+only as a non-load-bearing pointer beside inlined substance (e.g. "(tracked in
+`<id>`)"); a bare "see `<id>`" standing in for the substance is prohibited. Prefer
+a durable anchor (a `specs/NNN` directory or an ADR) over a tracker ID where
+one exists.
 
-Beads (or equivalent) references remain permitted in:
+This constrains durable files only. PR descriptions, commit message bodies,
+and `.omc/` scratch are transient and exempt.
 
-- pull-request descriptions (transient by definition);
-- commit message bodies (become immutable git history once committed);
-- `.omc/` working files (agent-session scratch, not durable);
-- the beads-tracker integration section of `AGENTS.md` (operational
-  guidance, not a substantive reference).
-
-**Rationale**: Ephemeral tracker IDs decay. A tracker can be migrated,
-renumbered, archived, or replaced; the durable artefact then carries a
-dangling identifier whose context has to be reconstructed. Inlining the
-substance keeps the durable artefact self-contained and outlives any
-tracker.
+**Rationale**: Ephemeral tracker IDs decay — a tracker can be migrated,
+renumbered, archived, or replaced, leaving a dangling identifier whose context
+must be reconstructed. A pointer deletable without information loss creates no
+such dependency; one that replaces the substance does.
 
 ### XI. Avoid Duplication (DRY)
 
@@ -416,4 +417,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.17.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-06-13
+**Version**: 1.18.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-06-20
