@@ -1,6 +1,7 @@
 # Specification Quality Checklist: Desktop Profile for Create and Destroy VM Playbooks
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning
+**Purpose**: Validate specification completeness and quality before
+proceeding to planning
 **Created**: 2026-06-20
 **Feature**: [spec.md](../spec.md)
 

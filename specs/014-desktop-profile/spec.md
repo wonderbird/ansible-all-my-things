@@ -6,7 +6,17 @@
 
 **Status**: Draft
 
-**Input**: User description: "Desktop profile for create-vm.yml / configure-profile.yml (Roadmap Phase 5a). Add `desktop` as a selectable `profile` value; register a `desktop` inventory group; verbatim-import the legacy desktop playbooks (`configure-linux-roles.yml`'s role list, `setup-desktop.yml`, `setup-keyring.yml`, `setup-desktop-apps.yml`) under a logged Principle II exception; reject `provider=docker profile=desktop`; condition the AWS RDP (3389) rule on `profile==desktop`; scope the `basic` profile to its own inventory group first so `basic` and `desktop` never share one mutable role list. Out of scope: `setup-homebrew.yml`, `restore.yml` porting, real role extraction from the legacy desktop playbooks, podman provider, Phase 6 legacy retirement."
+**Input**: User description: "Desktop profile for create-vm.yml /
+configure-profile.yml (Roadmap Phase 5a). Add `desktop` as a selectable
+`profile` value; register a `desktop` inventory group; verbatim-import the
+legacy desktop playbooks (`configure-linux-roles.yml`'s role list,
+`setup-desktop.yml`, `setup-keyring.yml`, `setup-desktop-apps.yml`) under a
+logged Principle II exception; reject `provider=docker profile=desktop`;
+condition the AWS RDP (3389) rule on `profile==desktop`; scope the `basic`
+profile to its own inventory group first so `basic` and `desktop` never
+share one mutable role list. Out of scope: `setup-homebrew.yml`,
+`restore.yml` porting, real role extraction from the legacy desktop
+playbooks, podman provider, Phase 6 legacy retirement."
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -48,7 +58,7 @@ working desktop environment, keyring, and desktop apps installed.
 
 ---
 
-### User Story 2 - Block an unsupported provider/profile combination loudly (Priority: P2)
+### User Story 2 - Reject docker+desktop loudly (Priority: P2)
 
 An engineer mistakenly requests a desktop VM on the `docker` provider, which
 cannot support a desktop environment (the minimized docker image used for
@@ -82,7 +92,7 @@ as the incompatible combination.
 
 ---
 
-### User Story 3 - Desktop VMs on AWS get RDP access without exposing it on basic VMs (Priority: P3)
+### User Story 3 - AWS RDP for desktop VMs only (Priority: P3)
 
 An engineer creates a desktop-profile VM on AWS and needs to reach it over
 RDP. At the same time, every existing `basic`-profile AWS VM must keep

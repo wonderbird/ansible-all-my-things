@@ -109,7 +109,7 @@ first time.
 
 ---
 
-## Phase 4: User Story 2 - Block an unsupported provider/profile combination loudly (Priority: P2)
+## Phase 4: User Story 2 - Reject docker+desktop loudly (Priority: P2)
 
 **Goal**: `create-vm.yml -e provider=docker -e profile=desktop` fails
 immediately, before any container is created.
@@ -133,7 +133,7 @@ failure naming both values, with no container created.
 
 ---
 
-## Phase 5: User Story 3 - Desktop VMs on AWS get RDP access without exposing it on basic VMs (Priority: P3)
+## Phase 5: User Story 3 - AWS RDP for desktop VMs only (Priority: P3)
 
 **Goal**: AWS desktop-profile VMs get inbound TCP 3389; AWS basic-profile
 VMs never do, even though both share the `ansible-sg` security group.
@@ -221,7 +221,7 @@ basic VM's does not.
 
 1. Foundational → `profile=basic` (default) behaves exactly as `linux`
    does today, now under an explicit `basic` group
-2. + US1 → desktop VMs reachable through `create-vm.yml`/
+2. US1 → desktop VMs reachable through `create-vm.yml`/
    `configure-profile.yml` for the first time (MVP)
-3. + US2 → docker+desktop guarded loudly
-4. + US3 → AWS RDP exposure correctly scoped
+3. US2 → docker+desktop guarded loudly
+4. US3 → AWS RDP exposure correctly scoped

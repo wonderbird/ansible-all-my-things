@@ -27,7 +27,7 @@ as part of this planning session.
 choice. The only question it resolves is scope: this feature must build the
 `profile` mechanism, not just extend it.
 
-## Decision: Inventory group membership via one extra dict key per provider task file
+## Decision: One extra dict key per provider task file for group membership
 
 **Decision**: Each `tasks/create/<provider>.yml` adds the new host under a
 `basic` or `desktop` group key (selected by the `profile` var) in its
@@ -56,7 +56,7 @@ already proven idempotent four times over.
   established (if duplicative) per-provider style, and the duplication here
   is 4 nearly-identical one-line dict entries, not complex logic.
 
-## Decision: Reject `provider=docker` + `profile=desktop` via a new assertion alongside `assert-provider.yml`
+## Decision: Reject docker+desktop via a new assert-provider.yml task
 
 **Decision**: Add a new task to the existing `assert-provider.yml` that
 fails loudly when `provider == 'docker' and profile == 'desktop'`, run in
@@ -77,7 +77,7 @@ provider-specific task file — and reuses the existing `pre_tasks` slot.
   existing up-front assertion, and would scatter the docker/desktop rule
   away from the other provider-validity rule it logically belongs beside.
 
-## Decision: `configure-profile-roles.yml` becomes two plays in one file; `configure-profile.yml` gains one branch
+## Decision: profile-roles.yml gets two plays; profile.yml gets one branch
 
 **Decision**: `configure-profile-roles.yml` keeps its existing `basic` play
 (re-scoped from `hosts: linux` to `hosts: basic`, role list unchanged) and
@@ -111,7 +111,7 @@ inventory group itself is the switch).
   `basic` and `desktop` together exactly as the roadmap's step 3 exists to
   prevent.
 
-## Decision: AWS RDP rule conditioned with a Jinja `when:`/conditional rule list, not a separate security group
+## Decision: AWS RDP rule via conditional rule list, not a new security group
 
 **Decision**: `tasks/create/aws.yml`'s `amazon.aws.ec2_security_group` task
 adds the TCP 3389 rule to the existing shared `ansible-sg` group only when
