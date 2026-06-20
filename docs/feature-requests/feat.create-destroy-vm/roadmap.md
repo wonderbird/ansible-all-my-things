@@ -144,12 +144,59 @@ playbooks verbatim, instead of extracting roles first:
 through a single provisioning path per provider, without blocking on a full
 role rewrite first.
 
+### Phase 5a execution sequence (next four steps)
+
+The unification above is delivered as four small, independently demoable
+steps. The first three clear the two critical gaps an architect review
+surfaced — the missing governance home for the Principle II exception, and
+the absence of profile→group scoping — before any legacy import runs.
+
+1. **Extract the nerd font into its own role.** The `tmux` role installs an
+   iconic Nerd Font gated by `tmux_install_iconic_font`; legacy
+   `configure-linux-roles.yml` overrides that flag to `true` as a play-var,
+   which the verbatim import would carry onto `basic` hosts. Move the font
+   to a dedicated role, re-point its version-update
+   wiring, and drop the flag — desktop includes the role, `basic` omits it.
+   Standalone, Molecule-tested, no governance gate; do it first so the
+   import is conflict-free. (tracked in ansible-all-my-things-mtps)
+2. **Spec the desktop phase; log the Principle II exception.** Create a
+   `specs/NNN-desktop-profile/` spec whose `plan.md` Complexity Tracking
+   table records the verbatim-import exception, satisfying the Governance
+   clause that an exception be logged before implementation begins.
+3. **Scope the `basic` profile to its inventory group.** Change
+   `configure-profile-roles.yml` / `configure-profile.yml` from
+   `hosts: linux` to the `basic` group, after confirming every current
+   target is a `basic` member. Behaviour-preserving; stops `basic` and
+   `desktop` ever applying to the same host even when both groups coexist
+   in one inventory — upholding the rule that two profiles must never share
+   one mutable role list (recorded in
+   `specs/010-configure-basic-profile/research.md`).
+4. **Add the `desktop` plumbing to `create-vm.yml`.** Register the `desktop`
+   inventory group and reject `provider=docker profile=desktop` loudly
+   (Principle XII). Stop before importing the legacy desktop playbooks;
+   validate on a tart VM. Yields a selectable, isolated desktop skeleton.
+
+After these four steps the legacy desktop import (the 5a bullets above) runs
+from a conflict-free, group-scoped base. Two considerations carry into that
+import and Phase 6:
+
+- `tasks/create/aws.yml` uses one shared `ansible-sg` for every AWS VM, so
+  adding the desktop RDP (`3389`) rule additively would open RDP on `basic`
+  VMs too. Condition the rule on `profile == desktop`, or give the desktop
+  profile its own security group.
+- `restore.yml` parity must be proven by a
+  backup → destroy → create → restore round-trip on the new playbooks
+  before Phase 6 deletes the legacy stack — exercising the new restore path
+  while the legacy fallback still exists, not after it is gone.
+
 ### Phase 6 — Retire superseded artefacts (migration) (NOT STARTED)
 
 Depends on (a) every provider that `provision.yml` / `destroy.yml` currently
 serves having a working replacement under `create-vm.yml` / `destroy-vm.yml`,
 **and** (b) the `desktop` profile (Phase 5) being functionally equivalent
-under the new playbooks — including the ported `restore.yml` step. Delete
+under the new playbooks — including a demonstrated
+backup → destroy → create → restore round-trip of `restore.yml` on the new
+playbooks (ported **and** proven, not merely ported). Delete
 `provision.yml`, `destroy.yml`, `provisioners/`, the legacy
 `configure-linux.yml` / `configure-linux-roles.yml` / `setup-desktop.yml` /
 `setup-keyring.yml` / `setup-desktop-apps.yml` entrypoints, and the legacy
@@ -168,8 +215,13 @@ Phase 1 (tart, DONE)
    └─> Phase 2 (docker, DONE)
           └─> Phase 3 (hcloud, dynamic inventory, DONE)
                  └─> Phase 4 (aws, DONE)
-                        └─> Phase 5 (desktop profile, NOT STARTED)
-                               └─> Phase 6 (retire legacy, NOT STARTED)
+                        │
+                        ├─> provider parity (all 4 providers) ─────┐
+                        │                                          │
+                        └─> Phase 5 (desktop profile, NOT STARTED) ┤
+                            desktop parity (incl. restore) ────────┤
+                                                                   v
+                                              Phase 6 (retire legacy, NOT STARTED)
 ```
 
 Phase 6 (deletion) depends on every provider that `provision.yml` /
