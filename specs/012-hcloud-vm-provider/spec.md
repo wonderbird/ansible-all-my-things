@@ -2,7 +2,7 @@
 
 **Feature Branch**: `012-hcloud-vm-provider`
 **Created**: 2026-06-12
-**Status**: Draft
+**Status**: Implemented
 
 ## User Scenarios & Testing *(mandatory)*
 
