@@ -141,8 +141,8 @@ playbooks/
 │                                        #         add a `hosts: desktop` play importing
 │                                        #         configure-linux-roles.yml's role list verbatim
 └── tasks/
-    ├── assert-provider.yml             # MODIFY (or new assert-profile.yml): validate
-    │                                   #         `profile` value; reject docker+desktop
+    ├── assert-provider.yml             # MODIFY: validate `profile` value;
+    │                                   #         reject docker+desktop
     ├── create/
     │   ├── tart.yml                   # MODIFY: add basic/desktop group key to inventory write
     │   ├── docker.yml                 # MODIFY: add basic/desktop group key (docker effectively

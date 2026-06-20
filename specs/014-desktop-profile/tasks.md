@@ -64,6 +64,9 @@ build on it.
       play from `hosts: linux` to `hosts: basic` (behavior-preserving —
       confirm every current target is already a `linux`-group member before
       this lands)
+- [ ] T011a Validate FR-012/SC-004: run `configure-profile.yml` against an
+      existing `basic`-profile host before and after T011 lands; diff the
+      roles/files applied — confirm identical behavior (depends on T011)
 
 **Checkpoint**: `profile` extra-var works end-to-end for `profile=basic`
 (the default), with hosts landing in the new `basic` inventory group

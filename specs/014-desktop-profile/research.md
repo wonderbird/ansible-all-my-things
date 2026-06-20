@@ -58,11 +58,10 @@ already proven idempotent four times over.
 
 ## Decision: Reject `provider=docker` + `profile=desktop` via a new assertion alongside `assert-provider.yml`
 
-**Decision**: Add a profile assertion (either a new task in
-`assert-provider.yml` or a sibling `assert-profile.yml` imported the same
-way) that fails loudly when `provider == 'docker' and profile == 'desktop'`,
-run in `create-vm.yml`'s `pre_tasks`, before `tasks/create/{{ provider }}.yml`
-is included.
+**Decision**: Add a new task to the existing `assert-provider.yml` that
+fails loudly when `provider == 'docker' and profile == 'desktop'`, run in
+`create-vm.yml`'s `pre_tasks`, before `tasks/create/{{ provider }}.yml` is
+included.
 
 **Rationale**: `assert-provider.yml` already establishes the "fail before any
 infrastructure action" pattern for an invalid `provider` value
