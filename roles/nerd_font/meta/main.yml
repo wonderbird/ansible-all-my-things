@@ -1,9 +1,10 @@
 #SPDX-License-Identifier: MIT-0
+---
 galaxy_info:
   author: Stefan Boos
   namespace: wonderbird
-  role_name: tmux
-  description: Install and configure tmux with plugins on Linux
+  role_name: nerd_font
+  description: Install the Hack Nerd Font for desktop users (fc-cache rebuilt per user)
   company: n.a.
   issue_tracker_url: http://github.com/wonderbird/ansible-all-my-things/issues
   license: MIT

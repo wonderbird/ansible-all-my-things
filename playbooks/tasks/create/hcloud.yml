@@ -155,6 +155,9 @@
               },
               'hcloud': {
                 'hosts': (current_inventory.hcloud.hosts | default({})) | combine({hostname: {}})
+              },
+              profile: {
+                'hosts': ((current_inventory[profile] | default({})).hosts | default({})) | combine({hostname: {}})
               }
             }, recursive=true)
           }}

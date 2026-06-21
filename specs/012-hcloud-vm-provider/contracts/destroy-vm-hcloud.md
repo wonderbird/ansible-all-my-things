@@ -9,7 +9,7 @@ ansible-playbook playbooks/destroy-vm.yml -e provider=hcloud -e hostname=<name>
 ## Preconditions (checked in this order, before any Hetzner Cloud API call)
 
 1. `provider` is one of `tart`, `docker`, `hcloud` (existing
-   `tasks/assert-provider.yml`, extended).
+   `tasks/assert-provider-profile.yml`, extended).
 2. `hostname` extra-var is defined and non-empty (existing
    `destroy-vm.yml` pre_task, unchanged).
 3. `hostname` is present as a key under `all.hosts` in

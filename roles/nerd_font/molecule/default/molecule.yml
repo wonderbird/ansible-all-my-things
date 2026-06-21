@@ -6,7 +6,7 @@ driver:
   name: podman
 platforms:
   - name: instance
-    image: molecule_tmux_instance
+    image: molecule_nerd_font_instance
     pre_build_image: false
     dockerfile: Dockerfile
 provisioner:

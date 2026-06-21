@@ -22,9 +22,18 @@ If scope is unclear, ask about what to test.
 
 Verify the repository clone is prepared on the user's computer.
 
-First give the instructions to configure shell environment variables such
-that the commands issued later will not print clutter like debug messages,
-ansible cowsay messages etc.
+First we must configure the shell environment to reduce context token
+consumption for the commands we will run later. Because rtk 0.42.2 does not
+filter ansible/molecule output, first instruct me to issue the following
+commands:
+
+```bash
+export ANSIBLE_NOCOWS=1
+export ANSIBLE_DEPRECATION_WARNINGS=False
+export ANSIBLE_LOCALHOST_WARNING=False
+export ANSIBLE_FORCE_COLOR=0
+export PY_COLORS=0
+```
 
 Explain each step, one by one. While doing so, instruct the user which commands
 to execute. The user will run the commands and paste back the output.

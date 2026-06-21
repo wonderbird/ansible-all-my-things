@@ -1,20 +1,16 @@
 <!--
-Sync Impact Report — 1.17.0 → 1.18.0 (MINOR)
-- Principle X renamed "No External-System References in Durable Artefacts" →
-  "Self-Contained Durable Artefacts". Blanket tracker-ID ban replaced by a
-  universal "strip test": a durable file must stay meaningful with every
-  tracker ID removed. A non-load-bearing pointer beside inlined substance is
-  now permitted (e.g. "(tracked in <id>)"); a bare "see <id>" substituting for
-  the substance stays prohibited. Feature specs named as durable; the verbose
-  permitted-context bullets condensed to one exemption sentence.
-- Existing parenthetical beads IDs in specs/013 plan.md / tasks.md and
-  specs/010 quickstart.md pass the strip test → now compliant; no cleanup.
+Sync Impact Report — 1.18.0 → 1.18.1 (PATCH)
+- Governance § Complexity Tracking sentence generalized from "violations of
+  Principle IV" to "violations of any Core Principle", matching existing
+  practice in specs/014-desktop-profile/plan.md, where the Complexity
+  Tracking table already documents a Principle II (Role-First Organisation)
+  exception, not a Principle IV one. Clarification only; no new requirement
+  introduced.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: beads-integration section cites commands, not issue IDs;
-  no propagation required
+- AGENTS.md checked: no propagation required
 - CLAUDE.md checked: no propagation required
 - .claude/skills/*/SKILL.md checked: no propagation required
 -->
@@ -395,9 +391,9 @@ This constitution supersedes all informal conventions. Any amendment requires:
    `CLAUDE.md`, and any `.claude/skills/*/SKILL.md` named in this
    constitution.
 
-Complexity exceptions (violations of Principle IV) MUST be documented in the
-`Complexity Tracking` table of the relevant plan.md before implementation
-begins.
+Complexity exceptions (violations of any Core Principle) MUST be documented
+in the `Complexity Tracking` table of the relevant plan.md before
+implementation begins.
 
 Rules files (`AGENTS.md`, `CLAUDE.md`, and skill `SKILL.md` files) MUST NOT
 contain version history, changelogs, or amendment logs. These files document
@@ -417,4 +413,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.18.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-06-20
+**Version**: 1.18.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-06-20

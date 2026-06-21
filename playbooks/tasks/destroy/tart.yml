@@ -83,6 +83,14 @@
           'tart': {
             'hosts': (current_inventory.tart.hosts | default({}) | dict2items
                       | selectattr('key', '!=', hostname) | list | items2dict)
+          },
+          'basic': {
+            'hosts': ((current_inventory.basic | default({})).hosts | default({}) | dict2items
+                      | selectattr('key', '!=', hostname) | list | items2dict)
+          },
+          'desktop': {
+            'hosts': ((current_inventory.desktop | default({})).hosts | default({}) | dict2items
+                      | selectattr('key', '!=', hostname) | list | items2dict)
           }
         }
       }}

@@ -7,8 +7,8 @@
     assert_provider_usage_hint: >-
       Run: ansible-playbook playbooks/destroy-vm.yml -e provider=<tart|docker|hcloud|aws> -e hostname=<name>
   pre_tasks:
-    - name: Assert provider is supported
-      ansible.builtin.import_tasks: tasks/assert-provider.yml
+    - name: Assert provider and profile are supported
+      ansible.builtin.import_tasks: tasks/assert-provider-profile.yml
 
     - name: Assert hostname variable is defined
       ansible.builtin.assert:
