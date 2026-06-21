@@ -100,49 +100,53 @@ remains out of scope; the existing `moria` AWS Windows host is untouched.
 ### Phase 5 — Profile-group configuration playbook
 
 **`basic` profile (DONE)**: `configure-profile.yml` (plus
-`configure-profile-roles.yml`) configures every host in the `linux`
-inventory group — podman, ruby, python, dolt_sql_server, claude_code roles.
-There is no `basic` inventory group yet and no `profile` extra-var; "basic"
-names the one fixed role list these playbooks apply unconditionally today.
-Scoping this to a real `basic` group is step 3 below, a prerequisite for the
-`desktop` profile, not yet done.
+`configure-profile-roles.yml`) configures the `basic` inventory group —
+podman, ruby, python, dolt_sql_server, claude_code roles.
 
-**`desktop` profile (NOT STARTED)**: add the `desktop` profile — a second
-inventory group plus desktop roles — and map it in
-`configure-profile-roles.yml`. Once added, `profile` becomes a meaningful
-choice on `create-vm.yml` rather than a fixed default.
+**`desktop` profile (DONE except `restore.yml`)**: `create-vm.yml` /
+`destroy-vm.yml` take a `profile` extra-var (`basic` default, `desktop`
+alternative), validated by `tasks/assert-provider-profile.yml`, which also
+rejects `provider=docker profile=desktop` loudly. `configure-profile-roles.yml`
+configures the `desktop` group; `configure-profile.yml` imports
+`setup-desktop.yml` / `setup-keyring.yml` / `setup-desktop-apps.yml` gated on
+`'desktop' in group_names`. `tasks/create/aws.yml` opens the `3389` RDP rule
+only `if profile == 'desktop'`. `restore.yml` is intentionally not yet
+ported — see below.
 
 The legacy stack (`provision.yml` → `provisioners/{hcloud,aws}-linux.yml` →
 `configure-linux.yml` → `configure-linux-roles.yml` /
-`setup-desktop.yml` / `setup-keyring.yml` / `setup-desktop-apps.yml`) is
-currently the **only** thing that delivers a desktop environment at all —
-none of that capability exists as a role yet, and none of it is reachable
-through `create-vm.yml` / `configure-profile.yml`. Retiring the legacy stack
-(Phase 6) before the `desktop` profile is functionally equivalent under the
-new playbooks would silently delete desktop support for every provider that
-has it today.
+`setup-desktop.yml` / `setup-keyring.yml` / `setup-desktop-apps.yml`) still
+exists and is not yet deleted (that is Phase 6). The `desktop` profile is now
+also reachable through `create-vm.yml` / `configure-profile.yml`, so the
+legacy stack is no longer the only path — but it remains until Phase 6 retires
+it.
 
-**Sub-phase 5a — unify provisioning (accepted Principle II exception)**:
-fold the desktop profile into the new playbooks by reusing the legacy
-playbooks verbatim, instead of extracting roles first:
+**Sub-phase 5a — unify provisioning (accepted Principle II exception,
+DONE)**: folded the desktop profile into the new playbooks by reusing the
+legacy playbooks verbatim, instead of extracting roles first:
 
-- `configure-profile-roles.yml`: add a `profile: desktop` branch that
-  imports `configure-linux-roles.yml`'s role list as-is.
-- `configure-profile.yml`: desktop branch also imports `setup-desktop.yml`,
-  `setup-keyring.yml`, `setup-desktop-apps.yml` verbatim.
-- `create-vm.yml`: register a `desktop` inventory group; reject
-  `profile=desktop` with `provider=docker` loudly — desktop is incompatible
-  with the minimized docker image (`not-supported-on-vagrant-docker` tag on
-  all three legacy desktop playbooks confirms this is a pre-existing,
-  deliberate limitation, not a new restriction).
-- AWS: add the missing `3389` (RDP) security-group rule for the desktop
-  case — the new `tasks/create/aws.yml` only opens `22`; the legacy
-  provisioner opened both (`purge_rules: false` already allows the
-  additive rule without touching the existing `22` rule).
+- `configure-profile-roles.yml`: a `hosts: desktop` play configures the
+  desktop group's role list (FR-012; the group membership is the switch, no
+  `when:` needed).
+- `configure-profile.yml`: imports `setup-desktop.yml`, `setup-keyring.yml`,
+  `setup-desktop-apps.yml`, each gated on `'desktop' in group_names`.
+- `create-vm.yml` / `destroy-vm.yml`: take a `profile` extra-var
+  (`basic` default, `desktop` alternative) validated by
+  `tasks/assert-provider-profile.yml`, which rejects `profile=desktop` with
+  `provider=docker` loudly — desktop is incompatible with the minimized
+  docker image (`not-supported-on-vagrant-docker` tag on all three legacy
+  desktop playbooks confirms this is a pre-existing, deliberate limitation,
+  not a new restriction).
+- AWS: `tasks/create/aws.yml` opens the `3389` (RDP) security-group rule
+  only `if profile == 'desktop'` (`purge_rules: false` allows the additive
+  rule without touching the existing `22` rule); destroy tasks for all four
+  providers account for the `desktop` group's hosts too.
 - `setup-homebrew.yml` is dropped from scope (arm64-unsupported, low value).
 - `restore.yml` (personal backup/settings restore) is ported last, as the
   final step immediately before the legacy stack is deleted in Phase 6 — not
-  as part of the initial unification.
+  as part of the initial unification. **Not yet done** — see
+  ansible-all-my-things-75nv, which gates Phase 6 on a proven
+  backup → destroy → create → restore round-trip.
 - Real role extraction from the legacy desktop playbooks (true Principle II
   compliance) is deferred to its own follow-up work, tracked separately.
 
@@ -150,12 +154,12 @@ playbooks verbatim, instead of extracting roles first:
 through a single provisioning path per provider, without blocking on a full
 role rewrite first.
 
-### Phase 5a execution sequence (next four steps)
+### Phase 5a execution sequence (DONE)
 
-The unification above is delivered as four small, independently demoable
-steps. The first three clear the two critical gaps an architect review
-surfaced — the missing governance home for the Principle II exception, and
-the absence of profile→group scoping — before any legacy import runs.
+The unification above was delivered as four small, independently demoable
+steps, clearing two critical gaps an architect review surfaced — the missing
+governance home for the Principle II exception, and the absence of
+profile→group scoping — before the legacy import ran.
 
 1. **Extract the nerd font into its own role (DONE).** The `tmux` role used
    to install an iconic Nerd Font gated by `tmux_install_iconic_font`;
@@ -164,31 +168,25 @@ the absence of profile→group scoping — before any legacy import runs.
    The font now lives in a dedicated `nerd_font` role with its own
    version-update wiring; the flag is gone — `configure-linux-roles.yml`
    includes the role directly. (tracked in ansible-all-my-things-mtps)
-2. **Spec the desktop phase; log the Principle II exception.** Create a
-   `specs/NNN-desktop-profile/` spec whose `plan.md` Complexity Tracking
-   table records the verbatim-import exception, satisfying the Governance
-   clause that an exception be logged before implementation begins.
-3. **Scope the `basic` profile to its inventory group.** Change
-   `configure-profile-roles.yml` / `configure-profile.yml` from
-   `hosts: linux` to the `basic` group, after confirming every current
-   target is a `basic` member. Behaviour-preserving; stops `basic` and
-   `desktop` ever applying to the same host even when both groups coexist
-   in one inventory — upholding the rule that two profiles must never share
-   one mutable role list (recorded in
+2. **Spec the desktop phase; log the Principle II exception (DONE).**
+   `specs/014-desktop-profile/plan.md` Complexity Tracking table records the
+   verbatim-import exception, satisfying the Governance clause that an
+   exception be logged before implementation begins.
+3. **Scope the `basic` profile to its inventory group (DONE).**
+   `configure-profile-roles.yml` / `configure-profile.yml` now target
+   `hosts: basic` rather than `hosts: linux`. Behaviour-preserving; stops
+   `basic` and `desktop` ever applying to the same host even though both
+   groups coexist in one inventory — upholding the rule that two profiles
+   must never share one mutable role list (recorded in
    `specs/010-configure-basic-profile/research.md`).
-4. **Add the `desktop` plumbing to `create-vm.yml`.** Register the `desktop`
-   inventory group and reject `provider=docker profile=desktop` loudly
-   (Principle XII). Stop before importing the legacy desktop playbooks;
-   validate on a tart VM. Yields a selectable, isolated desktop skeleton.
+4. **Add the `desktop` plumbing to `create-vm.yml` (DONE).** `create-vm.yml`
+   registers the `desktop` inventory group; `provider=docker profile=desktop`
+   is rejected loudly (Principle XII).
 
-After these four steps the legacy desktop import (the 5a bullets above) runs
-from a conflict-free, group-scoped base. Two considerations carry into that
-import and Phase 6:
+The legacy desktop import (the 5a bullets above) ran from this
+conflict-free, group-scoped base. One consideration still carries into
+Phase 6:
 
-- `tasks/create/aws.yml` uses one shared `ansible-sg` for every AWS VM, so
-  adding the desktop RDP (`3389`) rule additively would open RDP on `basic`
-  VMs too. Condition the rule on `profile == desktop`, or give the desktop
-  profile its own security group.
 - `restore.yml` parity must be proven by a
   backup → destroy → create → restore round-trip on the new playbooks
   before Phase 6 deletes the legacy stack — exercising the new restore path
@@ -223,8 +221,8 @@ Phase 1 (tart, DONE)
                         │
                         ├─> provider parity (all 4 providers) ─────┐
                         │                                          │
-                        └─> Phase 5 (desktop profile, NOT STARTED) ┤
-                            desktop parity (incl. restore) ────────┤
+                        └─> Phase 5 (desktop profile, DONE except  ┤
+                            restore.yml) desktop parity ───────────┤
                                                                    v
                                               Phase 6 (retire legacy, NOT STARTED)
 ```
