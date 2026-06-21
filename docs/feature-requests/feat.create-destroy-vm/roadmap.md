@@ -103,15 +103,15 @@ remains out of scope; the existing `moria` AWS Windows host is untouched.
 `configure-profile-roles.yml`) configures the `basic` inventory group —
 podman, ruby, python, dolt_sql_server, claude_code roles.
 
-**`desktop` profile (DONE except `restore.yml`)**: `create-vm.yml` /
+**`desktop` profile (DONE)**: `create-vm.yml` /
 `destroy-vm.yml` take a `profile` extra-var (`basic` default, `desktop`
 alternative), validated by `tasks/assert-provider-profile.yml`, which also
 rejects `provider=docker profile=desktop` loudly. `configure-profile-roles.yml`
 configures the `desktop` group; `configure-profile.yml` imports
 `setup-desktop.yml` / `setup-keyring.yml` / `setup-desktop-apps.yml` gated on
 `'desktop' in group_names`. `tasks/create/aws.yml` opens the `3389` RDP rule
-only `if profile == 'desktop'`. `restore.yml` is intentionally not yet
-ported — see below.
+only `if profile == 'desktop'`. `restore.yml` is ported and its round-trip is
+proven — see below.
 
 The legacy stack (`provision.yml` → `provisioners/{hcloud,aws}-linux.yml` →
 `configure-linux.yml` → `configure-linux-roles.yml` /
@@ -144,9 +144,8 @@ legacy playbooks verbatim, instead of extracting roles first:
 - `setup-homebrew.yml` is dropped from scope (arm64-unsupported, low value).
 - `restore.yml` (personal backup/settings restore) is ported last, as the
   final step immediately before the legacy stack is deleted in Phase 6 — not
-  as part of the initial unification. **Not yet done** — see
-  ansible-all-my-things-75nv, which gates Phase 6 on a proven
-  backup → destroy → create → restore round-trip.
+  as part of the initial unification. **DONE and proven** — see the Phase 6
+  section below for the round-trip evidence (ansible-all-my-things-h6f3).
 - Real role extraction from the legacy desktop playbooks (true Principle II
   compliance) is deferred to its own follow-up work, tracked separately.
 
@@ -184,13 +183,12 @@ profile→group scoping — before the legacy import ran.
    is rejected loudly (Principle XII).
 
 The legacy desktop import (the 5a bullets above) ran from this
-conflict-free, group-scoped base. One consideration still carries into
-Phase 6:
+conflict-free, group-scoped base.
 
-- `restore.yml` parity must be proven by a
-  backup → destroy → create → restore round-trip on the new playbooks
-  before Phase 6 deletes the legacy stack — exercising the new restore path
-  while the legacy fallback still exists, not after it is gone.
+- `restore.yml` parity was proven by a backup → destroy → create → restore
+  round-trip on the new playbooks, exercised while the legacy fallback still
+  exists — see the Phase 6 section below for the evidence
+  (ansible-all-my-things-h6f3).
 
 ### Phase 6 — Retire superseded artefacts (migration) (NOT STARTED)
 
@@ -199,7 +197,34 @@ serves having a working replacement under `create-vm.yml` / `destroy-vm.yml`,
 **and** (b) the `desktop` profile (Phase 5) being functionally equivalent
 under the new playbooks — including a demonstrated
 backup → destroy → create → restore round-trip of `restore.yml` on the new
-playbooks (ported **and** proven, not merely ported). Delete
+playbooks (ported **and** proven, not merely ported).
+
+**Round-trip gate PROVEN on Tart (local), 2026-06-21** (tracked in
+ansible-all-my-things-h6f3): `create(romulus, desktop)` →
+`configure-profile.yml` → restore existing tarballs (`--limit romulus
+--skip-tags not-supported-on-vagrant-arm64`) → planted marker
+`h6f3-roundtrip-marker 20260621T083105Z` in `~/.gitconfig`,
+`~/.local/share/keyrings/h6f3-marker.txt`, and
+`~/.claude/projects/h6f3-marker.txt` → `backup.yml -e
+backup_from_host=romulus --skip-tags ...` → `destroy-vm.yml` → recreate
+romulus(desktop) → `configure-profile.yml` → restore the fresh romulus
+backup → grepped the exact marker string in all three artefacts on the
+recreated host. Every stage recapped `failed=0`. This proves **3 of the 7
+restore plays** — `home-folder-files`, `keyring`, `claude-settings` — survive
+the full backup → destroy → create → restore cycle on a host built purely
+through the new lifecycle. The other 4 are explicitly out of round-trip
+proof scope: `google-chrome` (no ARM64 Linux package, skipped via the
+`not-supported-on-vagrant-arm64` tag), `chromium` (its profile dir is only
+created on first launch — a never-launched host could fail this play; not
+hit in this run), and `rtk-settings` / `vscode-settings` (ran with
+`failed=0` but no marker was planted, so content survival is unverified).
+A genuine command-script gap was found and fixed during this run:
+`configure-profile.yml` also needs `--skip-tags
+not-supported-on-vagrant-arm64` on ARM64 Tart (`configure-profile-roles.yml`
+tags the `google_chrome` role for the same reason restore/backup do) — not
+just `restore.yml`/`backup.yml` as originally assumed.
+
+Delete
 `provision.yml`, `destroy.yml`, `provisioners/`, the legacy
 `configure-linux.yml` / `configure-linux-roles.yml` / `setup-desktop.yml` /
 `setup-keyring.yml` / `setup-desktop-apps.yml` entrypoints, and the legacy
@@ -221,8 +246,8 @@ Phase 1 (tart, DONE)
                         │
                         ├─> provider parity (all 4 providers) ─────┐
                         │                                          │
-                        └─> Phase 5 (desktop profile, DONE except  ┤
-                            restore.yml) desktop parity ───────────┤
+                        └─> Phase 5 (desktop profile, DONE,        ┤
+                            round-trip proven) desktop parity ─────┤
                                                                    v
                                               Phase 6 (retire legacy, NOT STARTED)
 ```
