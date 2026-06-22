@@ -18,11 +18,9 @@ $ARGUMENTS
 
 If scope is unclear, ask about what to test.
 
-# Procedure
+# Saving tokens
 
-Verify the repository clone is prepared on the user's computer.
-
-First we must configure the shell environment to reduce context token
+Before we start, we must configure the shell environment to reduce context token
 consumption for the commands we will run later. Because rtk 0.42.2 does not
 filter ansible/molecule output, first instruct me to issue the following
 commands:
@@ -35,8 +33,38 @@ export ANSIBLE_FORCE_COLOR=0
 export PY_COLORS=0
 ```
 
-Explain each step, one by one. While doing so, instruct the user which commands
-to execute. The user will run the commands and paste back the output.
+In a similar way, for additional commands in scope, instruct the user to set
+corresponding environment variables to reduce output.
+
+As much as possible use `rtk` and `rtk summary` to save tokens printed by
+commands. Note: `rtk summary` will hide the output of the command - if that is
+required, omit the `summary` argument.
+
+For `ansible` and `molecule` commands redirect output to temporary files and
+use filters and transformations for the important output, e.g. `grep`, `awk`,
+`sed`.
+
+# Consider user's terminal configuration
+
+Whenever possible, combine commands so that the user needs only one copy-paste
+operation for the sequence of commands. Take into account that the user's
+terminal window breaks them after about 90 characters and introduces 2 spaces
+at the beginning of each line. Compensate this in the commands you ask the
+user to run so that they don't need to fix the line breaks and spaces when
+copy-pasting.
+
+# Test procedure
+
+Draft the test plan. Then think hard: Which steps can you execute yourself, so
+that the effort for the user is minimal?
+
+Present an overview of the updated test plan to the user. And ask whether to
+execute the first step.
+
+Walk through each step one by one: Explain the step, instruct the user which
+commands to execute. The user will run the commands and paste back the output.
+
+Verify the repository clone is prepared on the user's computer.
 
 If problems show up, follow the instructions of the "record-findings"
 skill to file issue in beads. Then use the "fix-problem" skill to claim the
@@ -47,21 +75,3 @@ issue, move it to in_progress and fix it.
 - When you ask questions, ask them one by one, so that the user can focus on
   each.
 
-- Before you start, think hard: Which steps can you execute yourself, so that
-  the effort for the user is minimal? Act accordingly.
-
-- Minimize tokens produced by commands issued. Instruct the user to set
-  environment variables for the shell session which lead to reduced output for
-  used tools. As much as possible use `rtk` and `rtk summary` to save tokens
-  printed by commands. Note: `rtk summary` will hide the output of the command -
-  if that is required, omit the `summary` argument.
-
-- If you need to use `ansible` or `molecule` commands, always use `rtk ansible`
-  or `rtk molecule` instead.
-
-- Whenever possible, combine commands so that the user needs only one copy-paste
-  operation for the sequence of commands. Take into account that the user's
-  terminal window breaks them after about 90 characters and introduces 2 spaces
-  at the beginning of each line. Compensate this in the commands you ask the
-  user to run so that they don't need to fix the line breaks and spaces when
-  copy-pasting.
