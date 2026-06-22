@@ -15,5 +15,10 @@
 # Apply linux roles
 - import_playbook: configure-profile-roles.yml
 
+# Windows profile only: verbatim-imported, unmodified, already scoped to
+# the windows group (hosts: windows) so linux/basic/desktop hosts are never
+# affected.
+- import_playbook: ../setup-roles-windows.yml
+
 # Finally, reboot the system if required
 - import_playbook: reboot-if-required.yml

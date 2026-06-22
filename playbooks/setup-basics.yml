@@ -1,6 +1,6 @@
 ---
 - name: Update packages and configure timezone
-  hosts: all
+  hosts: linux
   become: true
 
   vars:

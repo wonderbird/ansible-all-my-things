@@ -132,6 +132,10 @@
           'desktop': {
             'hosts': ((current_inventory.desktop | default({})).hosts | default({}) | dict2items
                       | selectattr('key', '!=', hostname) | list | items2dict)
+          },
+          'windows': {
+            'hosts': ((current_inventory.windows | default({})).hosts | default({}) | dict2items
+                      | selectattr('key', '!=', hostname) | list | items2dict)
           }
         }
       }}
