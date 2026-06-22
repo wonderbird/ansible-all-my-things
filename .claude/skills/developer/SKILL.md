@@ -45,11 +45,11 @@ test: 'ping'` — even though the host is fully reachable and authenticating
 fine over a manual `ssh` connection. Raising the timeout does not help; the
 probe can never succeed regardless of duration.
 
-Use a protocol-level check instead: `ansible.builtin.wait_for: {host, port:
-22}` (pure TCP, no module execution), or the legacy
+Use a protocol-level check instead — no module execution needed:
+`ansible.builtin.wait_for: {host, port: 22}` (pure TCP), or the legacy
 `provisioners/add-server-to-known-hosts.yml`'s `ssh-keyscan` + `retries`
-pattern (also protocol-level, not module-based). `playbooks/tasks/create/aws.yml`
-demonstrates the `wait_for: port=22` form for `profile == 'windows'`,
+pattern. `playbooks/tasks/create/aws.yml` demonstrates the `wait_for:
+port=22` form for `profile == 'windows'`,
 alongside the still-`wait_for_connection`-based path used for Linux (which
 works there because Linux has Python).
 
