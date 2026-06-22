@@ -16,7 +16,7 @@ Do not duplicate rules here — update `AGENTS.md` or the constitution instead.
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan:
-`specs/014-desktop-profile/plan.md`
+`specs/015-aws-windows-profile/plan.md`
 <!-- SPECKIT END -->
 
 ## End of file
