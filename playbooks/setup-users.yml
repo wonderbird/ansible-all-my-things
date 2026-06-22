@@ -1,6 +1,6 @@
 ---
 - name: Setup user accounts
-  hosts: all
+  hosts: linux
   become: true
   
   vars:
