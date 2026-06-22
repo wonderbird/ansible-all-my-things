@@ -1,4 +1,4 @@
-# Phase 1 Data Model: AWS Windows Profile for Create, Destroy, and Configure VM Playbooks
+# Phase 1 Data Model: AWS Windows Profile for VM Lifecycle
 
 This feature has no database or application data model — it extends the
 existing flat-YAML inventory entities used by `create-vm.yml`/

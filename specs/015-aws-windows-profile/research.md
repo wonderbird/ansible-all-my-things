@@ -1,4 +1,4 @@
-# Phase 0 Research: AWS Windows Profile for Create, Destroy, and Configure VM Playbooks
+# Phase 0 Research: AWS Windows Profile for VM Lifecycle
 
 No `NEEDS CLARIFICATION` markers remain in the Technical Context — the spec
 (`spec.md`) and the existing legacy implementation
@@ -129,7 +129,7 @@ derived from them, for traceability into Phase 1 design and `tasks.md`.
   `basic`/`desktop` keys explicitly, so this feature follows the same
   established pattern rather than refactoring it.
 
-## Decision: Boot-readiness wait reuses `wait_for_connection`, no WinRM-specific wait added
+## Decision: Boot-readiness reuses `wait_for_connection`, no WinRM wait added
 
 - **Decision**: The Windows branch reuses `tasks/create/aws.yml`'s existing
   `ansible.builtin.wait_for_connection` step (delegated to the new instance's

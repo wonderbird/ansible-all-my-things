@@ -1,4 +1,4 @@
-# Tasks: AWS Windows Profile for Create, Destroy, and Configure VM Playbooks
+# Tasks: AWS Windows Profile for VM Lifecycle
 
 **Input**: Design documents from `/specs/015-aws-windows-profile/`
 
@@ -167,7 +167,7 @@ destroy, configure) are independently functional.
 
 ---
 
-## Phase 6: User Story 4 - Reject profile=windows on non-AWS providers (Priority: P4)
+## Phase 6: User Story 4 - Reject profile=windows on Non-AWS (Priority: P4)
 
 **Goal**: `create-vm.yml -e provider=<tart|docker|hcloud> -e profile=windows`
 fails immediately, before any VM/container is created.

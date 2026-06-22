@@ -1,4 +1,4 @@
-# Feature Specification: AWS Windows Profile for Create, Destroy, and Configure VM Playbooks
+# Feature Specification: AWS Windows Profile for VM Lifecycle
 
 **Feature Branch**: `015-aws-windows-profile`
 

@@ -1,6 +1,7 @@
-# Specification Quality Checklist: AWS Windows Profile for Create, Destroy, and Configure VM Playbooks
+# Specification Quality Checklist: AWS Windows Profile for VM Lifecycle
 
-**Purpose**: Validate specification completeness and quality before proceeding to planning
+**Purpose**: Validate specification completeness and quality before
+proceeding to planning
 **Created**: 2026-06-22
 **Feature**: [spec.md](../spec.md)
 

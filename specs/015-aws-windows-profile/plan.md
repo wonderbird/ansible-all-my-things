@@ -1,4 +1,4 @@
-# Implementation Plan: AWS Windows Profile for Create, Destroy, and Configure VM Playbooks
+# Implementation Plan: AWS Windows Profile for VM Lifecycle
 
 **Branch**: `015-aws-windows-profile` | **Date**: 2026-06-22 | **Spec**: [spec.md](./spec.md)
 
