@@ -203,13 +203,26 @@
 
     - name: Wait for SSH on new EC2 instance
       ansible.builtin.wait_for_connection:
-        timeout: "{{ 600 if profile == 'windows' else 180 }}"
+        timeout: 180
         delay: 5
       delegate_to: "{{ aws_instance_ip }}"
+      when: profile != 'windows'
       vars:
         ansible_port: 22
         ansible_user: "{{ hostvars[inventory_hostname]['aws_inventory_user'] }}"
         ansible_ssh_common_args: "-o StrictHostKeyChecking=accept-new -o UserKnownHostsFile={{ hostvars[inventory_hostname]['aws_known_hosts_file'] }}"
+
+    # wait_for_connection's readiness probe runs the ansible.builtin.ping
+    # module, which needs Python — unavailable on a fresh Windows host over
+    # plain SSH (no winrm/psrp connection to trigger the win_ping redirect).
+    # A TCP-level port check avoids module execution entirely.
+    - name: Wait for SSH port on new Windows EC2 instance
+      ansible.builtin.wait_for:
+        host: "{{ aws_instance_ip }}"
+        port: 22
+        timeout: 600
+        delay: 5
+      when: profile == 'windows'
 
     - name: Build updated inventory with new host
       ansible.builtin.set_fact:
