@@ -208,7 +208,7 @@
       delegate_to: "{{ aws_instance_ip }}"
       vars:
         ansible_port: 22
-        ansible_user: "{{ aws_inventory_user }}"
+        ansible_user: "{{ hostvars[inventory_hostname]['aws_inventory_user'] }}"
         ansible_ssh_common_args: "-o StrictHostKeyChecking=accept-new -o UserKnownHostsFile={{ hostvars[inventory_hostname]['aws_known_hosts_file'] }}"
 
     - name: Build updated inventory with new host
