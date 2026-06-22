@@ -64,9 +64,8 @@ ansible-playbook playbooks/create-vm.yml -e provider=tart -e profile=windows
 ```
 
 ```text
-FAILED! => "Unsupported combination: profile=windows is incompatible with
-provider=tart (Windows is only supported on the aws provider). Use
-provider=aws for a windows VM."
+FAILED! => "Unsupported combination: provider=tart is incompatible with
+profile=windows (Windows is only supported on provider=aws)."
 ```
 
 Fails immediately — no VM created, no hostname consumed.
@@ -85,7 +84,7 @@ ansible-playbook playbooks/destroy-vm.yml -e provider=aws -e hostname=<name>
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `Unsupported combination: profile=windows is incompatible with provider=<x>...` | Requested a Windows VM on a non-`aws` provider | Use `provider=aws` |
+| `Unsupported combination: provider=<x> is incompatible with profile=windows...` | Requested a Windows VM on a non-`aws` provider | Use `provider=aws` |
 | `windows_admin_password must be set...` | Vault secret missing | Set `vault_windows_admin_password` in `inventories/group_vars/all/vault.yml` |
 | `Unsupported profile '<x>'...` | Typo or unsupported `profile` value | Use `basic`, `desktop`, or `windows` |
 | `configure-profile.yml` fails with an `apt`/`user` module error against a Windows host | Targeted a `windows`-group host with a stale checkout that still scopes `setup-users.yml`/`setup-basics.yml` to `hosts: all` | Ensure this feature's re-scoping (`hosts: linux`) has landed |
