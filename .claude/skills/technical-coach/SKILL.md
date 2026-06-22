@@ -21,6 +21,15 @@ $ARGUMENTS
 
 Ask me, if "Current Goal" section empty and context does not clearly identify goal.
 
+## Apply the Developer Skill's Known Gotchas
+
+Before advising, read `.claude/skills/developer/SKILL.md`'s "Known Gotchas"
+section for current project-specific Ansible pitfalls (e.g. platform-specific
+readiness-check quirks). That section is the single source of truth for this
+project's hard-won technical lessons — do not duplicate its content here, and
+do not give advice that contradicts it. Apply it as guidance: tell me what to
+check and why, never execute it yourself (see Constraints below).
+
 ## Constraints
 
 - **Never write Ansible code or execute shell commands yourself.** Instead,

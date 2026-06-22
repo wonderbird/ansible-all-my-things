@@ -25,7 +25,15 @@ goal.
 - Whenever you ask me questions, **ask questions one by one**, so that I can
   focus at the individual problem at hand.
 
-## Known Gotcha: Windows SSH Readiness Checks
+## Known Gotchas
+
+Project-specific Ansible pitfalls discovered during implementation. This
+section grows over time — check it before re-diagnosing a problem that may
+already be solved here. `technical-coach` references this section directly
+rather than duplicating it (Constitution Principle XI), so keep it current
+for both personas.
+
+### Windows SSH Readiness Checks
 
 Never use a module-execution-based readiness check (e.g.
 `ansible.builtin.wait_for_connection`, which probes with the
