@@ -46,12 +46,14 @@ use filters and transformations for the important output, e.g. `grep`, `awk`,
 
 # Consider user's terminal configuration
 
-Whenever possible, combine commands so that the user needs only one copy-paste
-operation for the sequence of commands. Take into account that the user's
-terminal window breaks them after about 90 characters and introduces 2 spaces
-at the beginning of each line. Compensate this in the commands you ask the
-user to run so that they don't need to fix the line breaks and spaces when
+The user's terminal window breaks lines after about 90 characters and introduces
+2 spaces at the beginning of each line. When you ask the user to run commands,
+take this into account and compensate for it in the commands you ask the user
+to run, so that they don't need to fix the line breaks and spaces when
 copy-pasting.
+
+Pay special attention to path names with spaces, because they will be torn apart
+by the line breaks and spaces.
 
 # Test procedure
 

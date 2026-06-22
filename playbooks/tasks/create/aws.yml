@@ -23,9 +23,23 @@
   ansible.builtin.include_vars:
     file: "{{ playbook_dir }}/../inventories/group_vars/aws_ec2_linux/vars.yml"
 
+- name: Load AWS Windows AMI and instance-type defaults
+  ansible.builtin.include_vars:
+    file: "{{ playbook_dir }}/../inventories/group_vars/aws_ec2_windows/vars.yml"
+  when: profile == 'windows'
+
 - name: Load shared SSH key name
   ansible.builtin.include_vars:
     file: "{{ playbook_dir }}/../inventories/group_vars/all/vars.yml"
+
+- name: Assert windows_admin_password is set for profile=windows
+  ansible.builtin.assert:
+    that: windows_admin_password is defined and windows_admin_password | length > 0
+    fail_msg: >-
+      windows_admin_password is required when profile=windows (set
+      vault_windows_admin_password in the Ansible Vault). No AWS API call has
+      been made yet.
+  when: profile == 'windows'
 
 - name: Load AWS hostname pool
   ansible.builtin.include_vars:
@@ -83,6 +97,49 @@
   ansible.builtin.set_fact:
     aws_known_hosts_file: "{{ (playbook_dir + '/../inventories/aws_known_hosts') | realpath }}"
 
+- name: Generate Windows user data script
+  ansible.builtin.set_fact:
+    aws_windows_user_data: |
+      <powershell>
+      # Set Administrator password
+      $Password = ConvertTo-SecureString "{{ windows_admin_password }}" -AsPlainText -Force
+      $UserAccount = Get-LocalUser -Name "Administrator"
+      $UserAccount | Set-LocalUser -Password $Password
+
+      # Enable RDP
+      Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -name "fDenyTSConnections" -value 0
+      Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+      # Enable and start OpenSSH Server service
+      Set-Service -Name sshd -StartupType 'Automatic'
+      Start-Service sshd
+
+      # Configure Windows Firewall for SSH
+      netsh advfirewall firewall add rule name="OpenSSH-Server-In-TCP" dir=in localport=22 protocol=TCP action=allow
+
+      # Configure SSH for Administrator access
+      # Set default shell to PowerShell for SSH sessions
+      New-ItemProperty -Path "HKLM:\SOFTWARE\OpenSSH" -Name DefaultShell `
+        -Value "C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe" -PropertyType String -Force
+
+      # Configure SSH key authentication for Administrator
+      $AdminSSHDir = "C:\ProgramData\ssh"
+      $AdminAuthorizedKeysFile = "$AdminSSHDir\administrators_authorized_keys"
+
+      # Set up authorized_keys file with your public key
+      $PublicKey = "{{ my_ssh_public_key }}"
+      Set-Content -Path "$AdminAuthorizedKeysFile" -Value $PublicKey
+
+      # Set correct permissions on SSH directory and authorized_keys
+      icacls $AdminSSHDir /inheritance:r
+      icacls $AdminSSHDir /grant:r "Administrator:(OI)(CI)F"
+      icacls $AdminSSHDir /grant:r "SYSTEM:(OI)(CI)F"
+      icacls "$AdminAuthorizedKeysFile" /inheritance:r
+      icacls "$AdminAuthorizedKeysFile" /grant:r "Administrator:F"
+      icacls "$AdminAuthorizedKeysFile" /grant:r "SYSTEM:F"
+      </powershell>
+  when: profile == 'windows'
+
 - block:
     - name: Ensure shared ansible-sg security group exists
       amazon.aws.ec2_security_group:
@@ -102,8 +159,8 @@
               'proto': 'tcp',
               'ports': [3389],
               'cidr_ip': '0.0.0.0/0',
-              'rule_desc': 'RDP access from any IP (desktop-profile VMs only)'
-            }] if profile == 'desktop' else [])
+              'rule_desc': 'RDP access from any IP (desktop/windows-profile VMs only)'
+            }] if profile in ['desktop', 'windows'] else [])
           }}
 
     - name: Create EC2 instance
@@ -116,6 +173,7 @@
         key_name: "{{ my_ssh_key_name }}"
         security_groups:
           - ansible-sg
+        user_data: "{{ aws_windows_user_data if profile == 'windows' else omit }}"
         wait: true
       register: aws_instance_result
 
@@ -138,15 +196,33 @@
       failed_when: false
       changed_when: true
 
+    - name: Set OS inventory group and SSH user by profile
+      ansible.builtin.set_fact:
+        aws_os_group: "{{ 'windows' if profile == 'windows' else 'linux' }}"
+        aws_inventory_user: "{{ 'Administrator' if profile == 'windows' else 'ubuntu' }}"
+
     - name: Wait for SSH on new EC2 instance
       ansible.builtin.wait_for_connection:
         timeout: 180
         delay: 5
       delegate_to: "{{ aws_instance_ip }}"
+      when: profile != 'windows'
       vars:
         ansible_port: 22
-        ansible_user: ubuntu
+        ansible_user: "{{ hostvars[inventory_hostname]['aws_inventory_user'] }}"
         ansible_ssh_common_args: "-o StrictHostKeyChecking=accept-new -o UserKnownHostsFile={{ hostvars[inventory_hostname]['aws_known_hosts_file'] }}"
+
+    # wait_for_connection's readiness probe runs the ansible.builtin.ping
+    # module, which needs Python — unavailable on a fresh Windows host over
+    # plain SSH (no winrm/psrp connection to trigger the win_ping redirect).
+    # A TCP-level port check avoids module execution entirely.
+    - name: Wait for SSH port on new Windows EC2 instance
+      ansible.builtin.wait_for:
+        host: "{{ aws_instance_ip }}"
+        port: 22
+        timeout: 600
+        delay: 5
+      when: profile == 'windows'
 
     - name: Build updated inventory with new host
       ansible.builtin.set_fact:
@@ -158,14 +234,14 @@
                   hostname: {
                     'ansible_host': aws_instance_ip,
                     'ansible_port': 22,
-                    'ansible_user': 'ubuntu',
+                    'ansible_user': aws_inventory_user,
                     'ansible_ssh_common_args': '-o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=' + aws_known_hosts_file,
                     'aws_instance_id': aws_instance_id
                   }
                 })
               },
-              'linux': {
-                'hosts': (current_inventory.linux.hosts | default({})) | combine({hostname: {}})
+              aws_os_group: {
+                'hosts': ((current_inventory[aws_os_group] | default({})).hosts | default({})) | combine({hostname: {}})
               },
               'aws': {
                 'hosts': (current_inventory.aws.hosts | default({})) | combine({hostname: {}})

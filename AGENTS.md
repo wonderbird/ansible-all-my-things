@@ -211,6 +211,15 @@ bd export --all -o .beads/issues.jsonl   # run after EACH bd mutation
 
 Re-evaluate when a bd release fixes auto-import without the v1.0.5 regression.
 
+### Never commit `.beads/issues.jsonl`
+
+`.beads/issues.jsonl` is gitignored and MUST NOT be `git add`ed or committed,
+even though the export step above still writes it locally on every mutation.
+It regenerates on every single issue create/claim/close; committing it
+drowns real code changes in noise commits. bd's Dolt-backed sync
+(`refs/dolt/data`) is the actual cross-machine sync mechanism — this file is
+a local-only convenience export, redundant with it.
+
 ### Suppress git-add warning
 
 If you see `auto-export: git add failed: exit status 1` after a bd mutation,
