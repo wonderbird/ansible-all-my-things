@@ -203,7 +203,7 @@
 
     - name: Wait for SSH on new EC2 instance
       ansible.builtin.wait_for_connection:
-        timeout: 180
+        timeout: "{{ 600 if profile == 'windows' else 180 }}"
         delay: 5
       delegate_to: "{{ aws_instance_ip }}"
       vars:
