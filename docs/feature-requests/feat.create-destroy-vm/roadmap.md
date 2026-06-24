@@ -190,14 +190,72 @@ conflict-free, group-scoped base.
   exists — see the Phase 6 section below for the evidence
   (ansible-all-my-things-h6f3).
 
-### Phase 6 — Retire superseded artefacts (migration) (NOT STARTED)
+### Phase 5b — `windows` profile, aws-only (DONE)
 
-Depends on (a) every provider that `provision.yml` / `destroy.yml` currently
+Tracked in `specs/015-aws-windows-profile/`. Adds a third profile —
+`windows`, restricted to `provider=aws` (no local provider has a Windows
+equivalent) — bringing the legacy `provisioners/aws-windows.yml` Windows
+Server capability into the unified `create-vm.yml` / `destroy-vm.yml` /
+`configure-profile.yml` command shape:
+
+- `tasks/assert-provider-profile.yml`: accepts `profile=windows` and
+  loudly rejects it for any provider other than `aws`.
+- `tasks/create/aws.yml`: a `profile == 'windows'` branch resolves
+  Windows AMI/instance-type defaults, generates the Administrator
+  `user_data` PowerShell bootstrap (OpenSSH + PowerShell shell, ported from
+  the legacy script), widens the `3389` (RDP) security-group rule to
+  `profile in ['desktop', 'windows']`, and registers the host under a
+  `windows` inventory group (`ansible_user: Administrator`) distinct from
+  `linux`/`basic`/`desktop`.
+- `tasks/destroy/aws.yml`: cleans up the `windows` group key alongside the
+  existing `linux`/`basic`/`desktop` cleanup.
+- `configure-profile.yml`: imports the legacy `setup-roles-windows.yml`
+  (`windows_foundation` + `win_ai_agent` roles) unconditionally — safe
+  because that file already scopes itself to `hosts: windows`.
+  `setup-users.yml` / `setup-basics.yml` / `reboot-if-required.yml` were
+  re-scoped from `hosts: all` to `hosts: linux` so they no longer reach
+  the new `windows` group.
+- Windows has no local equivalent (Constitution Principle III's "local
+  provider" carve-out does not exist for this OS), so validation ran
+  directly against real AWS. That validation surfaced and fixed two
+  real bugs, now folded into the `developer` skill's Known Gotchas:
+  module-execution readiness probes (`wait_for_connection`) never succeed
+  over plain `ssh` against Windows (no Python at boot), so AWS Windows
+  readiness uses a TCP-level `wait_for: port=22` check instead, with a
+  longer boot-readiness budget than Linux.
+
+**Known follow-up (not blocking)**: `setup-roles-windows.yml` lists both
+`windows_foundation` and `win_ai_agent` as roles, and `win_ai_agent`'s own
+meta dependency also pulls in `windows_foundation` — so its tasks
+(RDP tuning, Chocolatey install, reboot) run twice per
+`configure-profile.yml` pass. Likely harmless beyond wasted time and an
+extra reboot; fixing it means touching the legacy
+`setup-roles-windows.yml`/role-meta files, which is out of scope for this
+phase per its FR-013 (tracked in ansible-all-my-things-1ke3).
+
+**Value**: full provider/profile parity for Windows — an engineer
+provisions a disposable Windows Server box (SSH + RDP, Claude Code, nvm,
+Node.js LTS) through the same unified command already used for every Linux
+target.
+
+### Phase 6 — Retire superseded artefacts (migration) (READY TO START)
+
+Depended on (a) every provider that `provision.yml` / `destroy.yml` currently
 serves having a working replacement under `create-vm.yml` / `destroy-vm.yml`,
 **and** (b) the `desktop` profile (Phase 5) being functionally equivalent
 under the new playbooks — including a demonstrated
 backup → destroy → create → restore round-trip of `restore.yml` on the new
-playbooks (ported **and** proven, not merely ported).
+playbooks (ported **and** proven, not merely ported), **and** (c) the
+`windows` profile (Phase 5b, DONE) already covering create/destroy/configure
+parity with legacy `provisioners/aws-windows.yml` / `configure-windows.yml`.
+
+**All three gates are now cleared (2026-06-24)**: (a) and (c) were proven by
+Phase 4 and Phase 5b respectively; (b)'s round-trip gate issue
+(`ansible-all-my-things-75nv`) is closed, referencing the proof below. The
+only items still open under epic `ansible-all-my-things-yyoy` are
+`ansible-all-my-things-kcp1` (P3, narrowing `hosts:` in the 7 restore/backup
+playbooks — a cleanup, not a parity gap) and the epic itself (closable only
+by the user). Nothing blocks starting Phase 6's deletion work.
 
 **Round-trip gate PROVEN on Tart (local), 2026-06-21** (tracked in
 ansible-all-my-things-h6f3): `create(romulus, desktop)` →
@@ -227,10 +285,12 @@ just `restore.yml`/`backup.yml` as originally assumed.
 Delete
 `provision.yml`, `destroy.yml`, `provisioners/`, the legacy
 `configure-linux.yml` / `configure-linux-roles.yml` / `setup-desktop.yml` /
-`setup-keyring.yml` / `setup-desktop-apps.yml` entrypoints, and the legacy
-static inventory files (`inventories/vagrant_tart.yml`,
-`inventories/vagrant_docker.yml`, `inventories/hcloud.yml`). Update
-`docs/user-manual/create-vm.md`; remove all user-facing references to
+`setup-keyring.yml` / `setup-desktop-apps.yml` / `configure-windows.yml`
+entrypoints, and the legacy static inventory files
+(`inventories/vagrant_tart.yml`, `inventories/vagrant_docker.yml`,
+`inventories/hcloud.yml`). `setup-roles-windows.yml` stays — it is still
+imported by `configure-profile.yml` (Phase 5b), not a superseded artefact.
+Update `docs/user-manual/create-vm.md`; remove all user-facing references to
 `provision.yml` / `destroy.yml`.
 
 **Value**: a single, consistent VM-lifecycle mechanism with no legacy
@@ -246,17 +306,20 @@ Phase 1 (tart, DONE)
                         │
                         ├─> provider parity (all 4 providers) ─────┐
                         │                                          │
-                        └─> Phase 5 (desktop profile, DONE,        ┤
-                            round-trip proven) desktop parity ─────┤
+                        ├─> Phase 5 (desktop profile, DONE,        ┤
+                        │   round-trip proven) desktop parity ─────┤
+                        │                                          │
+                        └─> Phase 5b (windows profile, DONE,       ┤
+                            aws-only) windows parity ──────────────┤
                                                                    v
-                                              Phase 6 (retire legacy, NOT STARTED)
+                                              Phase 6 (retire legacy, READY TO START)
 ```
 
 Phase 6 (deletion) depends on every provider that `provision.yml` /
 `destroy.yml` currently serves having a working replacement under the new
-playbooks, **and** on Phase 5 (the `desktop` profile) reaching parity with
-the legacy stack — the desktop profile is not an independent, skippable
-branch of this graph.
+playbooks, **and** on Phase 5 (the `desktop` profile) and Phase 5b (the
+`windows` profile) reaching parity with the legacy stack — neither profile is
+an independent, skippable branch of this graph.
 
 ## Outlook: podman as a third local provider
 
