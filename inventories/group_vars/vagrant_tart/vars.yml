@@ -1,3 +1,0 @@
----
-# Vagrant Tart (Linux) specific overrides
-admin_user_on_fresh_system: "admin"
