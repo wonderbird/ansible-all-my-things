@@ -2,101 +2,20 @@
 
 ## Manual Tests
 
-At the moment, automatic tests are missing. Each manual test case contained in this folder self-documenting with clear prerequisites, execution steps, and verification procedures.
+Automatic tests are missing. Since 2025-07-12, the project has been
+transitioning from a "proof of concept" stage toward a more mature stage
+[wardley2020], [harrer2023]. For local VM-based role isolation testing, see
+[role-development-workflow.md](../docs/architecture/concepts/role-development-workflow.md).
 
-While this project has been in a "proof of concept phase", no tests were written.
+## Host architecture map
 
-Since 2025-07-12, the project is transitioning from a "Genesis" stage to a more mature "Custom Built" stage [wardley2020], [harrer2023]. Thus, manual tests are documented in this directory. Automated tests are planned.
+For the architecture and provider of each host, see the infrastructure table
+in [README.md](../README.md#overview).
 
-## Test systems
-
-The test systems use Vagrant.
-
-- [docker](docker/README.md): Vagrant with Docker Provider
-- [tart](tart/README.md): Vagrant with Tart Provider
-
-### Host architecture map
-
-For the architecture and provider of each host, see the infrastructure table in
-[README.md](../README.md#overview).
-
-ARM64 hosts (`lorien`, `dagorlad`) skip AMD64-only roles via
-`--skip-tags not-supported-on-vagrant-arm64`. AMD64 hosts (`hobbiton`, `rivendell`)
-are required for validating roles that only support AMD64 (e.g. `google_chrome`).
-
-## Warning: Refresh SSH Keys after cloning this repository
-
-The SSH keys in [./docker/ssh_host_keys/](./docker/ssh_host_keys/) and [./ssh_user_key/](./ssh_user_key/) are published on GitHub. Thus, they are known to the entire world! If you use these keys, you risk being hacked.
-
-Please generate fresh keys before building the Dockerfile in this directory:
-
-```shell
-cd ./test
-
-# create new host keys before building the docker container(s)
-ssh-keygen -q -N "" -t rsa -b 4096 -f ./docker/ssh_host_keys/ssh_host_rsa_key -C root@testlab
-ssh-keygen -q -N "" -t ecdsa -f ./docker/ssh_host_keys/ssh_host_ecdsa_key -C root@testlab
-ssh-keygen -q -N "" -t ed25519 -f ./docker/ssh_host_keys/ssh_host_ed25519_key -C root@testlab
-
-# create a new key for the "vagrant" user
-ssh-keygen -q -N "" -t ecdsa -b 521 -f ./ssh_user_key/id_ecdsa -C vagrant@testlab
-```
-
-### A note on incompatibility
-
-The `Vagrantfile`s in each folder skip incompatible playbooks by tags.
-
-Linux homebrew does not support the arm64 (Apple Silicon) architecture.
-The tag `not-supported-on-vagrant-arm64` is intended for playbooks incompatible
-with this architecture.
-
-The Docker Ubuntu image does not support the XFCE desktop environment.
-Because the playbook works for the Tart provider, it is tagged with
-`not-supported-on-vagrant-docker`.
-
-## Using the Vagrant VMs
-
-The individual files [tart/README.md](./tart/README.md) and [docker/README.md](./docker/README.mde) describe how to provision the corresponding VM.
-
-The section **Verify the Setup** in [/docs/user-manual/create-vm.md](../docs/user-manual/create-vm.md) describes how to use the VMs.
-
-## Stopping or Destroying a Vagrant VM
-
-To pause using a VM, enter
-
-```shell
-vagrant halt
-```
-
-To delete a VM completely, consider backing it up first, then enter
-
-```shell
-vagrant destroy -f
-```
-
-## Quick Test Execution Guide
-
-### Prerequisites
-
-- Generate fresh SSH keys (see warning above)
-- Ensure vault password file exists: `../scripts/echo-vault-password-environment-variable.sh`
-- Ensure vault exists: `../inventories/group_vars/all/vault.yml`
-- For AWS tests: Configure AWS credentials and SSH key
-
-Refer to the file [/docs/user-manual/create-vm.md](../docs/user-manual/create-vm.md) for more instructions.
-
-### Running Tests
-
-Execute the individual test procedures in `test/test_*.md`.
-
-Clean up resources after testing by invoking the corresponding `destroy` tasks.
-
-### Troubleshooting
-
-- **SSH connection issues**: Verify SSH keys are loaded in agent
-- **Vault errors**: Check vault password file, vault file, permissions
-- **AWS errors**: Verify credentials and region configuration
-- **Vagrant errors**: Check provider installation and system requirements
+ARM64 hosts skip AMD64-only roles via `--skip-tags not-supported-on-vagrant-arm64`.
+Docker hosts skip roles needing a full desktop environment via
+`--skip-tags not-supported-on-vagrant-docker` (the Docker Ubuntu image has no
+XFCE desktop; the Tart provider does).
 
 ## AWS Instance Type Guidelines
 

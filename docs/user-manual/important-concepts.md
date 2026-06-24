@@ -40,7 +40,7 @@ The playbooks create user accounts and register SSH keys for passwordless login.
 
 The required secrets are expected in `/inventories/group_vars/all/vault.yml`. This file shall be encrypted with ansible vault.
 
-The ansible vault password is expected in the environment variable `ANSIBLE_VAULT_PASSWORD`. You can use [direnv](https://direnv.net) and a `.envrc` file to this up. The ansible configuration file [ansible.cfg](../ansible.cfg) will automatically use it by calling the script [echo-vault-password-environment-variable.sh](../scripts/echo-vault-password-environment-variable.sh). This way, the Vagrant provisioners in the [/test](../test/) folders can access it.
+The ansible vault password is expected in the environment variable `ANSIBLE_VAULT_PASSWORD`. You can use [direnv](https://direnv.net) and a `.envrc` file to this up. The ansible configuration file [ansible.cfg](../ansible.cfg) will automatically use it by calling the script [echo-vault-password-environment-variable.sh](../scripts/echo-vault-password-environment-variable.sh). This way, every `ansible-playbook` invocation — including `create-vm.yml` and `configure-profile.yml` — can access it.
 
 The files `/inventories/group_vars/all/vault.yml` and `.envrc` are excluded from git via [/.gitignore](../.gitignore), so that secrets are not accidentally committed to the repository.
 

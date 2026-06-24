@@ -6,6 +6,7 @@
 - [x] Create a backup for configuration files in the home directory, especially for ~/.gitconfig
 - [x] Move Ansible Vault from playbooks/vars-secrets.yml to inventories/aws/group_vars/all
 - [x] Simplify the "admin_user_on_fresh_system" concept - The admin_user_on_fresh_system can be configured in the inventory of the corresponding group in vars.yml. Do I want to keep the `gandalf` user?
+- [x] Consistent provisioning style - local Tart/Docker VMs are now provisioned with the same `--extra-vars "provider=<x> profile=<y>"` mechanism as cloud instances, via `create-vm.yml`/`destroy-vm.yml` (epic ansible-all-my-things-yyoy). The Vagrant-based apparatus this item originally targeted has been retired.
 
 ## In progress
 
@@ -14,8 +15,6 @@ This section lists all started product increments. The list is sorted by start d
 However, be careful not to allow feature creep!
 
 - [ ] (large increment) **Command restrictions:** Deploy command restriction system to target systems that prevents AI agents from executing infrastructure commands.
-
-- [ ] (large increment) **Consistent provisioning style:** To provision Vagrant VMs, use the same `--extra-vars "provider=hcloud platform=linux"` mechanism as for cloud instances. The mechanism is described in [./create-vm.md](./create-vm.md). I assume that we can move the vagrant commands into a provisioner specific playbook and then provision and destroy the VMs like for the cloud instances.
 
 - [ ] **memory-bank-branches/improvement.documentation.updates**: Transfer insights from memory bank to user facing documentation and to developer facing documentation.
 

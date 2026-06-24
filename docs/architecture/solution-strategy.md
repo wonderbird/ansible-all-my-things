@@ -31,8 +31,8 @@ backup/restore pattern described in the
 | Concern | Choice | Rationale |
 | --- | --- | --- |
 | Infrastructure automation | Ansible | Declarative, agentless, idempotent by design; wide community; no daemon required on managed hosts. |
-| Local test VMs — macOS host | Vagrant + Tart (ARM64) | Tart provides lightweight, fast ARM64 VMs on Apple Silicon; Vagrant gives a reproducible workflow. |
-| Local test VMs — Linux host | Vagrant + Docker | Docker-based Vagrant boxes start faster than full VMs on Linux; sufficient for most role tests. |
+| Local test VMs — macOS host | Tart (ARM64), via `create-vm.yml` | Tart provides lightweight, fast ARM64 VMs on Apple Silicon. |
+| Local test VMs — Linux host | Docker, via `create-vm.yml` | Docker-based VMs start faster than full VMs on Linux; sufficient for most role tests. |
 | Cloud targets | AWS EC2, Hetzner Cloud | Existing provider choice; not changed by automation tooling. |
 | Guest OS | Ubuntu Linux (primary), Windows Server 2025 (secondary) | Ubuntu is the dominant desktop/server target; Windows Server added to run applications that are only available on Windows. |
 | Java runtime | sdkman + Eclipse Temurin JDK | Per-user self-service JDK management; avoids system-wide Java conflicts; ARM64 and AMD64 artifacts published by Adoptium. |
@@ -50,7 +50,7 @@ documented in this file and in the relevant `specs/<feature>/plan.md`.
 | Quality Goal | Approach |
 | --- | --- |
 | **Idempotency** | Use built-in Ansible modules with idempotent semantics (running twice yields the same result as running once). Raw `command`/`shell` tasks require an explicit `creates:` or `changed_when:` guard. |
-| **Testability** | Roles with a Molecule scenario are validated in a Podman container (primary path). Roles requiring a full VM (desktop, display managers, hardware drivers) use Vagrant + Tart or Docker (fallback). Cloud targets are only provisioned after local validation passes. See `CONTRIBUTING.md` for the test procedure. |
+| **Testability** | Roles with a Molecule scenario are validated in a Podman container (primary path). Roles requiring a full VM (desktop, display managers, hardware drivers) use a Tart or Docker VM via `create-vm.yml` (fallback). Cloud targets are only provisioned after local validation passes. See `docs/architecture/concepts/role-development-workflow.md` for the test procedure. |
 | **Simplicity** | YAGNI (You Aren't Gonna Need It): minimum working solution. Parameterise only confirmed needs; no speculative abstraction. |
 | **Traceability** | Conventional commits; co-authorship trailers for AI-assisted changes. Git is the sole source of version and author history. |
 
@@ -74,9 +74,10 @@ Some playbooks are not compatible with all test environments. Ansible tags
 mark these exceptions so they can be skipped selectively:
 
 - **`not-supported-on-vagrant-docker`**: Applied to desktop application
-  playbooks. Docker-based Vagrant boxes do not include a desktop environment,
-  so desktop application roles and their backup/restore playbooks must be
-  skipped on Docker targets.
+  playbooks. Docker-based VMs do not include a desktop environment, so
+  desktop application roles and their backup/restore playbooks must be
+  skipped on Docker targets. (The tag name predates the Vagrant retirement;
+  renaming it is a separate, out-of-scope refactor.)
 - **`not-supported-on-vagrant-arm64`**: Applied to AMD64-only software (e.g.,
   Google Chrome and Android Studio, which have no ARM64 Linux package or snap).
   Skips those playbooks on Tart (ARM64) VMs.

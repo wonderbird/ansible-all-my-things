@@ -30,10 +30,10 @@ verify → destroy. All phases MUST pass before committing.
 `<host>` must match an inventory entry. The script uses `my_ansible_user` and
 `desktop_users` variables from inventory, so those must be defined.
 
-## Testing a role with Vagrant (fallback for full-VM roles)
+## Testing a role with a local VM (fallback for full-VM roles)
 
 Roles that require a full VM (e.g., desktop environment, display managers,
-hardware drivers) are tested against a local Vagrant/Tart or Docker VM:
+hardware drivers) are tested against a local Tart or Docker VM:
 
 1. Isolate the role under test in the **desktop** play of
    `playbooks/configure-profile-roles.yml` by commenting out all other

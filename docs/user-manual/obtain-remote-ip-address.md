@@ -35,9 +35,9 @@ export IPV4_ADDRESS=$(aws ec2 describe-instances --filters "Name=tag:Name,Values
 ## Tart
 
 ```shell
-# Get IP address for Tart Vagrant provider
-export IPV4_ADDRESS=$(tart ip lorien); echo "IPv4 address: \"$IPV4_ADDRESS\""
+# Get IP address for the Tart provider
+export IPV4_ADDRESS=$(tart ip <hostname>); echo "IPv4 address: \"$IPV4_ADDRESS\""
 
-# Get IP address for Docker Vagrant provider
+# Get IP address for the Docker provider
 export IPV4_ADDRESS=127.0.0.1
 ```
