@@ -23,9 +23,11 @@
     ansible_user: "{{ my_ansible_user }}"
     desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
 
-  # Mirrors configure-linux-roles.yml's role list verbatim (FR-004) — an
-  # accepted Principle II/XI exception, logged in plan.md Complexity
-  # Tracking. The desktop group is the switch; no when: needed (FR-012).
+  # The basic and desktop plays share 6 roles verbatim (podman, ruby, python,
+  # claude_code, tmux, dolt_sql_server); desktop additionally adds nerd_font
+  # and google_chrome (FR-004) — an accepted Principle II/XI (role-
+  # organisation/DRY) exception, logged in plan.md Complexity Tracking. The
+  # desktop group is the switch; no when: needed (FR-012).
   roles:
     - podman
     - ruby

@@ -4,7 +4,7 @@
 
 2. **Register SSH key:** Your SSH key must be registered in the cloud project, so that new servers can use it. This will allow `root` login via SSH. It is recommended to set up an AWS account and use it to generate an SSH key pair. See [AWS](./prerequisites-aws.md) documentation.
 
-3. **Configure server properties:** Now configure the `hcloud_` properties for **server size** and the **SSH key ID** in [/provisioners/hcloud.yml](../provisioners/hcloud.yml).
+3. **Configure server properties:** Server size and location defaults live in [/inventories/group_vars/hcloud/vars.yml](../../inventories/group_vars/hcloud/vars.yml); override per run with `-e hcloud_server_type=...` / `-e hcloud_server_location=...`. The SSH key is configured via `my_ssh_key_name` in your vault secrets (see step 5 below).
 
 4. **Configure inventory:** Configure `hcloud` as the default inventory in [/ansible.cfg](../ansible.cfg)
 

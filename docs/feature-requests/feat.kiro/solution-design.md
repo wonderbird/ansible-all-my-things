@@ -12,7 +12,7 @@ Do not add tasks directly to any `setup-*.yml` playbook (see TD-002 in
 The role follows the established pattern used by `setup-vscode` and
 `setup-git`: one role per software tool, idempotent tasks, applied via the
 existing playbook(s) that target the `linux` host group
-(`configure.yml` / `configure-linux.yml`).
+(`configure.yml` / `configure-profile.yml`).
 
 ### Role Structure
 
@@ -34,7 +34,7 @@ roles/setup-kiro-ide/
    (platforms = Ubuntu). Use `creates:` or equivalent idempotency guards on
    any `command`/`shell` tasks (Constitution Principle I).
 3. **Wire role into the configure playbook** — add `setup-kiro-ide` to the
-   role list in `configure-linux.yml` (or the equivalent playbook targeting
+   role list in `configure-profile.yml` (or the equivalent playbook targeting
    the `linux` group) for the `rivendell` and `hobbiton` hosts.
 4. **Add Molecule scenario** — invoke the `molecule-testing` skill to scaffold
    the full `create → prepare → converge → idempotence → verify → destroy`

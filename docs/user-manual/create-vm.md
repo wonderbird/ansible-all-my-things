@@ -2,10 +2,10 @@
 
 ## Virtual Machines on localhost
 
-The following provisioners create virtual machines running Ubuntu on your localhost:
-
-- [Vagrant with Docker](../test/docker/README.md)
-- [Vagrant with Tart](../test/tart/README.md)
+Local VMs running Ubuntu are created directly via `create-vm.yml` with
+`-e provider=tart` (macOS ARM64) or `-e provider=docker` (any Docker host).
+See [Role development workflow](../architecture/concepts/role-development-workflow.md)
+for the role-isolation and local VM testing procedure.
 
 ## Virtual Machines on Cloud Providers
 
@@ -63,7 +63,7 @@ Depending on the target system, choose the appropriate hostname from the table i
 Create the server using the following command:
 
 ```shell
-ansible-playbook ./provision.yml --extra-vars "provider=hcloud platform=linux"
+ansible-playbook playbooks/create-vm.yml --extra-vars "provider=hcloud"
 ```
 
 The `provider` parameter can be one of
@@ -71,21 +71,24 @@ The `provider` parameter can be one of
 - `aws`
 - `hcloud`
 
-`platform` can be one of
+`profile` can be one of
 
-- linux
-- windows
+- `basic` (default)
+- `desktop`
+- `windows`
 
 > [!NOTE]
-> Windows is only supported by AWS.
+> Windows is only supported by `provider=aws`.
 
 To pick a good combination, use the following guidelines:
 
-- If you want to run Windows, choose `provider=aws platform=windows`
-- If you want to run Linux, prefer `provider=hcloud platform=linux`
-- If there are no virtual machines available on `hcloud`, then try aws: `provider=aws platform=linux`
+- If you want to run Windows, choose `-e provider=aws -e profile=windows`
+- If you want to run Linux, prefer `-e provider=hcloud` (default `profile=basic`)
+- If there are no virtual machines available on `hcloud`, then try aws: `-e provider=aws`
 
-After about 1 - 2 minutes, you will be asked to add the SSH key of the new server to your local `~/.ssh/known_hosts` file.
+After about 1 - 2 minutes, the new server is created. The SSH host key is
+trusted automatically into a project-scoped `known_hosts` file (see
+[ADR-003](../architecture/decisions/003-ssh-host-key-verification-policy.md)) — no manual confirmation is required.
 
 After that, the setup will take another 10 - 15 minutes.
 
@@ -159,8 +162,11 @@ To delete the VM and all associated resources, back up your configuration
 first — see [Backup and Restore](./backup-restore.md) — then destroy:
 
 ```shell
-ansible-playbook ./destroy.yml
+ansible-playbook playbooks/destroy-vm.yml -e provider=hcloud -e hostname=<hostname>
 ```
+
+Use the same `provider` value used to create the VM, and the `hostname` shown
+by `ansible-inventory --graph`.
 
 --
 

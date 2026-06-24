@@ -70,7 +70,7 @@ A unified, cross-provider automation system that provides automated access to de
 
 ## How It Works
 
-Environments are provisioned, configured, accessed, and destroyed using Ansible playbooks. A unified `provision.yml` entrypoint accepts `provider` and `platform` parameters to target any supported environment with a single command.
+Environments are provisioned, configured, accessed, and destroyed using Ansible playbooks. `create-vm.yml` accepts `provider` and `profile` parameters to create any supported environment, `configure-profile.yml` applies profile-based configuration, and `destroy-vm.yml` tears it down — each a single command per lifecycle step.
 
 For step-by-step instructions see [docs/user-manual/create-vm.md](user-manual/create-vm.md).
 
@@ -113,7 +113,7 @@ For step-by-step instructions see [docs/user-manual/create-vm.md](user-manual/cr
 - AI agent safety controls deployed automatically
 
 ### Qualitative Measures
-**Predictable command patterns**: The same `ansible-playbook provision.yml --extra-vars "provider=<x> platform=<y>"` interface works across providers.
+**Predictable command patterns**: The same `ansible-playbook playbooks/create-vm.yml -e provider=<x> -e profile=<y>` interface works across providers.
 **Consistent SSH key authentication**: A single key pair grants access to all provisioned environments regardless of provider.
 **Unified automation framework**: New providers and platforms can be added by following existing playbook and inventory conventions, without redesigning the automation layer.
 **Complete cloud environment cleanup**: Every cloud-provisioned environment (Hetzner Cloud, AWS) can be fully destroyed, leaving no orphaned resources or costs. Local Vagrant environments (dagorlad, lorien) are excluded — they incur no cloud cost.

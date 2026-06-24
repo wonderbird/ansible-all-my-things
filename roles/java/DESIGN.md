@@ -63,7 +63,7 @@ function and the sdkman-managed `java` binary on the PATH. No
 
 **Decision**: No task in this role sets `become: true` at task level.
 
-**Rationale**: The calling playbook (`configure-linux-roles.yml`) sets
+**Rationale**: The calling playbook (`configure-profile-roles.yml`) sets
 `become: true` at play level, which all tasks inherit. Per-user tasks use
 `become_user: "{{ item }}"` to switch user context, matching the pattern
 established in the `android_studio` and `flutter` reference roles.
@@ -71,7 +71,7 @@ established in the `android_studio` and `flutter` reference roles.
 ## ARM64 Compatibility
 
 **Decision**: No architecture-specific branching in task files; the role
-carries no `not-supported-on-vagrant-arm64` tag in `configure-linux-roles.yml`.
+carries no `not-supported-on-vagrant-arm64` tag in `configure-profile-roles.yml`.
 
 **Rationale**: Both sdkman and Eclipse Temurin publish ARM64 (`aarch64`)
 artifacts. The sdkman installer detects the host architecture at runtime and

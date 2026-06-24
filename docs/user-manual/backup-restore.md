@@ -22,13 +22,10 @@ playbooks it imports (Chromium, VS Code, RTK, keyring, and more).
 > [!ATTENTION]
 > The same backup is restored for all users
 
-Restoring the backup is part of the
-[/configure-linux.yml](../../configure-linux.yml) playbook and runs
-automatically during `provision.yml`.
-
-To restore a backup later manually, use the following command. Unlike
-backup, restore always targets the `linux` host group, so no `-e` flag is
-required:
+Run restore after
+[playbooks/configure-profile.yml](../../playbooks/configure-profile.yml) has
+configured the VM. Unlike backup, restore always targets the `linux` host
+group, so no `-e` flag is required:
 
 ```shell
 ansible-playbook ./restore.yml

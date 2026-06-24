@@ -58,10 +58,13 @@ eval $(ssh-agent) \
   && ssh-add /root/.ssh/YOUR_KEY_FILE.pem; \
   ssh-add -l
 
-ansible-playbook ./provision.yml --extra-vars "provider=hcloud platform=linux"
+ansible-playbook playbooks/create-vm.yml --extra-vars "provider=hcloud"
 
 # Show the VM ip address
 hcloud server list
+
+# Configure the VM
+ansible-playbook playbooks/configure-profile.yml
 ```
 
 More commands and procedure to delete the VM are described in [/docs/user-manual/create-vm.md](../docs/user-manual/create-vm.md).

@@ -46,15 +46,13 @@ fine over a manual `ssh` connection. Raising the timeout does not help; the
 probe can never succeed regardless of duration.
 
 Use a protocol-level check instead — no module execution needed:
-`ansible.builtin.wait_for: {host, port: 22}` (pure TCP), or the legacy
-`provisioners/add-server-to-known-hosts.yml`'s `ssh-keyscan` + `retries`
-pattern. `playbooks/tasks/create/aws.yml` demonstrates the `wait_for:
+`ansible.builtin.wait_for: {host, port: 22}` (pure TCP), or an `ssh-keyscan`
++ `retries` loop that polls until the host key can be fetched.
+`playbooks/tasks/create/aws.yml` demonstrates the `wait_for:
 port=22` form for `profile == 'windows'`,
 alongside the still-`wait_for_connection`-based path used for Linux (which
 works there because Linux has Python).
 
-Budget materially more time for Windows boot+readiness than Linux. The
-legacy `add-server-to-known-hosts.yml` comment quantifies this from
-production experience: "For Linux servers, the server is usually available
-on the 3rd try. For Windows servers, the server is usually available on the
-13th try."
+Budget materially more time for Windows boot+readiness than Linux: from
+production experience, a Linux server is usually available on the 3rd
+readiness-check try, a Windows server on the 13th try.
