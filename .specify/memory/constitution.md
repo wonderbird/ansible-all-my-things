@@ -1,11 +1,21 @@
 <!--
-Sync Impact Report — 1.18.0 → 1.18.1 (PATCH)
-- Governance § Complexity Tracking sentence generalized from "violations of
-  Principle IV" to "violations of any Core Principle", matching existing
-  practice in specs/014-desktop-profile/plan.md, where the Complexity
-  Tracking table already documents a Principle II (Role-First Organisation)
-  exception, not a Principle IV one. Clarification only; no new requirement
-  introduced.
+Sync Impact Report — 1.18.1 → 1.19.0 (MINOR)
+- Principle II: replaced stale "local Vagrant/Tart VM ... as described in
+  CONTRIBUTING.md" with "local Tart or Docker VM ... as described in
+  docs/architecture/concepts/role-development-workflow.md" — CONTRIBUTING.md
+  never hosted this procedure (it only links onward), and the Vagrant
+  apparatus has been retired (Phase 6, epic ansible-all-my-things-yyoy).
+- Principle III: replaced the Vagrant-based procedure naming the deleted
+  configure-linux-roles.yml playbook with the current procedure naming the
+  desktop play of configure-profile-roles.yml plus create-vm.yml /
+  configure-profile.yml. Material guidance change (different file, different
+  command), not pure clarification — hence MINOR, not PATCH.
+- Technology Stack: "Vagrant + Tart" / "Vagrant + Docker" local test VM rows
+  replaced with "Tart" / "Docker", provisioned via create-vm.yml. The Vagrant
+  apparatus has been deleted from the repository.
+- Development Workflow step 3: "follow CONTRIBUTING.md" repointed to
+  docs/architecture/concepts/role-development-workflow.md for the same
+  pointer-gap reason as Principle II/III.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
@@ -56,7 +66,8 @@ agents MUST invoke it when creating or modifying a role's Molecule scenario.**
 
 Roles that cannot be exercised in a container (e.g., desktop environment
 configuration, display managers, hardware drivers) MUST instead be validated
-on a local Vagrant/Tart VM as described in `CONTRIBUTING.md`.
+on a local Tart or Docker VM as described in
+`docs/architecture/concepts/role-development-workflow.md`.
 
 Every role that pins a tool version in `defaults/main.yml` MUST also register
 the tool in the version-update mechanism:
@@ -88,9 +99,10 @@ as the primary validation step. This covers the full create → prepare →
 converge → idempotence → verify → destroy lifecycle.
 
 For roles without a Molecule scenario (those requiring a full VM), follow the
-Vagrant-based procedure in `CONTRIBUTING.md`: isolate the role under test as
-the only active role in `configure-linux-roles.yml` and run the playbook
-against a local VM.
+procedure in `docs/architecture/concepts/role-development-workflow.md`:
+isolate the role under test as the only active role in the desktop play of
+`configure-profile-roles.yml` and run `create-vm.yml` followed by
+`configure-profile.yml` against the resulting local VM.
 
 **Rationale**: Local validation is fast, free and reversible. Cloud
 provisioning is slow and costs money; catching defects early avoids wasted
@@ -309,8 +321,8 @@ adding host-key churn on local targets where the threat is negligible.
 - **Automation**: Ansible (playbooks, roles, inventory)
 - **Role testing**: Molecule (molecule>=24.0.0 + molecule-plugins[podman])
   with the Podman driver for containerized role validation
-- **Local test VMs**: Vagrant + Tart (macOS ARM64), Vagrant + Docker (Linux)
-  for roles that cannot be containerized
+- **Local test VMs**: Tart (macOS ARM64), Docker (Linux) for roles that
+  cannot be containerized — provisioned via `create-vm.yml`
 - **Cloud targets**: AWS EC2 (Linux + Windows Server 2025), Hetzner Cloud (Linux)
 - **Guest OS**: Ubuntu Linux (primary), Windows Server 2025 (secondary)
 - **Configuration**: `ansible.cfg`, `group_vars`, `host_vars`, `inventories/`
@@ -361,7 +373,8 @@ carry forward to the next agent session.
    question at a time.
 2. **Feature branch**: create a branch named `###-short-description` from `main`.
 3. **Local test**: for roles with a Molecule scenario, run `molecule test` from
-   the role directory. For roles without one, follow `CONTRIBUTING.md`.
+   the role directory. For roles without one, follow
+   `docs/architecture/concepts/role-development-workflow.md`.
 4. **Commit**: use conventional commit format (Principle V); keep commits small
    and coherent.
 5. **User review**: after every commit, request a user review and wait for
@@ -413,4 +426,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.18.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-06-20
+**Version**: 1.19.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-06-24
