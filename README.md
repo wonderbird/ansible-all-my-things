@@ -23,6 +23,7 @@ Follow setup instructions in
 - [Create Virtual Machines](./docs/user-manual/create-vm.md)
 - [Important Concepts](./docs/user-manual/important-concepts.md)
 - [Work with a VM](./docs/user-manual/work-with-vm.md)
+- [Backup and Restore](./docs/user-manual/backup-restore.md)
 - [Synchronize Git Repositories with a VM](./docs/user-manual/synchronize-repos-with-vm.md)
 
 ## Documentation

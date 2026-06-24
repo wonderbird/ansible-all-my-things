@@ -25,40 +25,12 @@ Now you can open an RDP client like Remmina, Windows App or Remote Desktop to co
 
 The GNOME keyring needs to be unlocked when you launch an application using it, e.g. Visual Studio Code. The password is configured in [/inventories/group_vars/all/vault.yml](../inventories/group_vars/all/vault.yml).
 
-## Backup working directory of desktop user
+## Backup and restore
 
-To backup the working directory of the first desktop user listed in [/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml), use the following command:
-
-```shell
-ansible-playbook ./backup.yml
-```
-
-## Restore a backup of the desktop user
-
-> [!ATTENTION]
-> The same backup is restored for all users
-
-Restoring the backup is a part of the [../configure.yml](../configure.yml) playbook.
-
-To restore a backup later manually, use the following command:
-
-```shell
-ansible-playbook ./restore.yml
-```
-
-## After Restore
-
-`provision.yml` / `configure-linux.yml` run the restore automatically.
-Two steps cannot be automated and must be done manually afterward:
-
-```shell
-claude login
-```
-
-```shell
-omc setup
-```
+See [Backup and Restore](./backup-restore.md) for backing up the desktop
+user's working directory and restoring it later.
 
 ---
 
 Previous: [Create a Virtual Machine](./create-vm.md)
+Next: [Backup and Restore](./backup-restore.md)

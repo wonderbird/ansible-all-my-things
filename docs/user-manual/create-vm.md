@@ -155,13 +155,10 @@ Connect via an RDP compatible client. For Linux, use the `galadriel` user, on Wi
 
 ## Delete the VM
 
-To delete the VM and all associated resources, use the following command:
+To delete the VM and all associated resources, back up your configuration
+first — see [Backup and Restore](./backup-restore.md) — then destroy:
 
 ```shell
-# Backup your configuration
-ansible-playbook ./backup.yml
-
-# Destroy
 ansible-playbook ./destroy.yml
 ```
 
