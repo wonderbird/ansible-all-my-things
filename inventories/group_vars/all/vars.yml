@@ -27,11 +27,6 @@ gnome_keyring_password: "{{ vault_gnome_keyring_password }}"
 # Windows Server Administrator password (for AWS Windows instances)
 windows_admin_password: "{{ vault_windows_admin_password }}"
 
-# Host to back up for backup playbooks (playbooks/backup/).
-# REQUIRED at runtime -- there is no working default, because a play's
-# hosts: field is templated before group_vars load. Pass it explicitly:
-#   ansible-playbook backup.yml -e backup_from_host=hobbiton
-
 # The following users will be created on the desktop system.
 # Add as many users as you like. There should be at least one user.
 desktop_users:
