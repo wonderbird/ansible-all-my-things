@@ -1,7 +1,7 @@
 ---
 # The host to back up is configured via the `backup_from_host` variable.
-# The default is set in inventories/group_vars/all/vars.yml.
-# Override at runtime with: ansible-playbook backup.yml -e backup_from_host=hobbiton
+# This variable has no default and MUST be set at runtime, e.g.:
+# ansible-playbook backup.yml -e backup_from_host=hobbiton
 
 # Per user configuration
 - import_playbook: playbooks/backup/home-folder-files.yml
