@@ -1,0 +1,38 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Load role defaults for version reference
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../../defaults/main.yml"
+
+    - name: Stat installed OpenCode binary
+      ansible.builtin.stat:
+        path: /usr/local/bin/opencode
+      register: _verify_opencode_stat
+
+    - name: Assert OpenCode binary exists and is executable
+      ansible.builtin.assert:
+        that:
+          - _verify_opencode_stat.stat.exists
+          - _verify_opencode_stat.stat.executable
+        fail_msg: "/usr/local/bin/opencode missing or not executable"
+        success_msg: "/usr/local/bin/opencode present and executable"
+
+    - name: Get installed OpenCode version
+      ansible.builtin.command:
+        cmd: /usr/local/bin/opencode --version
+      register: _verify_opencode_version
+      changed_when: false
+
+    - name: Assert OpenCode version matches pinned version
+      ansible.builtin.assert:
+        that:
+          - (opencode_version | regex_replace('^v', '')) in _verify_opencode_version.stdout
+        fail_msg: >-
+          Expected OpenCode version {{ opencode_version | regex_replace('^v', '') }}
+          but got: {{ _verify_opencode_version.stdout }}
+        success_msg: >-
+          OpenCode version {{ _verify_opencode_version.stdout }} matches pin
