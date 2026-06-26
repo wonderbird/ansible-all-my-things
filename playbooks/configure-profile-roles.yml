@@ -14,6 +14,7 @@
     - python
     - dolt_sql_server
     - claude_code
+    - opencode
 
 - name: Configure desktop profile linux roles
   hosts: desktop
@@ -33,6 +34,7 @@
     - ruby
     - python
     - claude_code
+    - opencode
     - tmux
     - nerd_font
     - dolt_sql_server
