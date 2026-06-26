@@ -60,6 +60,15 @@
       ansible.builtin.set_fact:
         fetched_dolt_tag: "{{ fetched_github_tag }}"
 
+    - name: Fetch OpenCode upstream version
+      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
+      vars:
+        github_repo: "anomalyco/opencode"
+
+    - name: Save OpenCode fetched tag
+      ansible.builtin.set_fact:
+        fetched_opencode_tag: "{{ fetched_github_tag }}"
+
     # --- Apply updates to role defaults files ---
 
     # Flutter SDK: version and sha256 updated together
@@ -153,3 +162,47 @@
         path: "{{ _roles_dir }}/dolt_sql_server/defaults/main.yml"
         regexp: 'dolt_sha256_arm64:\s*"[^"]+"'
         replace: 'dolt_sha256_arm64: "{{ _dolt_arm64_stat.stat.checksum }}"'
+
+    - name: Update opencode_version in opencode role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/opencode/defaults/main.yml"
+        regexp: 'opencode_version:\s*"[^"]+"'
+        replace: 'opencode_version: "{{ fetched_opencode_tag }}"'
+
+    - name: Download opencode linux-x64 tarball for sha256 computation
+      ansible.builtin.get_url:
+        url: "https://github.com/anomalyco/opencode/releases/download/{{ fetched_opencode_tag }}/opencode-linux-x64.tar.gz"
+        dest: "/tmp/opencode-{{ fetched_opencode_tag }}-linux-x64.tar.gz"
+        mode: '0644'
+
+    - name: Compute sha256 of opencode linux-x64 tarball
+      ansible.builtin.stat:
+        path: "/tmp/opencode-{{ fetched_opencode_tag }}-linux-x64.tar.gz"
+        checksum_algorithm: sha256
+        get_checksum: true
+      register: _opencode_amd64_stat
+
+    - name: Update opencode_sha256_amd64 in opencode role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/opencode/defaults/main.yml"
+        regexp: 'opencode_sha256_amd64:\s*"[^"]+"'
+        replace: 'opencode_sha256_amd64: "{{ _opencode_amd64_stat.stat.checksum }}"'
+
+    - name: Download opencode linux-arm64 tarball for sha256 computation
+      ansible.builtin.get_url:
+        url: "https://github.com/anomalyco/opencode/releases/download/{{ fetched_opencode_tag }}/opencode-linux-arm64.tar.gz"
+        dest: "/tmp/opencode-{{ fetched_opencode_tag }}-linux-arm64.tar.gz"
+        mode: '0644'
+
+    - name: Compute sha256 of opencode linux-arm64 tarball
+      ansible.builtin.stat:
+        path: "/tmp/opencode-{{ fetched_opencode_tag }}-linux-arm64.tar.gz"
+        checksum_algorithm: sha256
+        get_checksum: true
+      register: _opencode_arm64_stat
+
+    - name: Update opencode_sha256_arm64 in opencode role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/opencode/defaults/main.yml"
+        regexp: 'opencode_sha256_arm64:\s*"[^"]+"'
+        replace: 'opencode_sha256_arm64: "{{ _opencode_arm64_stat.stat.checksum }}"'
