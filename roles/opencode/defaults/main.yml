@@ -1,0 +1,19 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Pinned OpenCode CLI release tag (`v`-prefixed). See
+# https://github.com/anomalyco/opencode/releases for available versions.
+opencode_version: "v1.17.10"
+
+# SHA-256 checksums for the linux release tarballs (x64 and arm64).
+# All three values (version + both checksums) must be updated together.
+#
+# Compute (download to file first — pipe-only sha256sum can truncate and give
+# the wrong hash):
+#   curl -sL https://github.com/anomalyco/opencode/releases/download/<version>/opencode-linux-<arch>.tar.gz -o /tmp/opencode.tar.gz
+#   sha256sum /tmp/opencode.tar.gz
+#
+# Updated automatically by playbooks/update-versions/perform-updates.yml.
+opencode_sha256_amd64: "ac24ff27647b57c44e4b0d00ffe4d9e9db32f148b6886b39a83555604fb382cd"
+opencode_sha256_arm64: "cfd8eac5a40096b9209db23f3a336db1e956d5eea68b0f183de3f491f0d874f5"
+
+opencode_install_path: /usr/local/bin/opencode

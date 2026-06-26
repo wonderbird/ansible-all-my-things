@@ -1,0 +1,77 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Validate required variables
+  ansible.builtin.assert:
+    that:
+      - opencode_version | length > 0
+      - opencode_version is match('^v[0-9]+\.[0-9]+\.[0-9]+')
+      - opencode_sha256_amd64 | length == 64
+      - opencode_sha256_arm64 | length == 64
+    fail_msg: >-
+      Variable validation failed: opencode_version must be a non-empty
+      `v`-prefixed semver tag (e.g. v1.17.10); opencode_sha256_amd64 and
+      opencode_sha256_arm64 must each be a 64-character SHA-256 hex digest.
+
+- name: Verify supported processor architecture
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['architecture'] in ['x86_64', 'aarch64']
+    fail_msg: >-
+      Unsupported processor architecture: {{ ansible_facts['architecture'] }}.
+      Supported architectures are: x86_64, aarch64.
+
+- name: Set OpenCode target architecture
+  ansible.builtin.set_fact:
+    _opencode_arch: "{{ 'x64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
+
+- name: Check if OpenCode binary is installed
+  ansible.builtin.stat:
+    path: "{{ opencode_install_path }}"
+  register: _opencode_binary_stat
+
+- name: Get installed OpenCode version
+  ansible.builtin.command:
+    cmd: "{{ opencode_install_path }} --version"
+  register: _opencode_installed_version
+  changed_when: false
+  when: _opencode_binary_stat.stat.exists
+
+- name: Determine if OpenCode installation is required
+  ansible.builtin.set_fact:
+    _opencode_needs_install: >-
+      {{ not _opencode_binary_stat.stat.exists or
+         (opencode_version | regex_replace('^v', '')) not in
+         (_opencode_installed_version.stdout | default('')) }}
+
+- name: Download OpenCode release tarball
+  ansible.builtin.get_url:
+    url: >-
+      https://github.com/anomalyco/opencode/releases/download/{{ opencode_version }}/opencode-linux-{{ _opencode_arch }}.tar.gz
+    dest: "/tmp/opencode-{{ opencode_version }}-linux-{{ _opencode_arch }}.tar.gz"
+    mode: '0644'
+    checksum: "sha256:{{ opencode_sha256_amd64 if _opencode_arch == 'x64' else opencode_sha256_arm64 }}"
+  when: _opencode_needs_install
+
+- name: Create staging directory for OpenCode extraction
+  ansible.builtin.file:
+    path: "/tmp/opencode-{{ opencode_version }}-linux-{{ _opencode_arch }}"
+    state: directory
+    mode: '0755'
+  when: _opencode_needs_install
+
+- name: Extract OpenCode release tarball
+  ansible.builtin.unarchive:
+    src: "/tmp/opencode-{{ opencode_version }}-linux-{{ _opencode_arch }}.tar.gz"
+    dest: "/tmp/opencode-{{ opencode_version }}-linux-{{ _opencode_arch }}"
+    remote_src: true
+  when: _opencode_needs_install
+
+- name: Install OpenCode binary
+  ansible.builtin.copy:
+    src: "/tmp/opencode-{{ opencode_version }}-linux-{{ _opencode_arch }}/opencode"
+    dest: "{{ opencode_install_path }}"
+    remote_src: true
+    mode: '0755'
+    owner: root
+    group: root
+  when: _opencode_needs_install
