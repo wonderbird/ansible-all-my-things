@@ -160,6 +160,21 @@
         fail_msg: "rtk hook claude not found in settings.json PreToolUse hooks"
         success_msg: "rtk hook claude configured in settings.json"
 
+    - name: Check bd-guard hook is configured in settings.json
+      ansible.builtin.shell: >
+        jq -e '.hooks.PreToolUse[] | select(.matcher == "Bash") | .hooks[] |
+        select(.command | contains("bd list --all"))' /home/testuser/.claude/settings.json
+      changed_when: false
+      failed_when: false
+      register: bd_guard_hook_check
+
+    - name: Assert bd-guard PreToolUse hook is present in settings.json
+      ansible.builtin.assert:
+        that:
+          - bd_guard_hook_check.rc == 0
+        fail_msg: "bd list --all guard hook not found in settings.json PreToolUse hooks"
+        success_msg: "bd list --all guard hook configured in settings.json"
+
     - name: Run rtk init -g as testuser
       ansible.builtin.command:
         cmd: rtk init -g
