@@ -1,6 +1,6 @@
 # Agent Instructions
 
-<!-- markdownlint-disable MD013 MD031 MD032 -->
+<!-- markdownlint-disable MD013 MD022 MD025 MD031 MD032 MD034 -->
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
 
@@ -160,6 +160,12 @@ bd close <id>         # Complete work
 - Run `bd prime` for detailed command reference and session close protocol
 - Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
 
+**NEVER run `bd list --all`** — at ~350 issues it enters an unbounded output loop (5.6 GB,
+100% CPU, SIGKILL, nearly fills the 17 GB agent disk). For bulk reads, query
+`.beads/issues.jsonl` directly with `grep`/`jq`. For live queries use only scoped
+commands: `bd ready`, `bd list --status <s>`, `bd list --priority <p>`, `bd show <id>`.
+If unavoidable, bound it: `timeout 20 bd list --all`. (Bug tracked: 1fg7)
+
 **Architecture in one line:** issues live in a local Dolt DB; sync uses `refs/dolt/data` on your git remote; `.beads/issues.jsonl` is a passive export. See https://github.com/gastownhall/beads/blob/main/docs/SYNC_CONCEPTS.md for details and anti-patterns.
 
 ## Session Completion
@@ -188,7 +194,7 @@ bd close <id>         # Complete work
 - NEVER say "ready to push when you are" - YOU must push
 - If push fails, resolve and retry until it succeeds
 <!-- END BEADS INTEGRATION -->
-<!-- markdownlint-enable MD013 MD031 MD032 -->
+<!-- markdownlint-enable MD013 MD022 MD025 MD031 MD032 MD034 -->
 
 ## Beads: Data Safety and Workflow Rules
 
