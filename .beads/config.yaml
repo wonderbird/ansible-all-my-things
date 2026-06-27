@@ -54,6 +54,4 @@
 # - linear.api_key  → use LINEAR_API_KEY env var instead
 # - github.token    → use GITHUB_TOKEN env var instead
 
-export.git-add: false
-
-sync.remote: "https://github.com/eudicy/ansible-all-my-things.git"
+sync.remote: "git+https://github.com/eudicy/ansible-all-my-things.git"
