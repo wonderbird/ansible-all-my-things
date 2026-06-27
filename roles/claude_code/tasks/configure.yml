@@ -19,7 +19,7 @@
       CURRENT='{}'
     fi
     BD_HOOK_CMD=$(cat <<'HOOKEOF'
-    cmd=$(jq -r '.tool_input.command'); echo "$cmd" | grep -qE '(^|[[:space:]])(rtk[[:space:]]+)?git[[:space:]]' && exit 0; echo "$cmd" | grep -qE '(^|[[:space:]])(bd)[[:space:]]+list[[:space:]]+--all' && { echo '{"decision":"block","reason":"BLOCKED: bd list --all causes unbounded 5.6GB output loop in this repo (issue 1fg7). Use .beads/issues.jsonl with grep/jq for bulk reads, or scoped commands: bd ready, bd list --status <s>, bd list --priority <p>, bd show <id>."}'; exit 2; }
+    cmd=$(jq -r '.tool_input.command'); echo "$cmd" | grep -qE '(^|[[:space:]])(rtk[[:space:]]+)?git[[:space:]]' && exit 0; echo "$cmd" | grep -qE '(^|[[:space:]])(bd)[[:space:]]+list[[:space:]]+--all' && { echo '{"decision":"block","reason":"BLOCKED: bd list --all causes unbounded 5.6GB output loop in this repo (issue 1fg7). Use .beads/issues.jsonl with grep/jq for bulk reads, or scoped commands: bd ready, bd list --status <s>, bd list --priority <p>, bd show <id>."}'; exit 2; }; exit 0
     HOOKEOF
     )
     MERGED=$(printf '%s' "$CURRENT" | jq --arg bdcmd "$BD_HOOK_CMD" '
