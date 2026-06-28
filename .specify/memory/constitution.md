@@ -67,7 +67,7 @@ agents MUST invoke it when creating or modifying a role's Molecule scenario.**
 Roles that cannot be exercised in a container (e.g., desktop environment
 configuration, display managers, hardware drivers) MUST instead be validated
 on a local Tart or Docker VM as described in
-`docs/architecture/concepts/role-development-workflow.md`.
+`docs/architecture/concepts/testing.md`.
 
 Every role that pins a tool version in `defaults/main.yml` MUST also register
 the tool in the version-update mechanism:
@@ -99,7 +99,7 @@ as the primary validation step. This covers the full create → prepare →
 converge → idempotence → verify → destroy lifecycle.
 
 For roles without a Molecule scenario (those requiring a full VM), follow the
-procedure in `docs/architecture/concepts/role-development-workflow.md`:
+procedure in `docs/architecture/concepts/testing.md`:
 isolate the role under test as the only active role in the desktop play of
 `configure-profile-roles.yml` and run `create-vm.yml` followed by
 `configure-profile.yml` against the resulting local VM.
@@ -374,7 +374,7 @@ carry forward to the next agent session.
 2. **Feature branch**: create a branch named `###-short-description` from `main`.
 3. **Local test**: for roles with a Molecule scenario, run `molecule test` from
    the role directory. For roles without one, follow
-   `docs/architecture/concepts/role-development-workflow.md`.
+   `docs/architecture/concepts/testing.md`.
 4. **Commit**: use conventional commit format (Principle V); keep commits small
    and coherent.
 5. **User review**: after every commit, request a user review and wait for

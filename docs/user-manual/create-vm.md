@@ -5,7 +5,7 @@
 Local VMs running Ubuntu are created directly via `create-vm.yml` with
 `--extra-vars provider=tart` (macOS ARM64) or
 `--extra-vars provider=docker` (any Docker host).
-See [Role development workflow](../architecture/concepts/role-development-workflow.md)
+See [Testing concepts](../architecture/concepts/testing.md)
 for the role-isolation and local VM testing procedure.
 
 ## Virtual Machines on Cloud Providers

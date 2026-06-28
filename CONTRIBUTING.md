@@ -54,5 +54,5 @@ the two-tier pinning policy and rationale, see
 Development concepts are documented in
 [docs/architecture/concepts](./docs/architecture/concepts/):
 
-- [Role development workflow](./docs/architecture/concepts/role-development-workflow.md)
+- [Testing concepts](./docs/architecture/concepts/testing.md)
 - [Toolchain docker image](./docs/architecture/concepts/toolchain-docker-image.md)
