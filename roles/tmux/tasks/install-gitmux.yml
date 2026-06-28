@@ -2,9 +2,9 @@
 ---
 - name: Verify supported processor architecture
   ansible.builtin.assert:
-    that: "ansible_architecture in tmux_gitmux_arch_map"
+    that: "ansible_facts['architecture'] in tmux_gitmux_arch_map"
     fail_msg: >
-      Unsupported processor architecture: {{ ansible_architecture }}.
+      Unsupported processor architecture: {{ ansible_facts['architecture'] }}.
       Supported architectures are: {{ tmux_gitmux_arch_map.keys() | list }}.
 
 - name: Check if gitmux is installed
@@ -14,7 +14,7 @@
 
 - name: Set gitmux architecture
   ansible.builtin.set_fact:
-    tmux_gitmux_arch: "{{ tmux_gitmux_arch_map[ansible_architecture] }}"
+    tmux_gitmux_arch: "{{ tmux_gitmux_arch_map[ansible_facts['architecture']] }}"
   when: not tmux_gitmux_binary_stat.stat.exists
 
 - name: Set gitmux archive name
