@@ -14,7 +14,7 @@ This repository provides Infrastructure-as-Code automation for cross-platform de
 
 ### AI Agent Safety on Development Systems  
 
-**The Problem**: AI coding assistants (such as Claude Code, GitHub Copilot, Cursor, or similar tools) can accidentally execute dangerous infrastructure commands when working on automation projects. Commands like `ansible-playbook destroy-vm.yml -e provider=<provider>` or `docker system prune -a` could destroy the very systems the AI is trying to help with.
+**The Problem**: AI coding assistants (such as Claude Code, GitHub Copilot, Cursor, or similar tools) can accidentally execute dangerous infrastructure commands when working on automation projects. Commands like `ansible-playbook destroy-vm.yml --extra-vars provider=<provider>` or `docker system prune -a` could destroy the very systems the AI is trying to help with.
 
 **The Solution**: Deploy command restrictions to development systems that block AI agents from running infrastructure commands while preserving normal development capabilities. The restrictions are applied only to specific user accounts where AI agents operate, leaving human users unaffected.
 

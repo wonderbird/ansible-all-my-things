@@ -115,7 +115,7 @@ For step-by-step instructions see [docs/user-manual/create-vm.md](user-manual/cr
 - AI agent safety controls deployed automatically
 
 ### Qualitative Measures
-**Predictable command patterns**: The same `ansible-playbook playbooks/create-vm.yml -e provider=<x> -e profile=<y>` interface works across providers.
+**Predictable command patterns**: The same `ansible-playbook playbooks/create-vm.yml --extra-vars provider=<x> --extra-vars profile=<y>` interface works across providers.
 **Consistent SSH key authentication**: A single key pair grants access to all provisioned environments regardless of provider.
 **Unified automation framework**: New providers and platforms can be added by following existing playbook and inventory conventions, without redesigning the automation layer.
 **Complete cloud environment cleanup**: Every cloud-provisioned environment (Hetzner Cloud, AWS) can be fully destroyed, leaving no orphaned resources or costs. Local Tart and Docker environments are excluded — they incur no cloud cost.

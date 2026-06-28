@@ -10,7 +10,7 @@ The backup source host has no default — it must always be passed explicitly
 with `-e backup_from_host=<host>`:
 
 ```shell
-ansible-playbook ./backup.yml -e backup_from_host=hobbiton
+ansible-playbook ./backup.yml --extra-vars backup_from_host=hobbiton
 ```
 
 See [/backup.yml](../../backup.yml) for why no default exists, and

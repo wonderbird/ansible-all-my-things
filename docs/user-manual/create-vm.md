@@ -82,7 +82,7 @@ The `provider` parameter can be one of
 
 To pick a good combination, use the following guidelines:
 
-- If you want to run Windows, choose `-e provider=aws -e profile=windows`
+- If you want to run Windows, choose `--extra-vars provider=aws --extra-vars profile=windows`
 - If you want to run Linux, prefer `-e provider=hcloud` (default `profile=basic`)
 - If there are no virtual machines available on `hcloud`, then try aws: `-e provider=aws`
 
@@ -162,7 +162,7 @@ To delete the VM and all associated resources, back up your configuration
 first — see [Backup and Restore](./backup-restore.md) — then destroy:
 
 ```shell
-ansible-playbook playbooks/destroy-vm.yml -e provider=hcloud -e hostname=<hostname>
+ansible-playbook playbooks/destroy-vm.yml --extra-vars provider=hcloud --extra-vars hostname=<hostname>
 ```
 
 Use the same `provider` value used to create the VM, and the `hostname` shown
