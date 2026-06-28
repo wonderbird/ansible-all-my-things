@@ -80,8 +80,15 @@ Register the SSH key with AWS EC2:
 
 #### Step 3 — Hetzner Cloud
 
-Register your SSH key in the Hetzner Cloud project so that new servers
-can use it. This will allow `root` login via SSH.
+Register your SSH key in the Hetzner Cloud project:
+
+1. Log into the [Hetzner Cloud Console](https://console.hetzner.cloud/)
+   and open your project.
+2. Go to **Security** → **SSH Keys** → **Add SSH Key**.
+3. Paste the contents of your public key file
+   (e.g. `~/.ssh/id_ansible_ed25519.pub`).
+4. Set the name to match the `my_ssh_key_name` value you will configure
+   in your vault (see Hetzner Cloud Setup below).
 
 ### 3. AWS EC2 Setup
 
