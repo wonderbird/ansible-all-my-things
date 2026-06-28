@@ -33,13 +33,33 @@ ansible-galaxy collection install -r requirements.yml
 
 ### 2. SSH Key Pair Setup
 
-You need an SSH key pair to log into the VMs.
+**Step 0 — Generate a key (all providers)**
 
-All providers allow registering a public key and associate it with an identifier. Recommendation: Use an ID like `user@host` where `user` and `host` are associated with your user account on the computer running your ansible commands.
+```shell
+ssh-keygen -t ed25519 -f ~/.ssh/id_ansible_ed25519 -C "$(whoami)@$(hostname)"
+```
 
-Because Windows instances hosted on Amazon AWS EC2 only support RSA and ECDSA keys, the recommended approach is to set up Amazon AWS first. Amazon allows to create an RSA key which you can reuse for your Hetzner Cloud project.
+The `-f` flag sets a dedicated filename; the public key
+(`~/.ssh/id_ansible_ed25519.pub`) is generated automatically alongside it.
+Using a dedicated name keeps the Ansible key separate from other keys.
 
-Please follow the instructions in the [AWS](./prerequisites-aws.md) documentation to create and configure an AWS account including an SSH key pair.
+> [!NOTE]
+> AWS Windows instances only support RSA and ECDSA keys. If you plan to use
+> Windows on AWS, generate an RSA key instead and reuse it for Hetzner Cloud.
+
+**Step 1 — Local providers (Tart, Docker)**
+
+No registration step is needed. The generated key is already referenced in
+`group_vars/tart/` and `group_vars/docker/`. Update `ansible_ssh_private_key_file`
+there if you used a different filename.
+
+**Step 2 — Cloud providers (AWS, Hetzner Cloud)**
+
+Register the public key with each cloud provider before creating VMs. Follow
+the instructions in the provider-specific prerequisites:
+
+- [AWS EC2 prerequisites](./prerequisites-aws.md)
+- [Hetzner Cloud prerequisites](./prerequisites-hcloud.md)
 
 ### 3. Provider-Specific Prerequisites
 
@@ -83,8 +103,8 @@ The `provider` parameter can be one of
 To pick a good combination, use the following guidelines:
 
 - If you want to run Windows, choose `--extra-vars provider=aws --extra-vars profile=windows`
-- If you want to run Linux, prefer `-e provider=hcloud` (default `profile=basic`)
-- If there are no virtual machines available on `hcloud`, then try aws: `-e provider=aws`
+- If you want to run Linux, prefer `--extra-vars provider=hcloud` (default `profile=basic`)
+- If there are no virtual machines available on `hcloud`, then try aws: `--extra-vars provider=aws`
 
 After about 1 - 2 minutes, the new server is created. The SSH host key is
 trusted automatically into a project-scoped `known_hosts` file (see
