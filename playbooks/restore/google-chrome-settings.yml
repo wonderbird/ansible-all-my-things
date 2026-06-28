@@ -2,7 +2,7 @@
 - name: Restore Google Chrome settings
   hosts: linux
   tags:
-    - not-supported-on-vagrant-docker
+    - not-supported-on-docker
     - not-supported-on-vagrant-arm64
   become: true
 

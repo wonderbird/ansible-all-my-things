@@ -134,7 +134,7 @@ legacy playbooks verbatim, instead of extracting roles first:
   (`basic` default, `desktop` alternative) validated by
   `tasks/assert-provider-profile.yml`, which rejects `profile=desktop` with
   `provider=docker` loudly — desktop is incompatible with the minimized
-  docker image (`not-supported-on-vagrant-docker` tag on all three legacy
+  docker image (`not-supported-on-docker` tag on all three legacy
   desktop playbooks confirms this is a pre-existing, deliberate limitation,
   not a new restriction).
 - AWS: `tasks/create/aws.yml` opens the `3389` (RDP) security-group rule

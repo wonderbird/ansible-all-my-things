@@ -73,7 +73,7 @@ is an open question (see [Known Technical Debt](#known-technical-debt)).
 Some playbooks are not compatible with all test environments. Ansible tags
 mark these exceptions so they can be skipped selectively:
 
-- **`not-supported-on-vagrant-docker`**: Applied to desktop application
+- **`not-supported-on-docker`**: Applied to desktop application
   playbooks. Docker-based VMs do not include a desktop environment, so
   desktop application roles and their backup/restore playbooks must be
   skipped on Docker targets. (The tag name predates the Vagrant retirement;
