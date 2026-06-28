@@ -33,7 +33,7 @@ ansible-playbook playbooks/create-vm.yml -e provider=aws -e profile=windows
 
 1. Exactly one EC2 instance is created, running the Windows Server
    image/instance-type defaulted from
-   `inventories/group_vars/aws_ec2_windows/vars.yml` (overridable via
+   `playbooks/vars/aws_windows_defaults.yml` (overridable via
    `aws_ami_id`/`aws_instance_type` extra-vars, same mechanism as the Linux
    branch).
 2. The instance's `user_data` sets the Administrator password from

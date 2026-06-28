@@ -33,7 +33,7 @@ proceeding to planning
 ## Notes
 
 - This spec names existing files/roles (e.g. `windows_foundation`,
-  `inventories/group_vars/aws_ec2_windows/vars.yml`) because they are
+  `playbooks/vars/aws_windows_defaults.yml`) because they are
   pre-existing artifacts being reused, not new implementation choices — this
   mirrors the precedent set by `014-desktop-profile`'s spec, which names
   `setup-desktop.yml` and `configure-linux-roles.yml` for the same reason.

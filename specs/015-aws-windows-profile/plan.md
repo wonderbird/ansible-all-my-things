@@ -10,7 +10,7 @@ Introduce `profile=windows` as a new value of the existing `profile`
 extra-var on `create-vm.yml`, valid only with `provider=aws`.
 `playbooks/tasks/create/aws.yml` gains a Windows branch that launches a
 Windows Server EC2 instance (image/instance-type defaults already declared
-in `inventories/group_vars/aws_ec2_windows/vars.yml`), injects the shared SSH
+in `playbooks/vars/aws_windows_defaults.yml`), injects the shared SSH
 key and the existing `windows_admin_password` Vault secret via instance
 user-data (porting the approach already proven in
 `provisioners/aws-windows.yml`), and registers the host under a new
@@ -36,7 +36,8 @@ existing `tart`/`docker`/`hcloud`/`aws` provider implementations and the
 `basic`/`desktop` profile orchestration playbooks in this repo.
 
 **Primary Dependencies**: None new. Reuses the existing `windows_foundation`
-and `win_ai_agent` roles, the existing `windows`/`aws_ec2_windows` group_vars,
+and `win_ai_agent` roles, the existing `windows` group_vars and
+`playbooks/vars/aws_windows_defaults.yml`,
 and the existing `windows_admin_password`/`vault_windows_admin_password`
 Vault secret — all already present and already exercised by the legacy
 `provisioners/aws-windows.yml` → `setup-roles-windows.yml` path.
@@ -46,8 +47,8 @@ gitignored) gains a `windows` group key alongside its existing `all`/`linux`/
 `aws`/`basic`/`desktop` keys. No new hostname pool (the existing
 `playbooks/vars/hostname_pool_aws.yml` is shared across all `provider=aws`
 profiles), no new committed inventory file, no new group_vars directory (the
-`windows`/`aws_ec2_windows` group_vars this feature depends on already
-exist).
+`windows` group_vars and `playbooks/vars/aws_windows_defaults.yml` this
+feature depends on already exist).
 
 **Testing**: No Molecule scenario — `create-vm.yml`/`destroy-vm.yml`/
 `configure-profile.yml` are orchestration playbooks targeting dynamically
@@ -86,8 +87,9 @@ feature is wiring two already-existing roles into already-existing
 playbooks), III (Test Locally Before Cloud — no local Windows equivalent
 exists; see Testing above), IV (YAGNI — `profile` gains exactly one new live
 value, no speculative Windows variants beyond what the legacy stack already
-proved), XI (DRY — reuses the existing `windows`/`aws_ec2_windows` group_vars
-and `setup-roles-windows.yml` unchanged, no duplicated role-application
+proved), XI (DRY — reuses the existing `windows` group_vars,
+`playbooks/vars/aws_windows_defaults.yml`, and `setup-roles-windows.yml`
+unchanged, no duplicated role-application
 logic), XII (Fail Loud — `profile=windows` on a non-`aws` provider, and a
 missing `windows_admin_password`, are both rejected before any AWS API call).
 FR-001 through FR-013 in [spec.md](./spec.md) are the binding requirements.
@@ -117,7 +119,7 @@ setup-roles-windows.yml`). Zero new roles, zero new top-level playbooks.
 | VIII. No Untracked Technical Debt | PASS | Findings, if any, tracked as beads issues blocking this feature's cover issue. |
 | IX. CI/CD Pipeline Security | N/A | No CI workflow changes. |
 | X. Self-Contained Durable Artefacts | PASS | This plan and the spec contain no tracker IDs standing in for substance. |
-| XI. Avoid Duplication (DRY) | PASS | Reuses `windows`/`aws_ec2_windows` group_vars and `setup-roles-windows.yml` unchanged; the AWS RDP-rule condition is widened in place (`profile == 'desktop'` → `profile in ['desktop', 'windows']`), not duplicated as a second rule. |
+| XI. Avoid Duplication (DRY) | PASS | Reuses `windows` group_vars, `playbooks/vars/aws_windows_defaults.yml`, and `setup-roles-windows.yml` unchanged; the AWS RDP-rule condition is widened in place (`profile == 'desktop'` → `profile in ['desktop', 'windows']`), not duplicated as a second rule. |
 | XII. Fail Loud | PASS | `profile=windows` on a non-`aws` provider rejected via `assert`/`fail` before any AWS API call (FR-007), mirroring the existing `provider=docker profile=desktop` pattern; a missing `windows_admin_password` likewise fails before any AWS API call (edge case in spec.md). |
 | XIII. No Empty Artefacts | PASS | No placeholder files created. |
 | XIV. SSH Host-Key Verification by Exposure | PASS | The Windows EC2 instance is internet-exposed (same as existing AWS Linux VMs); it reuses the existing `accept-new` + project-scoped `aws_known_hosts_file` pattern already in `tasks/create/aws.yml`/`tasks/destroy/aws.yml` — no new host-key handling introduced. |
@@ -155,7 +157,7 @@ playbooks/
     ├── create/
     │   └── aws.yml                     # MODIFY: add a `profile == 'windows'` branch
     │                                   #         (AMI/instance-type from
-    │                                   #         aws_ec2_windows group_vars, user-data
+    │                                   #         playbooks/vars/aws_windows_defaults.yml,
     │                                   #         SSH-key + Administrator-password
     │                                   #         injection, `windows` group key
     │                                   #         instead of `linux`); widen the 3389
@@ -171,7 +173,7 @@ roles/windows_foundation/               # unmodified
 roles/win_ai_agent/                     # unmodified
 roles/windows_common/                   # unmodified
 inventories/group_vars/windows/         # unmodified
-inventories/group_vars/aws_ec2_windows/ # unmodified
+playbooks/vars/aws_windows_defaults.yml # unmodified
 
 inventories/
 └── aws_autogenerated.yml               # GENERATED: gains `windows` group key
