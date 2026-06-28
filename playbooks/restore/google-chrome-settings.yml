@@ -3,7 +3,7 @@
   hosts: linux
   tags:
     - not-supported-on-docker
-    - not-supported-on-vagrant-arm64
+    - not-supported-on-arm64
   become: true
 
   vars:

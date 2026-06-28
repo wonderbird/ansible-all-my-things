@@ -71,7 +71,7 @@ established in the `android_studio` and `flutter` reference roles.
 ## ARM64 Compatibility
 
 **Decision**: No architecture-specific branching in task files; the role
-carries no `not-supported-on-vagrant-arm64` tag in `configure-profile-roles.yml`.
+carries no `not-supported-on-arm64` tag in `configure-profile-roles.yml`.
 
 **Rationale**: Both sdkman and Eclipse Temurin publish ARM64 (`aarch64`)
 artifacts. The sdkman installer detects the host architecture at runtime and

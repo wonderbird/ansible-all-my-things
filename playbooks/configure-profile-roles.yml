@@ -39,4 +39,4 @@
     - nerd_font
     - dolt_sql_server
     - role: google_chrome
-      tags: not-supported-on-vagrant-arm64
+      tags: not-supported-on-arm64

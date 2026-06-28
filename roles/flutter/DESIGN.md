@@ -16,7 +16,7 @@ The role performs three jobs:
    into each user's `~/.bashrc` via `ansible.builtin.blockinfile`.
 
 AMD64 Ubuntu only; ARM64 hosts are skipped via the
-`not-supported-on-vagrant-arm64` tag applied in `configure-profile-roles.yml`.
+`not-supported-on-arm64` tag applied in `configure-profile-roles.yml`.
 
 ## Stamp-File Idempotency
 
@@ -84,7 +84,7 @@ per-user `when:` guards and are similarly skipped.
 
 ## Tag Placement — Role Entry Level Only
 
-**Decision**: Apply `not-supported-on-vagrant-arm64` at the role entry level
+**Decision**: Apply `not-supported-on-arm64` at the role entry level
 in `configure-profile-roles.yml`, not on individual tasks inside the role.
 
 **Rationale**: FR-007 and the `android_studio`/`google_chrome` role pattern.

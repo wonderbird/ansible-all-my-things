@@ -15,7 +15,7 @@ The role performs two distinct jobs:
    within 30 seconds without downloading anything.
 
 AMD64 Ubuntu only; ARM64 hosts are skipped via the
-`not-supported-on-vagrant-arm64` tag applied in
+`not-supported-on-arm64` tag applied in
 `configure-profile-roles.yml`.
 
 ## Why cmdline-tools Must Be Bootstrapped Separately
