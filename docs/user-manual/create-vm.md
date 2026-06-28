@@ -370,8 +370,9 @@ shown by `ansible-inventory --graph`.
 > Always destroy AWS and Hetzner Cloud instances when no longer needed.
 > Monitor the corresponding billing dashboards for unexpected charges.
 
---
+---
 
+Previous: [First Steps](./first-steps.md)
 Next: [Work with a Virtual Machine](./work-with-vm.md)
 
 [aws-account]: https://aws.amazon.com

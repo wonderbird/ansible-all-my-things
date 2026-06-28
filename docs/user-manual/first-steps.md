@@ -160,4 +160,4 @@ ansible-playbook playbooks/destroy-vm.yml \
 
 ---
 
-Next: [Work with a VM](./work-with-vm.md)
+Next: [Create a Virtual Machine](./create-vm.md)
