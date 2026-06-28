@@ -185,6 +185,10 @@ ansible-playbook playbooks/destroy-vm.yml --extra-vars provider=hcloud --extra-v
 Use the same `provider` value used to create the VM, and the `hostname` shown
 by `ansible-inventory --graph`.
 
+> [!IMPORTANT]
+> Always destroy AWS and Hetzner Cloud instances when no longer needed.
+> Monitor the corresponding billing dashboards for unexpected charges.
+
 --
 
 Next: [Work with a Virtual Machine](./work-with-vm.md)

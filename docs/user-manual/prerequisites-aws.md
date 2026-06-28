@@ -126,6 +126,18 @@ Create or import an SSH key pair in the AWS EC2 console:
 
 Follow the instructions in section [Important concepts](./important-concepts.md) to update your secrets in `.envrc` and in [./inventories/group_vars/all/vars.yml](./inventories/group_vars/all/vars.yml).
 
+## 5. AWS Instance Type Guidelines
+
+**t3.micro** is the default choice for all AWS tests:
+
+- Free tier eligible (subject to account limits)
+- Sufficient for most testing scenarios
+- Minimum costs if free tier limit exceeded
+
+> [!IMPORTANT]
+> Always destroy AWS and Hetzner Cloud instances after testing. Monitor the
+> corresponding billing dashboards for unexpected charges.
+
 ---
 
 Next: [Work with a Virtual Machine](./work-with-vm.md)
