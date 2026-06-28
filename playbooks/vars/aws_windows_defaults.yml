@@ -1,6 +1,5 @@
 ---
-# AWS Windows-specific overrides
-# These override both platform and provider defaults
+# AWS Windows defaults — loaded at create time via include_vars
 
 # Windows Server 2025 in eu-north-1
 #
@@ -19,5 +18,5 @@
 #
 aws_default_ami_id: "ami-04825a63f08add32f"
 
-# Refer to the pricing table in inventories/group_vars/aws_ec2_linux/vars.yml
+# Refer to the pricing table in playbooks/vars/aws_linux_defaults.yml
 aws_default_instance_type: "t3.large"

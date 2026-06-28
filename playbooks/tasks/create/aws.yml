@@ -17,15 +17,15 @@
 ---
 - name: Load AWS region default
   ansible.builtin.include_vars:
-    file: "{{ playbook_dir }}/../inventories/group_vars/aws_ec2/vars.yml"
+    file: "{{ playbook_dir }}/vars/aws_defaults.yml"
 
 - name: Load AWS Linux AMI and instance-type defaults
   ansible.builtin.include_vars:
-    file: "{{ playbook_dir }}/../inventories/group_vars/aws_ec2_linux/vars.yml"
+    file: "{{ playbook_dir }}/vars/aws_linux_defaults.yml"
 
 - name: Load AWS Windows AMI and instance-type defaults
   ansible.builtin.include_vars:
-    file: "{{ playbook_dir }}/../inventories/group_vars/aws_ec2_windows/vars.yml"
+    file: "{{ playbook_dir }}/vars/aws_windows_defaults.yml"
   when: profile == 'windows'
 
 - name: Load shared SSH key name

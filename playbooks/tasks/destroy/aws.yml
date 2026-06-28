@@ -55,7 +55,7 @@
 
 - name: Load AWS region default
   ansible.builtin.include_vars:
-    file: "{{ playbook_dir }}/../inventories/group_vars/aws_ec2/vars.yml"
+    file: "{{ playbook_dir }}/vars/aws_defaults.yml"
 
 - name: Resolve AWS region
   ansible.builtin.set_fact:
