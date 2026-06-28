@@ -31,8 +31,8 @@ backup/restore pattern described in the
 | Concern | Choice | Rationale |
 | --- | --- | --- |
 | Infrastructure automation | Ansible | Declarative, agentless, idempotent by design; wide community; no daemon required on managed hosts. |
-| Local test VMs — macOS host | Tart (ARM64), via `create-vm.yml` | Tart provides lightweight, fast ARM64 VMs on Apple Silicon. |
-| Local test VMs — Linux host | Docker, via `create-vm.yml` | Docker-based VMs start faster than full VMs on Linux; sufficient for most role tests. |
+| Local VMs — macOS host | Tart (ARM64), via `create-vm.yml` | Tart provides lightweight, fast ARM64 VMs on Apple Silicon. |
+| Local VMs — Linux host | Docker, via `create-vm.yml` | Docker-based VMs start faster than full VMs on Linux; sufficient for most role tests. |
 | Cloud targets | AWS EC2, Hetzner Cloud | Existing provider choice; not changed by automation tooling. |
 | Guest OS | Ubuntu Linux (primary), Windows Server 2025 (secondary) | Ubuntu is the dominant desktop/server target; Windows Server added to run applications that are only available on Windows. |
 | Java runtime | sdkman + Eclipse Temurin JDK | Per-user self-service JDK management; avoids system-wide Java conflicts; ARM64 and AMD64 artifacts published by Adoptium. |
@@ -76,8 +76,7 @@ mark these exceptions so they can be skipped selectively:
 - **`not-supported-on-docker`**: Applied to desktop application
   playbooks. Docker-based VMs do not include a desktop environment, so
   desktop application roles and their backup/restore playbooks must be
-  skipped on Docker targets. (The tag name predates the Vagrant retirement;
-  renaming it is a separate, out-of-scope refactor.)
+  skipped on Docker targets.
 - **`not-supported-on-arm64`**: Applied to AMD64-only software (e.g.,
   Google Chrome and Android Studio, which have no ARM64 Linux package or snap).
   Skips those playbooks on Tart (ARM64) VMs.
