@@ -12,7 +12,8 @@ Look up the VM's IP address with:
 ansible-inventory --host <hostname>
 ```
 
-Then use the following command to log in (replace `<ip>` with `ansible_host` from the output):
+Then use the following command to log in (replace `<ip>` with
+`ansible_host` from the output):
 
 ```shell
 # Connect to the server via SSH, forwarding the RDP port and the SSH port

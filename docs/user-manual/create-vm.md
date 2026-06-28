@@ -33,7 +33,7 @@ ansible-galaxy collection install -r requirements.yml
 
 ### 2. SSH Key Pair Setup
 
-**Step 0 — Generate a key (all providers)**
+#### Step 0 — Generate a key (all providers)
 
 ```shell
 ssh-keygen -t ed25519 -f ~/.ssh/id_ansible_ed25519 -C "$(whoami)@$(hostname)"
@@ -47,13 +47,13 @@ Using a dedicated name keeps the Ansible key separate from other keys.
 > AWS Windows instances only support RSA and ECDSA keys. If you plan to use
 > Windows on AWS, generate an RSA key instead and reuse it for Hetzner Cloud.
 
-**Step 1 — Local providers (Tart, Docker)**
+#### Step 1 — Local providers (Tart, Docker)
 
 No registration step is needed. The generated key is already referenced in
 `group_vars/tart/` and `group_vars/docker/`. Update `ansible_ssh_private_key_file`
 there if you used a different filename.
 
-**Step 2 — Cloud providers (AWS, Hetzner Cloud)**
+#### Step 2 — Cloud providers (AWS, Hetzner Cloud)
 
 Register the public key with each cloud provider before creating VMs. Follow
 the instructions in the provider-specific prerequisites:
