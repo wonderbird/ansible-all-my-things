@@ -25,7 +25,7 @@ Furthermore the following bind mounts are supported:
 
 - `/root/.ssh/YOUR_KEY_FILE.pem`: your private key registered with Hetzner
   cloud and aws. See the
-  [AWS prerequisites](../docs/user-manual/prerequisites-aws.md).
+  [AWS prerequisites](../docs/user-manual/create-vm.md).
 - `/root/ansible-all-my-things/inventories/group_vars/all/vault.yml`:
   encrypted ansible configuration. See
   [important-concepts.md](../docs/user-manual/important-concepts.md).

@@ -35,16 +35,16 @@ addressed in the first batch.
 
 ### Documents to update
 
-4. **`docs/user-manual/prerequisites-aws.md`** — review and update to reflect
+1. **`docs/user-manual/create-vm.md`** — review and update to reflect
    the current AWS environment (VPC, security-group `ansible-sg` shared
    between Linux and Windows, dynamic IP detection via ipinfo.io, vault-based
    credential storage).
 
-5. **`docs/user-manual/important-concepts.md`** — review and update to include
+2. **`docs/user-manual/important-concepts.md`** — review and update to include
    the unified inventory model and the `platform:` tag concept, so readers
    understand the abstraction before they run playbooks.
 
-6. **`docs/user-manual/work-with-vm.md`** — review and update to cover
+3. **`docs/user-manual/work-with-vm.md`** — review and update to cover
    day-to-day operations with all three production VMs (hobbiton, rivendell,
    moria) including Windows-specific workflows (RDP, Chocolatey).
 
@@ -73,7 +73,7 @@ addressed in the first batch.
    `docs/techContext.md`); covers dual-keyed groups, `platform:` tag,
    4-tier precedence, `@all` group graph.
 
-4. `docs/user-manual/prerequisites-aws.md` reflects the current
+4. `docs/user-manual/create-vm.md` reflects the current
    `ansible-sg` shared security-group and vault-based credential model.
 
 5. `docs/user-manual/important-concepts.md` mentions the unified inventory

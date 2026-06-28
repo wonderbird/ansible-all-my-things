@@ -66,7 +66,7 @@ group graph) after the beads-4fv rewrite.
 operator can understand how hosts are grouped and how variables are resolved
 without reading source code.
 
-### Step 4: Update `docs/user-manual/prerequisites-aws.md`
+### Step 4: Update `docs/user-manual/create-vm.md`
 
 **Source of truth:** Current file content + `docs/techContext.md` for the
 `ansible-sg` shared security-group (port 22 + 3389, IP-restricted via
