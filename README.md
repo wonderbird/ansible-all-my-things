@@ -8,11 +8,11 @@ This repository defines virtual machine configurations for software developers. 
 
 | Provider      | Platform | Operating System    | Architecture | Host name pool                              | Region          | Auth chain              |
 | ------------- | -------- | ------------------- | ------------ | -------------------------------------------- | --------------- | ----------------------- |
-| AWS EC2       | Windows  | Windows Server 2025 | AMD64        | `playbooks/vars/hostname_pool_aws.yml`       | eu-north-1      | Administrator           |
-| AWS EC2       | Linux    | Ubuntu Linux        | AMD64        | `playbooks/vars/hostname_pool_aws.yml`       | eu-north-1      | ubuntu → galadriel      |
-| Hetzner Cloud | Linux    | Ubuntu Linux        | AMD64        | `playbooks/vars/hostname_pool_hcloud.yml`    | Helsinki (hel1) | root → galadriel        |
-| Tart          | Linux    | Ubuntu Linux        | ARM64        | `playbooks/vars/hostname_pool_tart.yml`      | local           | admin → galadriel       |
-| Docker        | Linux    | Ubuntu Linux        | ARM64        | `playbooks/vars/hostname_pool_docker.yml`    | local           | root → galadriel        |
+| AWS EC2       | Windows  | Windows Server 2025 | AMD64        | [`playbooks/vars/hostname_pool_aws.yml`](./playbooks/vars/hostname_pool_aws.yml)       | eu-north-1      | Administrator           |
+| AWS EC2       | Linux    | Ubuntu Linux        | AMD64        | [`playbooks/vars/hostname_pool_aws.yml`](./playbooks/vars/hostname_pool_aws.yml)       | eu-north-1      | ubuntu → galadriel      |
+| Hetzner Cloud | Linux    | Ubuntu Linux        | AMD64        | [`playbooks/vars/hostname_pool_hcloud.yml`](./playbooks/vars/hostname_pool_hcloud.yml)    | Helsinki (hel1) | root → galadriel        |
+| Tart          | Linux    | Ubuntu Linux        | ARM64        | [`playbooks/vars/hostname_pool_tart.yml`](./playbooks/vars/hostname_pool_tart.yml)      | local           | admin → galadriel       |
+| Docker        | Linux    | Ubuntu Linux        | ARM64        | [`playbooks/vars/hostname_pool_docker.yml`](./playbooks/vars/hostname_pool_docker.yml)    | local           | root → galadriel        |
 
 For current pricing see the comments in the provider-specific group_vars files, e.g. [`inventories/group_vars/hcloud_linux/vars.yml`](./inventories/group_vars/hcloud_linux/vars.yml).
 
