@@ -307,11 +307,13 @@ look at the table in the [/README.md](../README.md) to see the possible
 combinations of provider, platform and host name.
 
 Before executing the other commands in this section, load the configured
-key into your SSH agent:
+key into your SSH agent. The key file depends on how you created it:
 
-```shell
-ssh-add ~/.ssh/YOUR_KEY_FILE.pem
-```
+- **AWS — key pair created in the console** (downloaded as `.pem`):
+  `ssh-add ~/.ssh/YOUR_KEY_FILE.pem`
+- **AWS — locally-generated key imported to EC2** or **Hetzner Cloud**
+  (Ed25519 or ECDSA key generated with `ssh-keygen`):
+  `ssh-add ~/.ssh/id_ansible_ed25519`
 
 Then run the following commands to verify the setup:
 
