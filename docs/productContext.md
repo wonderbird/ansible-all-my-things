@@ -27,9 +27,9 @@ Automate complete lifecycle of development environments across cloud providers w
 ### Key Requirements
 
 #### Infrastructure Automation
-- **Hetzner Cloud**: Persistent development environments (`hobbiton`)
-- **AWS Linux**: On-demand development servers (`rivendell`)
-- **AWS Windows**: Windows application servers (`moria`)
+- **Hetzner Cloud**: Persistent development environments (see `playbooks/vars/hostname_pool_hcloud.yml`)
+- **AWS Linux**: On-demand development servers (see `playbooks/vars/hostname_pool_aws.yml`)
+- **AWS Windows**: Windows application servers (see `playbooks/vars/hostname_pool_aws.yml`)
 - **Docker**: Linux testing environments, provisioned via `create-vm.yml`
 - **Tart**: macOS-compatible (ARM64) testing environments, provisioned via
   `create-vm.yml`
@@ -66,7 +66,7 @@ A unified, cross-provider automation system that provides automated access to de
 - Idiomatic ansible configuration with vault encryption
 
 #### Target System Deployment
-- AI agents operate on provisioned systems (`hobbiton`, `rivendell`, `moria`)
+- AI agents operate on provisioned systems (see [hostname pool table](../README.md))
 - Command restrictions deployed during user provisioning
 - Cross-platform ansible automation for Linux and Windows systems
 
