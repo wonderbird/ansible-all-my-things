@@ -13,7 +13,7 @@
 6. **Publish HCLOUD_TOKEN to environment:** Next, publish your API token to the HCLOUD_TOKEN environment variable, which is used by default by the [hetzner.hcloud ansible modules](https://docs.ansible.com/ansible/latest/collections/hetzner/hcloud/).
 
 ```shell
-echo -n "hcloud API token: "; read -s HCLOUD_TOKEN; export HCLOUD_TOKEN
+read -s HCLOUD_TOKEN; export HCLOUD_TOKEN; echo $HCLOUD_TOKEN | wc -c | xargs echo "Number of characters in HCLOUD_TOKEN:"
 ```
 
 ---

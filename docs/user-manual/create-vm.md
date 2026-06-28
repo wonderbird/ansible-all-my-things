@@ -68,14 +68,6 @@ Some prerequisites differ by provider. Refer to the corresponding documentation 
 - [AWS EC2](./prerequisites-aws.md)
 - [Hetzner Cloud](./prerequisites-hcloud.md)
 
-Once you have configured the prerequisites for both providers, you can set the required environment variables as follows:
-
-```shell
-. ./configure.sh HOSTNAME
-```
-
-If you don't have a running host yet, simply use "hobbiton" as the host name. In that case the script will show an empty IP address for hobbiton in the end.
-
 Depending on the target system, choose the appropriate hostname from the table in the [README.md](../README.md).
 
 ## Create a Cloud VM
@@ -159,17 +151,22 @@ ansible windows -m win_command -a 'whoami' --extra-vars "ansible_user=Administra
 > You might want to add additional SSH keys to the `authorized_keys` files on
 > the server.
 
-You can also SSH directly to the instance. `IPV4_ADDRESS` is set by sourcing [/configure.sh](../configure.sh):
+You can also SSH directly to the instance. Look up the IP address with:
 
 ```shell
-# Configure your shell to work with the VM
-source ./configure.sh HOSTNAME
+ansible-inventory --host <hostname>
+```
+
+Load your SSH key, then connect using `ansible_host` from the output:
+
+```shell
+ssh-add ~/.ssh/id_ansible_ed25519
 
 # On Linux, galadriel is the default desktop user
-ssh galadriel@$IPV4_ADDRESS
+ssh galadriel@<ip>
 
 # On Windows, only Administrator is configured as a user
-ssh Administrator@$IPV4_ADDRESS
+ssh Administrator@<ip>
 ```
 
 ## Connect using RDP

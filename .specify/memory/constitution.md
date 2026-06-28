@@ -328,7 +328,7 @@ adding host-key churn on local targets where the threat is negligible.
 - **Configuration**: `ansible.cfg`, `group_vars`, `host_vars`, `inventories/`
 - **Dependencies**: `requirements.yml` (Ansible Galaxy roles/collections),
   `requirements.txt` (Python packages including Molecule)
-- **Scripting**: Bash (`configure.sh`, `scripts/`)
+- **Scripting**: Bash (`scripts/`)
 
 No additional runtime languages (Python services, Node apps, etc.) are
 introduced without explicit justification and documentation.

@@ -6,17 +6,17 @@ The username of the desktop user is configured in `/inventories/group_vars/all/v
 
 The section [Important Concepts](./important-concepts.md) provides more information about the different users and their purposes.
 
-Source the script [/configure.sh](../configure.sh) in order to set environment variables to work with the Virtual Machine:
+Look up the VM's IP address with:
 
 ```shell
-source ./configure.sh
+ansible-inventory --host <hostname>
 ```
 
-Then use the following command to log in:
+Then use the following command to log in (replace `<ip>` with `ansible_host` from the output):
 
 ```shell
 # Connect to the server via SSH, forwarding the RDP port and the SSH port
-ssh -L 3389:localhost:3389 -L 8022:localhost:22 galadriel@$IPV4_ADDRESS
+ssh -L 3389:localhost:3389 -L 8022:localhost:22 galadriel@<ip>
 ```
 
 Now you can open an RDP client like Remmina, Windows App or Remote Desktop to connect to the server at `localhost` with user `galadriel`.

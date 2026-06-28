@@ -34,8 +34,8 @@ The following updates were delivered as part of this improvement:
 - **Instance-name context** — added a reference to the README table for hostname explanations
   (hobbiton, rivendell, moria).
 - **Fixed verification commands** — corrected inventory and connectivity verification procedures.
-- **Simplified environment setup** — consolidated environment variable configuration using
-  `source ./configure.sh`.
+- **Simplified environment setup** — use `ansible-inventory --host <hostname>`
+  to look up the IP address of a provisioned VM.
 
 ### `README.md`
 
