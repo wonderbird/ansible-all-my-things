@@ -15,8 +15,8 @@ The role performs two distinct jobs:
    within 30 seconds without downloading anything.
 
 AMD64 Ubuntu only; ARM64 hosts are skipped via the
-`not-supported-on-vagrant-arm64` tag applied in
-`configure-linux-roles.yml`.
+`not-supported-on-arm64` tag applied in
+`configure-profile-roles.yml`.
 
 ## Why cmdline-tools Must Be Bootstrapped Separately
 
@@ -95,7 +95,7 @@ See TD-009 in the technical debt register for the accepted risk.
 `ANDROID_HOME` is per-user (`~/Android/Sdk`), not system-wide. The role
 loops over `desktop_user_names` and runs each SDK task with
 `become_user: "{{ item }}"` to ensure correct file ownership. The play
-in `configure-linux-roles.yml` sets `become: true`; individual tasks
+in `configure-profile-roles.yml` sets `become: true`; individual tasks
 must not repeat it.
 
 ## Code Conventions

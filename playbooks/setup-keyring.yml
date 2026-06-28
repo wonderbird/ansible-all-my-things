@@ -5,7 +5,7 @@
 # https://unix.stackexchange.com/questions/473528/how-do-you-enable-the-secret-tool-command-backed-by-gnome-keyring-libsecret-an
 #
 - hosts: linux
-  tags: not-supported-on-vagrant-docker
+  tags: not-supported-on-docker
   become: true
 
   vars:

@@ -1,6 +1,6 @@
 ---
 - hosts: all
-  tags: not-supported-on-vagrant-docker
+  tags: not-supported-on-docker
   become: true
 
   vars:

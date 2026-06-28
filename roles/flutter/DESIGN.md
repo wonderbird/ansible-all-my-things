@@ -16,7 +16,7 @@ The role performs three jobs:
    into each user's `~/.bashrc` via `ansible.builtin.blockinfile`.
 
 AMD64 Ubuntu only; ARM64 hosts are skipped via the
-`not-supported-on-vagrant-arm64` tag applied in `configure-linux-roles.yml`.
+`not-supported-on-arm64` tag applied in `configure-profile-roles.yml`.
 
 ## Stamp-File Idempotency
 
@@ -84,17 +84,17 @@ per-user `when:` guards and are similarly skipped.
 
 ## Tag Placement — Role Entry Level Only
 
-**Decision**: Apply `not-supported-on-vagrant-arm64` at the role entry level
-in `configure-linux-roles.yml`, not on individual tasks inside the role.
+**Decision**: Apply `not-supported-on-arm64` at the role entry level
+in `configure-profile-roles.yml`, not on individual tasks inside the role.
 
 **Rationale**: FR-007 and the `android_studio`/`google_chrome` role pattern.
 Applying the tag only at the entry level means:
 
 - The role file is clean and does not repeat tag logic on every task.
-- The skip behaviour is visible at a glance in `configure-linux-roles.yml`.
+- The skip behaviour is visible at a glance in `configure-profile-roles.yml`.
 - Adding `apply: tags:` to any future `ansible.builtin.include_role` caller
   is the documented extension point (FR-008; the comment already exists in
-  `configure-linux-roles.yml` at the `android_studio` entry).
+  `configure-profile-roles.yml` at the `android_studio` entry).
 
 ## `meta/main.yml` — Empty Dependencies
 
@@ -127,7 +127,7 @@ unique marker ensures re-runs do not duplicate the block. Per-user
 are owned by `{{ item }}:{{ item }}`. Using `become_user` on the extraction
 task ensures the untarred files inherit the correct ownership without a
 separate `chown` step. The play-level `become: true` in
-`configure-linux-roles.yml` is inherited; task-level `become: true` is
+`configure-profile-roles.yml` is inherited; task-level `become: true` is
 therefore not repeated.
 
 ## Android SDK Components: NDK and CMake Excluded

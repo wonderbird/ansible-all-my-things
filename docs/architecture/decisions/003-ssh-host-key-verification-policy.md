@@ -25,14 +25,14 @@ SSH from the entire internet**. Modelling it on the existing providers — as th
 provider pattern invites — would carry the laptop-local "trust any key, never
 check" setting onto a path that is no longer trusted.
 
-The subject here is the `create-vm.yml`/`destroy-vm.yml` providers. The
-separate, pre-existing developer-server workflow
-(`provisioners/hcloud-linux.yml`, `destroy-hcloud-tasks.yml`) already pins host
+The subject here is the `create-vm.yml`/`destroy-vm.yml` providers. A
+separate, now-retired developer-server workflow historically pinned host
 keys with `ssh-keyscan` into the operator's global `~/.ssh/known_hosts` and
-removes them with a bare `ssh-keygen -R`; that workflow is out of scope and
-unchanged. So the real choice for the new provider is between disabled
-verification, keyscan-pin-to-global, and the policy below — not merely
-"`/dev/null` vs verify".
+removed them with a bare `ssh-keygen -R`; that workflow was out of scope for
+this decision and has since been removed from the codebase. So the real
+choice for the new provider was between disabled verification,
+keyscan-pin-to-global, and the policy below — not merely "`/dev/null` vs
+verify".
 
 Decision: **should host-key verification be uniform across providers, or depend
 on the target's network exposure — and if exposure-based, what policy should

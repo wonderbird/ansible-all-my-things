@@ -249,6 +249,14 @@ not tied to active WIP must be converted to a normal feature request: its
 headline must **not** contain the word "Finding", though the description may
 note provenance.
 
+### Findings gates are closed by humans only
+
+**AI agents MUST NOT close a findings gate.** A findings gate is a human
+review checkpoint — it signals that a set of findings has been collected and
+is awaiting human sign-off. Only the human reviewer closes it after confirming
+each child finding has been addressed. This applies regardless of how many
+child tasks have been closed.
+
 ## Beads: Issue Types and Dependency Rules
 
 ### Issue Types
