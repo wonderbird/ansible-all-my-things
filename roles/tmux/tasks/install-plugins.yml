@@ -1,5 +1,11 @@
 #SPDX-License-Identifier: MIT-0
 ---
+- name: Install git
+  ansible.builtin.apt:
+    name: git
+    state: present
+    update_cache: false
+
 - name: Clone TPM for each user
   ansible.builtin.git:
     repo: "{{ tmux_plugin_tpm_repo }}"
