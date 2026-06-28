@@ -2,8 +2,8 @@
 - name: Backup Google Chrome settings
   hosts: "{{ backup_from_host }}"
   tags:
-    - not-supported-on-vagrant-docker
-    - not-supported-on-vagrant-arm64
+    - not-supported-on-docker
+    - not-supported-on-arm64
   become: true
 
   vars:

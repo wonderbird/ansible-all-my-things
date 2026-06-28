@@ -134,7 +134,7 @@ legacy playbooks verbatim, instead of extracting roles first:
   (`basic` default, `desktop` alternative) validated by
   `tasks/assert-provider-profile.yml`, which rejects `profile=desktop` with
   `provider=docker` loudly — desktop is incompatible with the minimized
-  docker image (`not-supported-on-vagrant-docker` tag on all three legacy
+  docker image (`not-supported-on-docker` tag on all three legacy
   desktop playbooks confirms this is a pre-existing, deliberate limitation,
   not a new restriction).
 - AWS: `tasks/create/aws.yml` opens the `3389` (RDP) security-group rule
@@ -260,7 +260,7 @@ by the user). Nothing blocks starting Phase 6's deletion work.
 **Round-trip gate PROVEN on Tart (local), 2026-06-21** (tracked in
 ansible-all-my-things-h6f3): `create(romulus, desktop)` →
 `configure-profile.yml` → restore existing tarballs (`--limit romulus
---skip-tags not-supported-on-vagrant-arm64`) → planted marker
+--skip-tags not-supported-on-arm64`) → planted marker
 `h6f3-roundtrip-marker 20260621T083105Z` in `~/.gitconfig`,
 `~/.local/share/keyrings/h6f3-marker.txt`, and
 `~/.claude/projects/h6f3-marker.txt` → `backup.yml -e
@@ -272,13 +272,13 @@ restore plays** — `home-folder-files`, `keyring`, `claude-settings` — surviv
 the full backup → destroy → create → restore cycle on a host built purely
 through the new lifecycle. The other 4 are explicitly out of round-trip
 proof scope: `google-chrome` (no ARM64 Linux package, skipped via the
-`not-supported-on-vagrant-arm64` tag), `chromium` (its profile dir is only
+`not-supported-on-arm64` tag), `chromium` (its profile dir is only
 created on first launch — a never-launched host could fail this play; not
 hit in this run), and `rtk-settings` / `vscode-settings` (ran with
 `failed=0` but no marker was planted, so content survival is unverified).
 A genuine command-script gap was found and fixed during this run:
 `configure-profile.yml` also needs `--skip-tags
-not-supported-on-vagrant-arm64` on ARM64 Tart (`configure-profile-roles.yml`
+not-supported-on-arm64` on ARM64 Tart (`configure-profile-roles.yml`
 tags the `google_chrome` role for the same reason restore/backup do) — not
 just `restore.yml`/`backup.yml` as originally assumed.
 

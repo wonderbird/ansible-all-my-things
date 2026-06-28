@@ -27,17 +27,19 @@ Automate complete lifecycle of development environments across cloud providers w
 ### Key Requirements
 
 #### Infrastructure Automation
-- **Hetzner Cloud**: Persistent development environments (`hobbiton`)
-- **AWS Linux**: On-demand development servers (`rivendell`)
-- **AWS Windows**: Windows application servers (`moria`)
-- **Vagrant Docker**: Linux testing environments (`dagorlad`)
-- **Vagrant Tart**: macOS-compatible testing environments (`lorien`)
+- **Hetzner Cloud**: Persistent development environments (see `playbooks/vars/hostname_pool_hcloud.yml`)
+- **AWS Linux**: On-demand development servers (see `playbooks/vars/hostname_pool_aws.yml`)
+- **AWS Windows**: Windows application servers (see `playbooks/vars/hostname_pool_aws.yml`)
+- **Docker**: Linux testing environments, provisioned via `create-vm.yml`
+- **Tart**: macOS-compatible (ARM64) testing environments, provisioned via
+  `create-vm.yml`
 - **Complete Lifecycle**: Provision → Configure → Access → Destroy
 
 #### Target Applications
 - **Claude Desktop**: Windows-only application access
 - **Development Tools**: Cross-platform development environments
-- **Testing Infrastructure**: Vagrant-based testing environments
+- **Testing Infrastructure**: Local Docker and Tart VMs, provisioned via
+  `create-vm.yml`
 
 ### Success Metrics
 
@@ -64,13 +66,13 @@ A unified, cross-provider automation system that provides automated access to de
 - Idiomatic ansible configuration with vault encryption
 
 #### Target System Deployment
-- AI agents operate on provisioned systems (`hobbiton`, `rivendell`, `moria`)
+- AI agents operate on provisioned systems (see [hostname pool table](../README.md))
 - Command restrictions deployed during user provisioning
 - Cross-platform ansible automation for Linux and Windows systems
 
 ## How It Works
 
-Environments are provisioned, configured, accessed, and destroyed using Ansible playbooks. A unified `provision.yml` entrypoint accepts `provider` and `platform` parameters to target any supported environment with a single command.
+Environments are provisioned, configured, accessed, and destroyed using Ansible playbooks. `create-vm.yml` accepts `provider` and `profile` parameters to create any supported environment, `configure-profile.yml` applies profile-based configuration, and `destroy-vm.yml` tears it down — each a single command per lifecycle step.
 
 For step-by-step instructions see [docs/user-manual/create-vm.md](user-manual/create-vm.md).
 
@@ -113,10 +115,10 @@ For step-by-step instructions see [docs/user-manual/create-vm.md](user-manual/cr
 - AI agent safety controls deployed automatically
 
 ### Qualitative Measures
-**Predictable command patterns**: The same `ansible-playbook provision.yml --extra-vars "provider=<x> platform=<y>"` interface works across providers.
+**Predictable command patterns**: The same `ansible-playbook playbooks/create-vm.yml --extra-vars provider=<x> --extra-vars profile=<y>` interface works across providers.
 **Consistent SSH key authentication**: A single key pair grants access to all provisioned environments regardless of provider.
 **Unified automation framework**: New providers and platforms can be added by following existing playbook and inventory conventions, without redesigning the automation layer.
-**Complete cloud environment cleanup**: Every cloud-provisioned environment (Hetzner Cloud, AWS) can be fully destroyed, leaving no orphaned resources or costs. Local Vagrant environments (dagorlad, lorien) are excluded — they incur no cloud cost.
+**Complete cloud environment cleanup**: Every cloud-provisioned environment (Hetzner Cloud, AWS) can be fully destroyed, leaving no orphaned resources or costs. Local Tart and Docker environments are excluded — they incur no cloud cost.
 
 ### AI Agent Safety
 **Command Blocking**: Infrastructure commands blocked on target systems
@@ -130,7 +132,7 @@ For step-by-step instructions see [docs/user-manual/create-vm.md](user-manual/cr
 A developer working primarily on Linux or macOS who needs occasional access to Windows environments to run platform-specific applications (e.g., Claude Desktop, Windows-only tooling). They value automation over manual VM management and expect a single command to produce a ready-to-use environment.
 
 ### Cost-Conscious Developer (Primary)
-A developer who self-funds cloud infrastructure and needs on-demand environments that cost nothing when not in use. They choose providers based on task duration: Hetzner for persistent daily work, AWS for intermittent workloads, Vagrant for local testing that incurs no cloud cost.
+A developer who self-funds cloud infrastructure and needs on-demand environments that cost nothing when not in use. They choose providers based on task duration: Hetzner for persistent daily work, AWS for intermittent workloads, Tart or Docker for local testing that incurs no cloud cost.
 
 ### Team Lead / DevOps Engineer (Secondary)
 A technical lead responsible for ensuring that all team members work in identical, reproducible environments. They value the unified inventory system, idiomatic Ansible configuration, and the ability to extend the framework to new providers without rewriting existing automation.

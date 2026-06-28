@@ -25,7 +25,7 @@ Furthermore the following bind mounts are supported:
 
 - `/root/.ssh/YOUR_KEY_FILE.pem`: your private key registered with Hetzner
   cloud and aws. See the
-  [AWS prerequisites](../docs/user-manual/prerequisites-aws.md).
+  [AWS prerequisites](../docs/user-manual/create-vm.md).
 - `/root/ansible-all-my-things/inventories/group_vars/all/vault.yml`:
   encrypted ansible configuration. See
   [important-concepts.md](../docs/user-manual/important-concepts.md).
@@ -58,10 +58,13 @@ eval $(ssh-agent) \
   && ssh-add /root/.ssh/YOUR_KEY_FILE.pem; \
   ssh-add -l
 
-ansible-playbook ./provision.yml --extra-vars "provider=hcloud platform=linux"
+ansible-playbook playbooks/create-vm.yml --extra-vars "provider=hcloud"
 
 # Show the VM ip address
 hcloud server list
+
+# Configure the VM
+ansible-playbook playbooks/configure-profile.yml
 ```
 
 More commands and procedure to delete the VM are described in [/docs/user-manual/create-vm.md](../docs/user-manual/create-vm.md).

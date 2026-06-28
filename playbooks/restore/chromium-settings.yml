@@ -1,7 +1,7 @@
 ---
 - name: Restore Chromium settings
   hosts: linux
-  tags: not-supported-on-vagrant-docker
+  tags: not-supported-on-docker
   become: true
 
   vars:

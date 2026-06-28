@@ -1,6 +1,5 @@
 ---
-# AWS Linux-specific overrides
-# These override both platform and provider defaults
+# AWS Linux defaults — loaded at create time via include_vars
 
 # Ubuntu 24.04 LTS in eu-north-1
 #
@@ -28,5 +27,3 @@ aws_default_ami_id: "ami-067bcf851477ebb78"
 # NOTE: t3.micro is sufficient for testing and it is free tier eligible.
 #
 aws_default_instance_type: "t3.xlarge"
-
-admin_user_on_fresh_system: "ubuntu"

@@ -1,7 +1,7 @@
 ---
 - name: Backup Chromium settings
   hosts: "{{ backup_from_host }}"
-  tags: not-supported-on-vagrant-docker
+  tags: not-supported-on-docker
   become: true
 
   vars:

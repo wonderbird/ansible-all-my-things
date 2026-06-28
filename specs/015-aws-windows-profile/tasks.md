@@ -62,7 +62,7 @@ shell, `ansible_user: Administrator`), and the host appears under `windows`
       before any AWS API call when `profile == 'windows'` (depends on T001)
 - [ ] T003 [US1] Add a `profile == 'windows'` branch in
       `playbooks/tasks/create/aws.yml` that resolves AMI/instance-type
-      defaults from `inventories/group_vars/aws_ec2_windows/vars.yml`
+      defaults from `playbooks/vars/aws_windows_defaults.yml`
       instead of `aws_ec2_linux` (depends on T001)
 - [ ] T004 [US1] In that branch, generate the Windows `user_data` PowerShell
       script (Administrator password from `windows_admin_password`, shared
