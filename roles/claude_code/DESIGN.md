@@ -35,3 +35,26 @@ deploying a template. The file may contain user-managed keys that a template
 would overwrite. The jq script detects whether the target state already exists
 and prints `NO_CHANGE` or `CHANGED`, which `changed_when` uses to report
 accurately.
+
+## settings.json: bd-guard hook via jq --arg
+
+The bd-guard `PreToolUse` hook blocks `bd list --all`, which enters an unbounded
+output loop at ~350 issues in this repo (5.6 GB output, 100% CPU, SIGKILL).
+
+The hook command contains embedded single quotes (shell guards, jq calls, the
+JSON error payload), making it impossible to embed literally inside a jq
+expression that is itself single-quoted in bash. `configure.yml` therefore
+assigns the command string via a quoted heredoc (`<<'HOOKEOF'`) to a
+`BD_HOOK_CMD` variable and passes it to jq as `--arg bdcmd "$BD_HOOK_CMD"`.
+The jq expression references `$bdcmd` without quoting issues.
+
+The idempotency check uses `.command | contains("bd list --all")` rather than an
+exact string match so that minor future rewrites of the hook command do not cause
+duplicate entries.
+
+The hook uses `grep -qE '(^|[[:space:]])(bd)[[:space:]]+list[[:space:]]+--all'`
+so it only fires when `bd` appears at the start of the command or after
+whitespace. This avoids false positives when the literal string
+`bd list --all` appears inside a grep argument (`grep -qF 'bd list --all'`)
+or a jq expression (`contains("bd list --all")`), where `bd` is preceded
+by a quote character, not whitespace.
