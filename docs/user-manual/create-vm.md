@@ -104,10 +104,6 @@ trusted automatically into a project-scoped `known_hosts` file (see
 
 After that, the setup will take another 10 - 15 minutes.
 
-### Attention: Inventory Refresh Requires Sourced Configuration Script
-
-If refreshing the inventory fails, then you might have forgotten to source the configuration script. Check the section on provider specific prerequisites above.
-
 ### Note: Windows requires manual setup
 
 The Windows Server provides a clean installation with SSH, RDP access, and the Chocolatey package manager. However, unlike the Linux systems, **it does not include**:

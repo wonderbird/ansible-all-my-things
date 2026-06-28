@@ -15,7 +15,6 @@
 # - in the results, search for an AMI starting with exactly the same name
 #   and ending with a date like 2025.08.13 (provided by Amazon)
 #
-#
 aws_default_ami_id: "ami-04825a63f08add32f"
 
 # Refer to the pricing table in playbooks/vars/aws_linux_defaults.yml
