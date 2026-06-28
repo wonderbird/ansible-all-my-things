@@ -10,7 +10,7 @@ The backup source host has no default — it must always be passed explicitly
 with `-e backup_from_host=<host>`:
 
 ```shell
-ansible-playbook ./backup.yml --extra-vars backup_from_host=hobbiton
+ansible-playbook ./backup.yml --extra-vars backup_from_host=<hostname>
 ```
 
 See [/backup.yml](../../backup.yml) for why no default exists, and
@@ -25,7 +25,7 @@ playbooks it imports (Chromium, VS Code, RTK, keyring, and more).
 Run restore after
 [playbooks/configure-profile.yml](../../playbooks/configure-profile.yml) has
 configured the VM. Unlike backup, restore always targets the `linux` host
-group, so no `-e` flag is required:
+group, so no `--extra-vars` flag is required:
 
 ```shell
 ansible-playbook ./restore.yml

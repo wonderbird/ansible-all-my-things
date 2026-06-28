@@ -31,8 +31,7 @@ The following updates were delivered as part of this improvement:
   `pip3 install -r requirements.txt && ansible-galaxy collection install -r requirements.yml`.
 - **Provider-selection guidance** — added clear guidance for choosing between AWS and Hetzner Cloud.
 - **Consistent SSH user** — aligned all SSH-user references to `galadriel` throughout.
-- **Instance-name context** — added a reference to the README table for hostname explanations
-  (hobbiton, rivendell, moria).
+- **Instance-name context** — added a reference to the README table for hostname pool explanations.
 - **Fixed verification commands** — corrected inventory and connectivity verification procedures.
 - **Simplified environment setup** — use `ansible-inventory --host <hostname>`
   to look up the IP address of a provisioned VM.
