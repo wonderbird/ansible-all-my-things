@@ -42,6 +42,11 @@
         src: "{{ _roles_dir }}/opencode/defaults/main.yml"
       register: _opencode_defaults_raw
 
+    - name: Read github_cli role defaults
+      ansible.builtin.slurp:
+        src: "{{ _roles_dir }}/github_cli/defaults/main.yml"
+      register: _github_cli_defaults_raw
+
     - name: Extract current pinned values from role defaults
       vars:
         _java_id_match: >-
@@ -74,6 +79,10 @@
         current_opencode_version: >-
           {{ _opencode_defaults_raw.content | b64decode
              | regex_search('opencode_version:\s*"([^"]+)"', '\1')
+             | default([], true) | first }}
+        current_github_cli_version: >-
+          {{ _github_cli_defaults_raw.content | b64decode
+             | regex_search('github_cli_version:\s*"([^"]+)"', '\1')
              | default([], true) | first }}
 
     # --- Fetch upstream versions ---
@@ -123,6 +132,15 @@
     - name: Save OpenCode fetched tag
       ansible.builtin.set_fact:
         fetched_opencode_tag: "{{ fetched_github_tag }}"
+
+    - name: Fetch GitHub CLI upstream version
+      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
+      vars:
+        github_repo: "cli/cli"
+
+    - name: Save GitHub CLI fetched tag
+      ansible.builtin.set_fact:
+        fetched_github_cli_tag: "{{ fetched_github_tag }}"
 
     # --- Compare and report ---
     - name: Report Flutter SDK version status
@@ -181,6 +199,14 @@
           upstream={{ fetched_opencode_tag }},
           status={{ 'UP TO DATE' if current_opencode_version == fetched_opencode_tag else 'STALE' }}
 
+    - name: Report GitHub CLI version status
+      ansible.builtin.debug:
+        msg: >-
+          GitHub CLI:
+          current={{ current_github_cli_version }},
+          upstream={{ fetched_github_cli_tag }},
+          status={{ 'UP TO DATE' if current_github_cli_version == fetched_github_cli_tag else 'STALE' }}
+
     - name: Fail if any version pins are stale
       ansible.builtin.fail:
         msg: >-
@@ -192,4 +218,5 @@
         current_java_identifier != fetched_java_identifier or
         current_android_build != fetched_android_build or
         current_dolt_version != fetched_dolt_tag or
-        current_opencode_version != fetched_opencode_tag
+        current_opencode_version != fetched_opencode_tag or
+        current_github_cli_version != fetched_github_cli_tag

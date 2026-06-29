@@ -3,8 +3,8 @@
 galaxy_info:
   author: Stefan Boos
   namespace: wonderbird
-  role_name: ROLE_NAME
-  description: ROLE_DESCRIPTION
+  role_name: github_cli
+  description: Install GitHub CLI (gh) on Linux
   company: n.a.
   issue_tracker_url: http://github.com/wonderbird/ansible-all-my-things/issues
   license: MIT

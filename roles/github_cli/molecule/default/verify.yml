@@ -1,0 +1,35 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Load role defaults for version reference
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../../defaults/main.yml"
+
+    - name: Check gh binary exists
+      ansible.builtin.stat:
+        path: /usr/bin/gh
+      register: gh_binary_stat
+
+    - name: Assert gh binary is present
+      ansible.builtin.assert:
+        that:
+          - gh_binary_stat.stat.exists
+        fail_msg: "gh binary not found at /usr/bin/gh"
+        success_msg: "gh binary found at /usr/bin/gh"
+
+    - name: Run gh --version
+      ansible.builtin.command: gh --version
+      register: gh_version_output
+      changed_when: false
+
+    - name: Assert gh --version succeeds and reports correct version
+      ansible.builtin.assert:
+        that:
+          - gh_version_output.rc == 0
+          - "'gh version' in gh_version_output.stdout"
+          - "(github_cli_version | regex_replace('^v', '')) in gh_version_output.stdout"
+        fail_msg: "gh --version failed or output unexpected: {{ gh_version_output.stdout }}"
+        success_msg: "gh --version succeeded: {{ gh_version_output.stdout }}"

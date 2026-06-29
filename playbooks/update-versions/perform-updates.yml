@@ -69,6 +69,15 @@
       ansible.builtin.set_fact:
         fetched_opencode_tag: "{{ fetched_github_tag }}"
 
+    - name: Fetch GitHub CLI upstream version
+      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
+      vars:
+        github_repo: "cli/cli"
+
+    - name: Save GitHub CLI fetched tag
+      ansible.builtin.set_fact:
+        fetched_github_cli_tag: "{{ fetched_github_tag }}"
+
     # --- Apply updates to role defaults files ---
 
     # Flutter SDK: version and sha256 updated together
@@ -206,3 +215,10 @@
         path: "{{ _roles_dir }}/opencode/defaults/main.yml"
         regexp: 'opencode_sha256_arm64:\s*"[^"]+"'
         replace: 'opencode_sha256_arm64: "{{ _opencode_arm64_stat.stat.checksum }}"'
+
+    # GitHub CLI
+    - name: Update github_cli_version in github_cli role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/github_cli/defaults/main.yml"
+        regexp: 'github_cli_version:\s*"[^"]+"'
+        replace: 'github_cli_version: "{{ fetched_github_cli_tag }}"'
