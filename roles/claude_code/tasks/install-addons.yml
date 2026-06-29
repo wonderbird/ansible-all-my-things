@@ -104,6 +104,7 @@
     that:
       - item.matched > 0
     fail_msg: "No skill directories found in ai-agent-workspace clone for {{ item.item }}"
+    quiet: true
   loop: "{{ workspace_skill_dirs.results }}"
   loop_control:
     label: "{{ item.item }}"
