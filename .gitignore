@@ -3,6 +3,7 @@
 *.db
 .beads-credential-key
 .beads/issues.jsonl
+.beads/backup/
 
 # bv (beads viewer) local config and caches
 .bv/
