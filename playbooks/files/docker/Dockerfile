@@ -24,6 +24,7 @@ FROM ubuntu:24.04
 ARG DOCKER_ROOT_PASSWORD
 
 RUN apt-get update \
+    && DEBIAN_FRONTEND=noninteractive apt-get upgrade -y \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         systemd \
         systemd-sysv \
