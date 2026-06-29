@@ -1,7 +1,0 @@
-#SPDX-License-Identifier: MIT-0
----
-- name: Install GitHub CLI
-  ansible.builtin.apt:
-    name: "gh={{ github_cli_version | regex_replace('^v', '') }}"
-    state: present
-    update_cache: true
