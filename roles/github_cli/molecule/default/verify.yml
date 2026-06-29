@@ -26,5 +26,6 @@
         that:
           - gh_version_output.rc == 0
           - "'gh version' in gh_version_output.stdout"
+          - "'2.95.0' in gh_version_output.stdout"
         fail_msg: "gh --version failed or output unexpected: {{ gh_version_output.stdout }}"
         success_msg: "gh --version succeeded: {{ gh_version_output.stdout }}"
