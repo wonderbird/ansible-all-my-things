@@ -7,7 +7,7 @@
       Unsupported architecture: {{ ansible_facts['architecture'] }}.
       Supported: {{ github_cli_arch_map.keys() | list }}
 
-- name: Install python3-debian for deb822_repository module
+- name: Install python3-debian
   ansible.builtin.apt:
     name: python3-debian
     state: present
