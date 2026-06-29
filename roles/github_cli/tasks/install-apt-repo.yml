@@ -1,0 +1,20 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Assert architecture is supported
+  ansible.builtin.assert:
+    that: ansible_facts['architecture'] in github_cli_arch_map
+    fail_msg: >-
+      Unsupported architecture: {{ ansible_facts['architecture'] }}.
+      Supported: {{ github_cli_arch_map.keys() | list }}
+
+- name: Download GitHub CLI GPG keyring
+  ansible.builtin.get_url:
+    url: https://cli.github.com/packages/githubcli-archive-keyring.gpg
+    dest: /usr/share/keyrings/githubcli-archive-keyring.gpg
+    mode: '0644'
+
+- name: Add GitHub CLI apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch={{ github_cli_arch_map[ansible_facts['architecture']] }} signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main"
+    state: present
+    filename: github-cli
