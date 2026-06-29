@@ -62,7 +62,7 @@ Playbooks read secrets from an Ansible Vault-encrypted file at
 # Choose a vault password and persist it
 echo -n "Vault password: " && read -rs ANSIBLE_VAULT_PASSWORD && echo
 printf 'export ANSIBLE_VAULT_PASSWORD=%q\n' "$ANSIBLE_VAULT_PASSWORD" >> .envrc
-. .envrc
+. ./.envrc
 
 # Create and encrypt the secrets file from the provided template
 cp inventories/group_vars/all/vault-template.yml \
