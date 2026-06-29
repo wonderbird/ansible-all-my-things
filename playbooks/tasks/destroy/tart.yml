@@ -44,7 +44,7 @@
 
 - name: Check if VM exists in tart
   ansible.builtin.stat:
-    path: "{{ ansible_env.HOME }}/.tart/vms/{{ hostname }}"
+    path: "{{ ansible_facts['env']['HOME'] }}/.tart/vms/{{ hostname }}"
   register: tart_vm_stat
 
 - name: Warn if VM is absent from tart (stale inventory entry)

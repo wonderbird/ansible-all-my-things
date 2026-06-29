@@ -154,7 +154,7 @@
   become: true
   become_user: "{{ item }}"
   environment:
-    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
   loop: "{{ desktop_user_names }}"
   failed_when: false
   changed_when: false
@@ -166,7 +166,7 @@
   become: true
   become_user: "{{ item }}"
   environment:
-    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
   loop: "{{ desktop_user_names }}"
   failed_when: false
   changed_when: false
@@ -178,7 +178,7 @@
   become: true
   become_user: "{{ item }}"
   environment:
-    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
   loop: "{{ desktop_user_names }}"
   when: "'  ❯ omc' not in (plugin_marketplace_check.results | selectattr('item', 'equalto', item) | first).stdout_lines"
 
@@ -188,7 +188,7 @@
   become: true
   become_user: "{{ item }}"
   environment:
-    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
   loop: "{{ desktop_user_names }}"
   when: "'  ❯ oh-my-claudecode@omc' not in (plugin_list_check.results | selectattr('item', 'equalto', item) | first).stdout_lines"
 
@@ -198,7 +198,7 @@
   become: true
   become_user: "{{ item }}"
   environment:
-    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
   loop: "{{ desktop_user_names }}"
   when: "'  ❯ caveman' not in (plugin_marketplace_check.results | selectattr('item', 'equalto', item) | first).stdout_lines"
 
@@ -208,7 +208,7 @@
   become: true
   become_user: "{{ item }}"
   environment:
-    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
   loop: "{{ desktop_user_names }}"
   when: "'  ❯ caveman@caveman' not in (plugin_list_check.results | selectattr('item', 'equalto', item) | first).stdout_lines"
 
@@ -218,7 +218,7 @@
   become: true
   become_user: "{{ item }}"
   environment:
-    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
   loop: "{{ desktop_user_names }}"
   when: >-
     (plugin_marketplace_check.results
@@ -234,7 +234,7 @@
   become: true
   become_user: "{{ item }}"
   environment:
-    PATH: "/home/{{ item }}/.local/bin:{{ ansible_env.PATH }}"
+    PATH: "/home/{{ item }}/.local/bin:{{ ansible_facts['env']['PATH'] }}"
   loop: "{{ desktop_user_names }}"
   when: >-
     (plugin_list_check.results

@@ -3,9 +3,9 @@
 # Only ansible platforms listed in claude_code_platform_map are supported.
 - name: "Verify supported processor architecture"
   assert:
-    that: "ansible_architecture in claude_code_platform_map"
+    that: "ansible_facts['architecture'] in claude_code_platform_map"
     fail_msg: >
-     Unsupported processor architecture: {{ ansible_architecture }}.
+     Unsupported processor architecture: {{ ansible_facts['architecture'] }}.
      Supported architectures are: {{ claude_code_platform_map.keys() | list }}.
 
 # -----
@@ -34,7 +34,7 @@
 
 - name: Extract expected Claude Code checksum from release manifest
   set_fact:
-    claude_code_expected_checksum: "{{ claude_code_manifest.json.platforms[claude_code_platform_map[ansible_architecture]].checksum }}"
+    claude_code_expected_checksum: "{{ claude_code_manifest.json.platforms[claude_code_platform_map[ansible_facts['architecture']]].checksum }}"
 
 # -----
 # Install Claude Code for each desktop user
