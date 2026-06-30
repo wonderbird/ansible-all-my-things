@@ -67,13 +67,24 @@ None. See `meta/main.yml` for details.
 
 ## Post-install Manual Steps
 
-After running the playbook, each user must complete initial setup interactively:
+After running the playbook, each user must complete initial setup interactively.
+The role installs the plugins but does not configure them — that requires a
+running Claude Code session. To simplify the process, the role copies a prompt
+file to `~/Documents/Cline/setup-omc-prompt.md` to automate the setup steps.
 
-1. Run `claude` to open a Claude Code session
-2. Run `/setup` inside the session. The Exa MCP server is configured
-   automatically by this role. If the GitHub MCP is desired, a GitHub personal
-   access token is required.
-3. Run `/caveman` to activate caveman mode
+1. `cd ~/Documents/Cline`
+2. Run `claude` to open a Claude Code session.
+3. Copy paste this prompt verbatim: `@setup-omc-prompt.md`
+   The prompt instructs Claude to:
+   - spawn a second Claude Code session in a new tmux pane
+   - run `omc setup` in that pane (global install, suggested defaults, no MCP,
+     caveman badge in the statusline)
+   - restart the pane session and run `omc doctor` to verify the result
+
+   The Exa MCP server is pre-configured by the role and does not need to be set
+   up through `omc setup`. If the GitHub MCP is desired, a GitHub personal access
+   token is required and must be provided when prompted.
+4. Run `/caveman` to activate caveman mode.
 
 ## License
 

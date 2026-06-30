@@ -65,3 +65,12 @@
   become_user: "{{ item }}"
   loop: "{{ desktop_user_names }}"
   changed_when: false
+
+- name: Copy OMC setup prompt for each desktop user
+  ansible.builtin.copy:
+    src: setup-omc-prompt.md
+    dest: "/home/{{ item }}/Documents/Cline/setup-omc-prompt.md"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0644'
+  loop: "{{ desktop_user_names }}"
