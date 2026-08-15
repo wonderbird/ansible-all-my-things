@@ -2,6 +2,3 @@
 ---
 - import_tasks: install-deps.yml
 - import_tasks: install-claude-code.yml
-- import_tasks: install-addons.yml
-- import_tasks: install-omc-cli.yml
-- import_tasks: configure.yml

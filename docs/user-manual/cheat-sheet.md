@@ -41,6 +41,6 @@ HOST=tatooine
 inv=$(ansible-inventory --host "$HOST")
 scp -P "$(echo "$inv" | jq -r .ansible_port)" \
   "galadriel@$(echo \"$inv\" | jq -r .ansible_host):Documents/Cline/setup-omc-prompt.md" \
-  ./roles/claude_code/files
+  ./roles/claude_code_config/files
 ```
 

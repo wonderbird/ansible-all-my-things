@@ -22,6 +22,7 @@
     - nodejs
     - ai_agent_workspace
     - claude_code
+    - claude_code_config
     - opencode
     - github_cli
 
@@ -50,6 +51,7 @@
     - nodejs
     - ai_agent_workspace
     - claude_code
+    - claude_code_config
     - opencode
     - tmux
     - nerd_font

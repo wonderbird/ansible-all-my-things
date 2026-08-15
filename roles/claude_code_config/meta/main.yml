@@ -2,8 +2,8 @@
 galaxy_info:
   author: Stefan Boos
   namespace: wonderbird
-  role_name: claude_code
-  description: Install Anthropic's Claude code on Linux
+  role_name: claude_code_config
+  description: Configure Anthropic's Claude Code global settings, plugins and skills
   company: n.a.
   issue_tracker_url: http://github.com/wonderbird/ansible-all-my-things/issues
   license: MIT
@@ -16,4 +16,8 @@ galaxy_info:
     # NOTE: A tag is limited to a single word comprised of alphanumeric characters.
     #       Maximum 20 tags per role.
 
-dependencies: []
+dependencies:
+  - rtk
+  - nodejs
+  - ai_agent_workspace
+  - claude_code

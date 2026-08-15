@@ -7,7 +7,7 @@ library source repository for each desktop user.
 
 This is a generic, cross-harness clone with no Claude-Code-specific logic —
 see `DESIGN.md` for why the `~/.claude/skills` symlink step stays in the
-`claude_code` role instead of here.
+`claude_code_config` role instead of here.
 
 ## Requirements
 
