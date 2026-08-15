@@ -51,8 +51,7 @@
         that:
           - settings.env.DISABLE_AUTOUPDATER == "1"
           - settings.env.DISABLE_UPDATES == "1"
-          - "'CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS' not in (settings.env | default({}))"
-          - "'CLAUDE_CODE_SPAWN_BACKEND' not in (settings.env | default({}))"
+          - (settings.env | length) == 2
           - "'teammateMode' not in settings"
           - "'hooks' not in settings"
         fail_msg: "settings.json missing the auto-update-disable keys, or contains opinionated claude_code_config keys"

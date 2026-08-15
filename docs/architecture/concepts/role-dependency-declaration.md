@@ -213,8 +213,9 @@ for the reasons in the worked examples above; `nodejs` because
 `install-omc-cli.yml` unconditionally invokes `npm`; `claude_code` because
 this role's `claude plugin`/`claude mcp` shell calls unconditionally
 require the binary it installs). `claude_code/meta/main.yml` itself
-declares `dependencies: []` — it is install-only and has no hard
-dependency on any other role. Every other role in this repository is also
+declares `dependencies: []` — it installs the binary plus its own minimal
+version-pin config and has no hard dependency on any other role. Every
+other role in this repository is also
 authored with `dependencies: []`, relying solely on explicit ordering,
 since none of them have a hard, role-intrinsic dependency by the test
 above.
