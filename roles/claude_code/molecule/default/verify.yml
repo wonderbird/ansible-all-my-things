@@ -40,3 +40,15 @@
           - jq_stat.stat.exists
         fail_msg: "jq not found at /usr/bin/jq"
         success_msg: "jq found at /usr/bin/jq"
+
+    - name: Check ~/.claude does not exist
+      ansible.builtin.stat:
+        path: /home/testuser/.claude
+      register: claude_dir_stat
+
+    - name: Assert claude_code does not opinionate ~/.claude
+      ansible.builtin.assert:
+        that:
+          - not claude_dir_stat.stat.exists
+        fail_msg: "~/.claude exists after claude_code alone; install-only role must not create it"
+        success_msg: "~/.claude absent, confirming claude_code is install-only"
