@@ -5,11 +5,13 @@ Ansible role that installs [Anthropic's Claude Code](https://claude.ai/code) CLI
 binary on Linux for each desktop user, verifying its integrity against a pinned
 per-platform sha256 checksum.
 
-This role is install-only: it does not touch `~/.claude` or otherwise
-opinionate the binary's configuration. Global `~/.claude` configuration
-(settings.json, plugins, skills symlinks, MCP servers, the `omc` CLI) is
-provisioned by the separate `claude_code_config` role, which depends on this
-one — see its `README.md`/`DESIGN.md` for that scope.
+This role touches `~/.claude` only to protect its own version-pin contract
+(two auto-update-disable settings.json keys) — everything else stays open.
+Opinionated `~/.claude` configuration for sophisticated development
+(plugins, skills symlinks, MCP servers, the `omc` CLI, and every other
+settings.json key) is provisioned by the separate `claude_code_config` role,
+which depends on this one — see its `README.md`/`DESIGN.md` for that scope,
+and this role's `DESIGN.md` for the general-vs-opinionated boundary test.
 
 ## Requirements
 
@@ -50,6 +52,8 @@ None. See `meta/main.yml`.
    verifying it against the pinned per-platform sha256 checksum BEFORE
    placement via Ansible-native SHA256 checking
 4. Adds `~/.local/bin` to each user's `PATH` via `.bashrc`
+5. Creates `~/.claude` and merges `DISABLE_AUTOUPDATER`/`DISABLE_UPDATES`
+   into `settings.json` — see `DESIGN.md` for why
 
 ## License
 

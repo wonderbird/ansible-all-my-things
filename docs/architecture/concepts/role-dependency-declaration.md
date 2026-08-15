@@ -62,8 +62,12 @@ Principle XII) guard for the same kind of cross-role artefact dependency.
 unguarded `claude plugin ...`/`claude mcp ...` shell calls against
 `/home/{{ item }}/.local/bin/claude` — the binary `claude_code` installs.
 No presence check precedes them; if the binary is absent, these tasks fail
-outright. `claude_code_config` therefore declares `claude_code` as a hard
-`meta/main.yml` dependency, in addition to explicit play ordering.
+outright. `claude_code_config/tasks/configure.yml`'s own jq merge also
+assumes `~/.claude/settings.json` already exists with `claude_code`'s
+baseline auto-update-disable keys — `claude_code/tasks/configure.yml`
+creates `~/.claude` and writes that baseline first. `claude_code_config`
+therefore declares `claude_code` as a hard `meta/main.yml` dependency, in
+addition to explicit play ordering.
 
 All three qualify under the decision test above, and all three are
 declared — see "Current state" below.

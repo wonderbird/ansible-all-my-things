@@ -1,14 +1,15 @@
 <!-- SPDX-License-Identifier: MIT-0 -->
 # claude_code_config
 
-Ansible role that configures [Anthropic's Claude Code](https://claude.ai/code)
-CLI's global `~/.claude` state for each desktop user: installs the
+Ansible role that applies opinionated [Anthropic's Claude Code](https://claude.ai/code)
+CLI configuration for sophisticated development, on top of the general,
+safe-for-any-project baseline `claude_code` creates: installs the
 [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) and
 [caveman](https://github.com/JuliusBrussee/caveman) Claude Code plugins,
 symlinks skills from an [ai-agent-workspace](https://github.com/eudicy/ai-agent-workspace)
 clone (provisioned by the `ai_agent_workspace` role) into `~/.claude/skills`,
 configures the [Exa](https://exa.ai) MCP server for web search, installs the
-`omc` CLI, and merges required keys into `settings.json`.
+`omc` CLI, and merges its own opinionated keys into `settings.json`.
 
 `beads`, `specify_cli`, and the ai-agent-workspace clone are cross-harness
 CLI tools installed by their own single-purpose roles, not by this role.
@@ -74,9 +75,9 @@ live here rather than in `rtk`/their own roles.
 6. Clones the oh-my-claudecode source repo and installs the `omc` CLI
    (`oh-my-claude-sisyphus`, skipped if already installed)
 7. Initializes rtk globally (`rtk init -g`) for each desktop user
-8. Merges required keys (agent-team env vars, auto-update-disable env vars,
-   rtk/bd-guard hooks) into `settings.json` — see `DESIGN.md` for why
-   auto-update is disabled
+8. Merges its own opinionated keys (agent-team env vars, `teammateMode`,
+   rtk/bd-guard hooks) into `settings.json`, on top of the baseline
+   `claude_code` already wrote — see `DESIGN.md`
 9. Sets `CLAUDE_PLUGIN_ROOT` in `.bashrc`
 10. Copies the OMC setup prompt to `~/Documents/Cline/setup-omc-prompt.md`
 

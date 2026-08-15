@@ -37,24 +37,17 @@ would overwrite. The jq script detects whether the target state already exists
 and prints `NO_CHANGE` or `CHANGED`, which `changed_when` uses to report
 accurately.
 
-## Why auto-update is disabled
+## settings.json: layered on top of claude_code's baseline
 
-Unlike `rtk`/`beads`/`nodejs`, which have no self-update mechanism, the
-Claude Code binary itself checks for and installs updates in the background
-(on startup and periodically) by default for native/npm-style installs —
-only Homebrew/WinGet/apt/dnf/apk installs skip this. `claude_code`'s
-`install-claude-code.yml` downloads the binary directly via `get_url` against
-the pinned `claude_code_version`, which bypasses the native installer's
-versioned-directory layout but not the binary's own baked-in auto-update
-behavior. Left unconstrained, the running `claude` version could silently
-drift away from the pinned default the next time a user launches it —
-defeating the explicit-pin-controlled-only-by-`perform-updates.yml` model
-this project applies to every pinned tool.
-
-`configure.yml` sets both `DISABLE_AUTOUPDATER=1` (stops the background
-update check) and `DISABLE_UPDATES=1` (also blocks manual `claude update`/
-`claude install`, the stronger guarantee) in `settings.json`'s `env` key, so
-the pinned version can only change via `perform-updates.yml`.
+`claude_code`'s own `configure.yml` creates `~/.claude` and writes
+`DISABLE_AUTOUPDATER`/`DISABLE_UPDATES` before this role ever runs (hard
+`meta/main.yml` dependency, see "Why this is a separate role" below). See
+`claude_code/DESIGN.md`'s "Why auto-update is disabled" for that rationale —
+those two keys are general and safe for any project, so they are not this
+role's concern. This role's own jq merge in `configure.yml` only adds its
+own opinionated keys (agent-team env vars, `teammateMode`, the rtk/bd-guard
+hooks) on top of the file `claude_code` already created, using the same
+read-current-merge-write pattern so neither role's keys clobber the other's.
 
 ## settings.json: bd-guard hook via jq --arg
 
@@ -99,22 +92,27 @@ Molecule `converge.yml` composes `nodejs` alongside it, so a green
 
 Same test as above, applied to rtk: `rtk`'s binary install genuinely has
 life outside a Claude Code session (any harness can shell out to
-`/usr/local/bin/rtk`), but `rtk init -g` writes into `~/.claude` — this
-role's own config directory, not rtk's install path — and no other harness
-reads it. So the binary install stays in the `rtk` role; the
-`~/.claude`-targeting init runs here (`configure.yml`), next to the
-directory creation and settings.json wiring it belongs with. This role's own
-Molecule `converge.yml` composes the `rtk` role so the binary exists before
-this task runs.
+`/usr/local/bin/rtk`), but `rtk init -g` writes into `~/.claude` — an
+opinionated choice to use rtk at all, not something every Claude Code
+install needs — and no other harness reads it. So the binary install stays
+in the `rtk` role; the `~/.claude`-targeting init runs here (`configure.yml`),
+next to the settings.json wiring it belongs with. This role's own Molecule
+`converge.yml` composes the `rtk` role so the binary exists before this task
+runs.
 
 ## Why this is a separate role from `claude_code`
 
-`claude_code` installs the binary only; this role owns every task that
-opinionates `~/.claude` (settings.json, plugins, skills symlinks, MCP
-servers, the `omc` CLI). The split lets a host install the Claude Code binary
-without any global configuration opinion — the prerequisite for an
-install-only profile (see `docs/architecture/concepts/role-dependency-declaration.md`
-for the dependency-declaration reasoning: this role hard-needs the `claude`
-binary from `claude_code`, e.g. `claude plugin`/`claude mcp` calls, so it
-declares `claude_code` in `meta/main.yml` `dependencies:` in addition to
-explicit play ordering).
+`claude_code` installs the binary and writes only the two settings.json keys
+that protect its own version-pin contract (general and safe for any
+project); this role owns every task that is a specific, opinionated choice
+for sophisticated development (settings.json's agent-team/hook keys,
+plugins, skills symlinks, MCP servers, the `omc` CLI, `rtk init -g`). The
+split lets a host install the Claude Code binary with only the minimal
+version-pin protection, leaving every actual usage decision open — the
+prerequisite for an install-only profile (see
+`docs/architecture/concepts/role-dependency-declaration.md` for the
+dependency-declaration reasoning: this role hard-needs the `claude` binary
+from `claude_code`, e.g. `claude plugin`/`claude mcp` calls, and needs
+`claude_code`'s `configure.yml` to have already created `~/.claude` and
+written the baseline settings.json, so it declares `claude_code` in
+`meta/main.yml` `dependencies:` in addition to explicit play ordering).

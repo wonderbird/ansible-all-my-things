@@ -2,3 +2,4 @@
 ---
 - import_tasks: install-deps.yml
 - import_tasks: install-claude-code.yml
+- import_tasks: configure.yml
