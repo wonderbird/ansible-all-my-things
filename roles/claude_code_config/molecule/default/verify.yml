@@ -104,7 +104,7 @@
         fail_msg: "context7 plugin cache not found at /home/testuser/.claude/plugins/cache/claude-plugins-official/context7"
         success_msg: "context7 plugin cache found at /home/testuser/.claude/plugins/cache/claude-plugins-official/context7"
 
-    - name: Check context7 MCP server is registered
+    - name: Check registered MCP servers
       ansible.builtin.shell: /home/testuser/.local/bin/claude mcp list
       become: true
       become_user: testuser
@@ -118,17 +118,10 @@
         fail_msg: "context7 not found in 'claude mcp list' output"
         success_msg: "context7 MCP server is registered"
 
-    - name: Check exa MCP server is configured
-      ansible.builtin.shell: /home/testuser/.local/bin/claude mcp list
-      become: true
-      become_user: testuser
-      changed_when: false
-      register: exa_mcp_list_result
-
     - name: Assert exa MCP server is registered
       ansible.builtin.assert:
         that:
-          - "'exa' in exa_mcp_list_result.stdout"
+          - "'exa' in mcp_list_result.stdout"
         fail_msg: "exa MCP server not found in 'claude mcp list' output"
         success_msg: "exa MCP server is configured"
 
