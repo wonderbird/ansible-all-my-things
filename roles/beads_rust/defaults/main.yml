@@ -17,9 +17,8 @@ beads_rust_platform_map:
 # give the wrong hash):
 #   curl -sL https://github.com/Dicklesworthstone/beads_rust/releases/download/<tag>/br-<stripped_ver>-linux_<arch>.tar.gz -o /tmp/br.tar.gz
 #   sha256sum /tmp/br.tar.gz
-# Cross-check against the release's checksums.sha256 file (NOT SHA256SUMS --
-# verified during role creation to list incorrect hashes for the linux
-# amd64/arm64 archives; checksums.sha256 is the file that matches the real
-# archive contents).
+# Cross-check against the release's per-archive "<filename>.sha256" sidecar
+# file (not a combined checksums file -- upstream has renamed that across
+# releases: checksums.sha256, then SHA256SUMS/SHA256SUMS.txt).
 beads_rust_sha256_amd64: "9ee22d340b56dacfb20460d8e4b2a0065fb66f161910472285d55f51e04512b0"
 beads_rust_sha256_arm64: "84b5dc30d583eafc00e617473e83a38172f3f8143db3a95c007eb242ae80cc51"

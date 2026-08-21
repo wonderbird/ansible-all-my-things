@@ -434,9 +434,11 @@
 
     # br: raw tag pinned as source of truth; stripped filename-variant is
     # derived from it in-role (roles/beads_rust/tasks/main.yml), not pinned
-    # separately. Checksum source is checksums.sha256, NOT the release's
-    # SHA256SUMS file -- verified during role creation that SHA256SUMS lists
-    # incorrect hashes for the linux amd64/arm64 archives.
+    # separately. Checksum source is the per-archive "<filename>.sha256"
+    # sidecar file (not a combined checksums file -- upstream has changed the
+    # combined file's name across releases: checksums.sha256, then
+    # SHA256SUMS/SHA256SUMS.txt). Verified for v0.3.2 that the sidecar files
+    # match the real archive contents (downloaded and sha256sum'd directly).
     - name: Update beads_rust_version in beads_rust role defaults
       ansible.builtin.replace:
         path: "{{ _roles_dir }}/beads_rust/defaults/main.yml"
@@ -447,10 +449,10 @@
       ansible.builtin.set_fact:
         _br_stripped_version: "{{ fetched_beads_rust_tag | regex_replace('^v', '') }}"
 
-    - name: Fetch br amd64 checksum from upstream checksums.sha256
+    - name: Fetch br amd64 checksum from upstream sidecar file
       ansible.builtin.include_tasks: tasks/fetch-checksum-from-file.yml
       vars:
-        checksum_file_url: "https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ fetched_beads_rust_tag }}/checksums.sha256"
+        checksum_file_url: "https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ fetched_beads_rust_tag }}/br-{{ _br_stripped_version }}-linux_amd64.tar.gz.sha256"
         checksum_target_filename: "br-{{ _br_stripped_version }}-linux_amd64.tar.gz"
 
     - name: Save br amd64 fetched checksum
@@ -463,10 +465,10 @@
         regexp: 'beads_rust_sha256_amd64:\s*"[^"]+"'
         replace: 'beads_rust_sha256_amd64: "{{ fetched_beads_rust_sha256_amd64 }}"'
 
-    - name: Fetch br arm64 checksum from upstream checksums.sha256
+    - name: Fetch br arm64 checksum from upstream sidecar file
       ansible.builtin.include_tasks: tasks/fetch-checksum-from-file.yml
       vars:
-        checksum_file_url: "https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ fetched_beads_rust_tag }}/checksums.sha256"
+        checksum_file_url: "https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ fetched_beads_rust_tag }}/br-{{ _br_stripped_version }}-linux_arm64.tar.gz.sha256"
         checksum_target_filename: "br-{{ _br_stripped_version }}-linux_arm64.tar.gz"
 
     - name: Save br arm64 fetched checksum
