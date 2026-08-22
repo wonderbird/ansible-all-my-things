@@ -8,4 +8,4 @@
 # No checksum applies: this is a pipx install from a git tag (source install),
 # not a binary/archive download -- same shape as github_cli's version-only
 # row in version-update-playbooks.md's tool table.
-specify_cli_version: "v0.12.11"
+specify_cli_version: "v0.16.5"
