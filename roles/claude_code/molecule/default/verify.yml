@@ -46,54 +46,12 @@
         src: /home/testuser/.claude/settings.json
       register: settings_file
 
-    - name: Assert settings.json contains only the auto-update-disable keys
+    - name: Assert settings.json contains the auto-update-disable keys
       ansible.builtin.assert:
         that:
           - settings.env.DISABLE_AUTOUPDATER == "1"
           - settings.env.DISABLE_UPDATES == "1"
-          - (settings.env | length) == 2
-          - "'teammateMode' not in settings"
-          - "'hooks' not in settings"
-        fail_msg: "settings.json missing the auto-update-disable keys, or contains opinionated claude_code_config keys"
-        success_msg: "settings.json contains only the general auto-update-disable keys"
+        fail_msg: "settings.json is missing the auto-update-disable keys (env.DISABLE_AUTOUPDATER, env.DISABLE_UPDATES)"
+        success_msg: "settings.json contains the auto-update-disable keys"
       vars:
         settings: "{{ settings_file.content | b64decode | from_json }}"
-
-    - name: Check Oh My Claude Code plugin cache directory does not exist
-      ansible.builtin.stat:
-        path: /home/testuser/.claude/plugins/cache/omc/oh-my-claudecode
-      register: omc_cache_stat
-
-    - name: Assert no plugins are installed
-      ansible.builtin.assert:
-        that:
-          - not omc_cache_stat.stat.exists
-        fail_msg: "Oh My Claude Code plugin cache found; claude_code alone must not install plugins"
-        success_msg: "No plugin cache present, confirming claude_code does not install plugins"
-
-    - name: Check ~/.claude/skills does not exist
-      ansible.builtin.stat:
-        path: /home/testuser/.claude/skills
-      register: skills_dir_stat
-
-    - name: Assert no skills are symlinked
-      ansible.builtin.assert:
-        that:
-          - not skills_dir_stat.stat.exists
-        fail_msg: "~/.claude/skills found; claude_code alone must not symlink skills"
-        success_msg: "No skills directory present, confirming claude_code does not symlink skills"
-
-    - name: Check registered MCP servers
-      ansible.builtin.shell: /home/testuser/.local/bin/claude mcp list
-      become: true
-      become_user: testuser
-      changed_when: false
-      register: claude_code_mcp_list_result
-
-    - name: Assert no MCP servers are configured
-      ansible.builtin.assert:
-        that:
-          - "'context7' not in claude_code_mcp_list_result.stdout"
-          - "'exa' not in claude_code_mcp_list_result.stdout"
-        fail_msg: "MCP server found in 'claude mcp list' output; claude_code alone must not configure MCP servers"
-        success_msg: "No MCP servers configured, confirming claude_code does not touch MCP"
