@@ -19,5 +19,5 @@
           - ".claude/projects"
           - ".claude/keybindings.json"
 
-    # Plugin installation is handled by the claude_code Ansible role on fresh provision.
+    # Plugin installation is handled by the claude_code_config Ansible role on fresh provision.
     # omc setup is interactive and must be run manually after restore — see docs/user-manual/work-with-vm.md

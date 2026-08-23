@@ -30,17 +30,18 @@ inv=$(ansible-inventory --host "$HOST")
 ssh -p "$(echo "$inv" | jq -r .ansible_port)" galadriel@"$(echo "$inv" | jq -r .ansible_host)"
 ```
 
-Above command works even for docker hosts, where the port is other than 22 and ip is always 127.0.0.1.
+Above command works even for docker hosts, where the port is other than 22
+and ip is always 127.0.0.1.
 
 ## Quickly copy a file from a host to your local machine
 
-For example to copy the setup-omc-prompt.md file from the remote into the corresponding role's files directory:
+For example to copy the setup-omc-prompt.md file from the remote into the
+corresponding role's files directory:
 
 ```shell
 HOST=tatooine
 inv=$(ansible-inventory --host "$HOST")
 scp -P "$(echo "$inv" | jq -r .ansible_port)" \
   "galadriel@$(echo \"$inv\" | jq -r .ansible_host):Documents/Cline/setup-omc-prompt.md" \
-  ./roles/claude_code/files
+  ./roles/claude_code_config/files
 ```
-

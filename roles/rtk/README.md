@@ -6,9 +6,9 @@ a token-optimized CLI proxy for AI coding agents, to `/usr/local/bin/rtk`.
 
 rtk's binary is cross-harness — usable from Claude Code, opencode, Codex, and
 other agent harnesses — so it is a standalone role rather than bundled into
-`claude_code`. Initializing rtk's Claude-Code-specific global config
-(`rtk init -g`, which writes into `~/.claude`) is done by the `claude_code`
-role instead — see its `DESIGN.md` for why.
+`claude_code_config`. Initializing rtk's Claude-Code-specific global config
+(`rtk init -g`, which writes into `~/.claude`) is done by the
+`claude_code_config` role instead — see its `DESIGN.md` for why.
 
 ## Requirements
 
