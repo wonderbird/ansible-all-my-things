@@ -2,40 +2,6 @@
 
 # claude_code role — Design Notes
 
-## Skills symlinks: pure Ansible over the repo's shell script
-
-`eudicy/ai-agent-workspace` ships `scripts/create-skills-links-in-home.sh`,
-which creates `~/.claude/skills/<name>` symlinks into the repo clone. The role
-uses `ansible.builtin.find` + `ansible.builtin.file state: link` instead of
-calling that script via `ansible.builtin.command`.
-
-Reason: Principle I prefers built-in modules over shell tasks. `file state: link`
-reports `changed` only when a symlink is actually created; a `command` task
-requires a `changed_when` guard keyed on the script's stdout format, coupling
-correctness to the upstream script's output — a silent regression risk if
-upstream ever changes the log line. The pure-Ansible approach is self-contained
-and idempotent without coupling to external stdout.
-
-The `find` result is checked with `assert matched > 0` per user to fail loudly
-if the clone is empty or the `.claude/skills` directory is absent (Principle XII).
-
-## Plugin idempotency: explicit existence checks before `claude plugin` calls
-
-`ansible.builtin.shell` tasks for marketplace registration and plugin installation
-are guarded by prior `claude plugin marketplace list` and `claude plugin list`
-checks. The `claude plugin` commands are not idempotent — re-running them against
-an already-registered marketplace or installed plugin produces an error.
-`changed_when` is not applicable here; the guards prevent the task from running
-when not needed.
-
-## settings.json: jq merge, not template
-
-`configure.yml` merges required keys into `settings.json` with `jq` rather than
-deploying a template. The file may contain user-managed keys that a template
-would overwrite. The jq script detects whether the target state already exists
-and prints `NO_CHANGE` or `CHANGED`, which `changed_when` uses to report
-accurately.
-
 ## Why auto-update is disabled
 
 Unlike `rtk`/`beads`/`nodejs`, which have no self-update mechanism, the
@@ -55,53 +21,21 @@ update check) and `DISABLE_UPDATES=1` (also blocks manual `claude update`/
 `claude install`, the stronger guarantee) in `settings.json`'s `env` key, so
 the pinned version can only change via `perform-updates.yml`.
 
-## settings.json: bd-guard hook via jq --arg
+## Minimal `~/.claude` footprint: general and safe, not opinionated
 
-The bd-guard `PreToolUse` hook blocks `bd list --all`, which enters an unbounded
-output loop at ~350 issues in this repo (5.6 GB output, 100% CPU, SIGKILL).
+This role's `configure.yml` creates `~/.claude` and writes only the two
+auto-update-disable keys above — nothing else. The boundary test: does this
+setting protect a guarantee `claude_code` itself makes (the version pin), or
+is it a choice about *how* to use Claude Code (which plugins, which agent
+workflow, which companion tools)? Only the former belongs here. Every
+opinionated setting.json key (agent-team env vars, `teammateMode`, the
+rtk/bd-guard hooks), plugin install, skills symlink, and MCP server
+configuration is a specific tool choice for sophisticated development and
+lives in the separate `claude_code_config` role instead, which layers its
+own `configure.yml` merge onto the same `settings.json` file after this
+role has run (see that role's `DESIGN.md`).
 
-The hook command contains embedded single quotes (shell guards, jq calls, the
-JSON error payload), making it impossible to embed literally inside a jq
-expression that is itself single-quoted in bash. `configure.yml` therefore
-assigns the command string via a quoted heredoc (`<<'HOOKEOF'`) to a
-`BD_HOOK_CMD` variable and passes it to jq as `--arg bdcmd "$BD_HOOK_CMD"`.
-The jq expression references `$bdcmd` without quoting issues.
-
-The idempotency check uses `.command | contains("bd list --all")` rather than an
-exact string match so that minor future rewrites of the hook command do not cause
-duplicate entries.
-
-The hook uses `grep -qE '(^|[[:space:]])(bd)[[:space:]]+list[[:space:]]+--all'`
-so it only fires when `bd` appears at the start of the command or after
-whitespace. This avoids false positives when the literal string
-`bd list --all` appears inside a grep argument (`grep -qF 'bd list --all'`)
-or a jq expression (`contains("bd list --all")`), where `bd` is preceded
-by a quote character, not whitespace.
-
-## Why the omc CLI install lives here, not in its own role
-
-`omc` (oh-my-claudecode) is itself an orchestration layer built specifically
-for Claude Code sessions — it has no life outside one, unlike a general
-binary such as `rtk` that any harness or shell can invoke standalone. The
-deciding test: does this concern have any life outside a Claude Code
-session? `omc` does not; the Claude Code binary, plugins, and settings.json
-wiring it sits alongside (`install-omc-cli.yml`) do not either.
-
-The Node.js/npm dependency this role's `omc` CLI install needs is provisioned
-by the `nodejs` role, declared as a hard `meta/main.yml` dependency (it
-unconditionally invokes `npm`, per the decision test in
-`docs/architecture/concepts/role-dependency-declaration.md`). This role's own
-Molecule `converge.yml` composes `nodejs` alongside it, so a green
-`molecule test` validates the real dependency, not an isolated fixture.
-
-## Why `rtk init -g` lives here, not in the `rtk` role
-
-Same test as above, applied to rtk: `rtk`'s binary install genuinely has
-life outside a Claude Code session (any harness can shell out to
-`/usr/local/bin/rtk`), but `rtk init -g` writes into `~/.claude` — this
-role's own config directory, not rtk's install path — and no other harness
-reads it. So the binary install stays in the `rtk` role; the
-`~/.claude`-targeting init runs here (`configure.yml`), next to the
-directory creation and settings.json wiring it belongs with. `claude_code`'s
-own Molecule `converge.yml` composes the `rtk` role so the binary exists
-before this task runs.
+This keeps a host able to install Claude Code with only the minimum
+configuration needed to protect its own version pin — the prerequisite for
+an install-only profile — while still leaving every actual usage decision
+open.

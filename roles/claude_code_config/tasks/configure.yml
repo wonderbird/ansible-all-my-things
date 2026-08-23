@@ -1,0 +1,77 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Initialize rtk globally for each desktop user
+  ansible.builtin.command:
+    cmd: rtk init -g
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+  changed_when: false
+
+- name: Merge required keys into settings.json
+  ansible.builtin.shell:
+    cmd: |
+      # Load existing settings.json (or start empty) so this merge is idempotent
+      # and never clobbers keys the user or other roles already set.
+      FILE="$HOME/.claude/settings.json"
+      if [ -f "$FILE" ]; then
+        CURRENT=$(cat "$FILE")
+      else
+        CURRENT='{}'
+      fi
+      # rtk hook body: blocks bd list --all (known 5.6GB unbounded-output loop,
+      # issue 1fg7) while letting ordinary git/rtk commands through untouched.
+      BD_HOOK_CMD=$(cat <<'HOOKEOF'
+      cmd=$(jq -r '.tool_input.command'); echo "$cmd" | grep -qE '(^|[[:space:]])(rtk[[:space:]]+)?git[[:space:]]' && exit 0; echo "$cmd" | grep -qE '(^|[[:space:]])(bd)[[:space:]]+list[[:space:]]+--all' && { echo '{"decision":"block","reason":"BLOCKED: bd list --all causes unbounded 5.6GB output loop in this repo (issue 1fg7). Use .beads/issues.jsonl with grep/jq for bulk reads, or scoped commands: bd ready, bd list --status <s>, bd list --priority <p>, bd show <id>."}'; exit 2; }; exit 0
+      HOOKEOF
+      )
+      # End state after this merge:
+      # - env carries the agent-teams + tmux-spawn-backend flags this role opinionates on
+      # - teammateMode is forced to tmux
+      # - PreToolUse gets the rtk hook (dedup by command) and the bd-list-all guard
+      #   (dedup by command substring), each appended at most once across reruns
+      MERGED=$(printf '%s' "$CURRENT" | jq --arg bdcmd "$BD_HOOK_CMD" '
+        .env = (.env // {} | . + {"CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS":"1","CLAUDE_CODE_SPAWN_BACKEND":"tmux"})
+        | .teammateMode = "tmux"
+        | if (.hooks.PreToolUse // [] | map(select((.hooks // [] | map(select(.command == "rtk hook claude")) | length > 0))) | length) == 0
+          then .hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{"matcher":"Bash","hooks":[{"type":"command","command":"rtk hook claude"}]}])
+          else . end
+        | if (.hooks.PreToolUse // [] | map(select((.hooks // [] | map(select(.command | contains("bd list --all"))) | length > 0))) | length) == 0
+          then .hooks.PreToolUse = ((.hooks.PreToolUse // []) + [{"matcher":"Bash","hooks":[{"type":"command","command":$bdcmd}]}])
+          else . end
+      ')
+      # Compare against jq-normalized (not raw) current content so key-order-only
+      # differences do not produce a false CHANGED result.
+      CURRENT_NORMALIZED=$(printf '%s' "$CURRENT" | jq '.')
+      if [ "$MERGED" = "$CURRENT_NORMALIZED" ]; then
+        echo NO_CHANGE
+      else
+        printf '%s\n' "$MERGED" > "${FILE}.tmp"
+        mv "${FILE}.tmp" "$FILE"
+        echo CHANGED
+      fi
+    executable: /bin/bash
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+  register: claude_settings_merge
+  changed_when: "'CHANGED' in claude_settings_merge.stdout"
+
+- name: Set CLAUDE_PLUGIN_ROOT environment variable in .bashrc
+  ansible.builtin.blockinfile:
+    path: /home/{{ item }}/.bashrc
+    block: "export CLAUDE_PLUGIN_ROOT=/home/{{ item }}/.claude/plugins"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - Claude Code Plugin Root"
+    state: present
+  become: true
+  become_user: "{{ item }}"
+  loop: "{{ desktop_user_names }}"
+
+- name: Copy OMC setup prompt for each desktop user
+  ansible.builtin.copy:
+    src: setup-omc-prompt.md
+    dest: "/home/{{ item }}/Documents/Cline/setup-omc-prompt.md"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0644'
+  loop: "{{ desktop_user_names }}"
