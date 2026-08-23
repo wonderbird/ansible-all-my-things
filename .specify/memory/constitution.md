@@ -1,31 +1,39 @@
 <!--
-Sync Impact Report — 1.20.0 → 1.21.0 (MINOR)
-- Principle II: documented the maintenance-playbook exception to the
-  "playbooks MUST only orchestrate roles" rule as a closed allowlist of three
-  directories — playbooks/update-versions/, playbooks/backup/, and
-  playbooks/restore/ — that MAY contain inline task logic. Rationale is that
-  these are operator-run procedural tools whose reuse is already served by
-  shared task files, so a role wrapper would add lifecycle/Molecule scaffolding
-  with no benefit (Principle IV / YAGNI); the gate is allowlist membership, not
-  the target host (backup/restore run against managed hosts and are still
-  exempt). Material new guidance: the exception was previously re-justified
-  per-feature in plan.md Complexity Tracking tables (e.g.
-  specs/007-version-update-playbooks/plan.md, specs/002-backup-chrome-config/
-  plan.md); canonicalizing it here lets future specs reference the principle
-  rather than re-derive it, and lets agents apply it consistently — hence
-  MINOR. Those specs retain their own historical justifications (Governance
-  treats specs as historical blueprints); this amendment does not delete them.
-- Rationale: appended one sentence on why a closed set of operator-run
-  procedures is exempt while managed-host configuration stays role-only.
-- Added a forward-reference from the absolute role-only rule to the exception.
+Sync Impact Report — 1.21.0 → 1.22.0 (MINOR)
+- Development Workflow step 5: added an "AI-orchestrated-loop exception" —
+  for autonomous loops that run an automated architect/critic approval pass
+  and a deslop regression re-verify pass before completion (e.g. ralph,
+  autopilot, ultrawork), the human review checkpoint moves from after every
+  commit to once per completed run, gated on architect/critic approval AND
+  the deslop pass's post-cleanup regression re-verification, and MUST happen
+  on a GitHub PR against `origin` (never `upstream`) rather than local/chat
+  diff review. Ad hoc sessions are explicitly unaffected and keep today's
+  per-commit review. Addresses findings ansible-all-my-things-74w5.1 (review
+  timing) and ansible-all-my-things-74w5.2 (review medium/PR target) — both
+  observed that per-commit, in-session review fires on AI-orchestrated loops
+  before verification passes complete and outside a reviewable PR. Scoped by
+  property rather than enumerating loop tool names exhaustively, so the
+  exception survives future OMC execution-mode renames/additions. MINOR:
+  material expansion of Development Workflow guidance, no principle removed
+  or redefined.
+- Rationale: a single property-scoped subsection covers both timing and
+  medium since they are two facets of the same exception; cross-references
+  AGENTS.md's existing "Repository Remotes and Pull-Request Workflow" section
+  for `gh pr create` mechanics instead of duplicating them (Principle XI).
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: no propagation required
+- AGENTS.md checked: no propagation required (does not restate Development
+  Workflow step 5; already documents the `gh pr create --repo` mechanics this
+  amendment cross-references)
 - CLAUDE.md checked: no propagation required
-- .claude/skills/*/SKILL.md checked: no propagation required (molecule-testing
-  skill only points at Principle II, does not restate it)
+- .claude/skills/*/SKILL.md checked: no propagation required (no skill in
+  this repo restates the per-commit review rule)
+- ralph/autopilot/ultrawork skill docs (OMC plugin, global, outside this
+  repo) intentionally not amended here — out of repo scope; this
+  constitution is the authoritative source for this repo's review-timing and
+  review-medium rules regardless of upstream plugin skill wording.
 -->
 # ansible-all-my-things Constitution
 
@@ -419,6 +427,18 @@ carry forward to the next agent session.
    and coherent.
 5. **User review**: after every commit, request a user review and wait for
    approval before proceeding.
+
+   **AI-orchestrated-loop exception**: For autonomous loops that run an
+   automated architect/critic approval pass and a deslop regression re-verify
+   pass before completion (e.g. ralph, autopilot, ultrawork) — not ad hoc
+   sessions, which keep the per-commit review above — the human review
+   checkpoint moves from after every commit to once per completed run: after
+   architect/critic approval AND the deslop pass's post-cleanup regression
+   re-verification have both passed, so the branch is in its final
+   post-cleanup state. That review MUST happen on a GitHub PR opened against
+   `origin` (never `upstream` — see "Repository Remotes and Pull-Request
+   Workflow" in AGENTS.md for the `gh pr create` mechanics), not local/chat
+   diff review.
 6. **Peer/self review**: verify idempotency, simplicity and traceability before
    merging. Track all findings as issues with the same priority as the source
    task, blocking the source task's cover issue (Principle VIII).
@@ -466,4 +486,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.21.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-07-11
+**Version**: 1.22.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-08-23
