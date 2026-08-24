@@ -39,18 +39,21 @@ Roles that require a full VM (e.g., desktop environment, display managers,
 hardware drivers) are tested against a local Tart or Docker VM:
 
 1. Isolate the role under test in `playbooks/configure-profile-roles.yml`:
-   shared roles live in the **base** play (`hosts: base`), `claude_code_config`
-   in the **agent-config** play (`hosts: basic:desktop`, which excludes the
-   `install_only` profile), and GUI-only roles in the **desktop-extension** play
-   (`hosts: desktop`). Comment out all other roles in whichever play holds the
-   role under test.
+   roles that every host gets, regardless of system profile or opinionated
+   config, live in the **base** play (`hosts: base`); `claude_code_config`
+   runs in the **agent-config** play (`hosts: claude_opinionated`) for hosts
+   that opt into the opinionated global Claude config, an axis orthogonal to
+   the console/desktop system profile — not a desktop feature; GUI-only roles
+   live in the **desktop-extension** play (`hosts: desktop`). Comment out all
+   other roles in whichever play holds the role under test.
 2. Create a VM:
 
    ```shell
-   ansible-playbook create-vm.yml --extra-vars provider=tart --extra-vars profile=desktop
+   ansible-playbook create-vm.yml --extra-vars provider=tart --extra-vars profile=desktop --extra-vars claude_opinionated=true
    ```
 
-   (or `--extra-vars provider=docker` for a Docker-based VM). See
+   (or `--extra-vars provider=docker` for a Docker-based VM; omit
+   `claude_opinionated` to test a host without the opinionated config). See
    [Create a Virtual Machine](../../user-manual/create-vm.md) for details.
 3. Run the configuration playbook using the **directory inventory** (the
    `ansible.cfg` default, `inventory = ./inventories`), which merges the
