@@ -25,12 +25,13 @@
     - opencode
     - github_cli
 
-# claude_code_config runs in its own play targeting the basic:desktop group
-# union — NOT the base play — so install_only hosts (also children of base)
-# are excluded from all global per-user agent configuration. See
+# claude_code_config runs in its own play targeting hosts that opt into the
+# opinionated global Claude config — NOT the base play — so hosts that do not
+# opt in are excluded from all global per-user agent configuration, regardless
+# of their console/desktop system profile. See
 # docs/architecture/decisions/005-install-only-profile.md.
-- name: Configure global agent config for basic and desktop hosts
-  hosts: basic:desktop
+- name: Configure global agent config for hosts opting into claude_opinionated
+  hosts: claude_opinionated
   become: true
 
   vars:
