@@ -11,9 +11,9 @@
 # there — destroy infers profile group membership from the inventory instead.
 - name: Assert profile is supported
   ansible.builtin.assert:
-    that: profile in ['basic', 'desktop', 'windows']
+    that: profile in ['basic', 'desktop', 'install_only', 'windows']
     fail_msg: >-
-      Unsupported profile '{{ profile }}'. Allowed values: basic, desktop, windows.
+      Unsupported profile '{{ profile }}'. Allowed values: basic, desktop, install_only, windows.
   when: profile is defined
 
 - name: Reject unsupported provider/profile combination

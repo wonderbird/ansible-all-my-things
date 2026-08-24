@@ -254,6 +254,11 @@ The `provider` parameter can be one of
 
 - `basic` (default)
 - `desktop`
+- `install_only` — the full developer stack and AI CLIs (`claude`, `opencode`,
+  `specify`, `rtk`) but no global per-user agent configuration (no `~/.claude`
+  opinions, plugins, MCP, skill symlinks, or `.bashrc` agent block); the skill
+  library is cloned but not symlinked. See
+  [ADR-005](../architecture/decisions/005-install-only-profile.md).
 - `windows`
 
 > [!NOTE]

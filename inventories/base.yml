@@ -10,3 +10,4 @@ base:
   children:
     basic:
     desktop:
+    install_only:

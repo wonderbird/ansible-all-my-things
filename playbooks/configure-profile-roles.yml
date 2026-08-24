@@ -22,9 +22,23 @@
     - nodejs
     - ai_agent_workspace
     - claude_code
-    - claude_code_config
     - opencode
     - github_cli
+
+# claude_code_config runs in its own play targeting the basic:desktop group
+# union — NOT the base play — so install_only hosts (also children of base)
+# are excluded from all global per-user agent configuration. See
+# docs/architecture/decisions/005-install-only-profile.md.
+- name: Configure global agent config for basic and desktop hosts
+  hosts: basic:desktop
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+
+  roles:
+    - claude_code_config
 
 - name: Configure desktop-only linux roles
   hosts: desktop

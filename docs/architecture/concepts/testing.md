@@ -39,9 +39,11 @@ Roles that require a full VM (e.g., desktop environment, display managers,
 hardware drivers) are tested against a local Tart or Docker VM:
 
 1. Isolate the role under test in `playbooks/configure-profile-roles.yml`:
-   shared roles live in the **base** play (`hosts: base`), GUI-only roles in
-   the **desktop-extension** play (`hosts: desktop`). Comment out all other
-   roles in whichever play holds the role under test.
+   shared roles live in the **base** play (`hosts: base`), `claude_code_config`
+   in the **agent-config** play (`hosts: basic:desktop`, which excludes the
+   `install_only` profile), and GUI-only roles in the **desktop-extension** play
+   (`hosts: desktop`). Comment out all other roles in whichever play holds the
+   role under test.
 2. Create a VM:
 
    ```shell
