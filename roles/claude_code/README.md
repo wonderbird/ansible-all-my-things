@@ -45,8 +45,8 @@ None. See `meta/main.yml`.
 ## What This Role Does
 
 1. Verifies the target architecture is supported
-2. Installs `jq`, `git` and `curl` (used by consumers of this binary, such as
-   `claude_code_config`)
+2. Installs `jq` (used by this role's own `settings.json` merge in step 5) and
+   `git` (used by the `ai_agent_workspace` clone in the install-only profile)
 3. Downloads the binary for the pinned `claude_code_version` directly from
    the manifest-derived URL for each user (skipped if already installed),
    verifying it against the pinned per-platform sha256 checksum BEFORE
