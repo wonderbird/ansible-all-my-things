@@ -40,6 +40,11 @@ As much as possible use `rtk` and `rtk summary` to save tokens printed by
 commands. Note: `rtk summary` will hide the output of the command - if that is
 required, omit the `summary` argument.
 
+Exception: for long-running `ansible-playbook`/`molecule` commands (e.g.
+converge, `create-vm.yml`, `destroy-vm.yml`), omit the `rtk` prefix. `rtk`
+buffers output until the command finishes, which hides progress on runs that
+can take minutes — instruct the user to run these bare instead.
+
 For `ansible` and `molecule` commands redirect output to temporary files and
 use filters and transformations for the important output, e.g. `grep`, `awk`,
 `sed`.
