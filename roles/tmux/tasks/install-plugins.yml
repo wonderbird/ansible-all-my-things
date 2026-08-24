@@ -14,7 +14,7 @@
     update: false
   become: true
   become_user: "{{ item }}"
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
 
 - name: Clone catppuccin tmux plugin for each user
   ansible.builtin.git:
@@ -24,7 +24,7 @@
     update: false
   become: true
   become_user: "{{ item }}"
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
 
 - name: Clone tmux-cpu plugin for each user
   ansible.builtin.git:
@@ -34,4 +34,4 @@
     update: false
   become: true
   become_user: "{{ item }}"
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"

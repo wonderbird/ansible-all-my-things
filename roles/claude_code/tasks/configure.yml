@@ -8,7 +8,7 @@
     group: "{{ item }}"
     mode: '0755'
   become: true
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
 
 # Only the auto-update-disable keys live here: they protect this role's own
 # version-pin contract (see DESIGN.md), so they are general and safe for any
@@ -38,6 +38,6 @@
     executable: /bin/bash
   become: true
   become_user: "{{ item }}"
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
   register: claude_code_settings_merge
   changed_when: "'CHANGED' in claude_code_settings_merge.stdout"

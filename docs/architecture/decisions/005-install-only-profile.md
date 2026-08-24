@@ -56,7 +56,7 @@ role except `claude_code_config`, without regressing `basic` or `desktop`?**
    Move `claude_code_config` out of the `hosts: base` role list into a new play
    `hosts: basic:desktop` that applies only `claude_code_config` and replicates
    `become: true` plus the full `vars:` block (`ansible_user`,
-   `desktop_user_names`). `install_only` — a child of `base` but not of `basic`
+   `login_user_names`). `install_only` — a child of `base` but not of `basic`
    or `desktop` — inherits every base role yet is excluded from the config play
    by the group union pattern.
 2. **Intermediate `agent_configured` group (rejected).** Introduce a group
@@ -95,7 +95,7 @@ Adopt Option 1, the `basic:desktop` union play.
   the config. This is proven by the zero-changed regression converge on a
   `basic` host — not assumed from role dedup, which does not span plays.
 - **Small duplication.** The `vars:` block (`ansible_user`,
-  `desktop_user_names`) and `become: true` are repeated in the new play. This is
+  `login_user_names`) and `become: true` are repeated in the new play. This is
   the accepted cost of Option 1 over Option 2's extra group layer; it is
   contained to one adjacent play and visible in one file.
 - **`install_only` purity.** The profile gets `claude_code` (binary + `jq` +

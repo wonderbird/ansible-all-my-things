@@ -31,7 +31,7 @@ scan. All phases MUST pass before committing.
 ```
 
 `<host>` must match an inventory entry. The script uses `my_ansible_user` and
-`desktop_users` variables from inventory, so those must be defined.
+`login_users` variables from inventory, so those must be defined.
 
 ## Testing a Role with a Local VM
 

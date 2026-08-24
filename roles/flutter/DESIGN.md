@@ -11,7 +11,7 @@ The role performs three jobs:
 1. **apt prerequisites** — installs `clang`, `cmake`, `ninja-build`,
    `pkg-config`, `libgtk-3-dev`, `mesa-utils` system-wide.
 2. **Per-user SDK extraction** — downloads and extracts the Flutter SDK
-   tarball to `/home/{{ item }}/flutter` for each user in `desktop_user_names`.
+   tarball to `/home/{{ item }}/flutter` for each user in `login_user_names`.
 3. **PATH configuration** — inserts `export PATH="$HOME/flutter/bin:$PATH"`
    into each user's `~/.bashrc` via `ansible.builtin.blockinfile`.
 
@@ -56,7 +56,7 @@ verification**, not for idempotency decisions.
 ## Tarball Download Optimisation
 
 **Decision**: Skip `get_url` entirely when every user in
-`desktop_user_names` already has the target version installed.
+`login_user_names` already has the target version installed.
 
 **Rationale**: Downloading a ~1.4 GB archive on every run — even if the
 SDK is already installed — wastes time and bandwidth. A single `when:`
@@ -67,7 +67,7 @@ update before initiating the download.
 
 ```yaml
 when: >
-  desktop_user_names | difference(
+  login_user_names | difference(
     (flutter_installed_versions | default({}))
     | dict2items
     | selectattr('value', 'equalto', flutter_version)

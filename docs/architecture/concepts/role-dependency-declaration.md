@@ -41,7 +41,7 @@ on its own, or an explicit `assert`/`fail` guard — with no `when:`-skip or
     cmd: rtk init -g
   become: true
   become_user: "{{ item }}"
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
   changed_when: false
 ```
 

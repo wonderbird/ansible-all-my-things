@@ -21,7 +21,7 @@
 
 **Target System Architecture**:
 - **AI Agent Runtime Environment**: AI agents run on provisioned systems (`hobbiton`, `rivendell`, `moria`)
-- **Target User Accounts**: AI agents operate under `desktop_users` accounts (`galadriel`, `legolas`) created by ansible
+- **Target User Accounts**: AI agents operate under `login_users` accounts (`galadriel`, `legolas`) created by ansible
 - **Cross-Platform Deployment**: Restrictions must work on AWS Linux, AWS Windows, and Hetzner Cloud systems
 - **Infrastructure-as-Code**: Command restrictions deployed via ansible playbooks during provisioning
 
@@ -47,7 +47,7 @@ Deploy restrictions via ansible that work reliably across Claude Code's independ
 #### 1. Sub-Shell Resistant Command Blocking
 - Mechanism that works when Claude creates new bash sub-shells on target systems
 - Block commands at shell level across Linux and Windows platforms
-- Deployed via ansible to `desktop_users` on target systems
+- Deployed via ansible to `login_users` on target systems
 
 #### 2. Comprehensive Command Coverage
 **Blocked Commands**:
@@ -166,9 +166,9 @@ The following aspects are not important and can be neglected:
 ### Six Implementation Approaches
 
 #### 1. User Profile Integration
-**Concept**: Deploy restriction scripts to desktop_users' profiles on target systems
-- Deploy restriction scripts to desktop_users' `.bashrc`/`.profile` on Linux target systems
-- Windows: Deploy to PowerShell profiles for desktop_users on Windows target systems
+**Concept**: Deploy restriction scripts to login_users' profiles on target systems
+- Deploy restriction scripts to login_users' `.bashrc`/`.profile` on Linux target systems
+- Windows: Deploy to PowerShell profiles for login_users on Windows target systems
 - Use ansible templates to customize restrictions per user/platform
 - Include in existing `playbooks/setup-users.yml` workflow
 
@@ -287,7 +287,7 @@ legolas default_profile=ai_agent_block
 
 **Pros**: 
 - **Native Ubuntu/Debian Support**: Ships by default, fully supported security framework
-- **User-Specific Targeting**: Can apply restrictions to specific desktop_users via pam_apparmor
+- **User-Specific Targeting**: Can apply restrictions to specific login_users via pam_apparmor
 - **Kernel-Level Enforcement**: Mandatory Access Control that's difficult to bypass
 - **Ansible Integration**: Simple profile deployment and management via ansible
 - **Persistent Security**: Restrictions survive reboots and system updates
@@ -309,7 +309,7 @@ legolas default_profile=ai_agent_block
 #### 6. Claude CLI Native Restrictions
 **Concept**: Use Claude Code's built-in permission system to block commands at the tool execution level
 
-**Implementation**: Deploy `.claude/settings.json` files to desktop_users' home directories on target systems via ansible
+**Implementation**: Deploy `.claude/settings.json` files to login_users' home directories on target systems via ansible
 
 **Settings Template**:
 ```json
@@ -405,7 +405,7 @@ The need for `sudo` usually shows that configuration is missing or that we are f
 To account for this, the AI agent rules must be extended so that the agent informs the user instead of running commands as root.
 
 ## Success Definition
-**MVP Complete When**: AI agents operating on target systems (`hobbiton`, `rivendell`, `moria`) under `desktop_users` accounts cannot execute infrastructure commands, restrictions are deployed via ansible during infrastructure provisioning, work cross-platform, and can be verified remotely from control machine.
+**MVP Complete When**: AI agents operating on target systems (`hobbiton`, `rivendell`, `moria`) under `login_users` accounts cannot execute infrastructure commands, restrictions are deployed via ansible during infrastructure provisioning, work cross-platform, and can be verified remotely from control machine.
 
 **Future Enhancements**: Detailed logging, parameter-based filtering, automated testing, additional command categories.
 

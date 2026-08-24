@@ -3,7 +3,7 @@ galaxy_info:
   author: Stefan Boos
   namespace: wonderbird
   role_name: java
-  description: Install sdkman and Temurin JDK for every user in desktop_user_names
+  description: Install sdkman and Temurin JDK for every user in login_user_names
   company: n.a.
   issue_tracker_url: https://github.com/wonderbird/ansible-all-my-things/issues
   license: MIT

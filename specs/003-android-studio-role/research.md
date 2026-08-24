@@ -63,7 +63,7 @@ would duplicate logic the module already encapsulates.
 **Decision**: Use a combination of `ansible.builtin.get_url` (download
 cmdline-tools), `ansible.builtin.unarchive` (extract), and
 `community.general.android_sdk` (install SDK components + accept
-licenses) per user in `desktop_user_names`.
+licenses) per user in `login_user_names`.
 
 **Verified** (2026-04-03): `community.general.android_sdk` confirmed
 present via `ansible-doc community.general.android_sdk`. Module wraps
@@ -115,7 +115,7 @@ checksum are listed at
 
 ## Decision 6 — Per-user SDK provisioning
 
-**Decision**: Loop over `desktop_user_names` using `loop:` at the task
+**Decision**: Loop over `login_user_names` using `loop:` at the task
 level. Each SDK task runs as `become_user: "{{ item }}"` to ensure
 files are owned by the correct user under `~/Android/Sdk`.
 

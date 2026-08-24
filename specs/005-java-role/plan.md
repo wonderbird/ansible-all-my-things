@@ -11,7 +11,7 @@
 ## Summary
 
 Install sdkman and the Temurin JDK (pinned LTS version) into the home directory
-of every user listed in `desktop_user_names`, using a four-task per-user
+of every user listed in `login_user_names`, using a four-task per-user
 sequence: install prerequisites (`zip`, `unzip`, `curl`) via apt, download the
 sdkman installer, run the installer, then install the JDK via `sdk install java`.
 All tasks are guarded for idempotency with `creates:`.
@@ -70,7 +70,7 @@ specs/005-java-role/
 ```
 
 No `contracts/` directory: the role exposes no external API surface.
-It consumes the `desktop_user_names` list and the `java_sdkman_identifier`
+It consumes the `login_user_names` list and the `java_sdkman_identifier`
 variable defined by the calling playbook/inventory; those are documented in
 `data-model.md`.
 

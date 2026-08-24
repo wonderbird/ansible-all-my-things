@@ -49,7 +49,7 @@ correct.
 
 ## Decision 5 — Shared subuid/subgid start value for all users
 
-All users listed in `desktop_user_names` receive the same default
+All users listed in `login_user_names` receive the same default
 `podman_subuid_start` / `podman_subgid_start` value (`100000`). This is
 intentional for the primary use case: a single-person workstation where only
 one user requires rootless Podman at a time. Overlapping subordinate ID ranges

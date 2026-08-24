@@ -64,7 +64,7 @@ This backlog contains larger increments. It is sorted by priority.
 - [ ] Do I want to allow updating a VM? Today, updating a VM by re-executing the corresponding configure-*.yml playbook is not possible. Is this because of some deactivation in `setup-users.yml`?
 
 - [ ] Check whether structures can be simplified, merged and re-used; identify duplication, fix duplication
-  - [ ] Is it possible to reduce code duplication for determining the value of the `desktop_user_names` and `all_users`? (Important concept: Separate user names from passwords so that we can log them without accidentially logging the passwords)
+  - [ ] Is it possible to reduce code duplication for determining the value of the `login_user_names` and `all_users`? (Important concept: Separate user names from passwords so that we can log them without accidentially logging the passwords)
 
 ---
 

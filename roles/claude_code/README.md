@@ -24,7 +24,7 @@ and this role's `DESIGN.md` for the general-vs-opinionated boundary test.
 | --- | --- | --- |
 | `claude_code_manifest_base_url` | Google Storage URL | Base URL for the Claude Code release manifest |
 | `claude_code_platform_map` | `{x86_64: linux-x64, aarch64: linux-arm64}` | Maps `ansible_architecture` to Claude Code platform string |
-| `desktop_user_names` | *(required)* | List of local usernames to install Claude Code for |
+| `login_user_names` | *(required)* | List of local usernames to install Claude Code for |
 
 ## Dependencies
 
@@ -37,7 +37,7 @@ None. See `meta/main.yml`.
   roles:
     - role: claude_code
       vars:
-        desktop_user_names:
+        login_user_names:
           - alice
           - bob
 ```

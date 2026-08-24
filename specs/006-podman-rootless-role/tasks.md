@@ -51,7 +51,7 @@ complete. User story implementation can now begin.
 
 ## Phase 3: User Story 1 — Install and Run Podman (P1 — MVP)
 
-**Goal**: Every desktop user listed in `desktop_user_names` can invoke `podman`
+**Goal**: Every desktop user listed in `login_user_names` can invoke `podman`
 from their own login shell after one playbook run.
 
 **Independent Test**: Run the playbook against a fresh Ubuntu VM, then log in
@@ -69,7 +69,7 @@ the tool is present and accessible. Follow
   *(human review checkpoint — no file changes produced)*
 
 **Checkpoint**: After running the playbook, `podman --version` succeeds for
-every user in `desktop_user_names`.
+every user in `login_user_names`.
 
 ---
 
@@ -79,7 +79,7 @@ every user in `desktop_user_names`.
 range entries, enabling rootless container operation.
 
 **Independent Test**: After the role runs, inspect `/etc/subuid` and
-`/etc/subgid` — each user in `desktop_user_names` must have a valid
+`/etc/subgid` — each user in `login_user_names` must have a valid
 `username:100000:65536` entry. Run `podman run --rm hello-world` as one of
 those users to confirm rootless operation works end-to-end.
 
@@ -89,16 +89,16 @@ those users to confirm rootless operation works end-to-end.
   `ansible.builtin.lineinfile` on `/etc/subuid` with
   `regexp: '^{{ item }}:'`,
   `line: '{{ item }}:{{ podman_subuid_start }}:{{ podman_subuid_count }}'`,
-  looping over `desktop_user_names`
+  looping over `login_user_names`
 - [X] T010 [P] [US2] Add subgid loop task to `roles/podman/tasks/main.yml` —
   `ansible.builtin.lineinfile` on `/etc/subgid` with
   `regexp: '^{{ item }}:'`,
   `line: '{{ item }}:{{ podman_subgid_start }}:{{ podman_subgid_count }}'`,
-  looping over `desktop_user_names`
+  looping over `login_user_names`
 - [X] T011 [US2] Add `podman system migrate` task to
   `roles/podman/tasks/main.yml` —
   `ansible.builtin.command: podman system migrate` with
-  `become_user: "{{ item }}"`, `loop: "{{ desktop_user_names }}"`,
+  `become_user: "{{ item }}"`, `loop: "{{ login_user_names }}"`,
   and `changed_when: false`
 
 **Checkpoint**: After running the playbook, `/etc/subuid` and `/etc/subgid`
@@ -237,7 +237,7 @@ T011 [US2] podman system migrate (depends on T009 + T010)
 - All module references MUST use fully-qualified `ansible.builtin.*` names
   (FR-005).
 - No `handlers/`, `templates/`, or `files/` directories are needed per plan.md.
-- `desktop_user_names` has no role-level default; the calling playbook must
+- `login_user_names` has no role-level default; the calling playbook must
   supply it. An empty list is valid — per-user loop tasks are skipped.
 - The `podman system migrate` task runs with `become_user: "{{ item }}"` and
   inherits `become: true` from the play level (Decision 5 in research.md).

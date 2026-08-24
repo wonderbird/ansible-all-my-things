@@ -78,11 +78,11 @@ The `root` user shall only be used for a very short time. Thus, the [/playbooks/
 
 This `my_ansible_user` is configured in [/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml).
 
-## Desktop user accounts are used to log in
+## Login user accounts are used to log in
 
-[/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml) defines user names and passwords for the `desktop_users`. These accounts are intended for logging into the (desktop) environment.
+[/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml) defines user names and passwords for the `login_users`. These accounts are intended for logging into the host, regardless of its system profile (console or desktop).
 
-Desktop user passwords use a nested structure in the vault file. For example:
+Login user passwords use a nested structure in the vault file. For example:
 
 ```yaml
 vault_galadriel:

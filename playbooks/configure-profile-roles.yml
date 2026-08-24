@@ -5,7 +5,7 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    login_user_names: "{{ login_users | map(attribute='name') | list }}"
 
   roles:
     - podman
@@ -36,7 +36,7 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    login_user_names: "{{ login_users | map(attribute='name') | list }}"
 
   roles:
     - claude_code_config
@@ -47,7 +47,7 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    login_user_names: "{{ login_users | map(attribute='name') | list }}"
 
   roles:
     - nerd_font

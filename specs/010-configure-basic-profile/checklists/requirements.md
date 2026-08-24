@@ -35,6 +35,6 @@ proceeding to planning
 - All checklist items pass on first validation pass. No
   [NEEDS CLARIFICATION] markers were needed: the feature description provided
   sufficient detail (existing project conventions for `my_ansible_user`,
-  `desktop_users`, `admin_user_on_fresh_system`-style bootstrap variables, the
+  `login_users`, `admin_user_on_fresh_system`-style bootstrap variables, the
   fixed npm tool list, and the explicit tmux exclusion) to fill all sections
   with reasonable, well-grounded defaults.

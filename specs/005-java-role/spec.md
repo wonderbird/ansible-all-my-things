@@ -5,14 +5,14 @@
 **Status**: Draft
 **Input**: User description: "Install sdkman and use it to provision the
 current LTS version of the Temurin JDK for every user listed in
-`desktop_user_names`."
+`login_user_names`."
 
 ## User Scenarios & Testing
 
 ### User Story 1 - Developer Workstation Has Java After Provisioning (Priority: P1)
 
 A developer runs the Ansible playbook against a fresh Ubuntu workstation. After
-the play completes, every user listed in `desktop_user_names` can open a
+the play completes, every user listed in `login_user_names` can open a
 terminal and execute Java programs without any manual installation steps.
 
 **Why this priority**: This is the primary deliverable of the role. All other
@@ -26,7 +26,7 @@ prints output containing "Temurin".
 
 1. **Given** a clean Ubuntu VM with no prior Java installation, **When** the
    playbook runs with the `java` role enabled, **Then** every user in
-   `desktop_user_names` can execute `java -version` and the output contains
+   `login_user_names` can execute `java -version` and the output contains
    the word "Temurin".
 
 2. **Given** the playbook has already run successfully, **When** the playbook
@@ -37,7 +37,7 @@ prints output containing "Temurin".
 
 ### User Story 2 - sdkman Is Available for the User (Priority: P2)
 
-After provisioning, each user in `desktop_user_names` has sdkman installed in
+After provisioning, each user in `login_user_names` has sdkman installed in
 their home directory and can use it interactively to list, install, or switch
 Java versions.
 
@@ -85,7 +85,7 @@ and selectable.
 
 ### Edge Cases
 
-- What happens when `desktop_user_names` is empty? The per-user loop should
+- What happens when `login_user_names` is empty? The per-user loop should
   run zero iterations; no tasks should fail.
 - What happens when sdkman installation is interrupted (partial
   `~/.sdkman` directory present)? The `creates:` guard targets
@@ -102,10 +102,10 @@ and selectable.
 ### Functional Requirements
 
 - **FR-001**: The role MUST install sdkman into `~/.sdkman` for every user
-  listed in `desktop_user_names`.
+  listed in `login_user_names`.
 - **FR-002**: The role MUST install the Temurin JDK version identified by
   `java_sdkman_identifier` via sdkman for every user listed in
-  `desktop_user_names`.
+  `login_user_names`.
 - **FR-003**: After the role runs, executing `java -version` as any provisioned
   user MUST succeed (exit code 0) and the output MUST contain the string
   "Temurin".
@@ -147,7 +147,7 @@ and selectable.
   runs (Ansible requires both to execute tasks).
 - **FR-017**: The Molecule `prepare.yml` MUST create a system user named
   `testuser` inside the container, and the Molecule `converge.yml` MUST pass
-  `desktop_user_names: ["testuser"]` to the role.
+  `login_user_names: ["testuser"]` to the role.
 - **FR-018**: The Molecule scenario MUST enable the built-in idempotency
   verifier step (second converge run that asserts zero `changed` tasks).
 - **FR-019**: The Molecule scenario MUST include a `verify.yml` playbook that
@@ -155,7 +155,7 @@ and selectable.
 
 ### Key Entities
 
-- **`desktop_user_names`**: A list of OS usernames that the role provisions.
+- **`login_user_names`**: A list of OS usernames that the role provisions.
   Each user receives an independent sdkman installation and Temurin JDK in
   their own home directory.
 - **`java_sdkman_identifier`**: A string in sdkman candidate format (e.g.,
@@ -177,7 +177,7 @@ and selectable.
 ### Measurable Outcomes
 
 - **SC-001**: After the role runs, `java -version` executed as any user in
-  `desktop_user_names` exits with code 0 and its output contains "Temurin".
+  `login_user_names` exits with code 0 and its output contains "Temurin".
 - **SC-002**: A second consecutive run of the playbook produces zero `changed`
   tasks for the `java` role (full idempotency).
 - **SC-003**: The role runs to completion without errors on both AMD64 and
@@ -202,7 +202,7 @@ and selectable.
   version; this represents the Temurin build of OpenJDK 21 LTS as of the
   feature authoring date. Operators MUST update this value when a newer LTS
   patch is desired.
-- `desktop_user_names` is defined at the play or group level before the role
+- `login_user_names` is defined at the play or group level before the role
   is invoked; it is not the role's responsibility to create these OS users.
 - The calling playbook sets `become: true` at play level, which the role
   relies on to switch to each user's context via `become_user: "{{ item }}"`.

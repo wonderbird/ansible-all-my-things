@@ -49,7 +49,7 @@ DESIGN.md must exist before it can be edited.
 
 ## Phase 3: User Story 1 — Developer Workstation Has Java After Provisioning (P1) — MVP
 
-**Goal**: Every user in `desktop_user_names` can run `java -version` and
+**Goal**: Every user in `login_user_names` can run `java -version` and
 see "Temurin" in the output after a single playbook run.
 
 **Independent Test**: Provision a fresh Ubuntu VM (AMD64 or ARM64) with the
@@ -77,14 +77,14 @@ in the output.
   `roles/java/tasks/main.yml`: `ansible.builtin.shell` running
   `bash /tmp/sdkman-install.sh` with
   `creates: /home/{{ item }}/.sdkman/bin/sdkman-init.sh`,
-  `become_user: "{{ item }}"`, and `loop: "{{ desktop_user_names }}"` (FR-010)
+  `become_user: "{{ item }}"`, and `loop: "{{ login_user_names }}"` (FR-010)
 - [x] T007 [US1] Add per-user Temurin JDK install task to
   `roles/java/tasks/main.yml`: `ansible.builtin.shell` running
   `bash -c 'source /home/{{ item }}/.sdkman/bin/sdkman-init.sh`
   `&& sdk install java {{ java_sdkman_identifier }}'`
   with
   `creates: /home/{{ item }}/.sdkman/candidates/java/{{ java_sdkman_identifier }}/bin/java`,
-  `become_user: "{{ item }}"`, and `loop: "{{ desktop_user_names }}"` (FR-002, FR-005)
+  `become_user: "{{ item }}"`, and `loop: "{{ login_user_names }}"` (FR-002, FR-005)
 - [x] T008 [US1] **Validate SC-001**: Provision a fresh Ubuntu VM (AMD64) with
   only the `java` role active in `configure-linux-roles.yml`; log in as a
   provisioned user; run `java -version 2>&1 | grep -i temurin` and confirm
@@ -92,7 +92,7 @@ in the output.
   to Phase 4.
 
 **Checkpoint**: The role installs sdkman and the Temurin JDK for every user
-in `desktop_user_names`. A freshly provisioned user can run `java -version`
+in `login_user_names`. A freshly provisioned user can run `java -version`
 and see "Temurin".
 
 ---
@@ -119,7 +119,7 @@ showing the sdkman version without errors.
   sdkman installer task shows `ok` (skipped via `creates:`) and not `changed`
   (SC-002). No file change — checklist confirmation only.
 
-**Note — empty `desktop_user_names`**: An empty list is valid. The loop in
+**Note — empty `login_user_names`**: An empty list is valid. The loop in
 T006 and T007 produces zero iterations; Ansible emits no changed or failed
 tasks. Validate by inspection of the task structure; no additional test run
 is required.
@@ -201,7 +201,7 @@ testing of the `java` role using Podman as the container driver.
   FR-017).
 - [x] T020 Create `roles/java/molecule/default/converge.yml` with SPDX
   header. Apply the `java` role with `become: true` and pass
-  `desktop_user_names: ["testuser"]` as a role variable (FR-017).
+  `login_user_names: ["testuser"]` as a role variable (FR-017).
 - [x] T021 Create `roles/java/molecule/default/verify.yml` with SPDX
   header. Run `java -version 2>&1` as `testuser` using
   `ansible.builtin.command` and register the output. Assert that the
@@ -311,7 +311,7 @@ All four are independent — launch together.
 
 - Molecule test tasks (T017–T023) cover FR-013 through FR-019; SC-005 is
   satisfied by a successful `molecule test` run inside `roles/java/`.
-- All per-user tasks use `loop: "{{ desktop_user_names }}"` and
+- All per-user tasks use `loop: "{{ login_user_names }}"` and
   `become_user: "{{ item }}"`. The download task (T005) does NOT use
   `become_user` because it writes to `/tmp` as root (play-level
   `become: true` is inherited); `/tmp` is world-readable so the script

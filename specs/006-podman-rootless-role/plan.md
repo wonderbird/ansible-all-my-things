@@ -7,7 +7,7 @@
 
 Create `roles/podman/` — an Ansible role that installs Podman from the Ubuntu
 apt repository and configures rootless container operation for every user in
-`desktop_user_names` by managing `/etc/subuid` and `/etc/subgid` with
+`login_user_names` by managing `/etc/subuid` and `/etc/subgid` with
 `ansible.builtin.lineinfile`, then running `podman system migrate` per user
 so the new user-namespace mapping takes effect immediately.
 
@@ -33,7 +33,7 @@ Ubuntu `podman` apt package
 **Constraints**: Zero changed tasks on second run (idempotency); no external
 PPA; no docker shim; no systemd lingering; no registries.conf changes
 
-**Scale/Scope**: Per-user loop over `desktop_user_names`; single role, ~5 tasks
+**Scale/Scope**: Per-user loop over `login_user_names`; single role, ~5 tasks
 
 ## Constitution Check
 

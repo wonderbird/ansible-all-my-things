@@ -8,7 +8,7 @@
 - Ubuntu 22.04 LTS or later target host (AMD64 or ARM64).
 - Ansible 2.19+ on the control node.
 - SSH access to the target with sudo privileges.
-- `desktop_user_names` list populated (via the playbook `vars:` block or
+- `login_user_names` list populated (via the playbook `vars:` block or
   inventory).
 
 ## Local Test (Vagrant + Docker VM)
@@ -58,11 +58,11 @@ roles:
 | `podman_subgid_start` | `100000` | same |
 | `podman_subgid_count` | `65536` | same |
 
-`desktop_user_names` has no default and must be supplied by the caller.
+`login_user_names` has no default and must be supplied by the caller.
 
 ## Acceptance Test Checklist
 
-- [ ] `podman --version` succeeds for every user in `desktop_user_names`.
+- [ ] `podman --version` succeeds for every user in `login_user_names`.
 - [ ] `/etc/subuid` contains a valid entry for every user.
 - [ ] `/etc/subgid` contains a valid entry for every user.
 - [ ] `podman build -t devcontainer .devcontainer/` succeeds as a listed user.

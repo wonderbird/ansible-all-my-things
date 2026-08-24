@@ -7,12 +7,12 @@
     owner: "{{ item }}"
     group: "{{ item }}"
     mode: '0755'
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
 
 - name: Check Nerd Font is installed for each user
   ansible.builtin.stat:
     path: "/home/{{ item }}/.local/share/fonts/HackNerdFont-Regular.ttf"
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
   register: nerd_font_stat
 
 - name: Download Nerd Font

@@ -6,7 +6,7 @@ Linux (AMD64 and ARM64).
 ## Requirements
 
 - Ubuntu Linux (AMD64 or ARM64).
-- `desktop_user_names` variable defined (list of users to receive sdkman and
+- `login_user_names` variable defined (list of users to receive sdkman and
   the JDK).
 - Internet access on the first provisioning run (sdkman installer and JDK
   download).

@@ -73,7 +73,7 @@ additions use the same `combine()`/`dict2items|selectattr` merge pattern
 already used for `all`/`linux`/`<provider>`, which is already idempotent),
 II (Role-First Organisation — exception logged in Complexity Tracking), IV
 (YAGNI — `profile` carries exactly two live values, no speculative third),
-XI (DRY — reuses `desktop_users`/`inventories/group_vars/all/vars.yml`
+XI (DRY — reuses `login_users`/`inventories/group_vars/all/vars.yml`
 unchanged, no duplicated user-list logic), XII (Fail Loud —
 `provider=docker profile=desktop` rejected before any infrastructure action,
 mirroring the existing `assert-provider-profile.yml` pattern). FR-001 through FR-012
@@ -105,7 +105,7 @@ top-level playbooks beyond what already exists.
 | VIII. No Untracked Technical Debt | PASS | Findings tracked as beads issues blocking this feature's cover issue (`ansible-all-my-things-qgob`, parent epic `ansible-all-my-things-yyoy`). The pre-existing roadmap.md inaccuracy discovered during this planning session (claiming `profile` already existed) was corrected directly in roadmap.md rather than left as drift, since it is a durable artefact, not a code finding requiring its own tracked fix. |
 | IX. CI/CD Pipeline Security | N/A | No CI workflow changes. |
 | X. Self-Contained Durable Artefacts | PASS | This plan and the spec contain no tracker IDs standing in for substance; the one parenthetical issue reference above is non-load-bearing (strip test: removing it loses no meaning). |
-| XI. Avoid Duplication (DRY) | PASS | `desktop_users`/`inventories/group_vars/all/vars.yml` reused unchanged across both the existing `basic` play and the new `desktop` play — not redefined. |
+| XI. Avoid Duplication (DRY) | PASS | `login_users`/`inventories/group_vars/all/vars.yml` reused unchanged across both the existing `basic` play and the new `desktop` play — not redefined. |
 | XII. Fail Loud | PASS | `provider=docker` + `profile=desktop` rejected via `assert`/`fail` before any container/VM/API action (FR-006), mirroring the existing `assert-provider-profile.yml` pattern. |
 | XIII. No Empty Artefacts | PASS | No placeholder files created. |
 | XIV. SSH Host-Key Verification by Exposure | N/A | This feature does not change any provider's SSH connection/host-key handling; it only adds an inventory-group key and a security-group rule. |
