@@ -6,8 +6,8 @@ plus a set of frequently used global npm packages (`eslint`,
 `markdownlint-cli`, `prettier`, `typescript`).
 
 Node.js is cross-harness — several roles and CLIs in this repo (notably
-`claude_code`'s `omc` CLI install) need a working Node/npm toolchain, so
-it is a standalone role rather than bundled into any one consumer.
+`claude_code_config`'s `omc` CLI install) need a working Node/npm toolchain,
+so it is a standalone role rather than bundled into any one consumer.
 
 ## Requirements
 

@@ -6,7 +6,7 @@ for all desktop users.
 ## Requirements
 
 - AMD64 Ubuntu Linux with snapd pre-installed.
-- `desktop_user_names` variable defined (list of users to receive the SDK).
+- `login_user_names` variable defined (list of users to receive the SDK).
 - Internet access on the first provisioning run (snap and SDK downloads).
 - `community.general` collection (already in `requirements.yml`).
 - The `java` role MUST run before this role. It installs the Eclipse Temurin

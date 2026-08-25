@@ -91,7 +91,7 @@
     owner: "{{ item }}"
     group: "{{ item }}"
     mode: '0775'
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
 
 - name: Create empty .vscode/argv.json
   copy:
@@ -100,7 +100,7 @@
     owner: "{{ item }}"
     group: "{{ item }}"
     mode: '0775'
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
 
 - name: Configure keyring for VS Code
   become_user: "{{ item }}"
@@ -115,4 +115,4 @@
       // Configure the keyring as described in
       // https://code.visualstudio.com/docs/configure/settings-sync#_troubleshooting-keychain-issues
       "password-store": "gnome-libsecret",
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"

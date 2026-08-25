@@ -40,7 +40,7 @@ explicitly excludes for a tart VM with no desktop environment.
 
 **Decision**: `configure-profile-roles.yml` mirrors
 `configure-linux-roles.yml`'s structure (`become: true`, `ansible_user:
-{{ my_ansible_user }}`, `desktop_user_names` derived the same way) but targets
+{{ my_ansible_user }}`, `login_user_names` derived the same way) but targets
 `hosts: tart` and lists only the five roles required by FR-013–FR-017:
 `podman`, `ruby`, `python`, `dolt_sql_server`, `claude_code`.
 

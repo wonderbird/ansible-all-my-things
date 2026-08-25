@@ -66,7 +66,7 @@ ruby, python, the Dolt SQL server, and the Claude Code CLI are all available.
 - [x] T002 [US1] Create `playbooks/configure-profile-roles.yml`:
   a single play with `name: Configure basic profile linux roles`,
   `hosts: tart`, `become: true`, `vars: { ansible_user: "{{ my_ansible_user }}",
-  desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}" }`,
+  login_user_names: "{{ login_users | map(attribute='name') | list }}" }`,
   and `roles: [podman, ruby, python, dolt_sql_server, claude_code]` — mirroring
   `configure-linux-roles.yml`'s structure but scoped to `hosts: tart` and
   omitting `tmux` and `google_chrome` per FR-018 (research.md "Roles-application
@@ -128,7 +128,7 @@ architecture" — check `uname -m` if running on an unfamiliar host).
   (1) `ansible-playbook playbooks/create-vm.yml` to create a fresh tart VM;
   (2) run `ansible-playbook playbooks/configure-profile.yml` with no extra-vars
   (User Story 1) — verify it completes successfully, `my_ansible_user` and all
-  `desktop_users` can SSH in via key with sudo, password SSH auth is rejected,
+  `login_users` can SSH in via key with sudo, password SSH auth is rejected,
   apt cache/timezone (`Europe/Berlin`) are correct, NVM/Node LTS/global npm
   tools (`eslint`, `markdownlint-cli`, `prettier`, `typescript`) are present
   for each desktop user, and `podman`, `ruby`, `python3`, `claude` are all

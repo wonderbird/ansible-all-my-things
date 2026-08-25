@@ -129,7 +129,7 @@ start to completion. See `quickstart.md` — SDK validation test.
   with `checksum: "sha256:{{ android_cmdlinetools_sha256 }}"`;
   idempotent via `creates:` guard
 - [x] T009 [US4] Add task to create `~/Android/Sdk` directory
-  per user in `desktop_user_names` using
+  per user in `login_user_names` using
   `ansible.builtin.file`
 - [x] T010 [US4] Add tasks to extract cmdline-tools per user:
   (a) `ansible.builtin.unarchive` extracts ZIP to

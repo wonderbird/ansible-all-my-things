@@ -179,7 +179,7 @@ confirm Flutter is installed without editing any other file.
   (<https://docs.flutter.dev/install/manual>). The role MUST NOT use `apt`,
   `snap`, or `sdkmanager` for the Flutter SDK itself.
 - **FR-012**: The role MUST configure the Flutter environment for every user
-  listed in `desktop_user_names` by adding `$HOME/flutter/bin` to `$PATH`
+  listed in `login_user_names` by adding `$HOME/flutter/bin` to `$PATH`
   in each user's `~/.bashrc` via `ansible.builtin.blockinfile`, so that
   those users can invoke `flutter` commands without additional shell
   configuration.
@@ -190,7 +190,7 @@ confirm Flutter is installed without editing any other file.
   role runs; the `google_chrome` role is assumed to have already installed
   it. The `flutter` role does not install Chrome.
 - **FR-015**: The Flutter SDK MUST be extracted to `/home/{{ item }}/flutter`
-  for each user listed in `desktop_user_names`, consistent with the
+  for each user listed in `login_user_names`, consistent with the
   `android_studio` role placing its SDK under `~/Android/Sdk`. Files under
   this directory MUST be owned by `{{ item }}:{{ item }}`; use
   `become_user: "{{ item }}"` on the `unarchive` task to ensure correct
@@ -234,7 +234,7 @@ confirm Flutter is installed without editing any other file.
 - **`configure-linux-roles.yml`**: The roles playbook where the `flutter`
   role entry will be added, after the `android_studio` entry, consistent
   with the declared dependency order.
-- **`desktop_user_names`**: A variable defined in `group_vars/` or
+- **`login_user_names`**: A variable defined in `group_vars/` or
   `host_vars/` listing the users for whom Flutter must be configured. The
   role iterates over this list but does not define or validate it.
 - **Target Host (`hobbiton`)**: An AMD64 Hetzner Cloud instance running a
@@ -291,7 +291,7 @@ resolved by the user.
 - The Flutter installation must satisfy the Chrome/web target in
   `flutter doctor`; other targets (Android emulator, iOS, desktop) are out
   of scope.
-- `desktop_user_names` is defined in inventory variables before this role
+- `login_user_names` is defined in inventory variables before this role
   executes; the role does not validate its presence.
 - The Flutter SDK is installed from the official `.tar.xz` archive
   published on `flutter.dev`. The archive URL format is stable enough to

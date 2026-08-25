@@ -5,7 +5,7 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    backup_user: "{{ desktop_users[0].name }}"
+    backup_user: "{{ login_users[0].name }}"
 
   tasks:
     - include_tasks: backup.yml

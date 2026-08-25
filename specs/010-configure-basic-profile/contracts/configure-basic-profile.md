@@ -35,7 +35,7 @@ apply only to whatever local VM was created by `create-vm.yml` — whether
 
 Per FR-003 through FR-019:
 
-- `my_ansible_user` and every entry in `desktop_users` exist on the VM as
+- `my_ansible_user` and every entry in `login_users` exist on the VM as
   members of the `sudo` group (FR-003).
 - `my_ansible_user` has passwordless sudo (FR-004).
 - Every configured user's SSH public key is installed for passwordless login
@@ -43,7 +43,7 @@ Per FR-003 through FR-019:
 - Every configured user's `.bash_profile` loads `.bashrc` on login (FR-007).
 - The apt package cache is refreshed and all packages are upgraded (FR-008);
   system timezone is `Europe/Berlin` (FR-009).
-- Each `desktop_users` entry has NVM installed, the current Node.js LTS
+- Each `login_users` entry has NVM installed, the current Node.js LTS
   release installed and set as default, and the global npm tools `eslint`,
   `markdownlint-cli`, `prettier`, `typescript` installed (FR-010–FR-012).
 - `podman`, `ruby`, `python`, `dolt_sql_server`, and `claude_code` are

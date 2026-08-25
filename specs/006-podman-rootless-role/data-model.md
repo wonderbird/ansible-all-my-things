@@ -12,7 +12,7 @@ declared in `roles/podman/defaults/main.yml`.
 
 | Variable | Type | Default | Source | Description |
 | --- | --- | --- | --- | --- |
-| `desktop_user_names` | list of strings | (none — caller must supply) | playbook `vars:` | Usernames of all desktop users to configure for rootless Podman. Defined by the calling playbook as `"{{ desktop_users \| map(attribute='name') \| list }}"`. |
+| `login_user_names` | list of strings | (none — caller must supply) | playbook `vars:` | Usernames of all desktop users to configure for rootless Podman. Defined by the calling playbook as `"{{ login_users \| map(attribute='name') \| list }}"`. |
 | `podman_subuid_start` | integer | `100000` | `defaults/main.yml` | First sub-UID in the range allocated to each desktop user. |
 | `podman_subuid_count` | integer | `65536` | `defaults/main.yml` | Number of sub-UIDs allocated to each desktop user. |
 | `podman_subgid_start` | integer | `100000` | `defaults/main.yml` | First sub-GID in the range allocated to each desktop user. |
@@ -20,9 +20,9 @@ declared in `roles/podman/defaults/main.yml`.
 
 ### Validation Rules
 
-- `desktop_user_names` MUST be defined by the caller. An empty list (`[]`) is
+- `login_user_names` MUST be defined by the caller. An empty list (`[]`) is
   valid: the install task runs but per-user loops are skipped.
-- Each entry in `desktop_user_names` MUST correspond to an existing system
+- Each entry in `login_user_names` MUST correspond to an existing system
   user. The role does not create users (out of scope).
 - `podman_subuid_start` and `podman_subuid_count` MUST be positive integers.
   No runtime validation is added (YAGNI for a single-person project).
@@ -42,7 +42,7 @@ These are the files the role reads from or writes to on the target host.
 1. Install podman (apt)
    └─ ansible.builtin.apt: name=podman state=present
 
-2. For each user in desktop_user_names:
+2. For each user in login_user_names:
    ├─ Ensure subuid entry (lineinfile on /etc/subuid)
    ├─ Ensure subgid entry (lineinfile on /etc/subgid)
    └─ Run podman system migrate (command, become_user=item, changed_when=false)

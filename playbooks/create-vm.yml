@@ -5,6 +5,7 @@
   vars:
     provider: tart
     profile: basic
+    claude_opinionated: false
     vm_cpus: 4
     vm_memory_mb: 8192
     vm_disk_size_gb: 20

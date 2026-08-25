@@ -26,6 +26,28 @@ galaxy_info:
   role_name: <role-name>
 ```
 
+## meta/main.yml dependency review (manual — not covered by the test)
+
+A Molecule scenario **cannot** detect a broken `meta/main.yml` `dependencies:`
+list. `converge.yml` lists the roles it applies explicitly and in order, so the
+scenario passes whether or not `meta/main.yml` declares those dependencies — the
+declaration is never exercised by role-dependency resolution during the test.
+
+Therefore, whenever you create or modify a role for which
+`docs/architecture/concepts/role-dependency-declaration.md` mandates a hard
+`meta/main.yml` dependency (a role whose tasks unconditionally require an
+artefact only another role provisions), you MUST manually confirm:
+
+1. The required role(s) are listed under `dependencies:` in the role's
+   `meta/main.yml`, matching what `role-dependency-declaration.md` mandates.
+2. The `converge.yml` role list still exercises the role end-to-end even though
+   it does not test the declaration itself.
+
+This is an accepted limitation: there is no cheap automated check that verifies
+`meta/main.yml` dependency contents independently of `converge.yml`, so the
+guard is this manual review step rather than a lint or CI rule. (Tracked in
+`ansible-all-my-things-vjib`.)
+
 ## Creating a new role
 
 **Always** use the scaffold script — never create role directories or files manually:

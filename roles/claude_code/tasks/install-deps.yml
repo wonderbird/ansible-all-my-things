@@ -1,10 +1,9 @@
 #SPDX-License-Identifier: MIT-0
 ---
-- name: Install jq, git and curl
+- name: Install jq and git
   ansible.builtin.apt:
     name:
       - jq
       - git
-      - curl
     state: present
   become: true

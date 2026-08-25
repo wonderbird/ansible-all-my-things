@@ -32,8 +32,8 @@ on its own, or an explicit `assert`/`fail` guard — with no `when:`-skip or
 
 ## Worked examples from this repo
 
-**`claude_code` → `rtk` (hard dependency).** `claude_code/tasks/configure.yml`
-runs:
+**`claude_code_config` → `rtk` (hard dependency).**
+`claude_code_config/tasks/configure.yml` runs:
 
 ```yaml
 - name: Initialize rtk globally for each desktop user
@@ -41,24 +41,36 @@ runs:
     cmd: rtk init -g
   become: true
   become_user: "{{ item }}"
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
   changed_when: false
 ```
 
 An unconditional `command` task, no existence check, no `failed_when:
 false`. If the `rtk` binary is absent, this task fails outright. A
-playbook that lists `claude_code` without having first applied `rtk` will
-break at apply time — this is exactly the "hard-fails for any consumer"
-signal.
+playbook that lists `claude_code_config` without having first applied `rtk`
+will break at apply time — this is exactly the "hard-fails for any
+consumer" signal.
 
-**`claude_code` → `ai_agent_workspace` (hard dependency).** The skills
-symlink task in `claude_code/tasks/install-addons.yml` asserts `matched > 0`
-after searching the `ai_agent_workspace` clone's `.claude/skills` directory
-— a deliberate, fail-loud (Constitution Principle XII) guard for the same
-kind of cross-role artefact dependency.
+**`claude_code_config` → `ai_agent_workspace` (hard dependency).** The
+skills symlink task in `claude_code_config/tasks/install-addons.yml`
+asserts `matched > 0` after searching the `ai_agent_workspace` clone's
+`.claude/skills` directory — a deliberate, fail-loud (Constitution
+Principle XII) guard for the same kind of cross-role artefact dependency.
 
-Both qualify under the decision test above, and both are declared —
-see "Current state" below.
+**`claude_code_config` → `claude_code` (hard dependency).**
+`claude_code_config/tasks/install-addons.yml` and `configure.yml` run
+unguarded `claude plugin ...`/`claude mcp ...` shell calls against
+`/home/{{ item }}/.local/bin/claude` — the binary `claude_code` installs.
+No presence check precedes them; if the binary is absent, these tasks fail
+outright. `claude_code_config/tasks/configure.yml`'s own jq merge also
+assumes `~/.claude/settings.json` already exists with `claude_code`'s
+baseline auto-update-disable keys — `claude_code/tasks/configure.yml`
+creates `~/.claude` and writes that baseline first. `claude_code_config`
+therefore declares `claude_code` as a hard `meta/main.yml` dependency, in
+addition to explicit play ordering.
+
+All three qualify under the decision test above, and all three are
+declared — see "Current state" below.
 
 **Counter-example: role co-location in a playbook.** Two roles that happen
 to run in the same play purely because they configure the same host profile
@@ -174,11 +186,11 @@ fallback for a missing precondition. Contrast with a role's own idempotency
 guard on its **own** target artefact (e.g. `rtk`'s `rtk_pre_install_stat`,
 skip reinstalling if already present) — that is ordinary Principle I
 idempotency, not a cross-role dependency question, and is unaffected by any
-of this. For `rtk` inside `claude_code`: every production playbook that
-runs `claude_code` also runs `rtk` first; "absent" only ever means the
-ordering broke. Branching on it can only mask a real defect, never serve a
-real "sometimes it's fine" case — the tell that presence-checking is the
-wrong tool here.
+of this. For `rtk` inside `claude_code_config`: every production playbook
+that runs `claude_code_config` also runs `rtk` first; "absent" only ever
+means the ordering broke. Branching on it can only mask a real defect,
+never serve a real "sometimes it's fine" case — the tell that
+presence-checking is the wrong tool here.
 
 One more reason a partial presence-check workaround would not produce a
 coherent system, even though it is not itself an apply-time failure:
@@ -187,21 +199,26 @@ writes the literal string `"rtk hook claude"` into a Claude Code
 PreToolUse hook via `jq` — it does not execute `rtk` and does not fail if
 `rtk` is absent, but it does assume `rtk` will be present later, at
 *runtime*, whenever Claude Code triggers that hook. `rtk` is a hard,
-load-bearing dependency of `claude_code` as a whole — one apply-time task
-(`rtk init -g`) and one runtime assumption (the hook) — not of one isolated
-task; a conditional around only the init task would leave the runtime
-assumption unaddressed either way.
+load-bearing dependency of `claude_code_config` as a whole — one apply-time
+task (`rtk init -g`) and one runtime assumption (the hook) — not of one
+isolated task; a conditional around only the init task would leave the
+runtime assumption unaddressed either way.
 
 ## Current state
 
-`claude_code/meta/main.yml` declares `dependencies: [rtk, nodejs,
-ai_agent_workspace]` — all three are hard, role-intrinsic dependencies
-per the decision test above (`rtk` and `ai_agent_workspace` for the
-reasons in the worked examples above; `nodejs` because
-`install-omc-cli.yml` unconditionally invokes `npm`). Every other role
-in this repository is still authored with `dependencies: []`, relying
-solely on explicit ordering, since none of them have a hard,
-role-intrinsic dependency by the test above.
+`claude_code_config/meta/main.yml` declares `dependencies: [rtk, nodejs,
+ai_agent_workspace, claude_code]` — all four are hard, role-intrinsic
+dependencies per the decision test above (`rtk` and `ai_agent_workspace`
+for the reasons in the worked examples above; `nodejs` because
+`install-omc-cli.yml` unconditionally invokes `npm`; `claude_code` because
+this role's `claude plugin`/`claude mcp` shell calls unconditionally
+require the binary it installs). `claude_code/meta/main.yml` itself
+declares `dependencies: []` — it installs the binary plus its own minimal
+version-pin config and has no hard dependency on any other role. Every
+other role in this repository is also
+authored with `dependencies: []`, relying solely on explicit ordering,
+since none of them have a hard, role-intrinsic dependency by the test
+above.
 
 ## Caveats when declaring a dependency
 

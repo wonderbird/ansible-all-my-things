@@ -181,4 +181,4 @@ for three reasons:
 **Rationale**: This role exposes no external API, network endpoint, or
 machine-readable interface contract. Its only interface is the Ansible
 variable contract (`flutter_version`, `flutter_sha256`,
-`desktop_user_names`) documented in `README.md` and `data-model.md`.
+`login_user_names`) documented in `README.md` and `data-model.md`.

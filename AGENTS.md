@@ -267,6 +267,23 @@ is awaiting human sign-off. Only the human reviewer closes it after confirming
 each child finding has been addressed. This applies regardless of how many
 child tasks have been closed.
 
+## Beads: Description Formatting
+
+Beads issue descriptions render in the beads viewer (`bv`). Write them as
+structured Markdown so they are readable there, not as one unbroken blob:
+
+- Use `##` headings to separate sections (e.g. Source, Problem, Fix,
+  Developer view).
+- Separate paragraphs with blank lines; use `-` bullet or numbered lists for
+  enumerations.
+- Pass real newlines when setting the field. A single-line
+  `--description "…"` stores zero line breaks and renders as a blob; instead
+  feed a here-doc, e.g.
+  `bd update <id> --description "$(cat <<'EOF' … EOF)"`.
+
+This applies to every `bd create` / `bd update` description, including gate and
+finding bodies.
+
 ## Beads: Issue Types and Dependency Rules
 
 ### Issue Types
@@ -414,4 +431,3 @@ Architecture Decision Records are in
 
 These are the canonical locations for architectural decisions; they MUST
 NOT be recorded in `CLAUDE.md` or agent-specific context files.
-

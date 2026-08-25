@@ -3,7 +3,7 @@
 # Pinned rtk release tag (v-prefixed). See
 # https://github.com/rtk-ai/rtk/releases for available versions.
 # Updated automatically by playbooks/update-versions/perform-updates.yml.
-rtk_version: "v0.43.0"
+rtk_version: "v0.45.0"
 
 # Maps an Ansible architecture fact to the full rtk release asset filename.
 # Note the asymmetric target triples: x86_64 ships a musl build, aarch64 a
@@ -19,5 +19,5 @@ rtk_platform_map:
 # truncate and give the wrong hash):
 #   curl -sL https://github.com/rtk-ai/rtk/releases/download/<tag>/<asset> -o /tmp/rtk.tar.gz
 #   sha256sum /tmp/rtk.tar.gz
-rtk_sha256_x86_64_musl: "ff8a1e7766496e175291a85aeca1dc97c9ff6df33e51e5893d1fbc78fea2a609"
-rtk_sha256_aarch64_gnu: "5519f7ca12e5c143a609f0d28a0a77b97413a8dce31c2681f1a41c24519a8731"
+rtk_sha256_x86_64_musl: "c4c036fbf181fc55ef329786c8c17e0d427972b053b825944d968a6aafef1ba4"
+rtk_sha256_aarch64_gnu: "80a746dd305ef944ff50ef011ae4ce3878dd5ba88dfe35d859d05498191637c3"

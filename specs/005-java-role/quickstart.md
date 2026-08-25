@@ -11,7 +11,7 @@ role locally.
 
 - Local test VM provisioned per `CONTRIBUTING.md` (Vagrant + Docker or
   Vagrant + Tart).
-- `desktop_user_names` configured in your inventory or `group_vars`.
+- `login_user_names` configured in your inventory or `group_vars`.
 - Internet access from the VM to `https://get.sdkman.io` and to the sdkman
   distribution servers (for Temurin JDK download).
 

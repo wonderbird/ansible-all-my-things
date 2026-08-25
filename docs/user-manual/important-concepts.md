@@ -14,7 +14,7 @@
   - [Secrets are encrypted with Ansible Vault](#secrets-are-encrypted-with-ansible-vault)
   - [Admin user on fresh system differs per provider](#admin-user-on-fresh-system-differs-per-provider)
   - [Same ansible user is set up for each provider](#same-ansible-user-is-set-up-for-each-provider)
-  - [Desktop user accounts are used to log in](#desktop-user-accounts-are-used-to-log-in)
+  - [Login user accounts are used to log in](#login-user-accounts-are-used-to-log-in)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -78,11 +78,14 @@ The `root` user shall only be used for a very short time. Thus, the [/playbooks/
 
 This `my_ansible_user` is configured in [/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml).
 
-## Desktop user accounts are used to log in
+## Login user accounts are used to log in
 
-[/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml) defines user names and passwords for the `desktop_users`. These accounts are intended for logging into the (desktop) environment.
+[/inventories/group_vars/all/vars.yml](../inventories/group_vars/all/vars.yml)
+defines user names and passwords for the `login_users`. These accounts are
+intended for logging into the host, regardless of its system profile
+(console or desktop).
 
-Desktop user passwords use a nested structure in the vault file. For example:
+Login user passwords use a nested structure in the vault file. For example:
 
 ```yaml
 vault_galadriel:

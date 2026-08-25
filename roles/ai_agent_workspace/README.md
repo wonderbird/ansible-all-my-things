@@ -7,7 +7,7 @@ library source repository for each desktop user.
 
 This is a generic, cross-harness clone with no Claude-Code-specific logic —
 see `DESIGN.md` for why the `~/.claude/skills` symlink step stays in the
-`claude_code` role instead of here.
+`claude_code_config` role instead of here.
 
 ## Requirements
 
@@ -18,7 +18,7 @@ see `DESIGN.md` for why the `~/.claude/skills` symlink step stays in the
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `desktop_user_names` | *(required)* | List of local usernames to clone ai-agent-workspace for |
+| `login_user_names` | *(required)* | List of local usernames to clone ai-agent-workspace for |
 
 ## Dependencies
 
@@ -31,7 +31,7 @@ None. See `meta/main.yml` for details.
   roles:
     - role: ai_agent_workspace
       vars:
-        desktop_user_names:
+        login_user_names:
           - alice
           - bob
 ```

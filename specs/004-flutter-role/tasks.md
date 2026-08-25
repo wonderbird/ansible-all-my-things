@@ -42,7 +42,7 @@ README/DESIGN must exist before they can be edited.
 - [X] T003 [P] Write `roles/flutter/meta/main.yml` with `dependencies: []`
   following the `android_studio` meta template
 - [X] T004 [P] Create stub `roles/flutter/README.md` documenting role purpose,
-  variables (`flutter_version`, `flutter_sha256`, `desktop_user_names`), and
+  variables (`flutter_version`, `flutter_sha256`, `login_user_names`), and
   both `android_studio` and `google_chrome` as prerequisite dependencies
   (FR-010, FR-014)
 - [X] T005 [P] Create stub `roles/flutter/DESIGN.md` documenting the
@@ -72,7 +72,7 @@ the Chrome/web target reports no errors.
   after the apt task in `roles/flutter/tasks/main.yml` (FR-018)
 - [X] T008 [US1] Add per-user `ansible.builtin.stat` task to check
   `/home/{{ item }}/flutter/version` in `roles/flutter/tasks/main.yml`
-  (loop over `desktop_user_names`)
+  (loop over `login_user_names`)
 - [X] T009 [US1] Add per-user `ansible.builtin.slurp` task to read the version
   file when it exists, and `ansible.builtin.set_fact` to derive
   `flutter_installed_version` in `roles/flutter/tasks/main.yml`
@@ -302,7 +302,7 @@ T018 → T019/T020 (parallel) → T021 → T022
 - The `not-supported-on-vagrant-arm64` tag is applied **only** at the role
   entry level in `configure-linux-roles.yml`; individual tasks inside the
   role carry no tags (FR-007).
-- All per-user tasks use `loop: "{{ desktop_user_names }}"` and
+- All per-user tasks use `loop: "{{ login_user_names }}"` and
   `become_user: "{{ item }}"` where file ownership matters.
 - Upgrade procedure: bump `flutter_version` and `flutter_sha256` in
   `roles/flutter/defaults/main.yml`; re-run the playbook.

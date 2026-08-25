@@ -17,10 +17,10 @@ You are the **conductor**. You drive a *second* Claude Code session running in a
 **The pane id must be hardcoded into every block.** Your Bash tool calls do *not* share shell state — an env var set in one call is empty in the next. So you cannot rely on `$PANE` persisting. Step 1 prints the pane id once (a stable token like `%3`); from then on **substitute that literal id** wherever a block shows `PANE=%3` or `-t "$PANE"`. Do not guess `session:win.pane`; use the `%N` id. Also derive a per-pane scratch filename by stripping the leading `%` (e.g. pane `%3` → `/tmp/omc-presnap-3.txt`) and substitute that literally too — shell state doesn't persist between calls, so this file (not a variable) is how a "before" snapshot survives from one Bash call to the next.
 
 **State signals (wording-independent):**
-- **Busy** (a turn is running): footer line contains `esc to interrupt`.
-- **Idle** (turn ended, input box ready): footer contains `⏵⏵ bypass permissions` but **not** `esc to interrupt`, confirmed across **two consecutive polls** (see `wait_idle` below) — a single missed poll of `esc to interrupt` between two tool-call turns of one long agent turn is common and does not mean the turn ended.
+- **Busy** (a turn is running): footer line contains `esc to interrupt` **or** a spinner status line matching `· ↓ .*tokens` (e.g. `✶ Levitating… (1m 21s · ↓ 5.2k tokens · thinking)`). **Claude Code v2.1.207 never displayed `esc to interrupt` at all during a full observed run** — the spinner line was the only busy chrome. Treat the two as alternates; require neither one specifically.
+- **Idle** (turn ended, input box ready): **no** busy signal (neither `esc to interrupt` nor a `· ↓ .*tokens` spinner line) **and** the captured pane content is byte-identical across **2–3 consecutive polls** (see `wait_idle` below). Content stability is the version-proof condition — make it required, not a fallback: in the observed run, absence-of-`esc to interrupt` alone produced a false `IDLE` while the inner agent was still mid-work.
 - **Shell returned** (Claude exited): no `❯` box and no `bypass permissions` footer; a shell prompt like `…$ ` is present.
-- **Abort conditions** (anywhere in output): `usage limit exceeded`, `limit reached`, `invalid api key`, `please...authenticat`, `rate limit exceeded`, `Press any key`, or an unexpected `(y/n)` you cannot safely answer. Use full phrases, not bare words like `authentication`/`rate limit` — those match ordinary scrollback (e.g. a plugin-update notice) and produce false `ABORT`s, observed in practice.
+- **Abort conditions** (anywhere in output): `usage limit exceeded`, `limit reached`, `invalid api key`, `please...authenticat`, `rate limit exceeded`, `Press any key`, or an unexpected `(y/n)` you cannot safely answer. Use full phrases, not bare words like `authentication`/`rate limit` — those match ordinary scrollback (e.g. a plugin-update notice) and produce false `ABORT`s, observed in practice. **Extra reason once setup succeeds**: the newly installed HUD statusline renders *inside the monitored pane's footer* — usage-percent bars, a `[CAVEMAN]` badge line, and similar text — so any grep over the pane must tolerate that footer noise; full-phrase matching is what keeps it from tripping abort or badge checks.
 
 **Always capture with scrollback** so output that scrolled off is still seen: `tmux capture-pane -t "$PANE" -p -S -200`.
 
@@ -73,8 +73,9 @@ tmux send-keys -t "$PANE" '' Enter
 
 ### `wait_idle` — submit happened, now block until the turn ends
 
-Two-phase (busy must appear, then clear) and bounded, with two hardening fixes over a naive version:
-- **Debounce**: idle is only declared after 2 consecutive clean polls, 1s apart — a single-poll miss of `esc to interrupt` between chained tool calls inside one long agent turn is normal and must not be read as "done."
+Two-phase (busy must appear, then clear) and bounded, with three hardening fixes over a naive version:
+- **Version-proof busy detection**: busy = `esc to interrupt` **or** a `· ↓ .*tokens` spinner line, and idle additionally requires the captured pane to be byte-identical across consecutive polls. v2.1.207 shipped without `esc to interrupt` entirely; a loop keyed on that string alone declares `IDLE` while the agent is still working.
+- **Debounce**: idle is only declared after 2–3 consecutive clean *and content-stable* polls — a single-poll miss of busy chrome between chained tool calls inside one long agent turn is normal and must not be read as "done."
 - **Aliasing guard on `NOSTART`**: if busy chrome is never seen within the start budget, don't assume the `Enter` failed — it's also possible the whole turn ran and finished faster than the poll cadence caught it (this happened with a short `omc doctor` run). Diff the current pane against the presubmit snapshot; if content moved, treat it as `IDLE`, not `NOSTART`.
 - **Deadline margin**: keep the internal `idle_deadline` at 540s (9 min) — comfortably under the Bash tool's hard 600000ms ceiling — and request a Bash-tool `timeout` of ~595000ms for the call. Never set the two equal; a prior run set both to exactly 600s/600000ms and the harness's own kill won the race, silently discarding the script's own `TIMEOUT`/result line.
 
@@ -88,16 +89,19 @@ start_budget=30          # busy must appear within 30s of submit (fresh restarts
 idle_budget=540          # then idle within 9 min — stays under the Bash tool's 600000ms hard cap with margin
 start_deadline=$(( $(date +%s) + start_budget ))
 idle_deadline=$(( $(date +%s) + idle_budget ))
-saw_busy=0; idle_streak=0; required_streak=2; result=PENDING
+saw_busy=0; idle_streak=0; required_streak=3; result=PENDING; prev=""
 while :; do
   pane=$(tmux capture-pane -t "$PANE" -p -S -200)
   if echo "$pane" | grep -qiE "usage limit exceeded|limit reached|invalid api key|please.*authenticat|rate limit exceeded"; then result=ABORT; break; fi
-  if echo "$pane" | grep -q "esc to interrupt"; then
+  if echo "$pane" | grep -q "esc to interrupt" || echo "$pane" | grep -qE '· ↓ .*tokens'; then
     saw_busy=1; idle_streak=0
-  elif [ "$saw_busy" = 1 ]; then
+  elif [ "$saw_busy" = 1 ] && [ "$pane" = "$prev" ]; then
     idle_streak=$((idle_streak+1))
     [ "$idle_streak" -ge "$required_streak" ] && { result=IDLE; break; }
+  else
+    idle_streak=0
   fi
+  prev="$pane"
   now=$(date +%s)
   if [ "$saw_busy" = 0 ] && [ "$now" -ge "$start_deadline" ]; then
     if [ -f "$PRESNAP" ] && ! diff -q <(tmux capture-pane -t "$PANE" -p -S -50) "$PRESNAP" >/dev/null 2>&1; then
@@ -154,7 +158,7 @@ Then run `wait_idle` (Step 0) with Bash-tool `timeout: 595000`.
 
 The setup runs several turns. After each `wait_idle` returns, decide:
 
-- **`IDLE` + interactive menu present** (`Select`/`Choose`/`Which`/`[1]`/`(y/n)` and the input box is *not* a plain empty `❯`): inspect the options. Prefer the pre-highlighted/default choice — usually just a bare `Enter` — over guessing a number. For a yes/no that matches the requested defaults (e.g. overwrite CLAUDE.md, which the script backs up), send `y`. **Known first menu, observed every fresh-install run**: "Global setup will change your base Claude config" with options `1. Overwrite base CLAUDE.md (Recommended)` / `2. Keep base CLAUDE.md`. When the user asked for "suggested defaults" and the base CLAUDE.md exists without an OMC marker, option 1 is the answer (it backs up the old file first) — it's normally already pre-highlighted, so a bare `Enter` picks it. If a menu is genuinely ambiguous or could misconfigure, **stop and ask the human** rather than guess. After answering, run `wait_idle` again (refresh `PRESNAP` first).
+- **`IDLE` + interactive menu present** (`Select`/`Choose`/`Which`/`[1]`/`(y/n)` and the input box is *not* a plain empty `❯`): inspect the options. Prefer the pre-highlighted/default choice — usually just a bare `Enter` — over guessing a number. For a yes/no that matches the requested defaults (e.g. overwrite CLAUDE.md, which the script backs up), send `y`. **Known first menu, observed every fresh-install run**: "Global setup will change your base Claude config" with options `1. Overwrite base CLAUDE.md (Recommended)` / `2. Keep base CLAUDE.md`. When the user asked for "suggested defaults" and the base CLAUDE.md exists without an OMC marker, option 1 is the answer (it backs up the old file first) — it's normally already pre-highlighted, so a bare `Enter` picks it. (In one observed run this menu never appeared at all — the setup agent auto-answered it from the prompt text; that's fine, don't wait for it.) **Known second menu, observed when `bd`/`br` are installed**: "Task management tool for OMC to use?" with options `1. Built-in Tasks (Default)` / `2. Beads (bd)` / `3. Beads-Rust (br)`. Option 1 is pre-highlighted and is the correct "suggested defaults" answer — a bare `Enter` picks it. If a menu is genuinely ambiguous or could misconfigure, **stop and ask the human** rather than guess. After answering, run `wait_idle` again (refresh `PRESNAP` first).
 - **`IDLE` + `Setup complete` (or equivalent success summary) visible** in `capture-pane -S -200`: proceed to Step 4.
 - **`IDLE`, neither of the above**: the agent may be between turns or waiting on you. Re-capture; if it asked a question, answer it; otherwise nudge with a bare `Enter` and `wait_idle` once more.
 - **`TIMEOUT`**: follow the chaining rule from Step 0 — keep waiting (up to 3 chained calls) only while pane content is still visibly moving; stop and report if it's static.
@@ -203,7 +207,7 @@ The HUD statusline only takes effect on a fresh start. Exit cleanly.
 
 ```bash
 PANE=%3
-if tmux capture-pane -t "$PANE" -p | grep -q "esc to interrupt"; then
+if tmux capture-pane -t "$PANE" -p | grep -qE "esc to interrupt|· ↓ .*tokens"; then
   echo "BUSY — run wait_idle first, do NOT send Escape yet"
 else
   echo "idle — safe to send the exit sequence"
@@ -310,7 +314,7 @@ Summarize to the user: doctor verdict **plus** your independent Step 6 results. 
 - **Never poll with `sleep N && cmd` chained in one Bash call** — the harness blocks it. Use a single Bash call containing a `while`/`until` loop with an internal `sleep` (as in Step 0).
 - **A single Bash call cannot be timed out past 600000ms (10 min).** Keep `wait_idle`'s internal `idle_deadline` at 540s and request Bash-tool `timeout: 595000` — never set the internal deadline equal to (or above) the Bash-tool timeout; a prior run set both to 600s/600000ms and the harness's own kill silently discarded the script's result. If a step is legitimately slow, chain additional bounded `wait_idle` calls (cap ~3) rather than requesting one longer call.
 - **Shell state does not persist between your Bash calls.** Hardcode the literal pane id (`%N` from Step 1) into every block, and use a file (e.g. `/tmp/omc-presnap-3.txt`), not a shell variable, to carry a snapshot from one call to the next.
-- **Detect state from chrome** (`esc to interrupt`, `bypass permissions`), not from spinner verbs or specific summary wording.
+- **Detect state from chrome** (`esc to interrupt`, the `· ↓ .*tokens` spinner line, `bypass permissions`), not from spinner *verbs* or specific summary wording — and require pane-content stability across polls before declaring idle. `esc to interrupt` alone is not reliable: v2.1.207 never rendered it, and a loop keyed on it declared idle mid-turn.
 - **Clear the input buffer with `Escape`, then check for `Rewind`/`Restore` chrome before doing anything else** — a second blind `Escape` (or an `Escape` on an already-empty box) can open a checkpoint-restore menu instead of clearing; if seen, cancel with one more `Escape` and never `Enter` it (use the `clear_input` guard from Step 0).
 - **Never send `Escape` (or any key) into a *busy* turn** — while a turn is running (`esc to interrupt` in the footer) `Escape` is an **interrupt**, not an input-clear, and aborts the inner agent mid-work; a prior run interrupted the setup's final phase this way. Before any input step whose first keystroke is `Escape` (notably Step 4's exit), capture the pane and confirm `esc to interrupt` is absent; if present, `wait_idle` first. The setup skill chains phases across turns, so one earlier `IDLE` does not prove it is still idle.
 - **Gate the exit/restart on `setupCompleted` in `.omc-config.json`, not mere file existence** — the config's early fields (`configuredAt`, `taskTool`) are written in an earlier phase; only the final phase adds `setupCompleted`. A bare `test -f` can pass while the final phase is still running, which is what let a prior run proceed to Step 4 and interrupt it. Keep the Step 3 nudge + safety-valve so a renamed marker in a future version cannot deadlock the flow.

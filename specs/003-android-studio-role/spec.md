@@ -155,7 +155,7 @@ completion.
   (dynamic include), the caller MUST use the `apply: tags:` parameter to
   propagate the tag to inner tasks; otherwise the skip will not reach them.
 - **FR-009**: The role MUST pre-provision the Android SDK for every user
-  listed in `desktop_user_names` so that the Android Studio first-launch
+  listed in `login_user_names` so that the Android Studio first-launch
   wizard requires no additional downloads.
 - **FR-010**: The SDK components to pre-provision are those the Standard
   setup wizard would download: platform tools, the latest stable SDK
@@ -218,7 +218,7 @@ completion.
   30 seconds, used as an indicator that no major downloads are pending.
 - Q: Should the SDK version be pinned? → A: No. The role always installs
   the latest stable SDK components available at provisioning time.
-- Q: Where is `desktop_user_names` defined? → A: In `group_vars/` or
+- Q: Where is `login_user_names` defined? → A: In `group_vars/` or
   `host_vars/` for the target host. The role iterates over this list
   but does not define or validate it.
 - Q: How is the matching build-tools version determined? → A: The role

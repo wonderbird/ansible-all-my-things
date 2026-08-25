@@ -10,7 +10,7 @@
       - name: "{{ my_ansible_user }}"
         password: "{{ my_ansible_user_password | default('my_ansible_user_password must be configured in inventory/group_vars/all/vault.yml') }}"
 
-    all_users: "{{ console_users + desktop_users }}"
+    all_users: "{{ console_users + login_users }}"
 
     ssh_public_key: "{{ my_ssh_public_key | default('my_ssh_public_key must be configured in inventory/group_vars/all/vault.yml') }}"
 

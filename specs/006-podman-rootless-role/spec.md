@@ -5,7 +5,7 @@
 **Status**: Draft
 **Input**: User description: "Create a new Ansible role called podman inside
 the roles/ directory. Install Podman in rootless mode on Ubuntu Linux and
-configure it for every user listed in the desktop_user_names variable."
+configure it for every user listed in the login_user_names variable."
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -28,7 +28,7 @@ confirm end-to-end container workflows work.
 **Acceptance Scenarios**:
 
 1. **Given** a fresh Ubuntu VM with no Podman installed, **When** the playbook
-   is run with a populated `desktop_user_names` list, **Then** `podman --version`
+   is run with a populated `login_user_names` list, **Then** `podman --version`
    succeeds for every listed user.
 
 2. **Given** Podman is installed for all listed users, **When** a user runs
@@ -52,13 +52,13 @@ cannot run containers. This is a hard prerequisite for user story 1 to work
 reliably across all users, but it is a distinct configuration concern.
 
 **Independent Test**: After the role runs, inspect `/etc/subuid` and `/etc/subgid`.
-Each user in `desktop_user_names` must have a valid range entry. Then run
+Each user in `login_user_names` must have a valid range entry. Then run
 `podman run --rm hello-world` as one of those users to confirm rootless
 operation works end-to-end.
 
 **Acceptance Scenarios**:
 
-1. **Given** a user in `desktop_user_names` has no subuid/subgid entries,
+1. **Given** a user in `login_user_names` has no subuid/subgid entries,
    **When** the playbook runs, **Then** valid subuid and subgid ranges are
    present in `/etc/subuid` and `/etc/subgid` for that user.
 
@@ -91,11 +91,11 @@ report zero changed tasks.
 
 ### Edge Cases
 
-- What happens when a username in `desktop_user_names` does not exist on the
+- What happens when a username in `login_user_names` does not exist on the
   target system? `ansible.builtin.lineinfile` does NOT fail for a non-existent
   system user — it silently writes an orphaned entry to `/etc/subuid` and
   `/etc/subgid`. The role does not validate whether the user exists in the
-  system (YAGNI); callers must ensure `desktop_user_names` contains valid
+  system (YAGNI); callers must ensure `login_user_names` contains valid
   system users.
 
 - What happens when the Ubuntu apt package `podman` is already at the latest
@@ -104,7 +104,7 @@ report zero changed tasks.
 - What happens when a user already has subuid/subgid entries from a prior
   manual setup? The role must not create duplicate entries.
 
-- What happens when `desktop_user_names` is an empty list? The role must
+- What happens when `login_user_names` is an empty list? The role must
   install Podman system-wide but skip all per-user configuration loops without
   error.
 
@@ -115,10 +115,10 @@ report zero changed tasks.
 - **FR-001**: The role MUST install Podman from the Ubuntu distribution
   package repository using the system package manager.
 
-- **FR-002**: The role MUST ensure that, for every user in `desktop_user_names`,
+- **FR-002**: The role MUST ensure that, for every user in `login_user_names`,
   a valid subuid range entry exists in `/etc/subuid`.
 
-- **FR-003**: The role MUST ensure that, for every user in `desktop_user_names`,
+- **FR-003**: The role MUST ensure that, for every user in `login_user_names`,
   a valid subgid range entry exists in `/etc/subgid`.
 
 - **FR-004**: Every task MUST be idempotent: re-running the role against an
@@ -160,7 +160,7 @@ report zero changed tasks.
   a BuildKit parser directive that Podman ignores silently; no Podman-specific
   Dockerfile modifications are needed.
 
-- Each username in `desktop_user_names` corresponds to an existing system user.
+- Each username in `login_user_names` corresponds to an existing system user.
   User creation is out of scope for this role.
 
 - subuid/subgid entries are managed with `ansible.builtin.lineinfile` targeting
@@ -192,14 +192,14 @@ report zero changed tasks.
 ### Measurable Outcomes
 
 - **SC-001**: After one playbook run on a fresh Ubuntu VM, every user in
-  `desktop_user_names` can execute `podman --version` without errors.
+  `login_user_names` can execute `podman --version` without errors.
 
-- **SC-002**: After one playbook run, a user in `desktop_user_names` can
+- **SC-002**: After one playbook run, a user in `login_user_names` can
   successfully build the repository's development container image using
   `podman build` and run it using `podman run` without root privileges.
 
 - **SC-003**: A second consecutive playbook run against an already-configured
   host reports zero changed tasks (full idempotency).
 
-- **SC-004**: Every user in `desktop_user_names` has a subuid and subgid range
+- **SC-004**: Every user in `login_user_names` has a subuid and subgid range
   entry present in `/etc/subuid` and `/etc/subgid` respectively.

@@ -10,7 +10,7 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    login_user_names: "{{ login_users | map(attribute='name') | list }}"
 
   pre_tasks:
     # TODO: smell - Update apt cache is duplicate in several playbooks
@@ -39,11 +39,11 @@
         dest: /tmp/create-default-gnome-keyring.sh
         mode: '0755'
 
-    - name: Create GNOME keyring for {{ desktop_user_names | join(', ') }}
+    - name: Create GNOME keyring for {{ login_user_names | join(', ') }}
       shell: |
         /tmp/create-default-gnome-keyring.sh "{{ gnome_keyring_password }}"
       become_user: "{{ item }}"
-      loop: "{{ desktop_user_names }}"
+      loop: "{{ login_user_names }}"
 
     - name: Remove temporary script
       file:

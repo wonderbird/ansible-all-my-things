@@ -312,14 +312,14 @@ Ubuntu/Debian perspective:
 
 ### 1. User Profile Integration
 
-Deploy restriction scripts to desktop_users' profiles
+Deploy restriction scripts to login_users' profiles
 (`.bashrc`/`.profile`) on target systems via ansible templates.
 
 **Technical Implementation**:
 
-- Deploy restriction scripts to desktop_users' `.bashrc`/`.profile` on
+- Deploy restriction scripts to login_users' `.bashrc`/`.profile` on
   Linux target systems
-- Windows: Deploy to PowerShell profiles for desktop_users on Windows
+- Windows: Deploy to PowerShell profiles for login_users on Windows
   target systems
 - Use ansible templates to customize restrictions per user/platform
 - Include in existing `playbooks/setup-users.yml` workflow
@@ -417,7 +417,7 @@ future lightweight deployments)
 
 ### 6. Claude CLI Native Restrictions ⭐ **FALLBACK**
 
-Deploy `.claude/settings.json` files to desktop_users' home directories
+Deploy `.claude/settings.json` files to login_users' home directories
 via ansible.
 
 **Technical Implementation**: See Claude CLI Native Fallback

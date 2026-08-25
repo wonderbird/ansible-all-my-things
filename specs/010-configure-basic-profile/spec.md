@@ -32,7 +32,7 @@ python, the Dolt SQL server, and the Claude Code CLI are all available.
 1. **Given** a freshly created tart VM reachable only via its default
    pre-existing account, **When** `configure-profile.yml` runs against
    the `tart` group with no extra-vars, **Then** the playbook completes
-   successfully and `my_ansible_user` and all `desktop_users` exist as members
+   successfully and `my_ansible_user` and all `login_users` exist as members
    of the sudo group, each with their SSH public key installed for passwordless
    login.
 2. **Given** a VM configured by Scenario 1, **When** an operator attempts to
@@ -117,7 +117,7 @@ verify the run reports no changes to any task.
   default bootstrap accounts. For the `tart` inventory group, this default
   account name MUST be `"admin"`.
 - **FR-003**: The system MUST ensure the configured admin user
-  (`my_ansible_user`) and all configured desktop users (`desktop_users`) exist
+  (`my_ansible_user`) and all configured desktop users (`login_users`) exist
   on the VM as members of the sudo group.
 - **FR-004**: The system MUST grant `my_ansible_user` passwordless sudo
   access.
@@ -165,7 +165,7 @@ verify the run reports no changes to any task.
 - **Admin User (`my_ansible_user`)**: The primary configured account used for
   ongoing administration of the VM; gains sudo group membership and
   passwordless sudo.
-- **Desktop User (`desktop_users`)**: One or more configured user accounts that
+- **Desktop User (`login_users`)**: One or more configured user accounts that
   receive sudo group membership, SSH key access, and the Node.js toolchain.
 - **Development Tool Role**: One of five standalone capabilities installed and
   configured on the VM as part of this profile — container runtime (podman),
@@ -179,7 +179,7 @@ verify the run reports no changes to any task.
   configured, development-ready baseline with a single command and no
   extra-vars.
 - **SC-002**: After one successful run of `configure-profile.yml`, all
-  configured users (`my_ansible_user` and every `desktop_users` entry) can log
+  configured users (`my_ansible_user` and every `login_users` entry) can log
   in to the VM via SSH using their key, with no password prompt, and SSH
   password authentication is rejected.
 - **SC-003**: After one successful run, the VM's package cache is current, all

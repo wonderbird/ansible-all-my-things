@@ -33,7 +33,7 @@ this choice.
 
 **Decision**: Use `ansible.builtin.lineinfile` with `regexp: '^{{ item }}:'`
 and `line: '{{ item }}:{{ podman_subuid_start }}:{{ podman_subuid_count }}'`
-on both `/etc/subuid` and `/etc/subgid`, looping over `desktop_user_names`.
+on both `/etc/subuid` and `/etc/subgid`, looping over `login_user_names`.
 
 **Rationale**: `ansible.builtin.lineinfile` with a start-anchored regexp is
 idempotent: it matches the existing line if present (no change) or inserts the
