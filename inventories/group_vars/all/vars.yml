@@ -27,9 +27,10 @@ gnome_keyring_password: "{{ vault_gnome_keyring_password }}"
 # Windows Server Administrator password (for AWS Windows instances)
 windows_admin_password: "{{ vault_windows_admin_password }}"
 
-# The following users will be created on the desktop system.
-# Add as many users as you like. There should be at least one user.
-desktop_users:
+# Human accounts intended for logging in, created on every host regardless of
+# system profile. Add as many users as you like. There should be at least one
+# user.
+login_users:
   - name: "galadriel"
     password: "{{ vault_galadriel.password }}"
     exa_api_key: "{{ vault_galadriel.exa_api_key }}"

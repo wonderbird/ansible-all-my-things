@@ -9,7 +9,7 @@
     force: no
   become: true
   become_user: "{{ item }}"
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
 
 - name: Check whether omc CLI is already installed
   ansible.builtin.command: which omc

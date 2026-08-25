@@ -27,13 +27,13 @@ is defined and how the entities relate.
 | Relationships | Becomes a member of the `sudo` group (FR-003) and gains passwordless sudo (FR-004) via `playbooks/setup-users.yml`'s `console_users` list; receives an SSH public key (FR-005) from `my_ssh_public_key`; used as `ansible_user` for all subsequent plays after `setup-users.yml` (e.g. `playbooks/configure-profile-roles.yml` sets `ansible_user: "{{ my_ansible_user }}"`) |
 | Created by | `playbooks/setup-users.yml` (existing, unmodified) — this feature does not change how the admin user is created |
 
-### Desktop User (`desktop_users`)
+### Desktop User (`login_users`)
 
 | Attribute | Value |
 |-----------|-------|
-| Definition | `desktop_users` list of `{name, password, ...}` objects |
+| Definition | `login_users` list of `{name, password, ...}` objects |
 | Defined in | `inventories/group_vars/all/vars.yml` (existing, unmodified — currently one entry, `galadriel`) |
-| Relationships | Each entry becomes a member of the `sudo` group and receives an SSH public key (FR-003, FR-005) via `setup-users.yml`'s `all_users = console_users + desktop_users`; each entry's `.name` is extracted into `desktop_user_names` (a list of strings) by both `playbooks/setup-nodejs.yml` and `playbooks/configure-profile-roles.yml` via `desktop_users \| map(attribute='name') \| list` |
+| Relationships | Each entry becomes a member of the `sudo` group and receives an SSH public key (FR-003, FR-005) via `setup-users.yml`'s `all_users = console_users + login_users`; each entry's `.name` is extracted into `login_user_names` (a list of strings) by both `playbooks/setup-nodejs.yml` and `playbooks/configure-profile-roles.yml` via `login_users \| map(attribute='name') \| list` |
 | Receives | Node Version Manager, Node.js LTS (default version), and global npm tools `eslint`, `markdownlint-cli`, `prettier`, `typescript` (FR-010–FR-012) via `playbooks/setup-nodejs.yml` (existing, unmodified) |
 
 ### Development Tool Role
@@ -56,7 +56,7 @@ inventories/group_vars/all/vars.yml         │
   ├─ my_ansible_user: "gandalf"        <────┘  playbooks/setup-users.yml
   ├─ my_ansible_user_password               (existing, unmodified)
   ├─ my_ssh_public_key                            │
-  └─ desktop_users: [ {name, password, ...} ]     │
+  └─ login_users: [ {name, password, ...} ]     │
                                                    ▼
                               creates/configures Admin User + Desktop Users
                               (sudo group, passwordless sudo, SSH keys,
@@ -69,7 +69,7 @@ inventories/group_vars/all/vars.yml         │
                                                    ▼
                               playbooks/setup-nodejs.yml (existing, unmodified)
                               → NVM + Node LTS + global npm tools
-                              for each name in desktop_user_names
+                              for each name in login_user_names
                                                    │
                                                    ▼
                               playbooks/configure-profile-roles.yml (NEW)

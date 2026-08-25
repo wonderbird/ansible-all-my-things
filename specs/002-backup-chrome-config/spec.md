@@ -97,7 +97,7 @@ As a desktop user, I can verify that the full backup-and-restore cycle preserves
 
 - **Google Chrome configuration directory**: The user-specific directory on the host system where Google Chrome stores its profile data (extensions, bookmarks, preferences, etc.). Located at `~/.config/google-chrome/Default`.
 - **Backup archive**: A compressed tar archive (`google-chrome-backup.tar.gz`) stored at the backup destination, containing the non-ephemeral contents of the Chrome configuration directory.
-- **Desktop user**: The primary desktop user whose Chrome profile is backed up and restored, identified via `desktop_users[0].name`.
+- **Desktop user**: The primary desktop user whose Chrome profile is backed up and restored, identified via `login_users[0].name`.
 
 ## Success Criteria *(mandatory)*
 
@@ -113,5 +113,5 @@ As a desktop user, I can verify that the full backup-and-restore cycle preserves
 
 - Google Chrome on the target system stores its profile at `~/.config/google-chrome/Default` (standard Linux installation path, not a snap package). **Confirmed.**
 - The same exclusion patterns used for Chromium (cache, history, storage types, favicons) are appropriate for Google Chrome, since both are Chromium-based browsers with identical profile structures.
-- Only the primary desktop user (`desktop_users[0].name`) has a Chrome profile to back up. **Confirmed.**
+- Only the primary desktop user (`login_users[0].name`) has a Chrome profile to back up. **Confirmed.**
 - The generic `backup.yml` and `restore.yml` task files in `playbooks/backup/` and `playbooks/restore/` are reused as-is, with only the path and filename variables changing. **Confirmed.**

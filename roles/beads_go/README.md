@@ -19,7 +19,7 @@ The beads viewer (`bv`) is installed by the separate `beads_viewer` role.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `desktop_user_names` | *(required)* | List of local usernames to clone the beads source for |
+| `login_user_names` | *(required)* | List of local usernames to clone the beads source for |
 
 The binary's version and checksum are pinned in `defaults/main.yml`
 (`beads_go_version`/`beads_go_sha256_amd64`/`beads_go_sha256_arm64`), refreshed
@@ -38,7 +38,7 @@ None. See `meta/main.yml` for details.
   roles:
     - role: beads_go
       vars:
-        desktop_user_names:
+        login_user_names:
           - alice
           - bob
 ```

@@ -10,7 +10,7 @@ Install Android Studio (stable) system-wide on AMD64 Ubuntu VMs via the
 official snap package (`android-studio --classic`). The role also
 pre-provisions the Android SDK (cmdline-tools, platform-tools, latest
 platform, build-tools, emulator, platform sources) for every user in
-`desktop_user_names`, so the first-launch wizard completes within
+`login_user_names`, so the first-launch wizard completes within
 30 seconds. The role is idempotent via `community.general.snap`'s native
 idempotency and `community.general.android_sdk`'s declarative state
 management. ARM64 hosts are skipped gracefully using the existing
@@ -146,7 +146,7 @@ each developer's SDK directory.
    with `checksum: "sha256:{{ android_cmdlinetools_sha256 }}"`.
    Idempotent via `creates:`.
 
-**Per user in `desktop_user_names`:**
+**Per user in `login_user_names`:**
 
 1. **Create ANDROID_HOME** — `ansible.builtin.file` ensures
    `~/Android/Sdk` exists, owned by the user.

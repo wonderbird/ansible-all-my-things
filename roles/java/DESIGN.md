@@ -6,7 +6,7 @@ constraints of the `java` role. For requirements and user stories, see
 
 ## Overview
 
-The role performs two jobs per user in `desktop_user_names`:
+The role performs two jobs per user in `login_user_names`:
 
 1. **sdkman installation** — downloads the sdkman installer to `/tmp` and runs
    it as each user, placing sdkman in `~/.sdkman/`.
@@ -18,7 +18,7 @@ The sdkman installer is fetched from `https://get.sdkman.io`. The URL
 
 The installer download (Task 1) runs once as root (no `become_user`), writing
 to `/tmp/sdkman-install.sh`, which is world-readable. Tasks 2 and 3 loop over
-`desktop_user_names` using `become_user: "{{ item }}"`. A cleanup task after
+`login_user_names` using `become_user: "{{ item }}"`. A cleanup task after
 the loop deletes `/tmp/sdkman-install.sh`.
 
 ## Version-Specific Idempotency Guard Path

@@ -5,7 +5,7 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    login_user_names: "{{ login_users | map(attribute='name') | list }}"
 
   roles:
     - podman
@@ -22,9 +22,24 @@
     - nodejs
     - ai_agent_workspace
     - claude_code
-    - claude_code_config
     - opencode
     - github_cli
+
+# claude_code_config runs in its own play targeting hosts that opt into the
+# opinionated global Claude config — NOT the base play — so hosts that do not
+# opt in are excluded from all global per-user agent configuration, regardless
+# of their console/desktop system profile. See
+# docs/architecture/decisions/005-install-only-profile.md.
+- name: Configure global agent config for hosts opting into claude_opinionated
+  hosts: claude_opinionated
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+    login_user_names: "{{ login_users | map(attribute='name') | list }}"
+
+  roles:
+    - claude_code_config
 
 - name: Configure desktop-only linux roles
   hosts: desktop
@@ -32,7 +47,7 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    login_user_names: "{{ login_users | map(attribute='name') | list }}"
 
   roles:
     - nerd_font

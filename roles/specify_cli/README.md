@@ -18,7 +18,7 @@ other agent harnesses — so it is a standalone role rather than bundled into
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `desktop_user_names` | *(required)* | List of local usernames to install specify-cli for |
+| `login_user_names` | *(required)* | List of local usernames to install specify-cli for |
 | `specify_cli_version` | `"v0.8.18"` | spec-kit git tag installed via `pipx`, refreshed only by `playbooks/update-versions/perform-updates.yml` |
 
 ## Dependencies
@@ -32,7 +32,7 @@ None. See `meta/main.yml` for details.
   roles:
     - role: specify_cli
       vars:
-        desktop_user_names:
+        login_user_names:
           - alice
           - bob
 ```

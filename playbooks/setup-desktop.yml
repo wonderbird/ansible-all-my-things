@@ -5,7 +5,7 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    login_user_names: "{{ login_users | map(attribute='name') | list }}"
 
   pre_tasks:
     # TODO: smell - Update apt cache is duplicate in several playbooks
@@ -77,7 +77,7 @@
         state: absent
       notify: Cleanup apt cache
 
-    - name: Enable direnv for {{ desktop_user_names | join(', ') }}
+    - name: Enable direnv for {{ login_user_names | join(', ') }}
       lineinfile:
         dest: "/home/{{ item }}/.bashrc"
         regexp: '^eval "\$\(direnv hook bash\)"$'
@@ -87,9 +87,9 @@
         group: "{{ item }}"
         mode: 0644
         state: present
-      loop: "{{ desktop_user_names }}"
+      loop: "{{ login_user_names }}"
 
-    - name: Enable XFCE session for {{ desktop_user_names | join(', ') }}
+    - name: Enable XFCE session for {{ login_user_names | join(', ') }}
       lineinfile:
         dest: "/home/{{ item }}/.xsession"
         regexp: '^.*'
@@ -99,5 +99,5 @@
         group: "{{ item }}"
         mode: 0644
         state: present
-      loop: "{{ desktop_user_names }}"
+      loop: "{{ login_user_names }}"
       notify: Restart XRDP

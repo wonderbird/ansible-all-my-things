@@ -25,11 +25,11 @@ them.
 An invalid value causes `sdk install java` to exit non-zero, failing the
 task with an informative error message.
 
-### `desktop_user_names` (consumed from playbook)
+### `login_user_names` (consumed from playbook)
 
 | Attribute | Value |
 | ----------- | ------- |
-| Source | `configure-linux-roles.yml` → derived from `desktop_users` group var |
+| Source | `configure-linux-roles.yml` → derived from `login_users` group var |
 | Type | List of strings |
 | Example | `["alice", "bob"]` |
 | Edge case | Empty list → zero loop iterations; no tasks execute or fail |
@@ -67,7 +67,7 @@ task with an informative error message.
 | Idempotency guard | `creates: /home/<user>/.sdkman/candidates/java/{{ java_sdkman_identifier }}/bin/java` |
 | Notes | sdkman also creates `current/` symlink pointing to the active version |
 
-## Task Sequence (per user in `desktop_user_names`)
+## Task Sequence (per user in `login_user_names`)
 
 ```text
 Task 1: Download sdkman installer

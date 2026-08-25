@@ -256,6 +256,14 @@ The `provider` parameter can be one of
 - `desktop`
 - `windows`
 
+Every profile gets the full developer stack and AI CLIs (`claude`, `opencode`,
+`specify`, `rtk`) with the skill library cloned. The opinionated global
+per-user agent configuration (`~/.claude` opinions, plugins, MCP, skill
+symlinks, `.bashrc` agent block) is a separate, orthogonal opt-in: pass
+`--extra-vars claude_opinionated=true` to also apply it, regardless of
+`profile`. It defaults to `false`. See
+[ADR-005](../architecture/decisions/005-install-only-profile.md).
+
 > [!NOTE]
 > Windows is only supported by `provider=aws`.
 

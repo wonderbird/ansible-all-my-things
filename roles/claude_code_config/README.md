@@ -36,8 +36,8 @@ live here rather than in `rtk`/their own roles.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `desktop_user_names` | *(required)* | List of local usernames to configure Claude Code for |
-| `desktop_users` | *(required)* | List of user objects with `name`, `password`, and `exa_api_key` |
+| `login_user_names` | *(required)* | List of local usernames to configure Claude Code for |
+| `login_users` | *(required)* | List of user objects with `name`, `password`, and `exa_api_key` |
 
 ## Dependencies
 
@@ -50,10 +50,10 @@ live here rather than in `rtk`/their own roles.
   roles:
     - role: claude_code_config
       vars:
-        desktop_user_names:
+        login_user_names:
           - alice
           - bob
-        desktop_users:
+        login_users:
           - name: alice
             password: "{{ vault_alice_password }}"
             exa_api_key: "{{ vault_alice_exa_api_key }}"

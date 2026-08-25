@@ -4,7 +4,7 @@
   hosts: all
   become: true
   vars:
-    desktop_user_names:
+    login_user_names:
       - testuser
   roles:
     - role: nerd_font

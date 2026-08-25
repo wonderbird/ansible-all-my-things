@@ -11,7 +11,7 @@ The role performs two distinct jobs:
 1. **Snap install** — installs Android Studio system-wide via
    `community.general.snap`.
 2. **SDK pre-provisioning** — bootstraps the Android SDK for every user
-   listed in `desktop_user_names` so the first-launch wizard completes
+   listed in `login_user_names` so the first-launch wizard completes
    within 30 seconds without downloading anything.
 
 AMD64 Ubuntu only; ARM64 hosts are skipped via the
@@ -41,7 +41,7 @@ The bootstrap sequence for each user is therefore:
 ### JAVA_HOME
 
 `sdkmanager` requires Java 17+. The `java` role installs the Eclipse Temurin
-JDK via sdkman for each user in `desktop_user_names`. Tasks that invoke
+JDK via sdkman for each user in `login_user_names`. Tasks that invoke
 `sdkmanager` (directly or via `community.general.android_sdk`) must set
 `JAVA_HOME` to the versioned sdkman candidate path:
 
@@ -93,7 +93,7 @@ See TD-009 in the technical debt register for the accepted risk.
 ## Per-User Provisioning
 
 `ANDROID_HOME` is per-user (`~/Android/Sdk`), not system-wide. The role
-loops over `desktop_user_names` and runs each SDK task with
+loops over `login_user_names` and runs each SDK task with
 `become_user: "{{ item }}"` to ensure correct file ownership. The play
 in `configure-profile-roles.yml` sets `become: true`; individual tasks
 must not repeat it.

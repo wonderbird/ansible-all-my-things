@@ -6,7 +6,7 @@ and configure PATH for all desktop users on AMD64 Ubuntu Linux.
 ## Requirements
 
 - AMD64 Ubuntu Linux.
-- `desktop_user_names` variable defined (list of users to receive the SDK).
+- `login_user_names` variable defined (list of users to receive the SDK).
 - Internet access on the first provisioning run (SDK download).
 - The `java` role must have run before this role. It installs the Eclipse
   Temurin JDK via sdkman, required by the Android SDK tooling.

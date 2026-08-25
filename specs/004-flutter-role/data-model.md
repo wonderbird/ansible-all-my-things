@@ -15,7 +15,7 @@
 
 | Variable | Source | Description |
 | --- | --- | --- |
-| `desktop_user_names` | `group_vars/` or `host_vars/` | List of Linux usernames for whom the Flutter SDK is installed and PATH is configured. |
+| `login_user_names` | `group_vars/` or `host_vars/` | List of Linux usernames for whom the Flutter SDK is installed and PATH is configured. |
 
 ## Derived Values (computed at runtime)
 
@@ -63,7 +63,7 @@ Always runs (idempotent by module semantics):
 1. Install apt prerequisites (`clang`, `cmake`, `ninja-build`,
    `pkg-config`, `libgtk-3-dev`, `mesa-utils`) — system-wide, once.
 2. Run `systemctl daemon-reload` via `ansible.builtin.systemd`.
-3. **Per user** (`loop: "{{ desktop_user_names }}"`):
+3. **Per user** (`loop: "{{ login_user_names }}"`):
    a. Stat `/home/{{ item }}/flutter/version`.
    b. Slurp version file content (when file exists).
    c. Set `flutter_installed_version` fact.
@@ -80,7 +80,7 @@ Always runs (idempotent by module semantics):
 - `flutter_version` MUST be a semantic version string (e.g. `3.41.6`).
 - `flutter_sha256` MUST be a 64-character hex string matching the
   archive for `flutter_version`.
-- `desktop_user_names` MUST be defined before the role runs; the role
+- `login_user_names` MUST be defined before the role runs; the role
   does not validate its presence.
 
 ## File Ownership

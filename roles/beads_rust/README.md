@@ -20,7 +20,7 @@ roles.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `desktop_user_names` | *(required)* | List of local usernames to clone the beads_rust source for |
+| `login_user_names` | *(required)* | List of local usernames to clone the beads_rust source for |
 
 The binary's version and checksum are pinned in `defaults/main.yml`
 (`beads_rust_version`/`beads_rust_sha256_amd64`/`beads_rust_sha256_arm64`), refreshed
@@ -39,7 +39,7 @@ None. See `meta/main.yml` for details.
   roles:
     - role: beads_rust
       vars:
-        desktop_user_names:
+        login_user_names:
           - alice
           - bob
 ```

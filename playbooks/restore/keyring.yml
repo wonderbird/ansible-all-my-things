@@ -6,7 +6,7 @@
 
   vars:
     ansible_user: "{{ my_ansible_user }}"
-    restore_user: "{{ desktop_users[0].name }}"
+    restore_user: "{{ login_users[0].name }}"
 
   tasks:
     - name: Restore keyring

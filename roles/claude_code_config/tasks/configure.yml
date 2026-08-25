@@ -5,7 +5,7 @@
     cmd: rtk init -g
   become: true
   become_user: "{{ item }}"
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
   changed_when: false
 
 - name: Merge required keys into settings.json
@@ -53,7 +53,7 @@
     executable: /bin/bash
   become: true
   become_user: "{{ item }}"
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
   register: claude_settings_merge
   changed_when: "'CHANGED' in claude_settings_merge.stdout"
 
@@ -65,7 +65,7 @@
     state: present
   become: true
   become_user: "{{ item }}"
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"
 
 - name: Copy OMC setup prompt for each desktop user
   ansible.builtin.copy:
@@ -74,4 +74,4 @@
     owner: "{{ item }}"
     group: "{{ item }}"
     mode: '0644'
-  loop: "{{ desktop_user_names }}"
+  loop: "{{ login_user_names }}"

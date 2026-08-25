@@ -37,9 +37,9 @@
     console_users:
       - "{{ my_ansible_user }}"
 
-    desktop_user_names: "{{ desktop_users | map(attribute='name') | list }}"
+    login_user_names: "{{ login_users | map(attribute='name') | list }}"
 
-    all_users: "{{ console_users + desktop_user_names }}"
+    all_users: "{{ console_users + login_user_names }}"
 
   pre_tasks:
     - name: Update apt cache if needed

@@ -28,7 +28,7 @@ ARM64 hosts skipped
 **Project Type**: Ansible role
 **Performance Goals**: N/A (provisioning, not runtime)
 **Constraints**: Idempotent on re-runs; no changed tasks on second run
-**Scale/Scope**: Single role, single playbook entry; `desktop_user_names`
+**Scale/Scope**: Single role, single playbook entry; `login_user_names`
 users on one host
 
 ## Constitution Check
