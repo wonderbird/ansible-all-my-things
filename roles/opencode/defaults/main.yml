@@ -2,7 +2,7 @@
 ---
 # Pinned OpenCode CLI release tag (`v`-prefixed). See
 # https://github.com/anomalyco/opencode/releases for available versions.
-opencode_version: "v1.18.21"
+opencode_version: "v1.18.23"
 
 # SHA-256 checksums for the linux release tarballs (x64 and arm64).
 # All three values (version + both checksums) must be updated together.
@@ -13,7 +13,7 @@ opencode_version: "v1.18.21"
 #   sha256sum /tmp/opencode.tar.gz
 #
 # Updated automatically by playbooks/update-versions/perform-updates.yml.
-opencode_sha256_amd64: "d910c3ed7613bb5791a328904615d41cc25b7d3a6b470e3199ab0426a995b38a"
-opencode_sha256_arm64: "d30d2cba74617f4e7b96e25563c9572ffe453f9eae70fc0df16286813537ee72"
+opencode_sha256_amd64: "ab7015cd8113e011a461f30a0c2b77d8299a144ff688cb62e93e8802835d7288"
+opencode_sha256_arm64: "86d3afaf4e8784f9adab189be2a315c12b27ec40a04b70defbe70595c3cc7c65"
 
 opencode_install_path: /usr/local/bin/opencode
