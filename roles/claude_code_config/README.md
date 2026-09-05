@@ -6,7 +6,7 @@ CLI configuration for sophisticated development, on top of the general,
 safe-for-any-project baseline `claude_code` creates: installs the
 [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) and
 [caveman](https://github.com/JuliusBrussee/caveman) Claude Code plugins,
-symlinks skills from an [ai-agent-workspace](https://github.com/eudicy/ai-agent-workspace)
+symlinks skills from an [ai-agent-workspace](https://github.com/wonderbird/ai-agent-workspace)
 clone (provisioned by the `ai_agent_workspace` role) into `~/.claude/skills`,
 configures the [Exa](https://exa.ai) MCP server for web search, installs the
 `omc` CLI, and merges its own opinionated keys into `settings.json`.

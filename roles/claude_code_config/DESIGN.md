@@ -4,7 +4,7 @@
 
 ## Skills symlinks: pure Ansible over the repo's shell script
 
-`eudicy/ai-agent-workspace` ships `scripts/create-skills-links-in-home.sh`,
+`wonderbird/ai-agent-workspace` ships `scripts/create-skills-links-in-home.sh`,
 which creates `~/.claude/skills/<name>` symlinks into the repo clone. The role
 uses `ansible.builtin.find` + `ansible.builtin.file state: link` instead of
 calling that script via `ansible.builtin.command`.

@@ -2,7 +2,7 @@
 # ai_agent_workspace
 
 Ansible role that clones the
-[ai-agent-workspace](https://github.com/eudicy/ai-agent-workspace) skill
+[ai-agent-workspace](https://github.com/wonderbird/ai-agent-workspace) skill
 library source repository for each desktop user.
 
 This is a generic, cross-harness clone with no Claude-Code-specific logic —

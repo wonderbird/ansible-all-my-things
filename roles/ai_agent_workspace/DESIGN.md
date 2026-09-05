@@ -3,7 +3,7 @@
 
 ## Clone only — the skill-symlink task stays in claude_code_config
 
-This role clones [eudicy/ai-agent-workspace](https://github.com/eudicy/ai-agent-workspace)
+This role clones [wonderbird/ai-agent-workspace](https://github.com/wonderbird/ai-agent-workspace)
 to `~/Documents/Cline/ai-agent-workspace` and does nothing else. It
 deliberately does **not** create the `~/.claude/skills/<name>` symlinks into
 the clone — that task (and its task-level "≥1 skill dir found" assert) stays
