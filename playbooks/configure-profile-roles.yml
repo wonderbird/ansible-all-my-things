@@ -10,16 +10,17 @@
   roles:
     - podman
     - tmux
+    - nodejs
     - ruby
-    - vim
     - python
+    - java
+    - vim
     - dolt_sql_server
     - rtk
     - beads_go
     - beads_viewer
     - beads_rust
     - specify_cli
-    - nodejs
     - ai_agent_workspace
     - claude_code
     - opencode
