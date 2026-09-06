@@ -138,6 +138,16 @@
     - name: Fetch Claude Code upstream version and checksums
       ansible.builtin.include_tasks: tasks/fetch-claude-code-version.yml
 
+    - name: Fetch skill-manager upstream commit SHA
+      ansible.builtin.include_tasks: tasks/fetch-github-commit-sha.yml
+      vars:
+        github_repo: "omrikais/skill-manager"
+        git_ref: "master"
+
+    - name: Save skill-manager fetched commit SHA
+      ansible.builtin.set_fact:
+        fetched_skill_manager_sha: "{{ fetched_github_sha }}"
+
     # --- Apply updates to role defaults files ---
 
     # Flutter SDK: version and sha256 updated together
@@ -548,3 +558,11 @@
         path: "{{ _roles_dir }}/claude_code/defaults/main.yml"
         regexp: 'claude_code_sha256_linux_arm64:\s*"[^"]+"'
         replace: 'claude_code_sha256_linux_arm64: "{{ fetched_claude_code_sha256_linux_arm64 }}"'
+
+    # skill-manager: commit SHA only, no checksum (built from source at a
+    # pinned commit on the upstream default branch, no release artefact)
+    - name: Update skill_manager_version in skill_manager role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/skill_manager/defaults/main.yml"
+        regexp: 'skill_manager_version:\s*"[^"]+"'
+        replace: 'skill_manager_version: "{{ fetched_skill_manager_sha }}"'

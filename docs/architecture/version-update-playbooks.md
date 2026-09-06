@@ -52,9 +52,10 @@ each with a different API shape — is error-prone and often skipped.
 
 ### Context and Influencing Factors
 
-- The tracked tools use four distinct upstream source types:
+- The tracked tools use five distinct upstream source types:
   structured JSON (Flutter), GitHub Releases REST API (gitmux, Nerd
-  Fonts, Dolt, OpenCode, GitHub CLI, Obsidian), SDKMAN REST API (Java),
+  Fonts, Dolt, OpenCode, GitHub CLI, Obsidian), GitHub Commits REST API
+  (skill-manager, which ships no releases), SDKMAN REST API (Java),
   and HTML scraping (Android cmdline-tools).
 - GitHub API access is unauthenticated — the 60 requests/hour rate
   limit is sufficient for manual maintenance runs but must be handled
@@ -100,7 +101,8 @@ playbooks/update-versions/
     ├── fetch-android-version.yml     # HTML scrape developer.android.com → build + sha1
     ├── fetch-claude-code-version.yml # Per-version manifest.json → version + checksums
     ├── fetch-nodejs-version.yml      # nodejs.org dist index → latest LTS version
-    └── fetch-checksum-from-file.yml  # Upstream checksums file → sha256 (parametrized)
+    ├── fetch-checksum-from-file.yml  # Upstream checksums file → sha256 (parametrized)
+    └── fetch-github-commit-sha.yml   # GitHub /commits/{ref} → HEAD commit SHA (parametrized)
 ```
 
 Tracked tools and their upstream sources:
@@ -123,6 +125,7 @@ Tracked tools and their upstream sources:
 | Node.js | `nodejs` | `node_version` | `node_sha256_x64` / `node_sha256_arm64` (sha256) | version: `nodejs.org` dist release index; checksum: `nodejs.org` dist `SHASUMS256.txt` |
 | specify-cli | `specify_cli` | `specify_cli_version` | — | GitHub Releases API (`github/spec-kit`) |
 | Claude Code | `claude_code` | `claude_code_version` | `claude_code_sha256_linux_x64` / `claude_code_sha256_linux_arm64` (sha256) | Per-version `manifest.json` (`storage.googleapis.com`) |
+| Skill Manager (sm) | `skill_manager` | `skill_manager_version` (commit SHA) | — (commit SHA is the pin) | GitHub Commits API (`omrikais/skill-manager`, `master` HEAD) |
 
 `fetch-github-release.yml` is parametrized via a `github_repo`
 variable and called once per GitHub-Releases-backed tool (gitmux, Nerd

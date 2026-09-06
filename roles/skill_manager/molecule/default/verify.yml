@@ -1,0 +1,28 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Query the installed sm version
+      ansible.builtin.command: sm --version
+      register: _sm_version
+      changed_when: false
+
+    - name: Assert sm runs and reports a semantic version
+      ansible.builtin.assert:
+        that:
+          - _sm_version.rc == 0
+          - _sm_version.stdout is match('^[0-9]+\.[0-9]+\.[0-9]+')
+        fail_msg: >-
+          `sm --version` did not report a semantic version
+          (rc={{ _sm_version.rc }}, stdout={{ _sm_version.stdout }}).
+
+    - name: Assert sm exposes its skill-management commands
+      ansible.builtin.command: sm --help
+      register: _sm_help
+      changed_when: false
+      failed_when: >-
+        _sm_help.rc != 0
+        or 'import' not in _sm_help.stdout
+        or 'sync' not in _sm_help.stdout

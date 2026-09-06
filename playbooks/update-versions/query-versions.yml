@@ -87,6 +87,11 @@
         src: "{{ _roles_dir }}/claude_code/defaults/main.yml"
       register: _claude_code_defaults_raw
 
+    - name: Read skill_manager role defaults
+      ansible.builtin.slurp:
+        src: "{{ _roles_dir }}/skill_manager/defaults/main.yml"
+      register: _skill_manager_defaults_raw
+
     - name: Extract current pinned values from role defaults
       vars:
         _java_id_match: >-
@@ -155,6 +160,10 @@
         current_claude_code_version: >-
           {{ _claude_code_defaults_raw.content | b64decode
              | regex_search('claude_code_version:\s*"([^"]+)"', '\1')
+             | default([], true) | first }}
+        current_skill_manager_version: >-
+          {{ _skill_manager_defaults_raw.content | b64decode
+             | regex_search('skill_manager_version:\s*"([^"]+)"', '\1')
              | default([], true) | first }}
 
     # --- Fetch upstream versions ---
@@ -273,6 +282,16 @@
 
     - name: Fetch Claude Code upstream version and checksums
       ansible.builtin.include_tasks: tasks/fetch-claude-code-version.yml
+
+    - name: Fetch skill-manager upstream commit SHA
+      ansible.builtin.include_tasks: tasks/fetch-github-commit-sha.yml
+      vars:
+        github_repo: "omrikais/skill-manager"
+        git_ref: "master"
+
+    - name: Save skill-manager fetched commit SHA
+      ansible.builtin.set_fact:
+        fetched_skill_manager_sha: "{{ fetched_github_sha }}"
 
     # --- Compare and report ---
     - name: Report Flutter SDK version status
@@ -403,6 +422,14 @@
           upstream={{ fetched_claude_code_version }},
           status={{ 'UP TO DATE' if current_claude_code_version == fetched_claude_code_version else 'STALE' }}
 
+    - name: Report skill-manager version status
+      ansible.builtin.debug:
+        msg: >-
+          skill-manager:
+          current={{ current_skill_manager_version }},
+          upstream={{ fetched_skill_manager_sha }},
+          status={{ 'UP TO DATE' if current_skill_manager_version == fetched_skill_manager_sha else 'STALE' }}
+
     - name: Fail if any version pins are stale
       ansible.builtin.fail:
         msg: >-
@@ -423,4 +450,5 @@
         current_beads_rust_version != fetched_beads_rust_tag or
         current_node_version != fetched_nodejs_version or
         current_specify_cli_version != fetched_specify_cli_tag or
-        current_claude_code_version != fetched_claude_code_version
+        current_claude_code_version != fetched_claude_code_version or
+        current_skill_manager_version != fetched_skill_manager_sha
