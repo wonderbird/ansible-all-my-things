@@ -1,0 +1,29 @@
+#SPDX-License-Identifier: MIT-0
+---
+galaxy_info:
+  author: Stefan Boos
+  namespace: wonderbird
+  role_name: skill_manager
+  description: Build and install the Skill Manager (sm) CLI from pinned source
+  company: n.a.
+  issue_tracker_url: http://github.com/wonderbird/ansible-all-my-things/issues
+  license: MIT
+  min_ansible_version: 2.19
+  galaxy_tags: []
+    # List tags for your role here, one per line. A tag is a keyword that describes
+    # and categorizes the role. Users find roles by searching for tags. Be sure to
+    # remove the '[]' above, if you add tags to this list.
+    #
+    # NOTE: A tag is limited to a single word comprised of alphanumeric characters.
+    #       Maximum 20 tags per role.
+
+# If a task in this role will hard-fail without another specific role
+# having already run, declare it here instead of relying only on playbook
+# ordering — see docs/architecture/concepts/role-dependency-declaration.md
+#
+# npm ci / npm run build hard-fail without node and npm, which only the nodejs
+# role provisions on target hosts. This is a genuine hard runtime dependency,
+# so it is declared here in addition to explicit ordering in the base playbook
+# and the Molecule converge.
+dependencies:
+  - nodejs

@@ -1,0 +1,18 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Skill Manager (`sm`) — unified skill management for Claude Code & Codex CLI.
+# See https://github.com/omrikais/skill-manager.
+#
+# Upstream ships no release tarballs, so the role builds from source at a
+# pinned commit. skill_manager_version is the full 40-character git commit SHA
+# on the upstream default branch (master). It is refreshed automatically by
+# playbooks/update-versions/perform-updates.yml -- see Constitution Principle
+# II.
+skill_manager_repo: "https://github.com/omrikais/skill-manager.git"
+skill_manager_version: "970fb645d65726f922bb4808814f4589057b1ed5"
+
+# Install layout: the built project lives under skill_manager_install_dir
+# (dist/ plus runtime node_modules); the sm entrypoint is symlinked onto PATH
+# at skill_manager_bin_path.
+skill_manager_install_dir: /usr/local/lib/skill-manager
+skill_manager_bin_path: /usr/local/bin/sm

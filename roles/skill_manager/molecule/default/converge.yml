@@ -1,0 +1,11 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Converge
+  hosts: all
+  become: true
+  roles:
+    # nodejs provisions node/npm, a hard build dependency of skill_manager.
+    # Listed explicitly for auditable ordering; also declared in
+    # skill_manager/meta/main.yml (Ansible deduplicates the second apply).
+    - role: nodejs
+    - role: skill_manager

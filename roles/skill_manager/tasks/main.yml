@@ -1,0 +1,82 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Validate required variables
+  ansible.builtin.assert:
+    that:
+      - skill_manager_repo | length > 0
+      - skill_manager_version is match('^[0-9a-f]{40}$')
+    fail_msg: >-
+      Variable validation failed: skill_manager_repo must be a non-empty
+      repository URL; skill_manager_version must be a full 40-character
+      lowercase-hex git commit SHA.
+
+- name: Install git (required to clone the skill-manager source)
+  ansible.builtin.apt:
+    name: git
+    state: present
+  become: true
+
+- name: Read the recorded installed commit SHA
+  ansible.builtin.slurp:
+    src: "{{ skill_manager_install_dir }}/.git_sha"
+  register: _skill_manager_sha_raw
+  failed_when: false
+  changed_when: false
+
+- name: Determine whether a skill-manager build is required
+  ansible.builtin.set_fact:
+    _skill_manager_needs_install: >-
+      {{ (_skill_manager_sha_raw.content is not defined)
+         or ((_skill_manager_sha_raw.content | b64decode | trim)
+             != skill_manager_version) }}
+
+- name: Build and install skill-manager from the pinned source
+  when: _skill_manager_needs_install
+  become: true
+  # node/npm are symlinked into /usr/local/bin by the nodejs role.
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/bin"
+  block:
+    - name: Remove any previous skill-manager install directory
+      ansible.builtin.file:
+        path: "{{ skill_manager_install_dir }}"
+        state: absent
+
+    - name: Clone skill-manager at the pinned commit SHA
+      ansible.builtin.git:
+        repo: "{{ skill_manager_repo }}"
+        dest: "{{ skill_manager_install_dir }}"
+        version: "{{ skill_manager_version }}"
+
+    - name: Install npm dependencies (npm ci)
+      ansible.builtin.command:
+        cmd: npm ci
+        chdir: "{{ skill_manager_install_dir }}"
+
+    - name: Build skill-manager (npm run build)
+      ansible.builtin.command:
+        cmd: npm run build
+        chdir: "{{ skill_manager_install_dir }}"
+
+    - name: Prune development dependencies, keeping only runtime dependencies
+      ansible.builtin.command:
+        cmd: npm prune --omit=dev
+        chdir: "{{ skill_manager_install_dir }}"
+
+    - name: Ensure the sm entrypoint is executable
+      ansible.builtin.file:
+        path: "{{ skill_manager_install_dir }}/dist/bin/sm.js"
+        mode: '0755'
+
+    - name: Record the installed commit SHA
+      ansible.builtin.copy:
+        dest: "{{ skill_manager_install_dir }}/.git_sha"
+        content: "{{ skill_manager_version }}\n"
+        mode: '0644'
+
+- name: Symlink sm onto PATH
+  ansible.builtin.file:
+    src: "{{ skill_manager_install_dir }}/dist/bin/sm.js"
+    dest: "{{ skill_manager_bin_path }}"
+    state: link
+  become: true
