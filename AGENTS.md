@@ -356,19 +356,17 @@ session to pick up the wrong work.
 
 ## Repository Remotes and Pull-Request Workflow
 
-This repository is a fork. Two remotes exist:
+This repository has a single remote:
 
-- **`origin`** — `eudicy/ansible-all-my-things`: the fork and the agent's
-  workspace. **All pushes go to `origin` only.**
-- **`upstream`** — `wonderbird/ansible-all-my-things`: **READ-ONLY.** Never
-  push, force-push, merge, or otherwise write to it.
+- **`origin`** — `wonderbird/ansible-all-my-things`: the canonical upstream
+  and the agent's workspace. **All pushes go to `origin`.**
 
-**`gh pr create` gotcha:** in a fork, `gh pr create` defaults the *target*
-repository to `upstream`, and without `--repo` it may not reference the fork
-where the commits actually live. Always specify the target repo explicitly:
+**`gh pr create`:** with a single remote, `gh pr create` targets `origin`
+by default. Specifying the target repo explicitly keeps the command
+unambiguous:
 
 ```bash
-gh pr create --repo eudicy/ansible-all-my-things \
+gh pr create --repo wonderbird/ansible-all-my-things \
   --head <branch> --base main
 ```
 

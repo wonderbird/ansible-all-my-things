@@ -8,7 +8,7 @@
 
 - name: Clone ai-agent-workspace source repository
   ansible.builtin.git:
-    repo: https://github.com/eudicy/ai-agent-workspace
+    repo: https://github.com/wonderbird/ai-agent-workspace
     dest: /home/{{ item }}/Documents/Cline/ai-agent-workspace
     version: main
     update: yes
