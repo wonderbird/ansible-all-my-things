@@ -30,7 +30,7 @@ Clearing and typing raced in practice (first character dropped). Don't just dela
 
 ```bash
 PANE=%3
-TEXT='run omc setup, install globally, configure suggested defaults, skip MCP configuration. The caveman plugin is also installed and active. Configure the HUD statusline so that the caveman mode badge appears last in the status line.'
+TEXT='run omc setup, install globally, configure suggested defaults, skip MCP configuration. The caveman plugin is also installed and active. Configure the HUD statusline so that the caveman mode badge appears last in the status line. Caveman is a plugin install, so resolve its statusline script from the installPath that ~/.claude/plugins/installed_plugins.json records for caveman@caveman, plus /src/hooks/caveman-statusline.sh. Do not guess ~/.claude/hooks/ and do not pick a copy out of the plugins cache by mtime. Before writing statusLine into settings.json, run the composed command with a synthetic session payload and confirm the OMC segment and the [CAVEMAN] badge both render, in that order.'
 clear_input() {
   tmux send-keys -t "$PANE" Escape; sleep 0.4
   tmux capture-pane -t "$PANE" -p -S -5 | grep -qi "rewind\|restore" && { tmux send-keys -t "$PANE" Escape; sleep 0.4; }
@@ -153,6 +153,45 @@ done
 Use the **Reliable TUI text entry** pattern from Step 0: clear with the guarded `clear_input` (Escape, then cancel `Rewind` if it appears), type with `-l` and verify the first 24 characters actually landed, then in a separate call snapshot the pane and submit with `Enter`.
 
 Then run `wait_idle` (Step 0) with Bash-tool `timeout: 595000`.
+
+## Step 2b — Statusline composition (known conflict, observed)
+
+`settings.json` holds exactly **one** `statusLine.command`. OMC HUD wants it and the caveman badge wants it, and neither ships a way to share it, so a combiner script has to own the slot and call both. Every fresh setup rediscovers this the hard way unless told. Two things go wrong; both are cheap to prevent.
+
+**1. Resolving the caveman script by guessing.** It lives in a different place per install mode:
+
+| Install mode | Script path |
+|---|---|
+| Plugin (marketplace) | `<installPath>/src/hooks/caveman-statusline.sh` |
+| Standalone (`install.sh`) | `$CLAUDE_CONFIG_DIR/hooks/caveman-statusline.sh` |
+
+An inner agent has guessed the standalone path on a plugin-only box (where `~/.claude/hooks/` does not even exist) and shipped a wrapper that silently rendered no badge. The authoritative answer is Claude Code's own registry — use it instead of guessing:
+
+```bash
+jq -r '.plugins["caveman@caveman"] | map(select(.scope == "user")) [0].installPath // .plugins["caveman@caveman"][0].installPath' \
+  ~/.claude/plugins/installed_plugins.json
+```
+
+Do **not** resolve by scanning `plugins/cache/caveman/caveman/*` and sorting by `mtime`, and do **not** treat `plugins/marketplaces/caveman/` as an install. The marketplace directory is the git clone that updates are *pulled from*; `claude plugin update` refreshes it before the cache is rebuilt, so an mtime sort can select a copy that is not the plugin Claude Code loads. Scanning the cache is acceptable only as a last resort when the registry is missing or unreadable.
+
+**2. Wiring an unverified statusline.** A missing segment does not throw — the line still renders, just without the badge, which is why this failure survives a casual glance. So verify by *executing* the composed command, never by checking that a file exists, and do it **before** writing `statusLine` into `settings.json`.
+
+The badge is per session and renders nothing for a session with no active mode, so a check must stage a throwaway session rather than borrow a live id:
+
+```bash
+SID="verify-$(date +%s)-$$"
+mkdir -p ~/.claude/.caveman-sessions && printf 'full\n' > ~/.claude/.caveman-sessions/"$SID".mode
+OUT=$(printf '{"session_id":"%s"}' "$SID" | node ~/.claude/hud/omc-hud-combined.mjs 2>/dev/null)
+rm -f ~/.claude/.caveman-sessions/"$SID".mode
+case "$OUT" in
+  *"[OMC"*"[CAVEMAN"*) echo "composed statusline: ok" ;;
+  *) echo "composed statusline: CHECK — ${OUT:-(empty)}" ;;
+esac
+```
+
+The combiner itself must read stdin **once** and replay the same buffer to each sub-command — both read stdin independently, and the second one gets nothing otherwise.
+
+If `~/.claude/hud/verify-statusline.mjs` is already present from an earlier run, it performs this same check (staged session, both segments, order asserted) against whatever `settings.json` actually has configured: `node ~/.claude/hud/verify-statusline.mjs`.
 
 ## Step 3 — Monitor through to completion
 
@@ -288,11 +327,18 @@ This is the real success gate. You run these yourself, against the shared filesy
 grep -q "<!-- OMC:START -->" ~/.claude/CLAUDE.md && echo "CLAUDE.md: OMC ok" || echo "CLAUDE.md: MISSING"
 # Pre-existing import preserved (the inner agent has falsely warned this was lost)
 grep -q "@RTK" ~/.claude/CLAUDE.md && echo "RTK: preserved" || echo "RTK: CHECK backup"
-# statusLine wired up and caveman badge appears last in live output
-# (inner agent may use a wrapper script — test live output, not the command string)
-{ jq -r '.statusLine.command' ~/.claude/settings.json 2>/dev/null | grep -q "caveman" \
-  || sh -c "$(jq -r '.statusLine.command' ~/.claude/settings.json 2>/dev/null)" 2>/dev/null | grep -q "CAVEMAN"; } \
-  && echo "statusLine: caveman-last ok" || echo "statusLine: CHECK"
+# statusLine renders BOTH segments, in order — run the configured command, never grep the command string.
+# A staged throwaway session keeps the badge from being blank merely for lack of an active caveman mode.
+SID="verify-$(date +%s)-$$"
+mkdir -p ~/.claude/.caveman-sessions && printf 'full\n' > ~/.claude/.caveman-sessions/"$SID".mode
+OUT=$(printf '{"session_id":"%s"}' "$SID" | sh -c "$(jq -r '.statusLine.command' ~/.claude/settings.json 2>/dev/null)" 2>/dev/null)
+rm -f ~/.claude/.caveman-sessions/"$SID".mode
+case "$OUT" in
+  *"[OMC"*"[CAVEMAN"*) echo "statusLine: caveman-last ok" ;;
+  *"[CAVEMAN"*"[OMC"*) echo "statusLine: CHECK — badge renders before the OMC segment" ;;
+  *"[OMC"*)            echo "statusLine: CHECK — OMC renders, [CAVEMAN] missing" ;;
+  *)                   echo "statusLine: CHECK — output: ${OUT:-(empty)}" ;;
+esac
 # config + HUD artifacts exist (gate on the setupCompleted marker, not mere file existence)
 grep -q '"setupCompleted"' ~/.claude/.omc-config.json 2>/dev/null && echo "omc-config: complete" || { test -f ~/.claude/.omc-config.json && echo "omc-config: PARTIAL — no setupCompleted" || echo "omc-config: MISSING"; }
 ls ~/.claude/hud/*.mjs >/dev/null 2>&1 && echo "HUD: installed" || echo "HUD: MISSING"
@@ -302,7 +348,7 @@ Confirm the live statusline in the running pane shows the OMC segment first and 
 
 ## Step 7 — Report
 
-Summarize to the user: doctor verdict **plus** your independent Step 6 results. If any check failed or any wait returned `TIMEOUT`/`ABORT`, say so explicitly with the captured evidence — do not soften a partial result into "done". If any `wait_idle` resolved via the aliasing guard (pane diff instead of catching `esc to interrupt` directly) or any `TYPE_VERIFY_FAILED`/retry occurred, mention it — it's a signal the pane is behaving oddly even if the end state looks fine.
+Summarize to the user: doctor verdict **plus** your independent Step 6 results. If a combiner script owns `statusLine`, say so and note that any later `/oh-my-claudecode:hud <preset>` run rewrites `statusLine.command` back to the plain `omc-hud.mjs` and silently drops the badge — it must be re-pointed and re-verified (Step 2b) afterwards. If any check failed or any wait returned `TIMEOUT`/`ABORT`, say so explicitly with the captured evidence — do not soften a partial result into "done". If any `wait_idle` resolved via the aliasing guard (pane diff instead of catching `esc to interrupt` directly) or any `TYPE_VERIFY_FAILED`/retry occurred, mention it — it's a signal the pane is behaving oddly even if the end state looks fine.
 
 ## Constraints
 
@@ -320,6 +366,8 @@ Summarize to the user: doctor verdict **plus** your independent Step 6 results. 
 - **Gate the exit/restart on `setupCompleted` in `.omc-config.json`, not mere file existence** — the config's early fields (`configuredAt`, `taskTool`) are written in an earlier phase; only the final phase adds `setupCompleted`. A bare `test -f` can pass while the final phase is still running, which is what let a prior run proceed to Step 4 and interrupt it. Keep the Step 3 nudge + safety-valve so a renamed marker in a future version cannot deadlock the flow.
 - **Text sitting in the input box may be an inert placeholder, not real buffer content** — it can survive `Escape` and `Ctrl-U` untouched. Don't trust "text is visible" as "text will submit"; if clearing does nothing, it's cosmetic — type your own command directly.
 - **Trust the filesystem over the inner agent.** Its claims and warnings (especially "you lost X") can be wrong; verify in Step 6.
+- **Resolve plugin file paths from `~/.claude/plugins/installed_plugins.json`** (`<plugin>@<marketplace>` → `installPath`), never by scanning hashed cache dirs by `mtime` and never from `plugins/marketplaces/*`, which is the update source rather than the loaded copy. Caveman in particular lives at `<installPath>/src/hooks/` under a plugin install and at `$CLAUDE_CONFIG_DIR/hooks/` under a standalone one (Step 2b).
+- **Verify a composed statusline by executing it with a synthetic payload before wiring it into `settings.json`** — a dropped segment renders a plausible-looking line rather than an error, so file-existence checks prove nothing (Step 2b).
 - Do not use `/omc` slash commands to start setup; plain text triggers the hook chain that loads the skills.
 - The HUD statusline activates only after a full restart, not mid-session.
 - Capture with `-S -200` so output that scrolled off the visible region is still inspected.
