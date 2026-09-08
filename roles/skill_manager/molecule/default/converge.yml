@@ -5,7 +5,10 @@
   become: true
   roles:
     # nodejs provisions node/npm, a hard build dependency of skill_manager.
-    # Listed explicitly for auditable ordering; also declared in
-    # skill_manager/meta/main.yml (Ansible deduplicates the second apply).
+    # git provisions the git binary, a hard runtime dependency of
+    # skill_manager's source-clone task. Both listed explicitly for
+    # auditable ordering; also declared in skill_manager/meta/main.yml
+    # (Ansible deduplicates the second apply).
     - role: nodejs
+    - role: git
     - role: skill_manager

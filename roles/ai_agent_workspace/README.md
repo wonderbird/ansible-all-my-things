@@ -22,7 +22,8 @@ see `DESIGN.md` for why the `~/.claude/skills` symlink step stays in the
 
 ## Dependencies
 
-None. See `meta/main.yml` for details.
+- `git` (declared in `meta/main.yml`) — provides the `git` binary the
+  clone task requires.
 
 ## Example Playbook
 
@@ -38,8 +39,7 @@ None. See `meta/main.yml` for details.
 
 ## What This Role Does
 
-1. Installs `git`
-2. Clones ai-agent-workspace to `~/Documents/Cline/ai-agent-workspace`
+1. Clones ai-agent-workspace to `~/Documents/Cline/ai-agent-workspace`
    (idempotent; re-provision pulls updates)
 
 ## License

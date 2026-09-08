@@ -23,7 +23,8 @@ other agent harnesses — so it is a standalone role rather than bundled into
 
 ## Dependencies
 
-None. See `meta/main.yml` for details.
+- `git` (declared in `meta/main.yml`) — `pipx install git+...` shells out
+  to it to clone spec-kit.
 
 ## Example Playbook
 
@@ -39,7 +40,7 @@ None. See `meta/main.yml` for details.
 
 ## What This Role Does
 
-1. Installs `pipx` and `git`
+1. Installs `pipx`
 2. Installs `specify` via `pipx install` from the pinned `specify_cli_version`
    git tag (skipped if already installed)
 

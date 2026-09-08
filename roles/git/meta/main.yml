@@ -3,8 +3,8 @@
 galaxy_info:
   author: Stefan Boos
   namespace: wonderbird
-  role_name: ai_agent_workspace
-  description: Clone the ai-agent-workspace skill-library source repo
+  role_name: git
+  description: Install git on Linux
   company: n.a.
   issue_tracker_url: http://github.com/wonderbird/ansible-all-my-things/issues
   license: MIT
@@ -17,9 +17,7 @@ galaxy_info:
     # NOTE: A tag is limited to a single word comprised of alphanumeric characters.
     #       Maximum 20 tags per role.
 
-# "Clone ai-agent-workspace source repository" below unconditionally invokes
-# ansible.builtin.git -- a hard runtime dependency on the git binary that
-# only the git role provisions on target hosts. See
-# docs/architecture/concepts/role-dependency-declaration.md.
-dependencies:
-  - git
+# If a task in this role will hard-fail without another specific role
+# having already run, declare it here instead of relying only on playbook
+# ordering — see docs/architecture/concepts/role-dependency-declaration.md
+dependencies: []

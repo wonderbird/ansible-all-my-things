@@ -8,6 +8,7 @@
     login_user_names: "{{ login_users | map(attribute='name') | list }}"
 
   roles:
+    - git
     - podman
     - tmux
     - nodejs

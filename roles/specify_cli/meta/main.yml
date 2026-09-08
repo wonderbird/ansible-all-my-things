@@ -17,4 +17,9 @@ galaxy_info:
     # NOTE: A tag is limited to a single word comprised of alphanumeric characters.
     #       Maximum 20 tags per role.
 
-dependencies: []
+# "Install specify-cli via pipx" below runs `pipx install git+https://...`,
+# which shells out to the git binary to clone the source -- a hard runtime
+# dependency that only the git role provisions on target hosts. See
+# docs/architecture/concepts/role-dependency-declaration.md.
+dependencies:
+  - git

@@ -1,10 +1,8 @@
 #SPDX-License-Identifier: MIT-0
 ---
-- name: Install pipx and git
+- name: Install pipx
   ansible.builtin.apt:
-    name:
-      - pipx
-      - git
+    name: pipx
     state: present
   become: true
 

@@ -10,12 +10,6 @@
       repository URL; skill_manager_version must be a full 40-character
       lowercase-hex git commit SHA.
 
-- name: Install git (required to clone the skill-manager source)
-  ansible.builtin.apt:
-    name: git
-    state: present
-  become: true
-
 - name: Read the recorded installed commit SHA
   ansible.builtin.slurp:
     src: "{{ skill_manager_install_dir }}/.git_sha"

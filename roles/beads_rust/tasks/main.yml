@@ -1,12 +1,5 @@
 #SPDX-License-Identifier: MIT-0
 ---
-- name: Install git
-  ansible.builtin.apt:
-    name:
-      - git
-    state: present
-  become: true
-
 # -----
 # Install beads Rust issue tracker (br) from the Dicklesworthstone/beads_rust
 # GitHub release

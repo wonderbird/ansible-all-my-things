@@ -25,5 +25,12 @@ galaxy_info:
 # role provisions on target hosts. This is a genuine hard runtime dependency,
 # so it is declared here in addition to explicit ordering in the base playbook
 # and the Molecule converge.
+#
+# The "Clone skill-manager at the pinned commit SHA" task below invokes
+# ansible.builtin.git on any host not already at the pinned SHA -- the same
+# kind of hard runtime dependency, on the git binary that only the git role
+# provisions. The surrounding when: is this role's own idempotency guard
+# (Principle I), not a dependency-masking skip.
 dependencies:
   - nodejs
+  - git
