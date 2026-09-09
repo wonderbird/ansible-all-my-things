@@ -18,7 +18,7 @@ approach is self-contained and idempotent without coupling to external
 stdout.
 
 The `find` result is checked with `assert matched > 0` per user to fail loudly
-if the clone is empty or the `.claude/skills` directory is absent (Principle XII).
+if the clone is empty or the `skills` directory is absent (Principle XII).
 
 ## Plugin idempotency: explicit existence checks before `claude plugin` calls
 
