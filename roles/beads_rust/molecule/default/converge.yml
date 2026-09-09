@@ -7,9 +7,5 @@
     login_user_names:
       - testuser
   roles:
-    # git provisions the git binary, a hard runtime dependency of
-    # beads_rust's source-clone task. Listed explicitly for auditable
-    # ordering; also declared in beads_rust/meta/main.yml (Ansible
-    # deduplicates the second apply).
     - role: git
     - role: beads_rust

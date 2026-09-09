@@ -107,10 +107,6 @@ These are not competing choices for a genuine hard dependency: keep both.
 The redundancy is intentional, not duplication to eliminate — it is the
 same "log the accepted tradeoff" posture the Complexity Tracking practice
 already applies to other deliberate small overlaps in this codebase.
-(Per-role `git` installation was one such overlap until the dedicated
-`git` role replaced it — see "Current state" below; a duplicated
-single-purpose install task is a candidate for extraction into its own
-role once enough consumers share it, rather than a base-deps grab-bag.)
 
 ## Presence-check conditionals are not a substitute
 
@@ -169,11 +165,10 @@ conditions."* Walk the branches:
     loudly instead of letting it no-op or fail obscurely.
 - **Install the dependency inline if absent.** Duplicates the other role's
   actual installation logic into the dependent role. A one-line idempotent
-  apt task duplicated across a couple of roles was tolerated early on (see
-  the note on the `git` role above — that role is the result of that
-  tolerance running out); reimplementing another role's non-trivial core
-  logic conditionally, though, duplicates the role itself, a straight
-  Principle II/XI violation.
+  apt task is cheap enough to justify duplicating across a couple of roles;
+  reimplementing another role's non-trivial core logic conditionally,
+  though, duplicates the role itself, a straight Principle II/XI
+  violation.
 - **Warn and continue if absent.** Same defect as silent-skip with a log
   line attached. A warning inside a long playbook run against many hosts
   gets missed; it does not meet "an explicit, actionable error."
@@ -217,13 +212,10 @@ for the reasons in the worked examples above; `nodejs` because
 this role's `claude plugin`/`claude mcp` shell calls unconditionally
 require the binary it installs).
 
-`beads_go`, `beads_rust`, `ai_agent_workspace`, `specify_cli`, and `tmux`
-each declare `dependencies: [git]` — each has an own task that
-unconditionally invokes the `git` binary (a source-repo clone via
-`ansible.builtin.git`, or, for `specify_cli`, `pipx install git+...`
-shelling out to it). `skill_manager/meta/main.yml` declares
-`dependencies: [nodejs, git]` for the same two reasons (`npm ci`/`npm run
-build` need `nodejs`; its pinned-commit clone needs `git`).
+`beads_go`, `beads_rust`, `ai_agent_workspace`, `specify_cli`, `tmux`, and
+`skill_manager` (which also needs `nodejs`) declare `dependencies: [git]` —
+each unconditionally invokes the `git` binary via `ansible.builtin.git` or,
+for `specify_cli`, `pipx install git+...`.
 
 `claude_code/meta/main.yml` declares `dependencies: []` — it installs the
 binary plus its own minimal version-pin config and has no task that

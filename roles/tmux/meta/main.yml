@@ -10,9 +10,5 @@ galaxy_info:
   min_ansible_version: 2.19
   galaxy_tags: []
 
-# install-plugins.yml's TPM/catppuccin/tmux-cpu clone tasks unconditionally
-# invoke ansible.builtin.git -- a hard runtime dependency on the git binary
-# that only the git role provisions on target hosts. See
-# docs/architecture/concepts/role-dependency-declaration.md.
 dependencies:
   - git

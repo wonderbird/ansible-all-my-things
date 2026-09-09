@@ -7,9 +7,5 @@
     login_user_names:
       - testuser
   roles:
-    # git provisions the git binary that pipx's `git+...` install shells
-    # out to -- a hard runtime dependency of specify_cli. Listed explicitly
-    # for auditable ordering; also declared in specify_cli/meta/main.yml
-    # (Ansible deduplicates the second apply).
     - role: git
     - role: specify_cli

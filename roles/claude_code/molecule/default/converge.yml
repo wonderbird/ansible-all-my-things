@@ -7,10 +7,4 @@
     login_user_names:
       - testuser
   roles:
-    # git is not a hard dependency of any of this role's own tasks --
-    # orchestration-convenience ordering ahead of claude_code lives in
-    # playbooks/configure-profile-roles.yml only (the profile playbook is
-    # the ordering surface for a convenience case, not this Molecule
-    # scenario, which verifies nothing about git; see
-    # docs/architecture/concepts/role-dependency-declaration.md).
     - role: claude_code

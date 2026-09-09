@@ -7,9 +7,5 @@
     login_user_names:
       - testuser
   roles:
-    # git provisions the git binary, a hard runtime dependency of
-    # ai_agent_workspace's source-clone task. Listed explicitly for
-    # auditable ordering; also declared in ai_agent_workspace/meta/main.yml
-    # (Ansible deduplicates the second apply).
     - role: git
     - role: ai_agent_workspace

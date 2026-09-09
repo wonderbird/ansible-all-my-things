@@ -17,9 +17,5 @@ galaxy_info:
     # NOTE: A tag is limited to a single word comprised of alphanumeric characters.
     #       Maximum 20 tags per role.
 
-# "Clone beads_rust source repository" below unconditionally invokes
-# ansible.builtin.git -- a hard runtime dependency on the git binary that
-# only the git role provisions on target hosts. See
-# docs/architecture/concepts/role-dependency-declaration.md.
 dependencies:
   - git

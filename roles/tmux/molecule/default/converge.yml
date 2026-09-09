@@ -7,9 +7,5 @@
     login_user_names:
       - testuser
   roles:
-    # git provisions the git binary, a hard runtime dependency of tmux's
-    # plugin-clone tasks. Listed explicitly for auditable ordering; also
-    # declared in tmux/meta/main.yml (Ansible deduplicates the second
-    # apply).
     - role: git
     - role: tmux
