@@ -80,8 +80,9 @@ Always runs (idempotent by module semantics):
 - `flutter_version` MUST be a semantic version string (e.g. `3.41.6`).
 - `flutter_sha256` MUST be a 64-character hex string matching the
   archive for `flutter_version`.
-- `login_user_names` MUST be defined before the role runs; the role
-  does not validate its presence.
+- `login_user_names` MUST be defined before the role runs and MUST contain at
+  least one name. The role validates this in its first task and fails loudly if
+  the variable is undefined or empty.
 
 ## File Ownership
 

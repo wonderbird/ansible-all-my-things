@@ -20,8 +20,9 @@ declared in `roles/podman/defaults/main.yml`.
 
 ### Validation Rules
 
-- `login_user_names` MUST be defined by the caller. An empty list (`[]`) is
-  valid: the install task runs but per-user loops are skipped.
+- `login_user_names` MUST be defined by the caller and MUST contain at least
+  one name. An empty list (`[]`) is a hard error: the role's first task asserts
+  the variable is defined and non-empty, and fails loudly otherwise.
 - Each entry in `login_user_names` MUST correspond to an existing system
   user. The role does not create users (out of scope).
 - `podman_subuid_start` and `podman_subuid_count` MUST be positive integers.

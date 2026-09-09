@@ -104,9 +104,11 @@ report zero changed tasks.
 - What happens when a user already has subuid/subgid entries from a prior
   manual setup? The role must not create duplicate entries.
 
-- What happens when `login_user_names` is an empty list? The role must
-  install Podman system-wide but skip all per-user configuration loops without
-  error.
+- What happens when `login_user_names` is an empty list? The role must fail
+  immediately with an explicit error naming the variable. An empty list is not
+  a supported configuration: the role asserts `login_user_names` is defined and
+  non-empty as its first task, before Podman is installed. See
+  `docs/architecture/decisions/006-role-input-contract-assertions.md`.
 
 ## Requirements *(mandatory)*
 

@@ -85,8 +85,9 @@ and selectable.
 
 ### Edge Cases
 
-- What happens when `login_user_names` is empty? The per-user loop should
-  run zero iterations; no tasks should fail.
+- What happens when `login_user_names` is empty? The role fails immediately
+  with an explicit error naming the variable. Its first task asserts the
+  variable is defined and non-empty, so the per-user loop is never reached.
 - What happens when sdkman installation is interrupted (partial
   `~/.sdkman` directory present)? The `creates:` guard targets
   `~/.sdkman/bin/sdkman-init.sh`; a partial install without that file causes

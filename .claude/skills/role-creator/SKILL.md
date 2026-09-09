@@ -45,7 +45,8 @@ Pick the archetype first; it drives every later step.
 - **System-wide vs per-user install?** A single binary all users share →
   `/usr/local/bin` (see `opencode`). A tool that installs into each user's home
   or runs per-user → loop over `login_user_names` with `become_user` (see
-  `specify_cli`, `ai_agent_workspace`).
+  `specify_cli`, `ai_agent_workspace`). A role that loops over
+  `login_user_names` MUST also assert it — see step 1 below.
 - **Linux vs Windows.** Windows roles (`win_*`, `windows_*`) diverge: no
   Molecule, different validation. Out of scope here — mirror an existing
   `windows_*` role instead.
@@ -73,6 +74,31 @@ Copy the shape of the exemplar role matching your archetype
 1. **Validate required vars** — `ansible.builtin.assert` on version format and
    checksum length (Principle XII fail-loud). No `default('')` for required
    values.
+
+   **Caller-supplied inputs are separate.** A role that consumes
+   `login_user_names` MUST carry this block, byte-identical, as its **first own
+   task** — before the role-defaults validation above, and before any
+   `import_tasks`:
+
+   ```yaml
+   - name: Assert login_user_names is provided
+     ansible.builtin.assert:
+       that:
+         - login_user_names is defined
+         - login_user_names | length > 0
+       fail_msg: >-
+         Variable validation failed: login_user_names must be defined and
+         contain at least one username. It is derived from login_users as
+         `login_users | map(attribute='name') | list`; a Molecule converge
+         play sets it directly in its `vars:` block.
+   ```
+
+   Never reorder the two conditions: `assert` short-circuits, so `is defined`
+   must come first or an undefined variable raises Ansible's generic error and
+   the `fail_msg` is never printed. Never give `login_user_names` a role
+   default — an empty-list default converts a missing required input into a
+   silent no-op. Rationale and rejected alternatives:
+   `docs/architecture/decisions/006-role-input-contract-assertions.md`.
 2. **Assert supported architecture** — `ansible_facts['architecture'] in <map>`.
 3. **Map arch** — to whatever the chosen exemplar's upstream uses; naming
    varies (opencode `x64`/`arm64`; rtk `x86_64-…-musl`/`aarch64-…-gnu`).
@@ -194,6 +220,9 @@ cd roles/<role_name>
 
 - [ ] Scaffolded via `new-role.sh`; `ROLE_DESCRIPTION` replaced; no empty stubs.
 - [ ] `tasks`/`defaults` follow the exemplar; required vars asserted; idempotent.
+- [ ] If the role loops over `login_user_names`: the assert block is its first
+      task, byte-identical to the other consuming roles, and no role default
+      for `login_user_names` exists.
 - [ ] `meta` dependencies correct (hard dep → three places).
 - [ ] Version-update wired in all four touchpoints (if pinned).
 - [ ] Molecule full lifecycle passes (`converge`, `idempotence` changed=0,

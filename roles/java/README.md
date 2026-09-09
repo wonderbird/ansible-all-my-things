@@ -15,6 +15,7 @@ Linux (AMD64 and ARM64).
 
 | Variable | Default | Description |
 | --- | --- | --- |
+| `login_user_names` | *(required)* | List of local usernames to install sdkman and the JDK for. Must contain at least one name; the role fails loudly if it is undefined or empty. |
 | `java_sdkman_identifier` | `25.0.3-tem` | sdkman candidate identifier for the Eclipse Temurin JDK to install (e.g. `25.0.3-tem`). Bump this value to upgrade the JDK; re-running the playbook installs the new version alongside the old one. |
 
 The identifier format is `<version>-<vendor>` as listed by `sdk list java`.
