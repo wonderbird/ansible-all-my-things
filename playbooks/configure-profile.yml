@@ -16,6 +16,17 @@
         - groups.get('linux', []) | length > 0
         - groups.get('base', []) | length == 0
 
+    - name: Fail loud if login_users is empty or undefined
+      ansible.builtin.assert:
+        that:
+          - login_users is defined
+          - login_users | length > 0
+        fail_msg: >-
+          login_users must be defined in inventory and contain at least one
+          user. It is set in inventories/group_vars/all/vars.yml and every
+          per-user role derives login_user_names from it. With no users, all
+          per-user configuration would be silently skipped.
+
 - import_playbook: setup-users.yml
 - import_playbook: setup-basics.yml
 
