@@ -1,0 +1,17 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Pinned direnv release tag (`v`-prefixed). See
+# https://github.com/direnv/direnv/releases for available versions.
+# Updated automatically by playbooks/update-versions/perform-updates.yml.
+direnv_version: "v2.37.1"
+
+# SHA-256 checksums for the linux release binaries (amd64 and arm64).
+# The initial pin was taken from the release API's `digest` field and
+# cross-checked locally; playbooks/update-versions/perform-updates.yml
+# re-derives both values on every bump by downloading and hashing each
+# binary (it does not read the API digest).
+# All three values (version + both checksums) must be updated together.
+direnv_sha256_amd64: "1f1b93dd6f38523fde26dfac96151ef9d31a374e3005cd3345fb93555ae0c9b5"
+direnv_sha256_arm64: "2a9cef8d73521d6a3ec3f2871c4b747b8c4cc038628c1b57a7efa42b393a2d82"
+
+direnv_install_path: /usr/local/bin/direnv

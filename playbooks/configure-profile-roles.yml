@@ -27,6 +27,7 @@
     - opencode
     - github_cli
     - skill_manager
+    - direnv
 
 # claude_code_config runs in its own play targeting hosts that opt into the
 # opinionated global Claude config — NOT the base play — so hosts that do not

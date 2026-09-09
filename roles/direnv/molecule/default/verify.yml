@@ -1,0 +1,50 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Load role defaults for version reference
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../../defaults/main.yml"
+
+    - name: Stat installed direnv binary
+      ansible.builtin.stat:
+        path: /usr/local/bin/direnv
+      register: _verify_direnv_stat
+
+    - name: Assert direnv binary exists and is executable
+      ansible.builtin.assert:
+        that:
+          - _verify_direnv_stat.stat.exists
+          - _verify_direnv_stat.stat.executable
+        fail_msg: "/usr/local/bin/direnv missing or not executable"
+        success_msg: "/usr/local/bin/direnv present and executable"
+
+    - name: Get installed direnv version
+      ansible.builtin.command:
+        cmd: /usr/local/bin/direnv --version
+      register: _verify_direnv_version
+      changed_when: false
+
+    - name: Assert direnv version matches pinned version
+      ansible.builtin.assert:
+        that:
+          - (direnv_version | regex_replace('^v', '')) in _verify_direnv_version.stdout
+        fail_msg: >-
+          Expected direnv version {{ direnv_version | regex_replace('^v', '') }}
+          but got: {{ _verify_direnv_version.stdout }}
+        success_msg: >-
+          direnv version {{ _verify_direnv_version.stdout }} matches pin
+
+    - name: Slurp testuser .bashrc
+      ansible.builtin.slurp:
+        src: /home/testuser/.bashrc
+      register: _verify_testuser_bashrc
+
+    - name: Assert direnv hook is present in testuser .bashrc
+      ansible.builtin.assert:
+        that:
+          - "'eval \"$(direnv hook bash)\"' in (_verify_testuser_bashrc.content | b64decode)"
+        fail_msg: "direnv hook line missing from /home/testuser/.bashrc"
+        success_msg: "direnv hook line present in /home/testuser/.bashrc"

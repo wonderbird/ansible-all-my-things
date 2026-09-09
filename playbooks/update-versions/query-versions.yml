@@ -92,6 +92,11 @@
         src: "{{ _roles_dir }}/skill_manager/defaults/main.yml"
       register: _skill_manager_defaults_raw
 
+    - name: Read direnv role defaults
+      ansible.builtin.slurp:
+        src: "{{ _roles_dir }}/direnv/defaults/main.yml"
+      register: _direnv_defaults_raw
+
     - name: Extract current pinned values from role defaults
       vars:
         _java_id_match: >-
@@ -164,6 +169,10 @@
         current_skill_manager_version: >-
           {{ _skill_manager_defaults_raw.content | b64decode
              | regex_search('skill_manager_version:\s*"([^"]+)"', '\1')
+             | default([], true) | first }}
+        current_direnv_version: >-
+          {{ _direnv_defaults_raw.content | b64decode
+             | regex_search('direnv_version:\s*"([^"]+)"', '\1')
              | default([], true) | first }}
 
     # --- Fetch upstream versions ---
@@ -292,6 +301,15 @@
     - name: Save skill-manager fetched commit SHA
       ansible.builtin.set_fact:
         fetched_skill_manager_sha: "{{ fetched_github_sha }}"
+
+    - name: Fetch direnv upstream version
+      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
+      vars:
+        github_repo: "direnv/direnv"
+
+    - name: Save direnv fetched tag
+      ansible.builtin.set_fact:
+        fetched_direnv_tag: "{{ fetched_github_tag }}"
 
     # --- Compare and report ---
     - name: Report Flutter SDK version status
@@ -430,6 +448,14 @@
           upstream={{ fetched_skill_manager_sha }},
           status={{ 'UP TO DATE' if current_skill_manager_version == fetched_skill_manager_sha else 'STALE' }}
 
+    - name: Report direnv version status
+      ansible.builtin.debug:
+        msg: >-
+          direnv:
+          current={{ current_direnv_version }},
+          upstream={{ fetched_direnv_tag }},
+          status={{ 'UP TO DATE' if current_direnv_version == fetched_direnv_tag else 'STALE' }}
+
     - name: Fail if any version pins are stale
       ansible.builtin.fail:
         msg: >-
@@ -451,4 +477,5 @@
         current_node_version != fetched_nodejs_version or
         current_specify_cli_version != fetched_specify_cli_tag or
         current_claude_code_version != fetched_claude_code_version or
-        current_skill_manager_version != fetched_skill_manager_sha
+        current_skill_manager_version != fetched_skill_manager_sha or
+        current_direnv_version != fetched_direnv_tag
