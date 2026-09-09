@@ -135,7 +135,7 @@
       ansible.builtin.assert:
         that:
           - commit_skill_link_stat.stat.islnk
-          - commit_skill_link_stat.stat.lnk_source == "/home/testuser/Documents/Cline/ai-agent-workspace/.claude/skills/commit"
+          - commit_skill_link_stat.stat.lnk_source == "/home/testuser/Documents/Cline/ai-agent-workspace/skills/commit"
         fail_msg: "commit skill symlink missing or pointing to wrong target"
         success_msg: "commit skill symlink present and correct"
 

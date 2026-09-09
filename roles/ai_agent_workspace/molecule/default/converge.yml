@@ -7,4 +7,5 @@
     login_user_names:
       - testuser
   roles:
+    - role: git
     - role: ai_agent_workspace

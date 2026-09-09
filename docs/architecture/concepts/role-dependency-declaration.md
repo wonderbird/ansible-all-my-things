@@ -106,8 +106,7 @@ independent enforcement path:
 These are not competing choices for a genuine hard dependency: keep both.
 The redundancy is intentional, not duplication to eliminate — it is the
 same "log the accepted tradeoff" posture the Complexity Tracking practice
-already applies to other deliberate small overlaps in this codebase (e.g.
-per-role `git`/`curl` installation instead of a shared base-deps role).
+already applies to other deliberate small overlaps in this codebase.
 
 ## Presence-check conditionals are not a substitute
 
@@ -165,12 +164,11 @@ conditions."* Walk the branches:
     it enforced — a presence-check guard inside the role catches that case
     loudly instead of letting it no-op or fail obscurely.
 - **Install the dependency inline if absent.** Duplicates the other role's
-  actual installation logic into the dependent role. Different in kind from
-  the `git` apt-install task duplicated across several roles (`rtk`, `beads_go`,
-  `ai_agent_workspace`, `specify_cli`, `claude_code`) — those are one-line
-  idempotent apt tasks, cheap and justified; reimplementing another role's
-  core logic conditionally duplicates the role itself, a straight
-  Principle II/XI violation.
+  actual installation logic into the dependent role. A one-line idempotent
+  apt task is cheap enough to justify duplicating across a couple of roles;
+  reimplementing another role's non-trivial core logic conditionally,
+  though, duplicates the role itself, a straight Principle II/XI
+  violation.
 - **Warn and continue if absent.** Same defect as silent-skip with a log
   line attached. A warning inside a long playbook run against many hosts
   gets missed; it does not meet "an explicit, actionable error."
@@ -212,10 +210,27 @@ dependencies per the decision test above (`rtk` and `ai_agent_workspace`
 for the reasons in the worked examples above; `nodejs` because
 `install-omc-cli.yml` unconditionally invokes `npm`; `claude_code` because
 this role's `claude plugin`/`claude mcp` shell calls unconditionally
-require the binary it installs). `claude_code/meta/main.yml` itself
-declares `dependencies: []` — it installs the binary plus its own minimal
-version-pin config and has no hard dependency on any other role. Every
-other role in this repository is also
+require the binary it installs).
+
+`beads_go`, `beads_rust`, `ai_agent_workspace`, `specify_cli`, `tmux`, and
+`skill_manager` (which also needs `nodejs`) declare `dependencies: [git]` —
+each unconditionally invokes the `git` binary via `ansible.builtin.git` or,
+for `specify_cli`, `pipx install git+...`.
+
+`claude_code/meta/main.yml` declares `dependencies: []` — it installs the
+binary plus its own minimal version-pin config and has no task that
+unconditionally requires `git` or any other role's artefact; the `git`
+role is still listed ahead of it in `configure-profile-roles.yml` and its
+Molecule `converge.yml`; purely orchestration-convenience ordering (git is
+useful to have on any host running the Claude Code CLI), not a meta
+dependency, per the decision test above.
+
+The `git` role itself declares `dependencies: []` — it has no
+dependency of its own.
+
+`win_ai_agent/meta/main.yml` declares `dependencies: [windows_foundation]`
+for the same kind of reason (Windows-specific, out of scope for this
+document's Linux worked examples). Every other role in this repository is
 authored with `dependencies: []`, relying solely on explicit ordering,
 since none of them have a hard, role-intrinsic dependency by the test
 above.

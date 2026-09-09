@@ -30,7 +30,8 @@ and re-run the role to pick up a new pin.
 
 ## Dependencies
 
-None. See `meta/main.yml` for details.
+- `git` (declared in `meta/main.yml`) — provides the `git` binary the
+  source-clone task requires.
 
 ## Example Playbook
 
@@ -46,13 +47,12 @@ None. See `meta/main.yml` for details.
 
 ## What This Role Does
 
-1. Installs `git` (needed to clone the beads_rust source repository)
-2. Installs the beads_rust issue tracker (`br`) to `/usr/local/bin/br`,
+1. Installs the beads_rust issue tracker (`br`) to `/usr/local/bin/br`,
    system-wide, by downloading the pinned `beads_rust_version` release archive
    from [Dicklesworthstone/beads_rust](https://github.com/Dicklesworthstone/beads_rust)
    and verifying it against the pinned per-arch sha256 checksum before
    extraction. Skipped if `br` is already installed.
-3. Clones the beads_rust source repository to `~/Documents/Cline/beads_rust`
+2. Clones the beads_rust source repository to `~/Documents/Cline/beads_rust`
    for each desktop user
 
 ## License

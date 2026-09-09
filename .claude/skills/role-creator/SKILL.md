@@ -96,8 +96,10 @@ Rules that bite:
 - Roles that build with node/npm must set `PATH` to include `/usr/local/bin`
   (where `nodejs` symlinks `node`/`npm`); set it once at block level, not per
   task.
-- Roles that clone repos install `git` themselves via `apt` (see
-  `ai_agent_workspace`); do not assume it is present.
+- Roles that clone repos, or otherwise unconditionally shell out to `git`,
+  depend on the dedicated `git` role (`meta/main.yml` `dependencies: [git]`;
+  see `ai_agent_workspace`); do not assume it is present, and do not
+  reinstall it in-role.
 - Never use `blockinfile` `append_newline`/`prepend_newline` (Principle I).
 
 ## Step 3 — `meta/main.yml`

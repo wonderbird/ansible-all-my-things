@@ -1,11 +1,5 @@
 #SPDX-License-Identifier: MIT-0
 ---
-- name: Install git
-  ansible.builtin.apt:
-    name: git
-    state: present
-  become: true
-
 - name: Clone ai-agent-workspace source repository
   ansible.builtin.git:
     repo: https://github.com/wonderbird/ai-agent-workspace

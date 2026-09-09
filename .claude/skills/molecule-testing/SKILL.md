@@ -108,9 +108,10 @@ module fails to auto-install its Python binding.
 URLs via `ansible.builtin.get_url`. Add it to the Dockerfile for those roles.
 
 Add other role-specific packages to the same `apt-get install` line when
-required at container-build time (e.g. `git fontconfig unzip` for roles that
+required at container-build time (e.g. `fontconfig unzip` for roles that
 extract archives or manage fonts). Do NOT add packages that are installed by
-the role itself.
+the role itself, or by a role it depends on (e.g. `git` — see the `git`
+role).
 
 ## molecule.yml
 

@@ -3,9 +3,5 @@
 - name: Converge
   hosts: all
   become: true
-  vars:
-    login_user_names:
-      - testuser
   roles:
     - role: git
-    - role: beads_rust

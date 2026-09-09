@@ -19,7 +19,7 @@
 
 - name: Discover ai-agent-workspace skill directories
   ansible.builtin.find:
-    paths: /home/{{ item }}/Documents/Cline/ai-agent-workspace/.claude/skills
+    paths: /home/{{ item }}/Documents/Cline/ai-agent-workspace/skills
     file_type: directory
     recurse: false
   become: true

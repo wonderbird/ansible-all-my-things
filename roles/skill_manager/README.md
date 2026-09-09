@@ -41,6 +41,8 @@ All variables have safe defaults. None are required from the caller.
 ## Dependencies
 
 - `nodejs` (declared in `meta/main.yml`) — provides node/npm required to build.
+- `git` (declared in `meta/main.yml`) — provides the `git` binary the
+  pinned-commit clone task requires.
 
 ## Example Playbook
 

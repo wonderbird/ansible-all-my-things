@@ -29,7 +29,8 @@ and re-run the role to pick up a new pin.
 
 ## Dependencies
 
-None. See `meta/main.yml` for details.
+- `git` (declared in `meta/main.yml`) — provides the `git` binary the
+  source-clone task requires.
 
 ## Example Playbook
 
@@ -45,13 +46,12 @@ None. See `meta/main.yml` for details.
 
 ## What This Role Does
 
-1. Installs `git` (needed to clone the beads source repository)
-2. Installs the beads issue tracker (`bd`) to `/usr/local/bin/bd`,
+1. Installs the beads issue tracker (`bd`) to `/usr/local/bin/bd`,
    system-wide, by downloading the pinned `beads_go_version` release archive
    from [gastownhall/beads](https://github.com/gastownhall/beads) and
    verifying it against the pinned per-arch sha256 checksum before
    extraction. Skipped if `bd` is already installed.
-3. Clones the beads source repository to `~/Documents/Cline/beads` for each
+2. Clones the beads source repository to `~/Documents/Cline/beads` for each
    desktop user
 
 ## License

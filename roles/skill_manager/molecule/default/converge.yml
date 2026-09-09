@@ -8,4 +8,5 @@
     # Listed explicitly for auditable ordering; also declared in
     # skill_manager/meta/main.yml (Ansible deduplicates the second apply).
     - role: nodejs
+    - role: git
     - role: skill_manager

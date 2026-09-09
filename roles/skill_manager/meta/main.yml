@@ -27,3 +27,4 @@ galaxy_info:
 # and the Molecule converge.
 dependencies:
   - nodejs
+  - git
