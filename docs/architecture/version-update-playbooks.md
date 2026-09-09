@@ -126,11 +126,12 @@ Tracked tools and their upstream sources:
 | specify-cli | `specify_cli` | `specify_cli_version` | — | GitHub Releases API (`github/spec-kit`) |
 | Claude Code | `claude_code` | `claude_code_version` | `claude_code_sha256_linux_x64` / `claude_code_sha256_linux_arm64` (sha256) | Per-version `manifest.json` (`storage.googleapis.com`) |
 | Skill Manager (sm) | `skill_manager` | `skill_manager_version` (commit SHA) | — (commit SHA is the pin) | GitHub Commits API (`omrikais/skill-manager`, `master` HEAD) |
+| direnv | `direnv` | `direnv_version` | `direnv_sha256_amd64` / `direnv_sha256_arm64` (sha256) | GitHub Releases API (`direnv/direnv`) |
 
 `fetch-github-release.yml` is parametrized via a `github_repo`
 variable and called once per GitHub-Releases-backed tool (gitmux, Nerd
-Fonts, Dolt, OpenCode, GitHub CLI, Obsidian, br), covering all of them with
-a single shared task file.
+Fonts, Dolt, OpenCode, GitHub CLI, Obsidian, br, direnv), covering all of
+them with a single shared task file.
 
 `fetch-checksum-from-file.yml` is likewise parametrized (`checksum_file_url`,
 `checksum_target_filename`) and used instead of a local

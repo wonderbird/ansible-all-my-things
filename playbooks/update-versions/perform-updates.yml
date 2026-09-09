@@ -148,6 +148,15 @@
       ansible.builtin.set_fact:
         fetched_skill_manager_sha: "{{ fetched_github_sha }}"
 
+    - name: Fetch direnv upstream version
+      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
+      vars:
+        github_repo: "direnv/direnv"
+
+    - name: Save direnv fetched tag
+      ansible.builtin.set_fact:
+        fetched_direnv_tag: "{{ fetched_github_tag }}"
+
     # --- Apply updates to role defaults files ---
 
     # Flutter SDK: version and sha256 updated together
@@ -566,3 +575,47 @@
         path: "{{ _roles_dir }}/skill_manager/defaults/main.yml"
         regexp: 'skill_manager_version:\s*"[^"]+"'
         replace: 'skill_manager_version: "{{ fetched_skill_manager_sha }}"'
+
+    - name: Update direnv_version in direnv role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/direnv/defaults/main.yml"
+        regexp: 'direnv_version:\s*"[^"]+"'
+        replace: 'direnv_version: "{{ fetched_direnv_tag }}"'
+
+    - name: Download direnv linux-amd64 binary for sha256 computation
+      ansible.builtin.get_url:
+        url: "https://github.com/direnv/direnv/releases/download/{{ fetched_direnv_tag }}/direnv.linux-amd64"
+        dest: "/tmp/direnv-{{ fetched_direnv_tag }}-linux-amd64"
+        mode: '0644'
+
+    - name: Compute sha256 of direnv linux-amd64 binary
+      ansible.builtin.stat:
+        path: "/tmp/direnv-{{ fetched_direnv_tag }}-linux-amd64"
+        checksum_algorithm: sha256
+        get_checksum: true
+      register: _direnv_amd64_stat
+
+    - name: Update direnv_sha256_amd64 in direnv role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/direnv/defaults/main.yml"
+        regexp: 'direnv_sha256_amd64:\s*"[^"]+"'
+        replace: 'direnv_sha256_amd64: "{{ _direnv_amd64_stat.stat.checksum }}"'
+
+    - name: Download direnv linux-arm64 binary for sha256 computation
+      ansible.builtin.get_url:
+        url: "https://github.com/direnv/direnv/releases/download/{{ fetched_direnv_tag }}/direnv.linux-arm64"
+        dest: "/tmp/direnv-{{ fetched_direnv_tag }}-linux-arm64"
+        mode: '0644'
+
+    - name: Compute sha256 of direnv linux-arm64 binary
+      ansible.builtin.stat:
+        path: "/tmp/direnv-{{ fetched_direnv_tag }}-linux-arm64"
+        checksum_algorithm: sha256
+        get_checksum: true
+      register: _direnv_arm64_stat
+
+    - name: Update direnv_sha256_arm64 in direnv role defaults
+      ansible.builtin.replace:
+        path: "{{ _roles_dir }}/direnv/defaults/main.yml"
+        regexp: 'direnv_sha256_arm64:\s*"[^"]+"'
+        replace: 'direnv_sha256_arm64: "{{ _direnv_arm64_stat.stat.checksum }}"'

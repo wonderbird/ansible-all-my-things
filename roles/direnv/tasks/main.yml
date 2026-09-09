@@ -1,0 +1,63 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Validate required variables
+  ansible.builtin.assert:
+    that:
+      - direnv_version | length > 0
+      - direnv_version is match('^v[0-9]+\.[0-9]+\.[0-9]+')
+      - direnv_sha256_amd64 | length == 64
+      - direnv_sha256_arm64 | length == 64
+    fail_msg: >-
+      Variable validation failed: direnv_version must be a non-empty
+      `v`-prefixed semver tag (e.g. v2.37.1); direnv_sha256_amd64 and
+      direnv_sha256_arm64 must each be a 64-character SHA-256 hex digest.
+
+- name: Verify supported processor architecture
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['architecture'] in ['x86_64', 'aarch64']
+    fail_msg: >-
+      Unsupported processor architecture: {{ ansible_facts['architecture'] }}.
+      Supported architectures are: x86_64, aarch64.
+
+- name: Set direnv target architecture
+  ansible.builtin.set_fact:
+    _direnv_arch: "{{ 'amd64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
+
+- name: Check if direnv binary is installed
+  ansible.builtin.stat:
+    path: "{{ direnv_install_path }}"
+  register: _direnv_binary_stat
+
+- name: Get installed direnv version
+  ansible.builtin.command:
+    cmd: "{{ direnv_install_path }} --version"
+  register: _direnv_installed_version
+  changed_when: false
+  when: _direnv_binary_stat.stat.exists
+
+- name: Determine if direnv installation is required
+  ansible.builtin.set_fact:
+    _direnv_needs_install: >-
+      {{ not _direnv_binary_stat.stat.exists or
+         (direnv_version | regex_replace('^v', '')) not in
+         (_direnv_installed_version.stdout | default('')) }}
+
+- name: Install direnv binary
+  ansible.builtin.get_url:
+    url: "https://github.com/direnv/direnv/releases/download/{{ direnv_version }}/direnv.linux-{{ _direnv_arch }}"
+    dest: "{{ direnv_install_path }}"
+    checksum: "sha256:{{ direnv_sha256_amd64 if _direnv_arch == 'amd64' else direnv_sha256_arm64 }}"
+    mode: '0755'
+    owner: root
+    group: root
+  when: _direnv_needs_install
+
+- name: Hook direnv into each login user's bash shell
+  ansible.builtin.blockinfile:
+    path: "/home/{{ item }}/.bashrc"
+    block: 'eval "$(direnv hook bash)"'
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - direnv hook"
+    state: present
+  become_user: "{{ item }}"
+  loop: "{{ login_user_names }}"
