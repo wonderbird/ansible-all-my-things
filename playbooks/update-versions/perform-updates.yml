@@ -406,12 +406,19 @@
         regexp: 'beads_go_sha256_arm64:\s*"[^"]+"'
         replace: 'beads_go_sha256_arm64: "{{ fetched_beads_go_sha256_arm64 }}"'
 
-    # bv: raw tag pinned, no stripping needed anywhere (filename version-agnostic)
+    # bv: raw tag pinned as source of truth; stripped filename-variant is
+    # derived from it in-role (roles/beads_viewer/tasks/main.yml), not pinned
+    # separately. Upstream embedded the version in the archive names as of
+    # v0.23.0 (bv_linux_amd64.tar.gz -> bv_<version>_linux_amd64.tar.gz).
+    - name: Derive stripped bv version for filename computation
+      ansible.builtin.set_fact:
+        _bv_stripped_version: "{{ fetched_beads_viewer_tag | regex_replace('^v', '') }}"
+
     - name: Fetch bv amd64 checksum from upstream checksums.txt
       ansible.builtin.include_tasks: tasks/fetch-checksum-from-file.yml
       vars:
         checksum_file_url: "https://github.com/Dicklesworthstone/beads_viewer/releases/download/{{ fetched_beads_viewer_tag }}/checksums.txt"
-        checksum_target_filename: "bv_linux_amd64.tar.gz"
+        checksum_target_filename: "bv_{{ _bv_stripped_version }}_linux_amd64.tar.gz"
 
     - name: Save bv amd64 fetched checksum
       ansible.builtin.set_fact:
@@ -421,7 +428,7 @@
       ansible.builtin.include_tasks: tasks/fetch-checksum-from-file.yml
       vars:
         checksum_file_url: "https://github.com/Dicklesworthstone/beads_viewer/releases/download/{{ fetched_beads_viewer_tag }}/checksums.txt"
-        checksum_target_filename: "bv_linux_arm64.tar.gz"
+        checksum_target_filename: "bv_{{ _bv_stripped_version }}_linux_arm64.tar.gz"
 
     - name: Save bv arm64 fetched checksum
       ansible.builtin.set_fact:

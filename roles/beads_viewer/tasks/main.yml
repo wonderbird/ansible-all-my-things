@@ -8,9 +8,10 @@
 # roles/beads_viewer/defaults/main.yml), refreshed only by
 # playbooks/update-versions/perform-updates.yml -- there is no live
 # checksums.txt fetch left; get_url's checksum: param verifies against the
-# pinned literal. Archive filenames are version-agnostic (e.g.
-# bv_linux_amd64.tar.gz). Same static-pin, no-partial-file, system-wide
-# semantics as bd (roles/beads_go).
+# pinned literal. Archive filenames embed the version (e.g.
+# bv_0.24.1_linux_amd64.tar.gz), so the stripped variant is derived in-role
+# from the single pinned raw tag. Same static-pin, no-partial-file,
+# system-wide semantics as bd (roles/beads_go).
 # -----
 
 - name: Check if bv binary already exists
@@ -30,18 +31,23 @@
           Supported architectures are: {{ beads_viewer_platform_map.keys() | list }}.
 
     # beads_viewer_version is a static pin (roles/beads_viewer/defaults/main.yml),
-    # refreshed only by playbooks/update-versions/perform-updates.yml -- no
-    # stripping needed anywhere, bv's filename is version-agnostic.
+    # refreshed only by playbooks/update-versions/perform-updates.yml -- see
+    # Constitution Principle II. The stripped filename-variant is still
+    # derived in-role from the single pinned raw tag.
+    - name: Derive stripped bv version from pinned tag
+      ansible.builtin.set_fact:
+        bv_version: "{{ beads_viewer_version | regex_replace('^v', '') }}"
+
     - name: Download and checksum-verify bv archive
       ansible.builtin.get_url:
-        url: https://github.com/Dicklesworthstone/beads_viewer/releases/download/{{ beads_viewer_version }}/bv_linux_{{ beads_viewer_platform_map[ansible_facts['architecture']] }}.tar.gz
-        dest: /tmp/bv_linux_{{ beads_viewer_platform_map[ansible_facts['architecture']] }}.tar.gz
+        url: https://github.com/Dicklesworthstone/beads_viewer/releases/download/{{ beads_viewer_version }}/bv_{{ bv_version }}_linux_{{ beads_viewer_platform_map[ansible_facts['architecture']] }}.tar.gz
+        dest: /tmp/bv_{{ bv_version }}_linux_{{ beads_viewer_platform_map[ansible_facts['architecture']] }}.tar.gz
         checksum: "sha256:{{ (beads_viewer_sha256_amd64 if ansible_facts['architecture'] == 'x86_64' else beads_viewer_sha256_arm64) }}"
         mode: '0644'
 
     - name: Extract bv binary to /usr/local/bin
       ansible.builtin.unarchive:
-        src: /tmp/bv_linux_{{ beads_viewer_platform_map[ansible_facts['architecture']] }}.tar.gz
+        src: /tmp/bv_{{ bv_version }}_linux_{{ beads_viewer_platform_map[ansible_facts['architecture']] }}.tar.gz
         dest: /usr/local/bin
         remote_src: true
         mode: '0755'
