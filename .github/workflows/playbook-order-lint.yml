@@ -3,30 +3,25 @@
 name: Playbook Order Lint
 
 # Enforce the apply-phase invariants of
-# playbooks/update-versions/perform-updates.yml documented in
-# docs/architecture/decisions/006-version-update-upstream-sources-and-ordering.md
+# playbooks/update-versions/perform-updates.yml. The invariants, why each
+# exists, and the checker's design are documented in
+# scripts/version-update-order/README.md.
 #
-# No tool's version pin may be written before that tool's own upstream values
-# are in hand, every consumer of the shared fetched_checksum fact must sit
-# immediately after its own include, and per-arch pins must be written from
-# same-platform values.
-#
-# Tool: scripts/check-apply-order.py (no network, no Podman, no pip)
+# Tool: scripts/version-update-order/check-version-update-order.py
+# (no network, no Podman, no pip)
 
 on:
   push:
     branches: ["main"]
     paths:
       - "playbooks/**"
-      - "scripts/check-apply-order.py"
-      - "scripts/test_check_apply_order.py"
+      - "scripts/version-update-order/**"
       - ".github/workflows/playbook-order-lint.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "playbooks/**"
-      - "scripts/check-apply-order.py"
-      - "scripts/test_check_apply_order.py"
+      - "scripts/version-update-order/**"
       - ".github/workflows/playbook-order-lint.yml"
   workflow_dispatch:
 
@@ -47,9 +42,11 @@ jobs:
           python-version: "3.14"
 
       - name: Test the apply-order checker
-        run: python3 scripts/test_check_apply_order.py
+        run: >-
+          python3
+          scripts/version-update-order/test_check_version_update_order.py
 
       - name: Check version-update apply order
         run: >-
-          python3 scripts/check-apply-order.py
+          python3 scripts/version-update-order/check-version-update-order.py
           playbooks/update-versions/perform-updates.yml

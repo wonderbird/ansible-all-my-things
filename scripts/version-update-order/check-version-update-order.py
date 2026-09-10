@@ -8,23 +8,26 @@ network/disk I/O (get_url, stat, uri, or an include of tasks/fetch-*). FETCH
 tasks are attributed to a tool by the fetched_* fact their vars interpolate,
 mapped to the role they feed.
 
-Five independent checks run over that classification:
+Independent checks run over that classification:
 
-1. Ordering -- a FETCH attributed to role R must not appear after the first
-   WRITE to R.
-2. Adjacency -- every consumer of the shared, play-scoped `fetched_checksum`
-   fact must be the task immediately following its own
-   tasks/fetch-checksum-from-file.yml include. Any task that reads the fact
-   counts, not only a `set_fact` alias: deleting an alias and interpolating
-   the raw fact into a `replace` produces the same corruption.
-3. Fail closed -- an apply-phase FETCH that cannot be attributed to a role is
-   an error, not a pass.
-4. Scope -- the number of roles analysed must equal the number of tracked pins
-   derived from query-versions.yml, so a narrowed analysis cannot report a
-   clean subset.
-5. Pairing -- a WRITE to a per-arch pin must interpolate a value whose own name
-   carries the same platform token, and a checksum pin fed from a `fetched_*`
-   alias must be fed from its own alias rather than another tool's.
+- ORDERING -- a FETCH attributed to role R must not appear after the first
+  WRITE to R.
+- ADJACENCY -- every consumer of the shared, play-scoped `fetched_checksum`
+  fact must be the task immediately following its own
+  tasks/fetch-checksum-from-file.yml include. Any task that reads the fact
+  counts, not only a `set_fact` alias: deleting an alias and interpolating
+  the raw fact into a `replace` produces the same corruption.
+- FAIL CLOSED -- an apply-phase FETCH that cannot be attributed to a role is
+  an error, not a pass.
+- SCOPE -- the number of roles analysed must equal the number of tracked pins
+  derived from query-versions.yml, so a narrowed analysis cannot report a
+  clean subset.
+- PAIRING -- a WRITE to a per-arch pin must interpolate a value whose own name
+  carries the same platform token, and a checksum pin fed from a `fetched_*`
+  alias must be fed from its own alias rather than another tool's.
+
+Why each check exists, and the limits of the attribution step, are documented
+in README.md beside this file.
 """
 import os
 import re
@@ -50,8 +53,8 @@ def expected_role_count(path):
 
     That `when:` list is the existing authoritative enumeration of tracked
     pins, so deriving the expectation from it avoids a second definition
-    (Principle XI) and turns check 4 into a Constitution II registration
-    check: a tool wired into perform-updates.yml but not into
+    (Principle XI) and turns the SCOPE check into a Constitution II
+    registration check: a tool wired into perform-updates.yml but not into
     query-versions.yml is caught here.
     """
     qv = os.path.join(os.path.dirname(os.path.abspath(path)), "query-versions.yml")
@@ -91,7 +94,7 @@ def parse_tasks(path):
 
 
 def analyse(path):
-    """Run all five checks and return their findings."""
+    """Run every check and return their findings."""
     tasks = parse_tasks(path)
 
     # fact -> role, learned from write tasks
@@ -106,7 +109,7 @@ def analyse(path):
         if task["is_write"] and task["role"] and task["role"] not in first_write:
             first_write[task["role"]] = task["line"]
 
-    # --- Check 1: per-tool ordering (and check 3: fail closed).
+    # --- ORDERING: per-tool ordering (and FAIL CLOSED: unattributable fetch).
     violations = []
     unattributed = []
     for task in tasks:
@@ -128,7 +131,7 @@ def analyse(path):
             if first is not None and task["line"] > first:
                 violations.append((task["line"], task["name"], role, first))
 
-    # --- Check 2: every consumer of the shared `fetched_checksum` fact must be
+    # --- ADJACENCY: every consumer of the shared `fetched_checksum` fact must be
     # the task immediately following its own fetch-checksum-from-file include.
     # The fact is play-scoped and overwritten by each include, so any separation
     # silently gives the consumer a different tool's checksum.
@@ -143,7 +146,7 @@ def analyse(path):
                 adjacency.append((task["line"], task["name"],
                                   prev["name"] if prev else "<start of phase>"))
 
-    # --- Check 5: platform-token pairing.
+    # --- PAIRING: platform-token pairing.
     # A `replace` writing a per-arch pin must interpolate a value whose own name
     # carries the SAME platform token. Catches a transposed register/alias pair,
     # which every positional check passes.
@@ -232,7 +235,8 @@ def report(path, result):
 def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     if len(argv) != 1:
-        print("usage: check-apply-order.py <perform-updates.yml>", file=sys.stderr)
+        print("usage: check-version-update-order.py <perform-updates.yml>",
+              file=sys.stderr)
         return 2
     path = argv[0]
     return report(path, analyse(path))
