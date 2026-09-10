@@ -135,7 +135,7 @@ def analyse(path):
     adjacency = []
     for idx, task in enumerate(tasks):
         body = "\n".join(task["body"])
-        if re.search(r"\bfetched_checksum\b", body):
+        if re.search(rf"\b{SHARED}\b", body):
             prev = tasks[idx - 1] if idx else None
             prev_body = "\n".join(prev["body"]) if prev else ""
             if not re.search(r"include_tasks:\s*tasks/fetch-checksum-from-file\.yml",

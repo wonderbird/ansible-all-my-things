@@ -12,7 +12,6 @@ import importlib.util
 import io
 import contextlib
 import shutil
-import sys
 import tempfile
 import unittest
 from pathlib import Path
