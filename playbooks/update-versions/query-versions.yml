@@ -233,13 +233,7 @@
         fetched_github_cli_tag: "{{ fetched_github_tag }}"
 
     - name: Fetch Obsidian upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-      vars:
-        github_repo: "obsidianmd/obsidian-releases"
-
-    - name: Save Obsidian fetched tag
-      ansible.builtin.set_fact:
-        fetched_obsidian_tag: "{{ fetched_github_tag }}"
+      ansible.builtin.include_tasks: tasks/fetch-obsidian-version.yml
 
     - name: Fetch rtk upstream version
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml

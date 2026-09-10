@@ -1,0 +1,57 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Sets fact: fetched_obsidian_tag (v-prefixed GitHub tag, e.g. "v1.13.7")
+#
+# obsidianmd/obsidian-releases publishes the Android and the desktop release
+# lines from one repository, so GitHub's "latest release" endpoint can return
+# an Android-only tag whose assets contain no .deb. The vendor's desktop feed
+# tracks the desktop line alone and carries the exact GitHub tag in its own
+# downloadUrl, so the tag is derived from that field rather than reconstructed
+# from latestVersion.
+
+- name: Set the Obsidian desktop release feed URL
+  ansible.builtin.set_fact:
+    _obsidian_desktop_feed_url: >-
+      https://raw.githubusercontent.com/obsidianmd/obsidian-releases/master/desktop-releases.json
+
+- name: Get the Obsidian desktop release feed
+  ansible.builtin.uri:
+    url: "{{ _obsidian_desktop_feed_url }}"
+    validate_certs: true
+    return_content: true
+  register: _obsidian_desktop_feed_response
+
+# raw.githubusercontent.com serves this file as text/plain, so the uri module
+# does not populate its own `json` key -- parse the body explicitly.
+- name: Parse the Obsidian desktop release feed from {{ _obsidian_desktop_feed_url }}
+  ansible.builtin.set_fact:
+    _obsidian_desktop_feed: "{{ _obsidian_desktop_feed_response.content | from_json }}"
+
+- name: Derive the Obsidian release tag from the desktop feed downloadUrl
+  ansible.builtin.set_fact:
+    _obsidian_tag_match: >-
+      {{ _obsidian_desktop_feed.downloadUrl | default('', true)
+         | regex_search('releases/download/(v[0-9]+\.[0-9]+\.[0-9]+)/', '\1')
+         | default([], true) }}
+
+- name: Assert the Obsidian desktop feed downloadUrl carries a release tag
+  ansible.builtin.assert:
+    that: "_obsidian_tag_match | length > 0"
+    fail_msg: >-
+      Cannot derive 'fetched_obsidian_tag': the 'downloadUrl' field of
+      {{ _obsidian_desktop_feed_url }} contains no
+      'releases/download/vX.Y.Z/' segment
+      (downloadUrl was: {{ _obsidian_desktop_feed.downloadUrl | default('<missing>') }}).
+
+- name: Assert the derived Obsidian tag agrees with the feed's latestVersion
+  ansible.builtin.assert:
+    that: "(_obsidian_tag_match | first) == 'v' ~ (_obsidian_desktop_feed.latestVersion | default('<missing>'))"
+    fail_msg: >-
+      Cannot derive 'fetched_obsidian_tag': {{ _obsidian_desktop_feed_url }}
+      disagrees with itself -- 'downloadUrl' yields
+      {{ _obsidian_tag_match | first }} but 'latestVersion' is
+      {{ _obsidian_desktop_feed.latestVersion | default('<missing>') }}.
+
+- name: Set Obsidian tag fact
+  ansible.builtin.set_fact:
+    fetched_obsidian_tag: "{{ _obsidian_tag_match | first }}"
