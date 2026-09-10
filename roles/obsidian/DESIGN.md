@@ -65,13 +65,20 @@ phase and fails it.
 
 ## Version-Update Integration
 
-The role registers with the project-wide version-update mechanism, reusing
-the shared `fetch-github-release.yml` task with
-`github_repo: obsidianmd/obsidian-releases` — no new fetch logic:
+The role registers with the project-wide version-update mechanism through a
+dedicated `fetch-obsidian-version.yml` task rather than the shared
+`fetch-github-release.yml`:
 
+- `obsidianmd/obsidian-releases` publishes the Android and the desktop
+  release lines from one repository, so its GitHub "latest release" is
+  regularly an Android tag whose assets contain no `.deb`. Resolving the
+  version that way pinned `obsidian_version` to a tag whose amd64 `.deb`
+  did not exist, and the download 404'd. The fetch task therefore reads the
+  vendor's `desktop-releases.json` feed, which tracks the desktop line
+  alone, and derives the tag from that feed's own `downloadUrl` — see
+  [ADR-006](../../docs/architecture/decisions/006-version-update-upstream-sources-and-ordering.md).
 - `query-versions.yml` reads the pinned tag from `defaults/main.yml`,
-  fetches the latest GitHub release tag, and reports STALE if the two
-  differ.
-- `perform-updates.yml` writes the new tag and re-downloads the amd64 `.deb`
-  to recompute its SHA-256, then writes both pins back into
-  `defaults/main.yml` together.
+  fetches the desktop feed's tag, and reports STALE if the two differ.
+- `perform-updates.yml` downloads the amd64 `.deb` and computes its SHA-256
+  **before** writing either pin, so an upstream failure cannot leave a new
+  version paired with the previous version's checksum.

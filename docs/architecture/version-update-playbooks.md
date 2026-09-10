@@ -10,7 +10,7 @@ process to detect and apply upstream updates, pins silently drift
 behind current releases, exposing provisioned machines to known
 security vulnerabilities and missing features.
 
-Checking each tracked tool across four upstream source types by hand —
+Checking each tracked tool across five upstream source types by hand —
 each with a different API shape — is error-prone and often skipped.
 
 ### Functional Requirements
@@ -53,10 +53,18 @@ each with a different API shape — is error-prone and often skipped.
 ### Context and Influencing Factors
 
 - The tracked tools use five distinct upstream source types:
-  structured JSON (Flutter), GitHub Releases REST API (gitmux, Nerd
-  Fonts, Dolt, OpenCode, GitHub CLI, Obsidian), GitHub Commits REST API
-  (skill-manager, which ships no releases), SDKMAN REST API (Java),
-  and HTML scraping (Android cmdline-tools).
+  vendor-published JSON documents (the Flutter release manifest, the
+  Node.js dist index, the Claude Code per-version manifest, and the
+  Obsidian desktop release feed), GitHub Releases REST API (gitmux, Nerd
+  Fonts, Dolt, OpenCode, GitHub CLI, rtk, bd, bv, br, specify-cli,
+  direnv, and — for the release tag only — Claude Code), GitHub Commits
+  REST API (skill-manager, which ships no releases), SDKMAN REST API
+  (Java), and HTML scraping (Android cmdline-tools).
+- `obsidianmd/obsidian-releases` publishes the Android and the desktop
+  release lines from one repository, so its GitHub "latest release" is
+  regularly an Android tag whose assets contain no `.deb`. Obsidian is
+  therefore tracked through the vendor's own desktop feed rather than
+  through the shared GitHub Releases oracle.
 - GitHub API access is unauthenticated — the 60 requests/hour rate
   limit is sufficient for manual maintenance runs but must be handled
   explicitly.
@@ -88,7 +96,7 @@ for how a role verifies a checksum for a version this mechanism has
 already pinned — this document covers resolving and writing the pin;
 that one covers consuming it.
 
-Two playbooks share four upstream-fetch task files:
+Two playbooks share these upstream-fetch task files:
 
 ```text
 playbooks/update-versions/
@@ -100,6 +108,7 @@ playbooks/update-versions/
     ├── fetch-java-version.yml        # SDKMAN REST API → latest same-major tem release
     ├── fetch-android-version.yml     # HTML scrape developer.android.com → build + sha1
     ├── fetch-claude-code-version.yml # Per-version manifest.json → version + checksums
+    ├── fetch-obsidian-version.yml    # Obsidian desktop feed → v-prefixed release tag
     ├── fetch-nodejs-version.yml      # nodejs.org dist index → latest LTS version
     ├── fetch-checksum-from-file.yml  # Upstream checksums file → sha256 (parametrized)
     └── fetch-github-commit-sha.yml   # GitHub /commits/{ref} → HEAD commit SHA (parametrized)
@@ -117,11 +126,11 @@ Tracked tools and their upstream sources:
 | Dolt | `dolt_sql_server` | `dolt_version` | `dolt_sha256_amd64` / `dolt_sha256_arm64` (sha256) | GitHub Releases API (`dolthub/dolt`) |
 | OpenCode | `opencode` | `opencode_version` | `opencode_sha256_amd64` / `opencode_sha256_arm64` (sha256) | GitHub Releases API (`anomalyco/opencode`) |
 | GitHub CLI | `github_cli` | `github_cli_version` | — | GitHub Releases API (`cli/cli`) |
-| Obsidian | `obsidian` | `obsidian_version` | `obsidian_sha256_amd64` (sha256) | GitHub Releases API (`obsidianmd/obsidian-releases`) |
+| Obsidian | `obsidian` | `obsidian_version` | `obsidian_sha256_amd64` (sha256) | `desktop-releases.json` feed on `obsidianmd/obsidian-releases@master` |
 | rtk | `rtk` | `rtk_version` | `rtk_sha256_x86_64_musl` / `rtk_sha256_aarch64_gnu` (sha256) | version: GitHub Releases API (`rtk-ai/rtk`); checksum: release's `checksums.txt` |
 | beads (bd) | `beads_go` | `beads_go_version` | `beads_go_sha256_amd64` / `beads_go_sha256_arm64` (sha256) | version: GitHub Releases API (`gastownhall/beads`); checksum: release's `checksums.txt` |
 | beads viewer (bv) | `beads_viewer` | `beads_viewer_version` | `beads_viewer_sha256_amd64` / `beads_viewer_sha256_arm64` (sha256) | version: GitHub Releases API (`Dicklesworthstone/beads_viewer`); checksum: release's `checksums.txt` |
-| beads rust (br) | `beads_rust` | `beads_rust_version` | `beads_rust_sha256_amd64` / `beads_rust_sha256_arm64` (sha256) | version: GitHub Releases API (`Dicklesworthstone/beads_rust`); checksum: release's `checksums.sha256` |
+| beads rust (br) | `beads_rust` | `beads_rust_version` | `beads_rust_sha256_amd64` / `beads_rust_sha256_arm64` (sha256) | version: GitHub Releases API (`Dicklesworthstone/beads_rust`); checksum: release's per-archive `<filename>.sha256` sidecars |
 | Node.js | `nodejs` | `node_version` | `node_sha256_x64` / `node_sha256_arm64` (sha256) | version: `nodejs.org` dist release index; checksum: `nodejs.org` dist `SHASUMS256.txt` |
 | specify-cli | `specify_cli` | `specify_cli_version` | — | GitHub Releases API (`github/spec-kit`) |
 | Claude Code | `claude_code` | `claude_code_version` | `claude_code_sha256_linux_x64` / `claude_code_sha256_linux_arm64` (sha256) | Per-version `manifest.json` (`storage.googleapis.com`) |
@@ -129,20 +138,29 @@ Tracked tools and their upstream sources:
 | direnv | `direnv` | `direnv_version` | `direnv_sha256_amd64` / `direnv_sha256_arm64` (sha256) | GitHub Releases API (`direnv/direnv`) |
 
 `fetch-github-release.yml` is parametrized via a `github_repo`
-variable and called once per GitHub-Releases-backed tool (gitmux, Nerd
-Fonts, Dolt, OpenCode, GitHub CLI, Obsidian, br, direnv), covering all of
-them with a single shared task file.
+variable and called once per GitHub-Releases-backed tool — gitmux, Nerd
+Fonts, Dolt, OpenCode, GitHub CLI, rtk, bd, bv, br, specify-cli and
+direnv directly, plus Claude Code through
+`fetch-claude-code-version.yml`, which nests it for the release tag and
+then reads that version's `manifest.json` for the checksums — covering
+all twelve with a single shared task file.
+
+It resolves `GET /releases/latest`, which is the wrong oracle for a
+repository publishing two release lines from one tag namespace. That is
+why Obsidian is not on the list above.
 
 `fetch-checksum-from-file.yml` is likewise parametrized (`checksum_file_url`,
 `checksum_target_filename`) and used instead of a local
 download-and-hash when, and only when, upstream publishes a checksums
 file that covers the exact consumed asset: rtk, bd, and bv each ship a
-`checksums.txt` in their GitHub release; br ships a `checksums.sha256`
-file in the same format (its release also ships a same-shaped but
-**incorrect** `SHA256SUMS` file whose listed hashes do not match the
-actual archives -- verified when the `beads_rust` role was created;
-`checksums.sha256` is the one that is correct, and is the one wired
-here); Node.js publishes `SHASUMS256.txt` alongside its dist tarballs.
+`checksums.txt` in their GitHub release; br ships one
+`<filename>.sha256` sidecar per archive, and those per-archive sidecars
+are what is wired here, because br's *combined* checksum file has been
+renamed across releases (`checksums.sha256`, then
+`SHA256SUMS`/`SHA256SUMS.txt`) and one of those spellings carried hashes
+that did not match the actual archives — a filename derived from the
+archive itself is the stable choice; Node.js publishes `SHASUMS256.txt`
+alongside its dist tarballs.
 It fails loudly (Principle XII) if the target filename has no matching
 line. Dolt and OpenCode keep the download-and-`ansible.builtin.stat`
 pattern because neither publishes a checksums file covering the Linux
@@ -161,10 +179,46 @@ was evaluated and not judged worth the added indirection (tracked in
 in-place edits. A second run when all pins are already current makes
 no modifications.
 
+#### Apply-phase ordering contract
+
+The apply phase holds three invariants, enforced by
+`scripts/check-apply-order.py` and the Playbook Order Lint workflow:
+
+1. **Per-tool ordering.** Within a tool's section, no network or checksum
+   task may follow that tool's first `replace`. Ansible has no
+   transaction, so an upstream failure part-way through the phase leaves
+   a prefix of the tools updated; this invariant keeps each individual
+   tool's pin and checksums consistent with one another, which is what
+   every role defaults file's "update these together" contract requires.
+2. **`fetched_checksum` adjacency.** `fetch-checksum-from-file.yml` sets
+   one play-scoped `fetched_checksum` fact that every include overwrites,
+   so each `Save … fetched checksum` alias must be the task immediately
+   after its own include. Batching the includes would make every alias
+   resolve to the last include's value and write the same wrong digest to
+   five roles without a single task failing.
+3. **Platform-token pairing.** A per-arch pin must be written from a value
+   whose own name carries the same platform token, so a transposed
+   register or alias pair cannot pass every positional check.
+
+The checker additionally fails closed on an apply-phase fetch it cannot
+attribute to a role, and asserts that the number of roles it analysed
+equals the number of stale-check clauses in `query-versions.yml`. That
+derived count makes it a Constitution II registration check too: a tool
+wired into `perform-updates.yml` but not into `query-versions.yml` is
+reported by name.
+
+Run it directly with:
+
+```bash
+python3 scripts/check-apply-order.py playbooks/update-versions/perform-updates.yml
+python3 scripts/test_check_apply_order.py
+```
+
 ### Sources for Further Information
 
 - Flutter release manifest: <https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json>
 - GitHub Releases API: <https://docs.github.com/en/rest/releases/releases#get-the-latest-release>
+- Obsidian desktop release feed: <https://raw.githubusercontent.com/obsidianmd/obsidian-releases/master/desktop-releases.json>
 - SDKMAN REST API: <https://api.sdkman.io/2/candidates/java/linuxx64/versions/all>
 - Android developer page: <https://developer.android.com/studio#command-line-tools-only>
 - Technical debt entry (TD-009):
