@@ -63,22 +63,41 @@ was rejected during planning: deleting the artefact forces a re-download on
 every subsequent run, which reports `changed` on Molecule's `idempotence`
 phase and fails it.
 
+## One Repository, Two Release Lines
+
+`obsidianmd/obsidian-releases` publishes the Android and the desktop release
+lines from a single repository and a single tag namespace. Its GitHub "latest
+release" is therefore regularly an Android tag whose asset list holds an
+`.apk` and no `.deb` at all. The two lines interleave continuously, so this is
+a recurring condition rather than a one-off.
+
+Anything that resolves "the newest release" without also requiring the asset
+it needs will eventually pin a tag whose amd64 `.deb` does not exist, and the
+download 404s. The vendor's `desktop-releases.json` feed on the `master`
+branch tracks the desktop line alone and is the source this project uses
+instead.
+
+If that feed is ever moved or renamed, the recovery path is to page
+`GET /releases?per_page=N` on the same repository and select the newest
+release that carries an `obsidian_*_amd64.deb`. That was the alternative
+considered when the feed was adopted. It costs no extra API request, since it
+replaces the `releases/latest` call rather than adding to it, and its
+selection rule is better defined than a file on a vendor branch. It was not
+chosen because "newest" is ambiguous when two release lines interleave —
+`published_at` order and list order can disagree.
+
 ## Version-Update Integration
 
 The role registers with the project-wide version-update mechanism through a
 dedicated `fetch-obsidian-version.yml` task rather than the shared
-`fetch-github-release.yml`:
+`fetch-github-release.yml`, for the reason above. Why that task derives the
+tag the way it does is documented in its own header comment, which is what
+someone editing it will have in front of them.
 
-- `obsidianmd/obsidian-releases` publishes the Android and the desktop
-  release lines from one repository, so its GitHub "latest release" is
-  regularly an Android tag whose assets contain no `.deb`. Resolving the
-  version that way pinned `obsidian_version` to a tag whose amd64 `.deb`
-  did not exist, and the download 404'd. The fetch task therefore reads the
-  vendor's `desktop-releases.json` feed, which tracks the desktop line
-  alone, and derives the tag from that feed's own `downloadUrl` — see
-  [ADR-006](../../docs/architecture/decisions/006-version-update-upstream-sources-and-ordering.md).
 - `query-versions.yml` reads the pinned tag from `defaults/main.yml`,
   fetches the desktop feed's tag, and reports STALE if the two differ.
 - `perform-updates.yml` downloads the amd64 `.deb` and computes its SHA-256
   **before** writing either pin, so an upstream failure cannot leave a new
-  version paired with the previous version's checksum.
+  version paired with the previous version's checksum. That ordering is
+  enforced by
+  [`scripts/version-update-order/`](../../scripts/version-update-order/README.md).

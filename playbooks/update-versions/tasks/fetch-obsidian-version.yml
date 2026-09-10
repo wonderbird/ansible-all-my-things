@@ -2,12 +2,22 @@
 ---
 # Sets fact: fetched_obsidian_tag (v-prefixed GitHub tag, e.g. "v1.13.7")
 #
-# obsidianmd/obsidian-releases publishes the Android and the desktop release
-# lines from one repository, so GitHub's "latest release" endpoint can return
-# an Android-only tag whose assets contain no .deb. The vendor's desktop feed
-# tracks the desktop line alone and carries the exact GitHub tag in its own
-# downloadUrl, so the tag is derived from that field rather than reconstructed
-# from latestVersion.
+# Why this file exists instead of a fetch-github-release.yml call: Obsidian's
+# GitHub repository mixes two release lines, so "latest release" can resolve to
+# a tag carrying no .deb -- see roles/obsidian/DESIGN.md. The vendor's desktop
+# feed tracks the desktop line alone.
+#
+# The tag is derived from the feed's downloadUrl, not composed by prefixing
+# latestVersion with "v": roles/obsidian/tasks/main.yml hard-asserts the v
+# prefix, and a real URL already carries the exact tag.
+#
+# The regex_search is scoped to the downloadUrl field rather than the response
+# body, so a future beta.downloadUrl on a GitHub releases path cannot match.
+#
+# The get_url in perform-updates.yml carries no failed_when guard on purpose.
+# On an Ansible module, failed_when REPLACES the module's own failure test, so
+# a guard meant to improve the message converts a 404 into ok. The module's own
+# error already prints HTTP Error 404, the status code and the full URL.
 
 - name: Set the Obsidian desktop release feed URL
   ansible.builtin.set_fact:
