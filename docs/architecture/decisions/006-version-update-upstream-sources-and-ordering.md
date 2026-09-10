@@ -82,12 +82,18 @@ Two further invariants ride along, and both exist because a plausible
   includes without their aliases, or batching them, makes all ten resolve to
   the last include's value: five roles receive the same wrong digest with no
   task failing, `failed=0` holds, and a second run is stably wrong so any
-  diff-based idempotency probe passes.
-- **Platform-token pairing.** A per-arch pin must be written from a value whose
-  own name carries the same platform token. A reorder that transposes
-  `_dolt_amd64_stat` and `_dolt_arm64_stat`, or two `fetched_checksum` aliases,
-  passes every positional check and every distinctness check, and fails only at
-  role install time.
+  diff-based idempotency probe passes. The rule binds *any* task that reads the
+  fact, not only a `set_fact` alias — deleting an alias and interpolating the
+  raw fact straight into a `replace` looks like a tidy-up and produces exactly
+  the same corruption.
+- **Pairing.** A per-arch pin must be written from a value whose own name
+  carries the same platform token, *and* a checksum pin fed from a `fetched_*`
+  alias must be fed from its own alias. The platform half catches a reorder
+  that transposes `_dolt_amd64_stat` and `_dolt_arm64_stat`, or two
+  `fetched_checksum` aliases. The alias half catches a cross-tool swap, where
+  the platform tokens agree and only the tool is wrong — bd's amd64 digest
+  written into bv's amd64 pin. Both pass every positional check and every
+  distinctness check, and fail only at role install time.
 
 `scripts/check-apply-order.py` enforces all three, fails closed on an
 apply-phase fetch it cannot attribute to a role, and asserts its analysis
@@ -153,6 +159,19 @@ A future tool following that convention therefore lands in "cannot attribute".
 That is noisy rather than dangerous — the checker fails closed, so the gate goes
 red and asks for a `fetched_<role>_*` fact or a role-named file, instead of
 passing the task over.
+
+One diagnosability quirk rides along. Roles are learned from write tasks, and
+the first role a `fetched_*` fact is seen with wins. If a write task
+interpolates a foreign tool's fact, that fact stays bound to the wrong role for
+the rest of the run, so the ordering check can report a real defect against the
+wrong section. The pairing rule above reports the same defect correctly, so the
+gate still goes red for the right reason — but a reader following only the
+ordering line will be sent to the wrong place.
+
+Both hazards the two enforcement rules above describe would become
+unrepresentable if `tasks/fetch-checksum-from-file.yml` took a result-variable
+parameter, which is the tracked follow-up that would let the adjacency and
+pairing checks be deleted outright.
 
 ## Alternatives Considered
 

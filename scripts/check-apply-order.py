@@ -14,14 +14,17 @@ Five independent checks run over that classification:
    WRITE to R.
 2. Adjacency -- every consumer of the shared, play-scoped `fetched_checksum`
    fact must be the task immediately following its own
-   tasks/fetch-checksum-from-file.yml include.
+   tasks/fetch-checksum-from-file.yml include. Any task that reads the fact
+   counts, not only a `set_fact` alias: deleting an alias and interpolating
+   the raw fact into a `replace` produces the same corruption.
 3. Fail closed -- an apply-phase FETCH that cannot be attributed to a role is
    an error, not a pass.
 4. Scope -- the number of roles analysed must equal the number of tracked pins
    derived from query-versions.yml, so a narrowed analysis cannot report a
    clean subset.
 5. Pairing -- a WRITE to a per-arch pin must interpolate a value whose own name
-   carries the same platform token.
+   carries the same platform token, and a checksum pin fed from a `fetched_*`
+   alias must be fed from its own alias rather than another tool's.
 """
 import os
 import re
@@ -132,7 +135,7 @@ def analyse(path):
     adjacency = []
     for idx, task in enumerate(tasks):
         body = "\n".join(task["body"])
-        if re.search(r"\bfetched_checksum\b", body) and "set_fact" in body:
+        if re.search(r"\bfetched_checksum\b", body):
             prev = tasks[idx - 1] if idx else None
             prev_body = "\n".join(prev["body"]) if prev else ""
             if not re.search(r"include_tasks:\s*tasks/fetch-checksum-from-file\.yml",
@@ -155,6 +158,16 @@ def analyse(path):
             pairing.append((task["line"], task["name"], pin, src,
                             "/".join(sorted(pin_tokens)),
                             "/".join(sorted(src_tokens))))
+            continue
+        # A checksum pin fed from a `fetched_*` alias must be fed from its OWN
+        # alias. Platform tokens alone do not catch a cross-tool swap: bd's
+        # amd64 digest written into bv's amd64 pin agrees on platform and
+        # fails only at role install time.
+        if src.startswith("fetched_") and "_sha256" in src:
+            expected = "fetched_" + pin
+            if src != expected:
+                pairing.append((task["line"], task["name"], pin, src,
+                                expected, "cross-tool"))
 
     return {
         "violations": sorted(violations),
@@ -185,9 +198,13 @@ def report(path, result):
               f" (add a fetched_<role>_* fact or name the file"
               f" tasks/fetch-<role>-version.yml)")
 
-    for line, name, pin, src, pin_tokens, src_tokens in result["pairing"]:
-        print(f"{path}:{line}: PAIRING: '{pin}' ({pin_tokens}) is written from "
-              f"'{src}' ({src_tokens}) -- transposed platform values -- {name}")
+    for line, name, pin, src, left, right in result["pairing"]:
+        if right == "cross-tool":
+            print(f"{path}:{line}: PAIRING: '{pin}' is written from '{src}' but "
+                  f"its own alias is '{left}' -- another tool's checksum -- {name}")
+        else:
+            print(f"{path}:{line}: PAIRING: '{pin}' ({left}) is written from "
+                  f"'{src}' ({right}) -- transposed platform values -- {name}")
 
     analysed, expected = len(result["roles"]), result["expected"]
     scope_ok = analysed == expected

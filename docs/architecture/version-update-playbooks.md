@@ -192,13 +192,17 @@ The apply phase holds three invariants, enforced by
    every role defaults file's "update these together" contract requires.
 2. **`fetched_checksum` adjacency.** `fetch-checksum-from-file.yml` sets
    one play-scoped `fetched_checksum` fact that every include overwrites,
-   so each `Save … fetched checksum` alias must be the task immediately
-   after its own include. Batching the includes would make every alias
-   resolve to the last include's value and write the same wrong digest to
-   five roles without a single task failing.
-3. **Platform-token pairing.** A per-arch pin must be written from a value
-   whose own name carries the same platform token, so a transposed
-   register or alias pair cannot pass every positional check.
+   so each task reading it must come immediately after its own include.
+   Batching the includes would make every alias resolve to the last
+   include's value and write the same wrong digest to five roles without a
+   single task failing. Deleting an alias and reading the raw fact in a
+   `replace` does the same, so the rule binds every reader, not only the
+   `Save … fetched checksum` aliases.
+3. **Pairing.** A per-arch pin must be written from a value whose own name
+   carries the same platform token, and a checksum pin fed from a
+   `fetched_*` alias must be fed from its own alias. Together these reject
+   both a transposed register or alias pair and a cross-tool swap, neither
+   of which any positional check can see.
 
 The checker additionally fails closed on an apply-phase fetch it cannot
 attribute to a role, and asserts that the number of roles it analysed

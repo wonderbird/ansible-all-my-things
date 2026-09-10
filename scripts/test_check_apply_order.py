@@ -154,6 +154,53 @@ class CheckApplyOrderTest(unittest.TestCase):
         self.assertIn("transposed platform values", out)
         self.assertEqual(code, 1)
 
+    def test_replace_reading_raw_shared_fact_breaks_adjacency(self):
+        """Deleting an alias and reading fetched_checksum directly is caught.
+
+        This is the shape a plausible "simplify away the alias" cleanup takes.
+        At that point in the play fetched_checksum holds the LAST include's
+        value, so the write silently takes another architecture's digest.
+        """
+        text = self.fixture.read()
+        text = text.replace(
+            """    - name: Save Node.js x64 fetched checksum
+      ansible.builtin.set_fact:
+        fetched_node_sha256_x64: "{{ fetched_checksum }}"
+
+""",
+            "",
+        ).replace(
+            'replace: \'node_sha256_x64: "{{ fetched_node_sha256_x64 }}"\'',
+            'replace: \'node_sha256_x64: "{{ fetched_checksum }}"\'',
+        )
+        self.fixture.write(text)
+
+        code, out = self.fixture.run()
+        self.assertIn("1 adjacency violation(s)", out)
+        self.assertIn("Update node_sha256_x64 in nodejs role defaults", out)
+        self.assertIn("does not immediately follow its include", out)
+        self.assertEqual(code, 1)
+
+    def test_cross_tool_checksum_source_breaks_pairing(self):
+        """A digest taken from another tool's alias is caught.
+
+        Platform tokens agree (amd64 to amd64) and bd's fetches still precede
+        bd's first write, so ordering, adjacency and platform pairing all pass.
+        Only the alias-name rule sees it.
+        """
+        text = self.fixture.read().replace(
+            'replace: \'beads_viewer_sha256_amd64: "{{ fetched_beads_viewer_sha256_amd64 }}"\'',
+            'replace: \'beads_viewer_sha256_amd64: "{{ fetched_beads_go_sha256_amd64 }}"\'',
+        )
+        self.fixture.write(text)
+
+        code, out = self.fixture.run()
+        self.assertIn("1 pairing violation(s)", out)
+        self.assertIn("'beads_viewer_sha256_amd64' is written from "
+                      "'fetched_beads_go_sha256_amd64'", out)
+        self.assertIn("another tool's checksum", out)
+        self.assertEqual(code, 1)
+
     def test_relocated_phase_marker_narrows_scope(self):
         """Moving the apply-phase marker must not yield a clean subset."""
         text = self.fixture.read()
