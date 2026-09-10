@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: MIT-0
+---
+name: Playbook Order Lint
+
+# Enforce the apply-phase invariants of
+# playbooks/update-versions/perform-updates.yml documented in
+# docs/architecture/decisions/006-version-update-upstream-sources-and-ordering.md
+#
+# No tool's version pin may be written before that tool's own upstream values
+# are in hand, every consumer of the shared fetched_checksum fact must sit
+# immediately after its own include, and per-arch pins must be written from
+# same-platform values.
+#
+# Tool: scripts/check-apply-order.py (no network, no Podman, no pip)
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "playbooks/**"
+      - "scripts/check-apply-order.py"
+      - "scripts/test_check_apply_order.py"
+      - ".github/workflows/playbook-order-lint.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "playbooks/**"
+      - "scripts/check-apply-order.py"
+      - "scripts/test_check_apply_order.py"
+      - ".github/workflows/playbook-order-lint.yml"
+  workflow_dispatch:
+
+jobs:
+  playbook-order-lint:
+    name: Check version-update apply order
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Test the apply-order checker
+        run: python3 scripts/test_check_apply_order.py
+
+      - name: Check version-update apply order
+        run: >-
+          python3 scripts/check-apply-order.py
+          playbooks/update-versions/perform-updates.yml
