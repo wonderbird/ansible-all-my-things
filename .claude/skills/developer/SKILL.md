@@ -46,10 +46,10 @@ fine over a manual `ssh` connection. Raising the timeout does not help; the
 probe can never succeed regardless of duration.
 
 Use a protocol-level check instead — no module execution needed:
-`ansible.builtin.wait_for: {host, port: 22}` (pure TCP), or an `ssh-keyscan`
-+ `retries` loop that polls until the host key can be fetched.
-`playbooks/tasks/create/aws.yml` demonstrates the `wait_for:
-port=22` form for `profile == 'windows'`,
+`ansible.builtin.wait_for: {host, port: 22}` (pure TCP), or an
+`ssh-keyscan` + `retries` loop that polls until the host key can be
+fetched. `playbooks/tasks/create/aws.yml` demonstrates the
+`wait_for: port=22` form for `profile == 'windows'`,
 alongside the still-`wait_for_connection`-based path used for Linux (which
 works there because Linux has Python).
 
