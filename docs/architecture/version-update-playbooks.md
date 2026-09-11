@@ -55,24 +55,10 @@ upstream source, each with its own API shape and its own failure modes.
 
 - Tracked tools publish through several kinds of upstream source, and
   the kind — not the individual tool — is what determines the fetch
-  strategy:
-  - **GitHub Releases REST API**, for anything that tags releases on
-    GitHub. This is the common case and the reason a single parametrized
-    task file covers most tools.
-  - **GitHub Commits REST API**, for a project that ships no releases at
-    all, where the pin is a commit SHA.
-  - **A vendor-published JSON document**, where the vendor maintains a
-    machine-readable release feed of its own. Preferred over the GitHub
-    API whenever the vendor's feed answers a question the GitHub API
-    cannot.
-  - **A third-party distribution REST API**, where the tool is consumed
-    through a distributor rather than from its own releases.
-  - **HTML scraping**, only where no machine-readable source exists at
-    all. Deliberately isolated per FR-007, because it is the most
-    fragile kind.
-
-  Which tool uses which is not restated here; it is visible in the
-  `tasks/fetch-*.yml` file each tool's query task includes.
+  strategy. Each kind has a `fetch-*.yml` file in
+  `playbooks/update-versions/tasks/` that implements it, so the current
+  set of kinds, and which tool uses which, is read from that directory
+  rather than restated here.
 - Obsidian is tracked through the vendor's desktop release feed rather
   than the shared GitHub Releases oracle, because its repository
   publishes two release lines from one tag namespace and the newest tag
