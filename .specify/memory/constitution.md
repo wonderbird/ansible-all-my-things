@@ -1,39 +1,38 @@
 <!--
-Sync Impact Report — 1.21.0 → 1.22.0 (MINOR)
-- Development Workflow step 5: added an "AI-orchestrated-loop exception" —
-  for autonomous loops that run an automated architect/critic approval pass
-  and a deslop regression re-verify pass before completion (e.g. ralph,
-  autopilot, ultrawork), the human review checkpoint moves from after every
-  commit to once per completed run, gated on architect/critic approval AND
-  the deslop pass's post-cleanup regression re-verification, and MUST happen
-  on a GitHub PR against `origin` (never `upstream`) rather than local/chat
-  diff review. Ad hoc sessions are explicitly unaffected and keep today's
-  per-commit review. Addresses findings ansible-all-my-things-74w5.1 (review
-  timing) and ansible-all-my-things-74w5.2 (review medium/PR target) — both
-  observed that per-commit, in-session review fires on AI-orchestrated loops
-  before verification passes complete and outside a reviewable PR. Scoped by
-  property rather than enumerating loop tool names exhaustively, so the
-  exception survives future OMC execution-mode renames/additions. MINOR:
-  material expansion of Development Workflow guidance, no principle removed
-  or redefined.
-- Rationale: a single property-scoped subsection covers both timing and
-  medium since they are two facets of the same exception; cross-references
-  AGENTS.md's existing "Repository Remotes and Pull-Request Workflow" section
-  for `gh pr create` mechanics instead of duplicating them (Principle XI).
+Sync Impact Report — 1.22.0 → 1.23.0 (MINOR)
+- Technology Stack: the Scripting entry now names Bash **and** Python for
+  `scripts/`, with Python preferred for any script that carries tests or is
+  large enough for its structure to matter, and a test-sibling requirement for
+  non-trivial Python scripts. The trailing "no additional runtime languages"
+  sentence is scoped to managed hosts, so it no longer reads as a prohibition
+  on control-node tooling. Addresses finding ansible-all-my-things-p5c9.7,
+  which observed that every Python script in `scripts/` had to be justified as
+  a Core Principle exception even where Python was plainly the better tool.
+- Documentation Standards: new subsection "Write Against Intent, Not Against
+  Implementation Details" — documentation and comments describe intent,
+  purpose and kinds, never counts or exhaustive component enumerations;
+  exhaustive lists are derived from the code at read time rather than copied.
+  Addresses finding ansible-all-my-things-p5c9.8. The rule previously existed
+  only in `.claude/skills/developer/SKILL.md`, which is persona-scoped, so an
+  agent writing documentation without loading that skill was never bound by
+  it — the observed failure mode.
+- Rationale: both changes came out of one review round on the same pull
+  request and are carried as a single amendment, since Governance retains only
+  the latest Sync Impact Report and two bumps would leave the first
+  unrecorded. MINOR: material expansion of guidance in two sections, no
+  principle removed or redefined.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: no propagation required (does not restate Development
-  Workflow step 5; already documents the `gh pr create --repo` mechanics this
-  amendment cross-references)
+- AGENTS.md checked: no propagation required (does not restate the Technology
+  Stack or Documentation Standards sections)
 - CLAUDE.md checked: no propagation required
-- .claude/skills/*/SKILL.md checked: no propagation required (no skill in
-  this repo restates the per-commit review rule)
-- ralph/autopilot/ultrawork skill docs (OMC plugin, global, outside this
-  repo) intentionally not amended here — out of repo scope; this
-  constitution is the authoritative source for this repo's review-timing and
-  review-medium rules regardless of upstream plugin skill wording.
+- .claude/skills/*/SKILL.md checked: `.claude/skills/developer/SKILL.md`
+  amended in the same change — its "Comment and Documentation Robustness"
+  section is reduced to a reference to the new Documentation Standards
+  subsection, so the rule has one definition (Principle XI). No other skill
+  restates either amended section.
 -->
 # ansible-all-my-things Constitution
 
@@ -376,10 +375,16 @@ adding host-key churn on local targets where the threat is negligible.
 - **Configuration**: `ansible.cfg`, `group_vars`, `host_vars`, `inventories/`
 - **Dependencies**: `requirements.yml` (Ansible Galaxy roles/collections),
   `requirements.txt` (Python packages including Molecule)
-- **Scripting**: Bash (`scripts/`)
+- **Scripting**: Bash and Python (`scripts/`). Python is preferred for any
+  script that carries tests or is large enough for its structure to matter,
+  because it supports a natural unit-test layout and scales better as the
+  script grows; Bash remains the right choice for short command sequences.
+  A Python script MUST ship with a `test_`-prefixed sibling unless it is too
+  trivial to test.
 
-No additional runtime languages (Python services, Node apps, etc.) are
-introduced without explicit justification and documentation.
+This covers tooling run on the control node. No additional runtime languages
+(Python services, Node apps, etc.) are introduced on managed hosts without
+explicit justification and documentation.
 
 ## Secret Management
 
@@ -398,6 +403,36 @@ extension `review-documentation-here`. All agents MUST invoke
 `format-markdown`, so documentation is stable before formatting runs.**
 
 All documentation MUST comply with Principle VI (Markdown Quality Standards).
+
+### Write Against Intent, Not Against Implementation Details
+
+Documentation and comments MUST describe intent, purpose, and the *kinds* of a
+thing. They MUST NOT state counts, exhaustive enumerations of components, or
+other implementation specifics (group names, file paths, variable names, host
+targets) that a later change falsifies. An intent-based description stays
+correct as long as the intention holds; an implementation-specific one becomes
+wrong the moment the code changes, and nothing fails to announce it.
+
+Where an exhaustive list genuinely helps a reader, point at the code that
+already enumerates it — a directory, a task file, a `when:` clause — so the
+list is derived at read time instead of copied. Where a document must state the
+current value of an implementation detail, distinguish the intent from the
+current value, so a reader knows which half to update.
+
+Fragile, because it breaks when `hosts:` is renamed:
+
+```text
+The play explicitly targets `hosts: tart`
+```
+
+Robust, because it holds as long as the play targets local VMs:
+
+```text
+The play targets whatever local VMs are in the autogenerated inventory
+```
+
+This binds every agent that writes a durable artefact, not only those that load
+a documentation skill.
 
 ## Agent Environment
 
@@ -486,4 +521,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.22.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-08-23
+**Version**: 1.23.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-11
