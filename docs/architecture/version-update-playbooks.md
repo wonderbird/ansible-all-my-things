@@ -83,8 +83,8 @@ upstream source, each with its own API shape and its own failure modes.
 | Option | Assessment |
 | ------ | ---------- |
 | Shell scripts per tool | No idempotency guarantees; duplicates logic; no Ansible integration |
-| Single monolithic playbook | All fetch logic inline; harder to isolate Android fragility (violates FR-007) |
-| Shared task files imported by two playbooks | Satisfies FR-006 and FR-007; follows project convention; chosen |
+| Single monolithic playbook | All fetch logic inline; cannot isolate the HTML-scraping fragility in its own task file |
+| Shared task files imported by two playbooks | Both playbooks share one copy of the fetch logic, and the scraping stays isolated; follows project convention; chosen |
 | Role wrapping fetch logic | Adds indirection with no reuse benefit; violates Principle IV (YAGNI) |
 
 ### Chosen Solution
@@ -109,8 +109,9 @@ playbooks/update-versions/
 
 Each task file in `tasks/` implements one fetch strategy and sets
 `fetched_*` facts for its callers. A file is parametrized and shared
-whenever more than one tool can use it — this is what satisfies FR-006 —
-and tool-specific only where the upstream shape leaves no choice. The
+whenever more than one tool can use it, so both playbooks share one copy
+of the fetch logic, and tool-specific only where the upstream shape
+leaves no choice. The
 directory listing is the authoritative catalogue; it is not restated
 here.
 
@@ -241,8 +242,8 @@ current produces no changes (idempotent).
 - **Android HTML scraping fragility** (TD-009):
   `fetch-android-version.yml` parses `developer.android.com/studio`
   via regex. If Google restructures the page, the regex will break.
-  No structured API alternative exists at this time. The task file
-  is isolated (FR-007) to contain the blast radius.
+  No structured API alternative exists at this time. The scraping lives
+  in its own task file to contain the blast radius.
 - **Unauthenticated GitHub API**: The 60 requests/hour limit is
   sufficient for manual runs. If CI integration is added, a GitHub
   token should be introduced to raise the limit to
