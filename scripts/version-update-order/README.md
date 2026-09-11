@@ -141,24 +141,15 @@ file the gate actually protects (Principle XI).
 
 ## Cost, and how this shrinks
 
-Core Principle exceptions are recorded here, as
+The checker is a recorded Principle IV (Simplicity/YAGNI) exception, as
 [`.specify/memory/constitution.md`](../../.specify/memory/constitution.md)
-Governance requires.
-
-**Principle IV (Simplicity/YAGNI).** A static analyser and a dedicated
-workflow are more machinery than the observed defect strictly demands; fixing
-the upstream source of the tool that 404'd resolves the reported symptom on its
-own. Justified because the alternative is a per-tool ordering rule maintained
-by hand, and the planning of the very change that introduced this checker
-enumerated the affected sections incorrectly on its first attempt. The two
-silent-corruption modes above are invisible to a test run, to `failed=0` and to
-an idempotency diff.
-
-**Technology Stack.** The constitution's Technology Stack section names Bash
-for `scripts/`; this checker is Python. Precedent exists —
-`scripts/backup/resolve_rtk_db_path.py` and its `test_` sibling — and the task
-is structural analysis of YAML task lists, which Bash would do worse and less
-readably.
+Governance requires. A static analyser and a dedicated workflow are more
+machinery than the observed defect strictly demands; fixing the upstream source
+of the tool that 404'd resolves the reported symptom on its own. Justified
+because the alternative is a per-tool ordering rule maintained by hand, and the
+planning of the very change that introduced this checker enumerated the
+affected sections incorrectly on its first attempt. The silent-corruption modes
+above are invisible to a test run, to `failed=0` and to an idempotency diff.
 
 The complexity is reducible. Giving `tasks/fetch-checksum-from-file.yml` a
 result-variable parameter would remove the shared-fact aliasing at its root:
