@@ -398,6 +398,7 @@ skill→principle bindings are restated here.
 
 | Skill | Invoke when | Principle |
 | --- | --- | --- |
+| `changelog-entry` | before requesting review on a pull request | Development Workflow |
 | `commit` | before creating any commit | V |
 | `format-markdown` | at task close, after all Markdown finalized | VI |
 | `fix-problem` | before fixing any unexpected obstacle | VII |
