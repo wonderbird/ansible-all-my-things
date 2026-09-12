@@ -97,8 +97,8 @@ Copy the shape of the exemplar role matching your archetype
    must come first or an undefined variable raises Ansible's generic error and
    the `fail_msg` is never printed. Never give `login_user_names` a role
    default — an empty-list default converts a missing required input into a
-   silent no-op. Rationale and rejected alternatives:
-   `docs/architecture/decisions/006-role-input-contract-assertions.md`.
+   silent no-op. Rationale and the playbook-level complement:
+   `docs/architecture/concepts/login-user-names-assertion.md`.
 2. **Assert supported architecture** — `ansible_facts['architecture'] in <map>`.
 3. **Map arch** — to whatever the chosen exemplar's upstream uses; naming
    varies (opencode `x64`/`arm64`; rtk `x86_64-…-musl`/`aarch64-…-gnu`).
