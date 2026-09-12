@@ -10,6 +10,15 @@ After upgrading Spec Kit, check whether any `.claude/commands/speckit.*.md` file
 now duplicates a `.claude/skills/speckit-*/` entry, and delete the command file
 if so — spec-kit's updater does not remove superseded files from older installs.
 
+## Contributing Changes
+
+The per-change workflow — branch naming, local testing, commit format,
+changelog entries, review and merge — is defined in
+[the project constitution](.specify/memory/constitution.md), section
+"Development Workflow". It is binding for human and agent contributors alike.
+
+Agent-specific runtime guidance lives in [AGENTS.md](AGENTS.md).
+
 ## CI/CD Pipeline Security
 
 Workflow changes (adding, updating, or removing GitHub Actions) must follow

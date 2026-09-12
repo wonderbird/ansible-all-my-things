@@ -1,38 +1,30 @@
 <!--
-Sync Impact Report — 1.22.0 → 1.23.0 (MINOR)
-- Technology Stack: the Scripting entry now names Bash **and** Python for
-  `scripts/`, with Python preferred for any script that carries tests or is
-  large enough for its structure to matter, and a test-sibling requirement for
-  non-trivial Python scripts. The trailing "no additional runtime languages"
-  sentence is scoped to managed hosts, so it no longer reads as a prohibition
-  on control-node tooling. Addresses finding ansible-all-my-things-p5c9.7,
-  which observed that every Python script in `scripts/` had to be justified as
-  a Core Principle exception even where Python was plainly the better tool.
-- Documentation Standards: new subsection "Write Against Intent, Not Against
-  Implementation Details" — documentation and comments describe intent,
-  purpose and kinds, never counts or exhaustive component enumerations;
-  exhaustive lists are derived from the code at read time rather than copied.
-  Addresses finding ansible-all-my-things-p5c9.8. The rule previously existed
-  only in `.claude/skills/developer/SKILL.md`, which is persona-scoped, so an
-  agent writing documentation without loading that skill was never bound by
-  it — the observed failure mode.
-- Rationale: both changes came out of one review round on the same pull
-  request and are carried as a single amendment, since Governance retains only
-  the latest Sync Impact Report and two bumps would leave the first
-  unrecorded. MINOR: material expansion of guidance in two sections, no
-  principle removed or redefined.
+Sync Impact Report — 1.23.0 → 1.24.0 (MINOR)
+- Development Workflow: new step 5, "Changelog" — every operator-visible
+  change of a branch is recorded in `CHANGELOG.md` before review is
+  requested, and a branch with no operator-visible change records nothing.
+  Subsequent steps renumbered 6-9. The step delegates the format and the
+  qualifies-for-an-entry decision to the `changelog-entry` skill, so the rule
+  has one definition (Principle XI).
+- Placement rationale: the changelog is a deliverable convention of the same
+  class as Conventional Commits (Principle V), so it belongs in the ordered
+  per-change ritual rather than in agent runtime guidance, which would bind
+  agents but not a human opening a pull request by hand. The step sits before
+  the review step so the reviewer sees the entry. MINOR: new guidance in an
+  existing section, no principle removed or redefined.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: no propagation required (does not restate the Technology
-  Stack or Documentation Standards sections)
+- AGENTS.md checked: propagation required — the Skill index table binds
+  constitution-mandated skill invocations, so a `changelog-entry` row is
+  added there in the same change. The Repository Remotes and Pull-Request
+  Workflow section is deliberately left untouched: a third statement of the
+  rule would duplicate it (Principle XI).
 - CLAUDE.md checked: no propagation required
-- .claude/skills/*/SKILL.md checked: `.claude/skills/developer/SKILL.md`
-  amended in the same change — its "Comment and Documentation Robustness"
-  section is reduced to a reference to the new Documentation Standards
-  subsection, so the rule has one definition (Principle XI). No other skill
-  restates either amended section.
+- .claude/skills/*/SKILL.md checked: `.claude/skills/changelog-entry/SKILL.md`
+  already owns the format rules and the entry-qualification list; no other
+  skill states when a changelog entry is due.
 -->
 # ansible-all-my-things Constitution
 
@@ -460,7 +452,12 @@ carry forward to the next agent session.
    `docs/architecture/concepts/testing.md`.
 4. **Commit**: use conventional commit format (Principle V); keep commits small
    and coherent.
-5. **User review**: after every commit, request a user review and wait for
+5. **Changelog**: before requesting review, record every operator-visible
+   change of the branch in `CHANGELOG.md` using the `changelog-entry` skill,
+   which is the authoritative source of truth for the format and for which
+   changes qualify. A branch whose changes no operator can observe records
+   nothing.
+6. **User review**: after every commit, request a user review and wait for
    approval before proceeding.
 
    **AI-orchestrated-loop exception**: For autonomous loops that run an
@@ -474,14 +471,14 @@ carry forward to the next agent session.
    `origin` (never `upstream` — see "Repository Remotes and Pull-Request
    Workflow" in AGENTS.md for the `gh pr create` mechanics), not local/chat
    diff review.
-6. **Peer/self review**: verify idempotency, simplicity and traceability before
+7. **Peer/self review**: verify idempotency, simplicity and traceability before
    merging. Track all findings as issues with the same priority as the source
    task, blocking the source task's cover issue (Principle VIII).
-7. **Merge to main**: rebase the feature branch onto `main` first (only if
+8. **Merge to main**: rebase the feature branch onto `main` first (only if
    not yet pushed to the remote — rebasing a pushed branch rewrites shared
    history). Merge with `--no-ff` to produce a merge commit. Squash merges
    are prohibited.
-8. **Cloud apply**: run the playbook against cloud targets only after local
+9. **Cloud apply**: run the playbook against cloud targets only after local
    validation passes.
 
 ## Governance
@@ -521,4 +518,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.23.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-11
+**Version**: 1.24.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-12
