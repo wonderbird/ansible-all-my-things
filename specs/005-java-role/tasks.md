@@ -119,10 +119,10 @@ showing the sdkman version without errors.
   sdkman installer task shows `ok` (skipped via `creates:`) and not `changed`
   (SC-002). No file change — checklist confirmation only.
 
-**Note — empty `login_user_names`**: An empty list is valid. The loop in
-T006 and T007 produces zero iterations; Ansible emits no changed or failed
-tasks. Validate by inspection of the task structure; no additional test run
-is required.
+**Note — empty `login_user_names`**: An empty list is a hard error. The
+role's first task asserts the variable is defined and non-empty, so the loops
+in T006 and T007 are never reached. Validate with a converge that overrides the
+variable to `[]` and confirm the assertion message is printed.
 
 **Checkpoint**: The sdkman installation task is correctly guarded so
 a second playbook run does not re-download or re-execute the installer.

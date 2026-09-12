@@ -1,6 +1,5 @@
 #SPDX-License-Identifier: MIT-0
 ---
-login_user_names: []
 podman_subuid_start: 100000
 podman_subuid_count: 65536
 podman_subgid_start: 100000

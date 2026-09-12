@@ -291,8 +291,9 @@ resolved by the user.
 - The Flutter installation must satisfy the Chrome/web target in
   `flutter doctor`; other targets (Android emulator, iOS, desktop) are out
   of scope.
-- `login_user_names` is defined in inventory variables before this role
-  executes; the role does not validate its presence.
+- `login_user_names` is derived by the calling playbook before this role
+  executes. The role validates it: its first task asserts the variable is
+  defined and non-empty, and fails loudly otherwise.
 - The Flutter SDK is installed from the official `.tar.xz` archive
   published on `flutter.dev`. The archive URL format is stable enough to
   be constructed from `flutter_version` alone.

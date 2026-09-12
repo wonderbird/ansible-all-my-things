@@ -238,6 +238,7 @@ T011 [US2] podman system migrate (depends on T009 + T010)
   (FR-005).
 - No `handlers/`, `templates/`, or `files/` directories are needed per plan.md.
 - `login_user_names` has no role-level default; the calling playbook must
-  supply it. An empty list is valid — per-user loop tasks are skipped.
+  supply it. An empty list is a hard error — the role's first task asserts the
+  variable is defined and non-empty.
 - The `podman system migrate` task runs with `become_user: "{{ item }}"` and
   inherits `become: true` from the play level (Decision 5 in research.md).

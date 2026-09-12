@@ -7,7 +7,7 @@ rootless container operation for every user listed in `login_user_names`.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `login_user_names` | `[]` | Users to configure for rootless Podman. Defaults to an empty list: Podman is installed system-wide but per-user rootless configuration is skipped. |
+| `login_user_names` | *(required)* | List of local usernames to configure for rootless Podman. Must contain at least one name; the role fails loudly if it is undefined or empty. |
 | `podman_subuid_start` | `100000` | First UID in the subordinate UID range |
 | `podman_subuid_count` | `65536` | Number of UIDs in the subordinate UID range |
 | `podman_subgid_start` | `100000` | First GID in the subordinate GID range |

@@ -15,6 +15,17 @@
 # same pinned archive on every converge, same rationale as rtk.
 # -----
 
+- name: Assert login_user_names is provided
+  ansible.builtin.assert:
+    that:
+      - login_user_names is defined
+      - login_user_names | length > 0
+    fail_msg: >-
+      Variable validation failed: login_user_names must be defined and
+      contain at least one username. It is derived from login_users as
+      `login_users | map(attribute='name') | list`; a Molecule converge
+      play sets it directly in its `vars:` block.
+
 - name: Check if bd binary already exists
   ansible.builtin.stat:
     path: /usr/local/bin/bd
