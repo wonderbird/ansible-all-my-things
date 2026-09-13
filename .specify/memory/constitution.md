@@ -1,30 +1,26 @@
 <!--
-Sync Impact Report — 1.23.0 → 1.24.0 (MINOR)
-- Development Workflow: new step 5, "Changelog" — every operator-visible
-  change of a branch is recorded in `CHANGELOG.md` before review is
-  requested, and a branch with no operator-visible change records nothing.
-  Subsequent steps renumbered 6-9. The step delegates the format and the
-  qualifies-for-an-entry decision to the `changelog-entry` skill, so the rule
-  has one definition (Principle XI).
-- Placement rationale: the changelog is a deliverable convention of the same
-  class as Conventional Commits (Principle V), so it belongs in the ordered
-  per-change ritual rather than in agent runtime guidance, which would bind
-  agents but not a human opening a pull request by hand. The step sits before
-  the review step so the reviewer sees the entry. MINOR: new guidance in an
-  existing section, no principle removed or redefined.
+Sync Impact Report — 1.24.0 → 1.25.0 (MINOR)
+- Principle XII (Fail Loud): new concrete rule prohibiting `failed_when:` on a
+  module task when the only intent is a better error message. On a module
+  task `failed_when:` replaces the module's own failure test instead of adding
+  to it, so such a guard reclassifies a genuine failure as `ok` — the exact
+  regression the rule list exists to prevent. The rule names the two safe
+  alternatives (`block`/`rescue` with `fail`, or leaving the module error
+  intact).
+- Placement rationale: the existing Principle XII rule list already enumerates
+  the Ansible constructs that silently swallow failures (`default(omit)`,
+  `ignore_errors`), and the Agent Environment section directs Ansible
+  prohibitions to this constitution. MINOR: material expansion of guidance in
+  an existing principle, no principle removed or redefined.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: propagation required — the Skill index table binds
-  constitution-mandated skill invocations, so a `changelog-entry` row is
-  added there in the same change. The Repository Remotes and Pull-Request
-  Workflow section is deliberately left untouched: a third statement of the
-  rule would duplicate it (Principle XI).
+- AGENTS.md checked: no propagation required — the new rule binds Ansible task
+  authoring, not agent runtime behaviour, and mandates no skill invocation.
 - CLAUDE.md checked: no propagation required
-- .claude/skills/*/SKILL.md checked: `.claude/skills/changelog-entry/SKILL.md`
-  already owns the format rules and the entry-qualification list; no other
-  skill states when a changelog entry is due.
+- .claude/skills/*/SKILL.md checked: no skill states rules for `failed_when:`;
+  restating it in one would duplicate the principle (Principle XI).
 -->
 # ansible-all-my-things Constitution
 
@@ -311,6 +307,13 @@ Concrete rules:
 - Use `assert` or `fail` to validate required variables before use.
 - `default(omit)` and `default('')` MUST NOT substitute for required values.
 - `ignore_errors: true` MUST NOT suppress genuine failure conditions.
+- `failed_when:` MUST NOT be added to a module task merely to improve its
+  error message. On a module task, `failed_when:` **replaces** the module's
+  own failure test rather than adding to it, so a guard written to describe a
+  failure better instead reclassifies the real failure as `ok` and continues
+  silently. To wrap a module failure in a clearer message, use
+  `block`/`rescue` with an explicit `fail`, or leave the module's own error
+  intact — it already reports the status and the offending value.
 - Shell and command tasks that parse output MUST validate the result before
   proceeding.
 - Failure messages MUST identify the source (variable name, URL, file path)
@@ -518,4 +521,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.24.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-12
+**Version**: 1.25.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-13
