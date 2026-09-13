@@ -2,7 +2,7 @@
 
 Format rules, the category decision table, and worked examples for the
 `changelog-entry` skill. Source: [Keep a Changelog
-1.1.0](https://keepachangelog.com/en/1.1.0/).
+2.0.0](https://keepachangelog.com/en/2.0.0/).
 
 ## Principles
 
@@ -28,7 +28,7 @@ entry in the same change — do not commit an empty skeleton (Principle XIII).
 All notable changes to this project are documented in this file.
 
 The format is based on [Keep a
-Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to
+Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
@@ -104,6 +104,29 @@ Cut these — they are what makes an entry long:
   paths the operator never types.
 - **Counts and component enumerations** (Documentation Standards).
 
+## Breaking changes and CVEs
+
+Two entries carry a required prefix.
+
+A change that breaks an existing workflow stays in the category it belongs to
+and gains a `**Breaking:**` marker, so a reader scanning for migration work
+finds it without reading every entry. Name the interface that breaks:
+
+```markdown
+### Changed
+
+- **Breaking:** `configure-profile.yml` requires `login_users` in inventory.
+```
+
+A `Security` entry that has a CVE identifier leads with it, so readers and
+security tooling can match the entry to the advisory:
+
+```markdown
+### Security
+
+- CVE-2024-12345: out-of-bounds read when parsing malformed input.
+```
+
 Weak, because it describes the diff and hides the substance behind a tracker:
 
 ```markdown
@@ -152,5 +175,9 @@ Not yet done in this repository — it has no version tags. When it starts:
 2. Add the link definition for the new version and repoint `[Unreleased]` to
    compare the new tag against `HEAD`.
 3. Tag the release commit `vX.Y.Z`.
+
+A one- or two-sentence summary may precede the typed sections of a release,
+where the release has a theme worth naming. It is optional and never replaces
+an entry.
 
 A human chooses the version number. An agent never does.

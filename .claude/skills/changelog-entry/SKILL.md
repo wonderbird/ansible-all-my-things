@@ -2,7 +2,7 @@
 name: changelog-entry
 description: >
   Create or update the `CHANGELOG.md` entries that describe the current pull
-  request, following Keep a Changelog 1.1.0. Use when a pull request is ready
+  request, following Keep a Changelog 2.0.0. Use when a pull request is ready
   for review, when asked to add or revise a changelog entry, or when a branch
   changes operator-visible behaviour and the changelog does not yet mention it.
 argument-hint: "[pr-number]"
