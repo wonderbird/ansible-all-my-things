@@ -287,6 +287,38 @@ refreshed at converge time) — run the prune proactively before a
 `molecule test` session if the base image has not been rebuilt
 recently.
 
+## Troubleshooting: base image architecture mismatch fails `molecule create`
+
+If `molecule create` fails with
+
+```text
+exec container process `/bin/sh`: Exec format error
+```
+
+alongside a warning that the `image platform (linux/amd64) does not match the
+expected platform (linux/arm64)`, the cached
+`docker.io/library/ubuntu:24.04` **base** image was pulled for the wrong
+architecture — an amd64 image on an aarch64 host. Roles whose
+`molecule_<rolename>_instance` image was already built for the host
+architecture still pass, so a sweep across several roles shows a confusing
+partial failure rather than a uniform one.
+
+Fix: remove the mis-architected base image and pull it again for the host
+architecture.
+
+```shell
+podman rmi -f docker.io/library/ubuntu:24.04
+podman pull docker.io/library/ubuntu:24.04
+podman image inspect --format '{{.Architecture}}' docker.io/library/ubuntu:24.04
+```
+
+The inspect must report the host's architecture (`uname -m` — `arm64` for
+`aarch64`) before re-running `molecule test`.
+
+This is distinct from the stale-apt-index failure above: that one fails during
+converge, after the container is running, while this one fails at create, so
+the role's own tasks are never exercised. Neither is a code defect.
+
 ## Troubleshooting: molecule not found
 
 If `molecule` is not on PATH, the project `.venv` is missing or stale.
