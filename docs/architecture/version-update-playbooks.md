@@ -235,6 +235,35 @@ current produces no changes (idempotent).
 
 ---
 
+### Diagnosing a stuck version pin
+
+`perform-updates.yml` applies the tracked tools sequentially with no per-tool
+failure isolation. One tool's upstream query or rewrite failing therefore
+aborts the play, and **every tool listed after it in the apply phase is
+skipped**. The skipped tools report no error of their own — their pins simply
+never move — so a single upstream breakage presents as several tools being
+stale at once, and one defect can mask another.
+
+When a pin looks stuck, do not start by debugging that tool. Instead:
+
+1. Run `ansible-playbook playbooks/update-versions/perform-updates.yml` and
+   read which task aborts. That is the only tool with a real failure.
+2. Fix that tool.
+3. Treat every tool listed *after* it in the apply phase as unverified, and
+   re-run until the play completes.
+
+Typical upstream breakages behind the aborting task are a vendor publishing
+releases for several products from one repository, so the "latest release"
+carries no artefact for the platform this repository installs, and a vendor
+renaming its release archives, so a checksum lookup or a download URL no
+longer resolves.
+
+Adding per-tool failure isolation, so that one failing tool no longer hides
+the state of the rest, is tracked as a follow-up (beads
+`ansible-all-my-things-clf3`).
+
+---
+
 ## Outlook
 
 ### Open Points
