@@ -103,9 +103,15 @@ create no commits) — share one directory of upstream-fetch task files:
 playbooks/update-versions/
 ├── query-versions.yml
 ├── perform-updates.yml
-└── tasks/
-    └── fetch-*.yml
+├── tasks/
+│   ├── fetch-*.yml
+│   └── write-pins.yml
+└── tests/
 ```
+
+`tests/` holds the harness for the shared task files in `tasks/`, with its own
+minimal Ansible configuration, so it runs without the vault secret the
+repository root configuration expects.
 
 Each task file in `tasks/` implements one fetch strategy and sets
 `fetched_*` facts for its callers. A file is parametrized and shared
@@ -151,19 +157,65 @@ covering the consumed asset keep the download-and-`ansible.builtin.stat`
 pattern instead.
 
 Beyond that shared fetch step, `query-versions.yml`/`perform-updates.yml`
-still use a per-tool copy-paste convention for the download+stat+replace
-triples. This is retained deliberately at the current tool count: a
+still use a per-tool copy-paste convention for the download, stat and
+pin-write steps. This is retained deliberately at the current tool count: a
 data-driven tool-registry loop was evaluated and not judged worth the
 added indirection (tracked in `ansible-all-my-things-3ikt`).
 
-`perform-updates.yml` uses `ansible.builtin.replace` for idempotent
-in-place edits. A second run when all pins are already current makes
-no modifications.
+#### Writing pins
+
+`perform-updates.yml` writes every pin through one shared task file,
+`tasks/write-pins.yml`, included once per role defaults file with the list
+of pins and their new values. A second run when all pins are already
+current makes no modifications.
+
+The task file exists because `ansible.builtin.replace` reports `ok` when
+its regexp matches nothing. A role that renamed a pin variable used to
+leave the matching write silently doing nothing: the pin stopped
+following upstream while the run still reported `failed=0`.
+`write-pins.yml` therefore validates before it writes. It rejects
+malformed input, including values containing a quote, a backslash or a
+newline, since values are substituted unescaped. It then reads the
+defaults file once and requires each pin to match exactly one line of
+the form `<pin>: "<value>"` at the start of a line. Only when every pin
+of the file passes does it write them. A renamed, missing or duplicated
+pin therefore fails the run with the file, the pin and the match count,
+and leaves that defaults file untouched rather than half-updated. The
+anchor at the start of a line stops a comment or a similarly named
+variable from absorbing the write after a rename.
+
+Every task in `write-pins.yml` carries the `write-pins:` name prefix. A
+failure there is a configuration error in this repository, never an
+upstream failure, and any future per-tool failure handling must classify
+it that way; it can recognise it by that prefix.
+
+Alternatives considered for this guard:
+
+- Keeping one `replace` per pin and adding an assert-only include per
+  tool, enforced by a coverage rule. Rejected: the pin regexp would be
+  defined twice and could drift, and the coverage rule would be a new
+  semantic invariant.
+- Registering each `replace` and asserting, or reading the file back
+  after writing. Rejected: a per-site assertion relies on every future
+  write remembering it, and a read-back detects a gap only after other
+  pins of the same file were already written.
+- Computing the new file content with `regex_replace` and writing it with
+  one `copy`. Rejected: it still needs the same exactly-once check, is
+  harder to read, and hides which pin changed.
+
+The guard only protects writes that go through the task file. The
+apply-order checker therefore rejects any apply-phase task that edits a
+file directly (`replace`, `lineinfile`, `blockinfile`, `copy`,
+`template`). This ban MUST survive any simplification or removal of the
+checker; the minimum replacement is a CI step that fails when
+`perform-updates.yml` contains such a module. A harness in `tests/`,
+run by its own CI job, proves that the task file keeps failing on a
+missing, duplicated or malformed pin.
 
 #### Apply-phase ordering contract
 
 Within a tool's section of `perform-updates.yml`, no network or checksum
-task may follow that tool's first `replace`, so a tool's version pin is
+task may follow that tool's first pin write, so a tool's version pin is
 never written before the checksums that belong with it are in hand.
 Further invariants protect the shared `fetched_checksum` fact and the
 pairing of per-architecture values.
@@ -291,5 +343,5 @@ the state of the rest, is tracked as a follow-up (beads
   a subset of tools in a single run.
 - **Checksum algorithm expansion**: Flutter and Android currently use
   sha256 and sha1 respectively. If additional tools with sha512 or
-  other algorithms are added, the replace pattern in
+  other algorithms are added, the pin-write pattern in
   `perform-updates.yml` can be extended without structural changes.

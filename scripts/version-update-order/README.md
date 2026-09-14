@@ -48,12 +48,12 @@ This is the authoritative statement of the contract.
 describes the mechanism and links here for it.
 
 - **Per-tool ordering.** Within a tool's section, no network or checksum task
-  may follow that tool's first `replace`.
+  may follow that tool's first pin write.
 - **`fetched_checksum` adjacency.** Every task that reads the shared
   `fetched_checksum` fact must be the task immediately after its own
   `tasks/fetch-checksum-from-file.yml` include. The rule binds any reader, not
   only a `set_fact` alias: deleting an alias and interpolating the raw fact
-  into a `replace` produces exactly the same corruption.
+  into a pin write produces exactly the same corruption.
 - **Pairing.** A per-architecture pin must be written from a value whose own
   name carries the same platform token, and a checksum pin fed from a
   `fetched_*` alias must be fed from its own alias rather than another tool's.
@@ -66,7 +66,7 @@ contract guarantees is that each individual tool's pin and checksums are
 consistent with one another, which is what the defaults files ask for.
 
 An alternative shape was available: hoist every network task out of the apply
-phase, leaving only `replace` calls. It was not taken. It *creates* the
+phase, leaving only pin writes. It was not taken. It *creates* the
 `fetched_checksum` aliasing hazard above rather than avoiding it, it makes a
 run all-or-nothing across every tracked upstream, and it splits each tool into
 two halves hundreds of lines apart. Its one advantage — an invariant you can
@@ -81,10 +81,11 @@ output.
 1. **Slice.** Find the apply-phase marker comment in `perform-updates.yml` and
    split everything after it into tasks on `- name:` boundaries. Everything
    before the marker is the fetch phase and is not this gate's subject.
-2. **Classify.** A task is a WRITE if it is an `ansible.builtin.replace`
-   targeting a `defaults/main.yml` under the roles directory; the path names
-   the role. A task is a FETCH if it does network or disk I/O — `get_url`,
-   `stat`, `uri`, or an include of a `tasks/fetch-*` file. Each task also
+2. **Classify.** A task is a WRITE if it is an include of
+   `tasks/write-pins.yml` (or a raw `ansible.builtin.replace`) targeting a
+   `defaults/main.yml` under the roles directory; the path names the role.
+   A task is a FETCH if it does network or disk I/O — `get_url`, `stat`,
+   `uri`, or an include of a `tasks/fetch-*` file. Each task also
    records the `fetched_*` facts its body interpolates.
 3. **Attribute.** WRITE tasks teach the checker which role each `fetched_*`
    fact feeds. FETCH tasks are then attributed to a role through the facts they
@@ -95,7 +96,8 @@ output.
    rules about the analysis itself — a FETCH that cannot be attributed to any
    role is an error rather than a pass (Principle XII, fail loud), and the
    number of roles analysed must equal the number of stale-check clauses in
-   `query-versions.yml`.
+   `query-versions.yml`. Two further guards keep pin writes honest: BYPASS
+   and PAIRING parse, described below.
 
 That last rule does double duty. Deriving the expectation from
 `query-versions.yml` avoids a second definition of the tracked-tool set
@@ -125,6 +127,42 @@ the run, so the ordering rule can report a real defect against the wrong
 section. The pairing rule reports the same defect correctly, so the gate still
 goes red for the right reason — but a reader following only the ordering line
 is sent to the wrong place.
+
+### BYPASS: file edits that skip write-pins
+
+`ansible.builtin.replace` reports `ok` when its regexp matches nothing, so a
+renamed pin variable once stopped updating while the run stayed green.
+`tasks/write-pins.yml` closes that gap by failing unless each pin matches
+exactly one line — but only for writes that go through it. BYPASS reports
+every apply-phase task that edits a file with `replace`, `lineinfile`,
+`blockinfile`, `copy` or `template`, under its short or fully qualified name
+and whatever path it targets.
+
+The ban intentionally covers every file-editing module in the apply phase, not
+only pin writes. A future legitimate edit that is not a pin write needs an
+explicit change to this rule.
+
+The pattern matches a module name only at key position, because a task body
+runs up to the next `- name:` line and so includes comments and variables; a
+comment such as `# copy: …` or a variable such as `url_template:` is not a
+file edit.
+
+Known limits: an edit through `shell` or `command` (for example `sed -i`), an
+edit through a differently named include, and anything in the fetch phase,
+which this gate does not scan.
+
+The ban on apply-phase file edits that bypass `tasks/write-pins.yml` MUST
+survive any simplification or removal of this checker. The minimum replacement
+is a CI step that fails when `perform-updates.yml` contains such a module.
+
+### PAIRING parse: the include layout
+
+A write-pins include lists its pins as `- pin: <name>` lines, each directly
+followed by its `value: "{{ <source> }}"` line. The key is `pin:`, not
+`name:`, because the slicing stage splits tasks on every `- name:` line. The
+PAIRING rule reads that two-line layout. If any `pin:` key in a task does not
+parse that way — a reordered or folded entry, for example — the checker
+reports a `PAIRING parse` error instead of silently skipping the pin.
 
 ## Running it
 
