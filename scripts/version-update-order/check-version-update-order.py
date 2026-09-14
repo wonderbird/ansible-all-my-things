@@ -195,11 +195,11 @@ def analyse(path):
               if BYPASS.search("\n".join(task["body"]))]
 
     return {
-        "bypass": bypass,
         "violations": sorted(violations),
         "adjacency": adjacency,
         "unattributed": unattributed,
         "pairing": pairing,
+        "bypass": bypass,
         "roles": first_write,
         "expected": expected_role_count(path),
     }
@@ -220,8 +220,7 @@ def report(path, result):
               f"follow its include (previous task: '{prev}')")
 
     for line, name in result["bypass"]:
-        print(f"{path}:{line}: BYPASS: file edited without tasks/write-pins.yml -- {name}"
-              f" (write pins through tasks/write-pins.yml)")
+        print(f"{path}:{line}: BYPASS: file edited without tasks/write-pins.yml -- {name}")
 
     for line, name in result["unattributed"]:
         print(f"{path}:{line}: cannot attribute apply-phase fetch to a role -- {name}"
@@ -260,7 +259,8 @@ def report(path, result):
     print(f"analysed {analysed}/{expected} roles")
 
     failed = (result["violations"] or result["adjacency"]
-              or result["unattributed"] or result["pairing"] or result["bypass"] or not scope_ok)
+              or result["unattributed"] or result["pairing"] or result["bypass"]
+              or not scope_ok)
     return 1 if failed else 0
 
 
