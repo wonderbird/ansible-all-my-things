@@ -3,7 +3,7 @@
 # Pinned bv (Dicklesworthstone/beads_viewer) release tag (v-prefixed). See
 # https://github.com/Dicklesworthstone/beads_viewer/releases for available versions.
 # Updated automatically by playbooks/update-versions/perform-updates.yml.
-beads_viewer_version: "v0.24.1"
+beads_viewer_version: "v0.25.0"
 
 # Maps Ansible architecture facts to the Go release filename fragment used by
 # bv (Dicklesworthstone/beads_viewer), which follows the
@@ -17,5 +17,5 @@ beads_viewer_platform_map:
 # give the wrong hash):
 #   curl -sL https://github.com/Dicklesworthstone/beads_viewer/releases/download/<tag>/bv_<version>_linux_<arch>.tar.gz -o /tmp/bv.tar.gz
 #   sha256sum /tmp/bv.tar.gz
-beads_viewer_sha256_amd64: "71e6d288b8015bccd461d9eeacc16f96c61c9e869228c7cdf5a4d9aff9fa5101"
-beads_viewer_sha256_arm64: "ed9b62fabdc4759025b60c1209285b5fa555484b3565f0e835645501ee85c99a"
+beads_viewer_sha256_amd64: "ea756bfadd165b66368b512cf3d7e036e5757df5d7c8f8e2b43a12e0a51b6429"
+beads_viewer_sha256_arm64: "886b4db5dbdfba4718a7a918ed559c780e953842f88d0eb5cff06d1c4676e781"
