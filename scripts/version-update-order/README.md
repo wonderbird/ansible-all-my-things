@@ -148,8 +148,10 @@ comment such as `# copy: …` or a variable such as `url_template:` is not a
 file edit.
 
 Known limits: an edit through `shell` or `command` (for example `sed -i`), an
-edit through a differently named include, and anything in the fetch phase,
-which this gate does not scan.
+edit through a module outside the named set or another collection prefix (for
+example `ansible.legacy.copy` or `community.general.ini_file`), an edit through
+a differently named include, and anything in the fetch phase, which this gate
+does not scan.
 
 The ban on apply-phase file edits that bypass `tasks/write-pins.yml` MUST
 survive any simplification or removal of this checker. The minimum replacement
