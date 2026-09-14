@@ -3,10 +3,10 @@
 
 Walks the apply phase of playbooks/update-versions/perform-updates.yml task by
 task. A task is a WRITE if it is an include of tasks/write-pins.yml (or an
-ansible.builtin.replace) targeting <_roles_dir>/<role>/defaults/main.yml. A task is a FETCH if it performs
-network/disk I/O (get_url, stat, uri, or an include of tasks/fetch-*). FETCH
-tasks are attributed to a tool by the fetched_* fact their vars interpolate,
-mapped to the role they feed.
+ansible.builtin.replace) targeting <_roles_dir>/<role>/defaults/main.yml. A
+task is a FETCH if it performs network/disk I/O (get_url, stat, uri, or an
+include of tasks/fetch-*). FETCH tasks are attributed to a tool by the
+fetched_* fact their vars interpolate, mapped to the role they feed.
 
 Independent checks run over that classification:
 
@@ -22,11 +22,14 @@ Independent checks run over that classification:
 - SCOPE -- the number of roles analysed must equal the number of tracked pins
   derived from query-versions.yml, so a narrowed analysis cannot report a
   clean subset.
+- BYPASS -- an apply-phase task that edits a file with replace, lineinfile,
+  blockinfile, copy or template, instead of including tasks/write-pins.yml,
+  is an error. Such an edit skips the check that its pin exists exactly once.
 - PAIRING -- a WRITE to a per-arch pin must interpolate a value whose own name
   carries the same platform token, and a checksum pin fed from a `fetched_*`
   alias must be fed from its own alias rather than another tool's. A
   write-pins include lists each pin as a `- pin:` line directly followed by a
-  `value:` line; a `- pin:` line that does not parse that way is a PAIRING
+  `value:` line; a `pin:` key that does not parse that way is a PAIRING
   parse error, so a layout change cannot make PAIRING skip a pin.
 
 Why each check exists, and the limits of the attribution step, are documented
@@ -49,7 +52,11 @@ PIN = re.compile(r"replace:\s*'([a-z0-9_]+):\s*\"\{\{\s*([A-Za-z0-9_.]+)")
 # write-pins include form: `- pin: <name>` directly followed by `value: "{{ <src>`
 PIN_ITEM = re.compile(r'^\s*-\s*pin:\s*([a-z0-9_]+)\s*\n\s*value:\s*"\{\{\s*([A-Za-z0-9_.]+)',
                       re.MULTILINE)
-PIN_KEY = re.compile(r'^\s*-\s*pin:', re.MULTILINE)
+# any `pin:` key, whether or not it opens a list item
+PIN_KEY = re.compile(r'^\s*(?:-\s*)?pin:', re.MULTILINE)
+# anchored at key position: task bodies include comment lines and vars
+BYPASS = re.compile(r'^\s*(?:ansible\.builtin\.)?(?:replace|lineinfile|blockinfile|copy|template):',
+                    re.MULTILINE)
 
 PHASE_MARKER = "Apply updates to role defaults files"
 STALE_CLAUSE = re.compile(r"current_\w+\s*!=\s*fetched_\w+")
@@ -161,8 +168,9 @@ def analyse(path):
     for task in tasks:
         body = "\n".join(task["body"])
         items = PIN_ITEM.findall(body)
-        # PAIRING parse: every `- pin:` line must parse together with its
-        # `value:` line, otherwise the unparsed pins escape the rules below.
+        # PAIRING parse: every `pin:` key must parse as a `- pin:` line directly
+        # followed by its `value:` line, otherwise the unparsed pins escape the
+        # rules below.
         if len(PIN_KEY.findall(body)) != len(items):
             pairing.append((task["line"], task["name"], "", "", "", "parse"))
         for pin, src in PIN.findall(body) + items:
@@ -182,7 +190,12 @@ def analyse(path):
                     pairing.append((task["line"], task["name"], pin, src,
                                     expected, "cross-tool"))
 
+    # --- BYPASS: every apply-phase file edit must go through write-pins.yml.
+    bypass = [(task["line"], task["name"]) for task in tasks
+              if BYPASS.search("\n".join(task["body"]))]
+
     return {
+        "bypass": bypass,
         "violations": sorted(violations),
         "adjacency": adjacency,
         "unattributed": unattributed,
@@ -206,6 +219,10 @@ def report(path, result):
         print(f"{path}:{line}: '{name}' reads {SHARED} but does not immediately "
               f"follow its include (previous task: '{prev}')")
 
+    for line, name in result["bypass"]:
+        print(f"{path}:{line}: BYPASS: file edited without tasks/write-pins.yml -- {name}"
+              f" (write pins through tasks/write-pins.yml)")
+
     for line, name in result["unattributed"]:
         print(f"{path}:{line}: cannot attribute apply-phase fetch to a role -- {name}"
               f" (add a fetched_<role>_* fact or name the file"
@@ -213,7 +230,7 @@ def report(path, result):
 
     for line, name, pin, src, left, right in result["pairing"]:
         if right == "parse":
-            print(f"{path}:{line}: PAIRING parse: a '- pin:' line is not directly "
+            print(f"{path}:{line}: PAIRING parse: a 'pin:' key is not a '- pin:' line directly "
                   f"followed by its 'value: \"{{{{ ...' line, so its pairing "
                   f"cannot be checked -- {name}")
         elif right == "cross-tool":
@@ -238,11 +255,12 @@ def report(path, result):
     print(f"\n{len(result['violations'])} ordering violation(s), "
           f"{len(result['adjacency'])} adjacency violation(s), "
           f"{len(result['unattributed'])} unattributable fetch(es), "
-          f"{len(result['pairing'])} pairing violation(s); {analysed} roles written")
+          f"{len(result['pairing'])} pairing violation(s), "
+          f"{len(result['bypass'])} bypass violation(s); {analysed} roles written")
     print(f"analysed {analysed}/{expected} roles")
 
     failed = (result["violations"] or result["adjacency"]
-              or result["unattributed"] or result["pairing"] or not scope_ok)
+              or result["unattributed"] or result["pairing"] or result["bypass"] or not scope_ok)
     return 1 if failed else 0
 
 
