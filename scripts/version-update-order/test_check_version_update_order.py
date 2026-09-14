@@ -117,11 +117,11 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         """
         text = self.fixture.read()
         text = text.replace(
-            'replace: \'dolt_sha256_amd64: "{{ _dolt_amd64_stat.stat.checksum }}"\'',
-            'replace: \'dolt_sha256_amd64: "{{ _PLACEHOLDER_stat.stat.checksum }}"\'',
+            '- pin: dolt_sha256_amd64\n            value: "{{ _dolt_amd64_stat.stat.checksum }}"',
+            '- pin: dolt_sha256_amd64\n            value: "{{ _PLACEHOLDER_stat.stat.checksum }}"',
         ).replace(
-            'replace: \'dolt_sha256_arm64: "{{ _dolt_arm64_stat.stat.checksum }}"\'',
-            'replace: \'dolt_sha256_arm64: "{{ _dolt_amd64_stat.stat.checksum }}"\'',
+            '- pin: dolt_sha256_arm64\n            value: "{{ _dolt_arm64_stat.stat.checksum }}"',
+            '- pin: dolt_sha256_arm64\n            value: "{{ _dolt_amd64_stat.stat.checksum }}"',
         ).replace("_PLACEHOLDER_stat", "_dolt_arm64_stat")
         self.fixture.write(text)
 
@@ -141,11 +141,11 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         """
         text = self.fixture.read()
         text = text.replace(
-            'replace: \'rtk_sha256_x86_64_musl: "{{ fetched_rtk_sha256_x86_64_musl }}"\'',
-            'replace: \'rtk_sha256_x86_64_musl: "{{ fetched_rtk_sha256_aarch64_gnu }}"\'',
+            '- pin: rtk_sha256_x86_64_musl\n            value: "{{ fetched_rtk_sha256_x86_64_musl }}"',
+            '- pin: rtk_sha256_x86_64_musl\n            value: "{{ fetched_rtk_sha256_aarch64_gnu }}"',
         ).replace(
-            'replace: \'rtk_sha256_aarch64_gnu: "{{ fetched_rtk_sha256_aarch64_gnu }}"\'',
-            'replace: \'rtk_sha256_aarch64_gnu: "{{ fetched_rtk_sha256_x86_64_musl }}"\'',
+            '- pin: rtk_sha256_aarch64_gnu\n            value: "{{ fetched_rtk_sha256_aarch64_gnu }}"',
+            '- pin: rtk_sha256_aarch64_gnu\n            value: "{{ fetched_rtk_sha256_x86_64_musl }}"',
         )
         self.fixture.write(text)
 
@@ -170,14 +170,14 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
 """,
             "",
         ).replace(
-            'replace: \'node_sha256_x64: "{{ fetched_node_sha256_x64 }}"\'',
-            'replace: \'node_sha256_x64: "{{ fetched_checksum }}"\'',
+            '- pin: node_sha256_x64\n            value: "{{ fetched_node_sha256_x64 }}"',
+            '- pin: node_sha256_x64\n            value: "{{ fetched_checksum }}"',
         )
         self.fixture.write(text)
 
         code, out = self.fixture.run()
         self.assertIn("1 adjacency violation(s)", out)
-        self.assertIn("Update node_sha256_x64 in nodejs role defaults", out)
+        self.assertIn("Write nodejs pins", out)
         self.assertIn("does not immediately follow its include", out)
         self.assertEqual(code, 1)
 
@@ -189,8 +189,8 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         Only the alias-name rule sees it.
         """
         text = self.fixture.read().replace(
-            'replace: \'beads_viewer_sha256_amd64: "{{ fetched_beads_viewer_sha256_amd64 }}"\'',
-            'replace: \'beads_viewer_sha256_amd64: "{{ fetched_beads_go_sha256_amd64 }}"\'',
+            '- pin: beads_viewer_sha256_amd64\n            value: "{{ fetched_beads_viewer_sha256_amd64 }}"',
+            '- pin: beads_viewer_sha256_amd64\n            value: "{{ fetched_beads_go_sha256_amd64 }}"',
         )
         self.fixture.write(text)
 
