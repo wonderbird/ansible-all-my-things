@@ -1,7 +1,3 @@
-# Beads / Dolt files (added by bd init)
-.dolt/
-*.db
-.beads-credential-key
 .beads/*
 !.beads/issues.jsonl
 !.beads/config.yaml
@@ -369,6 +365,3 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/linux,macos,python,ansible,vagrant,windows,visualstudiocode,vim
 
-
-# Beads / Dolt files (added by bd init)
-.beads/proxieddb/
