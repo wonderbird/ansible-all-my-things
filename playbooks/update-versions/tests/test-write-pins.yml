@@ -131,6 +131,18 @@
         expect_msg:
           - "write-pins: invalid inputs for"
 
+      - id: h5f-invalid-pin-name
+        fixture: "{{ _base }}"
+        pins:
+          - pin: tool_version
+            value: "v2"
+          - pin: tool.sha256_amd64
+            value: "bbb"
+        expect_fail: true
+        expect_task: "write-pins: validate"
+        expect_msg:
+          - "write-pins: invalid inputs for"
+
       - id: h6-check-mode
         fixture: "{{ _base }}"
         pins: "{{ _stale_pins }}"
