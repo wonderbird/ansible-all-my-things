@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Required vars: pin_file (path of one role defaults file),
+#                pins (list of {pin, value})
+#
+# Writes version and checksum pins into one role defaults file. A pin line has
+# the shape `<pin>: "<value>"` at the start of a line.
+#
+# Every pin is validated before any pin is written, so a bad pin never leaves
+# the file half-updated. `ansible.builtin.replace` reports ok when its regexp
+# matches nothing; the exactly-once assert turns a renamed, missing or
+# duplicated pin into a failure naming the file, the pin and the match count.
+# A pin that already holds the new value passes and reports changed=false.
+#
+# The list key is `pin:`, not `name:`: the apply-order checker splits tasks on
+# every `- name:` line. Keep `value:` on the line directly after `pin:`.
+#
+# A failure here is a configuration error (a renamed, missing or duplicated
+# pin, or a malformed value). A future per-tool block/rescue must classify it
+# as a configuration error, never as an upstream failure; match
+# ansible_failed_task.name on the "write-pins:" prefix. That lowercase prefix
+# is why each task name carries `# noqa: name[casing]`.
+#
+# Values are not regex-escaped (replace uses re.sub); the input guard rejects
+# quotes, backslashes and newlines instead. The guard patterns are single-quoted
+# YAML vars, not Jinja string literals, so the backslashes reach the regex
+# engine, and they end in \Z because $ also accepts a trailing newline.
+
+- name: "write-pins: validate inputs for {{ pin_file | default('<undefined pin_file>') }}"  # noqa: name[casing]
+  vars:
+    _pin_name_ok: '^[a-z0-9_]+\Z'
+    _pin_value_ok: '^[^"\\\n]+\Z'
+  ansible.builtin.assert:
+    that:
+      - pin_file is defined and pin_file | length > 0
+      - pins is defined and pins is iterable and pins is not string and pins is not mapping
+      - pins | length > 0
+      - pins | map(attribute='pin') | select('match', _pin_name_ok) | list | length == pins | length
+      - pins | map(attribute='value') | map('string') | select('match', _pin_value_ok) | list | length == pins | length
+    fail_msg: "write-pins: invalid inputs for {{ pin_file | default('<undefined>') }}: {{ pins | default('<undefined>') }}"
+    quiet: true
+
+- name: "write-pins: read {{ pin_file }}"  # noqa: name[casing]
+  ansible.builtin.slurp:
+    src: "{{ pin_file }}"
+  register: _write_pins_raw
+
+- name: "write-pins: assert each pin appears once in {{ pin_file }}"  # noqa: name[casing]
+  vars:
+    _pin_regexp: '^{{ _write_pin.pin }}:[ \t]*"[^"\n]+"'
+    _pin_count: "{{ _write_pins_raw.content | b64decode | regex_findall(_pin_regexp, multiline=True) | length }}"
+  ansible.builtin.assert:
+    that: _pin_count | int == 1
+    fail_msg: "{{ pin_file }}: pin '{{ _write_pin.pin }}' matched {{ _pin_count }} line(s), expected exactly 1"
+    quiet: true
+  loop: "{{ pins }}"
+  loop_control:
+    loop_var: _write_pin
+    label: "{{ _write_pin.pin }}"
+
+- name: "write-pins: write pins in {{ pin_file }}"  # noqa: name[casing]
+  vars:
+    _pin_regexp: '^{{ _write_pin.pin }}:[ \t]*"[^"\n]+"'
+  ansible.builtin.replace:
+    path: "{{ pin_file }}"
+    regexp: "{{ _pin_regexp }}"
+    replace: '{{ _write_pin.pin }}: "{{ _write_pin.value }}"'
+  register: _write_pins_result
+  loop: "{{ pins }}"
+  loop_control:
+    loop_var: _write_pin
+    label: "{{ _write_pin.pin }}"

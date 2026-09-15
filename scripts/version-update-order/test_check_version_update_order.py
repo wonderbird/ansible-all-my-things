@@ -117,11 +117,11 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         """
         text = self.fixture.read()
         text = text.replace(
-            'replace: \'dolt_sha256_amd64: "{{ _dolt_amd64_stat.stat.checksum }}"\'',
-            'replace: \'dolt_sha256_amd64: "{{ _PLACEHOLDER_stat.stat.checksum }}"\'',
+            '- pin: dolt_sha256_amd64\n            value: "{{ _dolt_amd64_stat.stat.checksum }}"',
+            '- pin: dolt_sha256_amd64\n            value: "{{ _PLACEHOLDER_stat.stat.checksum }}"',
         ).replace(
-            'replace: \'dolt_sha256_arm64: "{{ _dolt_arm64_stat.stat.checksum }}"\'',
-            'replace: \'dolt_sha256_arm64: "{{ _dolt_amd64_stat.stat.checksum }}"\'',
+            '- pin: dolt_sha256_arm64\n            value: "{{ _dolt_arm64_stat.stat.checksum }}"',
+            '- pin: dolt_sha256_arm64\n            value: "{{ _dolt_amd64_stat.stat.checksum }}"',
         ).replace("_PLACEHOLDER_stat", "_dolt_arm64_stat")
         self.fixture.write(text)
 
@@ -141,11 +141,11 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         """
         text = self.fixture.read()
         text = text.replace(
-            'replace: \'rtk_sha256_x86_64_musl: "{{ fetched_rtk_sha256_x86_64_musl }}"\'',
-            'replace: \'rtk_sha256_x86_64_musl: "{{ fetched_rtk_sha256_aarch64_gnu }}"\'',
+            '- pin: rtk_sha256_x86_64_musl\n            value: "{{ fetched_rtk_sha256_x86_64_musl }}"',
+            '- pin: rtk_sha256_x86_64_musl\n            value: "{{ fetched_rtk_sha256_aarch64_gnu }}"',
         ).replace(
-            'replace: \'rtk_sha256_aarch64_gnu: "{{ fetched_rtk_sha256_aarch64_gnu }}"\'',
-            'replace: \'rtk_sha256_aarch64_gnu: "{{ fetched_rtk_sha256_x86_64_musl }}"\'',
+            '- pin: rtk_sha256_aarch64_gnu\n            value: "{{ fetched_rtk_sha256_aarch64_gnu }}"',
+            '- pin: rtk_sha256_aarch64_gnu\n            value: "{{ fetched_rtk_sha256_x86_64_musl }}"',
         )
         self.fixture.write(text)
 
@@ -170,14 +170,14 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
 """,
             "",
         ).replace(
-            'replace: \'node_sha256_x64: "{{ fetched_node_sha256_x64 }}"\'',
-            'replace: \'node_sha256_x64: "{{ fetched_checksum }}"\'',
+            '- pin: node_sha256_x64\n            value: "{{ fetched_node_sha256_x64 }}"',
+            '- pin: node_sha256_x64\n            value: "{{ fetched_checksum }}"',
         )
         self.fixture.write(text)
 
         code, out = self.fixture.run()
         self.assertIn("1 adjacency violation(s)", out)
-        self.assertIn("Update node_sha256_x64 in nodejs role defaults", out)
+        self.assertIn("Write nodejs pins", out)
         self.assertIn("does not immediately follow its include", out)
         self.assertEqual(code, 1)
 
@@ -189,8 +189,8 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         Only the alias-name rule sees it.
         """
         text = self.fixture.read().replace(
-            'replace: \'beads_viewer_sha256_amd64: "{{ fetched_beads_viewer_sha256_amd64 }}"\'',
-            'replace: \'beads_viewer_sha256_amd64: "{{ fetched_beads_go_sha256_amd64 }}"\'',
+            '- pin: beads_viewer_sha256_amd64\n            value: "{{ fetched_beads_viewer_sha256_amd64 }}"',
+            '- pin: beads_viewer_sha256_amd64\n            value: "{{ fetched_beads_go_sha256_amd64 }}"',
         )
         self.fixture.write(text)
 
@@ -264,7 +264,81 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
                       "stale check", out)
         self.assertIn("Constitution II", out)
         self.assertIn("0 ordering violation(s), 0 adjacency violation(s), "
-                      "0 unattributable fetch(es), 0 pairing violation(s)", out)
+                      "0 unattributable fetch(es), 0 pairing violation(s), "
+                      "1 bypass violation(s)", out)
+        self.assertEqual(code, 1)
+
+    def append_task(self, lines):
+        text = self.fixture.read().rstrip("\n")
+        self.fixture.write(text + "\n\n" + "\n".join(lines) + "\n")
+
+    def test_raw_replace_beside_existing_include_is_bypass(self):
+        """A raw replace for a tool that already has an include is caught.
+
+        The role is already counted, so SCOPE stays 18 == 18. Only BYPASS sees
+        a write that skips the exactly-once check of write-pins.yml.
+        """
+        self.append_task([
+            "    - name: Update direnv_version in direnv role defaults",
+            "      ansible.builtin.replace:",
+            '        path: "{{ _roles_dir }}/direnv/defaults/main.yml"',
+            "        regexp: 'direnv_version:\\s*\"[^\"]+\"'",
+            "        replace: 'direnv_version: \"{{ fetched_direnv_tag }}\"'",
+        ])
+
+        code, out = self.fixture.run()
+        self.assertIn("1 bypass violation(s)", out)
+        self.assertIn("file edited without tasks/write-pins.yml", out)
+        self.assertIn("Update direnv_version in direnv role defaults", out)
+        self.assertNotIn("SCOPE ERROR", out)
+        self.assertEqual(code, 1)
+
+    def test_short_name_lineinfile_off_rolepath_is_bypass(self):
+        """A short module name with another path spelling is caught too."""
+        self.append_task([
+            "    - name: Rewrite direnv_version line",
+            "      lineinfile:",
+            '        path: "{{ playbook_dir }}/../../roles/direnv/defaults/main.yml"',
+            "        regexp: '^direnv_version:(.*)$'",
+            "        line: 'direnv_version: \"v0.0.0\"'",
+            "        backrefs: true",
+        ])
+
+        code, out = self.fixture.run()
+        self.assertIn("1 bypass violation(s)", out)
+        self.assertIn("Rewrite direnv_version line", out)
+        self.assertEqual(code, 1)
+
+    def test_comment_mentioning_copy_is_not_bypass(self):
+        """A comment or a var named like a module is not a file edit."""
+        text = self.fixture.read()
+        anchor = "    - name: Write direnv pins\n"
+        self.assertIn(anchor, text)
+        text = text.replace(anchor, anchor + "      # copy: not a task\n"
+                            "      # url_template: not a module\n", 1)
+        text = text.replace(
+            '        pin_file: "{{ _roles_dir }}/direnv/defaults/main.yml"\n',
+            '        pin_file: "{{ _roles_dir }}/direnv/defaults/main.yml"\n'
+            '        url_template: "unused"\n', 1)
+        self.fixture.write(text)
+
+        code, out = self.fixture.run()
+        self.assertIn("0 bypass violation(s)", out)
+        self.assertEqual(code, 0)
+
+    def test_reordered_value_before_pin_is_pairing_parse_error(self):
+        """A pin whose value line is not directly after it cannot be skipped."""
+        text = self.fixture.read()
+        old = ('          - pin: dolt_sha256_arm64\n'
+               '            value: "{{ _dolt_arm64_stat.stat.checksum }}"\n')
+        self.assertIn(old, text)
+        text = text.replace(old, '          - value: "{{ _dolt_arm64_stat.stat.checksum }}"\n'
+                                 '            pin: dolt_sha256_arm64\n')
+        self.fixture.write(text)
+
+        code, out = self.fixture.run()
+        self.assertIn("PAIRING parse:", out)
+        self.assertIn("Write dolt_sql_server pins", out)
         self.assertEqual(code, 1)
 
 

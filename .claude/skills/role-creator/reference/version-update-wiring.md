@@ -52,19 +52,25 @@ current_<role>_version: >-
 ## Touchpoint 3 — `perform-updates.yml` (apply)
 
 1. Include the same fetch task + save the fetched fact (fetch section).
-2. `replace` the pin in defaults (apply section).
-3. If checksummed: re-download the artefact and `stat` with
-   `checksum_algorithm: sha256`, then `replace` each sha — version and checksums
-   are always updated together (see the `opencode` block).
+2. If checksummed: re-download the artefact and `stat` with
+   `checksum_algorithm: sha256` (or fetch a published checksum) before the
+   write — version and checksums are always updated together (see the
+   `opencode` block).
+3. Write all of the role's pins with one include of `tasks/write-pins.yml`
+   (apply section). Never edit the defaults file with `replace`, `lineinfile`,
+   `copy` or similar: the apply-order checker rejects it, because only
+   `write-pins.yml` fails when a pin is missing or duplicated.
 
-Pin `replace` shape:
+Pin write shape (key `pin:`, not `name:`; `value:` on the next line):
 
 ```yaml
-- name: Update <role>_version in <role> role defaults
-  ansible.builtin.replace:
-    path: "{{ _roles_dir }}/<role>/defaults/main.yml"
-    regexp: '<role>_version:\s*"[^"]+"'
-    replace: '<role>_version: "{{ fetched_<role>_value }}"'
+- name: Write <role> pins
+  ansible.builtin.include_tasks: tasks/write-pins.yml
+  vars:
+    pin_file: "{{ _roles_dir }}/<role>/defaults/main.yml"
+    pins:
+      - pin: <role>_version
+        value: "{{ fetched_<role>_value }}"
 ```
 
 ## Touchpoint 4 — the doc

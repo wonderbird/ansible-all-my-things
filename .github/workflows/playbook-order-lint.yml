@@ -7,8 +7,16 @@ name: Playbook Order Lint
 # exists, and the checker's design are documented in
 # scripts/version-update-order/README.md.
 #
-# Tool: scripts/version-update-order/check-version-update-order.py
-# (no network, no Podman, no pip)
+# Jobs:
+# - playbook-order-lint runs
+#   scripts/version-update-order/check-version-update-order.py and its tests
+#   (no network, no Podman, no pip).
+# - write-pins-harness installs ansible-core and runs the test harness for
+#   playbooks/update-versions/tasks/write-pins.yml on localhost (no network
+#   beyond the pip install, no Podman). It selects
+#   playbooks/update-versions/tests/ansible.cfg instead of the repository root
+#   ansible.cfg, whose vault password script exits non-zero without a vault
+#   secret, and fork pull requests receive no secrets.
 
 on:
   push:
@@ -50,3 +58,28 @@ jobs:
         run: >-
           python3 scripts/version-update-order/check-version-update-order.py
           playbooks/update-versions/perform-updates.yml
+
+  write-pins-harness:
+    name: Test write-pins task file
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      ANSIBLE_CONFIG: playbooks/update-versions/tests/ansible.cfg
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install ansible-core
+        run: pip install "$(grep -E '^ansible-core' requirements.txt)"
+
+      - name: Run write-pins harness
+        run: >-
+          ansible-playbook
+          playbooks/update-versions/tests/test-write-pins.yml
