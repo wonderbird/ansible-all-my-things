@@ -24,5 +24,7 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 
 - `perform-updates.yml` fails, naming the file and pin, when a pin is missing
   or duplicated.
+- `perform-updates.yml` fails, naming the repository and tag, when a tool's
+  latest GitHub release lacks the asset that tool installs.
 
 [Unreleased]: https://github.com/wonderbird/ansible-all-my-things/commits/main

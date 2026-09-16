@@ -44,6 +44,17 @@ describes the mechanism and links here for it.
 - **Pairing.** A per-architecture pin must be written from a value whose own
   name carries the same platform token, and a checksum pin fed from a
   `fetched_*` fact must be fed from its own fact rather than another tool's.
+- **Release assets.** Every include of `tasks/fetch-github-release.yml` in
+  `perform-updates.yml` must declare either `required_asset_regexes`, the
+  patterns the resolved release has to carry, or
+  `release_carries_no_consumed_asset` with the reason the tool installs from
+  somewhere else. Silence would mean accepting whatever the API calls the
+  latest release, including one published from a second release line that
+  carries no asset this project installs. This ban MUST survive any
+  simplification or removal of this checker; the minimum replacement is a CI
+  step that fails when such an include declares neither variable. Unlike the
+  other rules, this one reads the whole playbook, because the release includes
+  sit in the fetch phase while what they protect is the later download.
 
 The contract is deliberately **not** full atomicity. Ansible has no
 transaction, so an abort part-way through the phase still leaves a prefix of
