@@ -318,30 +318,79 @@ current produces no changes (idempotent).
 
 ### Diagnosing a stuck version pin
 
-`perform-updates.yml` applies the tracked tools sequentially with no per-tool
-failure isolation. One tool's upstream query or rewrite failing therefore
-aborts the play, and **every tool listed after it in the apply phase is
-skipped**. The skipped tools report no error of their own — their pins simply
-never move — so a single upstream breakage presents as several tools being
-stale at once, and one defect can mask another.
+`perform-updates.yml` isolates the tools from one another: each runs inside a
+fetch block and an apply block, and a failure of either is recorded against
+that tool instead of ending the play. A third-party failure therefore no longer
+hides the tools after it, and the run reports every failure it collected.
 
-When a pin looks stuck, do not start by debugging that tool. Instead:
+When a pin looks stuck, run
+`ansible-playbook playbooks/update-versions/perform-updates.yml` and read the
+report at the end. It lists, for every failed tool, the phase, the class, the
+task that failed and every message that task produced, then the tools that were
+updated and the tools that were skipped. A skipped tool is one whose own fetch
+failed: it wrote none of its pins, which is deliberate, since a version pin
+written without the checksums that belong with it is worse than no update.
 
-1. Run `ansible-playbook playbooks/update-versions/perform-updates.yml` and
-   read which task aborts. That is the only tool with a real failure.
-2. Fix that tool.
-3. Treat every tool listed *after* it in the apply phase as unverified, and
-   re-run until the play completes.
+The class says whose problem it is:
 
-Typical upstream breakages behind the aborting task are a vendor publishing
-releases for several products from one repository, so the "latest release"
-carries no artefact for the platform this repository installs, and a vendor
-renaming its release archives, so a checksum lookup or a download URL no
-longer resolves.
+- `upstream` — a third party failed: a network error, an HTTP status, a release
+  without the asset this project installs, a checksums file without the line
+  this project needs. Re-run later, or wire the tool to a different source.
+- `configuration` — this repository is wrong: a renamed or duplicated pin, an
+  undefined variable, a call-site argument of the wrong shape. The run stops at
+  the first one of these, because every later tool would be running against a
+  broken playbook. Its report still lists the third-party failures collected
+  before it.
 
-Adding per-tool failure isolation, so that one failing tool no longer hides
-the state of the rest, is tracked as a follow-up (beads
-`ansible-all-my-things-clf3`).
+A 404 is reported as `upstream` and carries a hint, because a mistyped
+repository name and a withdrawn release are the same response. Check the
+call-site argument as well as the upstream before concluding it is an outage.
+
+Typical third-party breakages are a vendor publishing releases for several
+products from one repository, so the latest release carries no artefact for the
+platform this repository installs, and a vendor renaming its release archives,
+so a checksum lookup or a download URL no longer resolves.
+
+### Classifying a failure
+
+Whether a failure is `upstream` or `configuration` is decided in
+`tasks/record-tool-failure.yml` by five ordered rules, first match winning:
+
+1. the failed task's name starts with `write-pins:` — a pin write only fails
+   for reasons this repository owns;
+2. any message of the failure, including the per-item messages of a looped
+   task, reports an undefined variable or a templating error;
+3. the failed task's name starts with `upstream:`;
+4. the failed task's module is `uri` or `get_url`;
+5. anything else.
+
+Rules 1, 2 and 5 mean `configuration`; rules 3 and 4 mean `upstream`. The
+default is deliberate: an unrecognised failure stops the run rather than being
+reported as somebody else's problem, because a wrong label is worse than a
+stopped run — it is invisible.
+
+Rule 4 covers the raw downloads of the apply phase without depending on anyone
+remembering a naming convention, and it is a deliberate blind spot: it reports
+**every** non-templating `uri`/`get_url` failure as upstream, including an
+unwritable destination, a bad mode, a `status_code` list that does not match
+reality and a checksum mismatch, which are all this repository's own errors.
+The alternative — treating them as configuration errors — would stop the run
+every time a new download is added without a rename, which is the cascade this
+isolation exists to remove.
+
+Two rules therefore bind anyone adding to these playbooks. **Any task that can
+fail because of a third party MUST carry the `upstream:` name prefix**, unless
+it is a `uri` or `get_url` task, which rule 4 already covers; an input assert
+MUST NOT carry it, because a bad argument is this repository's fault. And **a
+pin write MUST keep the `write-pins:` prefix**, or a renamed pin would be
+reported as a vendor outage.
+
+### Check mode is not supported
+
+`perform-updates.yml` MUST NOT be run with `--check`. Under check mode
+`ansible.builtin.uri` skips while `ansible.builtin.get_url` still performs its
+request, so a check run mixes real downloads with skipped fetches and reports
+failures a real run would never produce. The playbook states this in its header.
 
 ---
 

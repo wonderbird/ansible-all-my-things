@@ -200,7 +200,9 @@ requiring each reader to sit directly after its own include. The pairing rule
 stayed: a pin written from the wrong tool's fact still agrees on platform and
 fails only when a role installs the tool.
 
-The gate also does not address the abort cascade it was written in response to:
-a fetch failure still aborts the run at that point, masking every tool after
-it. Per-tool failure isolation — accumulating failures and reporting them
-together — is tracked in `ansible-all-my-things-clf3`.
+The gate no longer has to assume the run reaches every tool. `perform-updates.yml`
+wraps each tool in a fetch block and an apply block, so a third-party failure is
+recorded against that tool and the remaining tools still run, while a
+configuration error stops the run at once. The classification rules, and the
+`upstream:` naming contract they rest on, are documented in
+[`docs/architecture/version-update-playbooks.md`](../../docs/architecture/version-update-playbooks.md).

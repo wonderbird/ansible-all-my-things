@@ -14,6 +14,9 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   or empty.
 - Roles that configure per-user state fail when `login_user_names` is
   undefined or empty.
+- `perform-updates.yml` reports every tool that failed, and keeps updating the
+  other tools when one upstream source is unavailable.
+- `perform-updates.yml` no longer supports `--check`.
 
 ### Removed
 

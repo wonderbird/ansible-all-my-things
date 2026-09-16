@@ -9,7 +9,7 @@
 # failure stays diagnosable. A 404 adds a hint, not a classification: a mistyped
 # call-site argument and a withdrawn upstream release are indistinguishable
 # here. See ../../../docs/architecture/version-update-playbooks.md (section
-# "Isolating per-tool failures").
+# "Diagnosing a stuck version pin").
 
 - name: "report: render the update report"  # noqa: name[casing]
   vars:

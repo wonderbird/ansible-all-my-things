@@ -823,7 +823,8 @@
         - name: "upstream: Download Obsidian amd64 .deb for sha256 computation"  # noqa: name[casing]
           ansible.builtin.get_url:
             url: >-
-              https://github.com/obsidianmd/obsidian-releases/releases/download/{{ fetched_obsidian_tag }}/obsidian_{{ fetched_obsidian_tag | regex_replace('^v', '') }}_amd64.deb
+              https://github.com/obsidianmd/obsidian-releases/releases/download/{{ fetched_obsidian_tag
+              }}/obsidian_{{ fetched_obsidian_tag | regex_replace('^v', '') }}_amd64.deb
             dest: "/tmp/obsidian-{{ fetched_obsidian_tag }}-amd64.deb"
             mode: '0644'
 
@@ -1060,14 +1061,18 @@
         - name: Fetch br amd64 checksum from upstream sidecar file
           ansible.builtin.include_tasks: tasks/fetch-checksum-from-file.yml
           vars:
-            checksum_file_url: "https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ fetched_beads_rust_tag }}/br-{{ _br_stripped_version }}-linux_amd64.tar.gz.sha256"
+            checksum_file_url: >-
+              https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ fetched_beads_rust_tag }}/br-{{
+              _br_stripped_version }}-linux_amd64.tar.gz.sha256
             checksum_target_filename: "br-{{ _br_stripped_version }}-linux_amd64.tar.gz"
             checksum_result_var: fetched_beads_rust_sha256_amd64
 
         - name: Fetch br arm64 checksum from upstream sidecar file
           ansible.builtin.include_tasks: tasks/fetch-checksum-from-file.yml
           vars:
-            checksum_file_url: "https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ fetched_beads_rust_tag }}/br-{{ _br_stripped_version }}-linux_arm64.tar.gz.sha256"
+            checksum_file_url: >-
+              https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ fetched_beads_rust_tag }}/br-{{
+              _br_stripped_version }}-linux_arm64.tar.gz.sha256
             checksum_target_filename: "br-{{ _br_stripped_version }}-linux_arm64.tar.gz"
             checksum_result_var: fetched_beads_rust_sha256_arm64
 

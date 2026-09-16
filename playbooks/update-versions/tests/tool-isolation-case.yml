@@ -40,7 +40,7 @@
         _case_result: "{{ ansible_failed_result }}"
         _case_induced: true
 
-- name: "Fail when case {{ _case.id }} induced nothing"
+- name: "Fail when nothing failed in case {{ _case.id }}"
   ansible.builtin.fail:
     msg: "Case {{ _case.id }}: trigger '{{ _case.trigger | default('') }}' did not fail"
   when:
