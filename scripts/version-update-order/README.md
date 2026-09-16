@@ -44,6 +44,11 @@ describes the mechanism and links here for it.
 - **Pairing.** A per-architecture pin must be written from a value whose own
   name carries the same platform token, and a checksum pin fed from a
   `fetched_*` fact must be fed from its own fact rather than another tool's.
+- **Run accounting.** The `_tracked_tools` list the playbook declares for its
+  own end-of-run accounting must name exactly the roles written here. The check
+  compares sets, not counts: a renamed or duplicated entry keeps the count at
+  eighteen while dropping a real tool out of the accounting, so that tool would
+  never be reported as updated, skipped or failed.
 - **Release assets.** Every include of `tasks/fetch-github-release.yml` in
   `perform-updates.yml` must declare either `required_asset_regexes`, the
   patterns the resolved release has to carry, or

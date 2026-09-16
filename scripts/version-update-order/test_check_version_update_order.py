@@ -12,6 +12,7 @@ import importlib.util
 import io
 import contextlib
 import shutil
+import re
 import tempfile
 import unittest
 from pathlib import Path
@@ -35,6 +36,35 @@ def split_blocks(text):
 
 def join_blocks(blocks):
     return "\n\n".join(blocks)
+
+
+def _dedent(snippet):
+    """Split a snippet into (relative indent, content) pairs."""
+    lines = snippet.strip("\n").split("\n")
+    base = min(len(l) - len(l.lstrip()) for l in lines if l.strip())
+    return [(len(l) - len(l.lstrip()) - base, l.strip()) if l.strip() else (0, "")
+            for l in lines]
+
+
+def swap(text, old, new, count=1):
+    """Replace `old` with `new` wherever it sits, at whatever indentation.
+
+    The fixtures must not hardcode the playbook's indentation: the tools are
+    wrapped in block/rescue, so every task sits deeper than it used to and a
+    literal replace would silently match nothing.
+    """
+    old_lines, new_lines = _dedent(old), _dedent(new)
+    pattern = r"(?P<indent>[ \t]*)" + re.escape(old_lines[0][1]) + "\n"
+    for rel, content in old_lines[1:]:
+        pattern += (r"(?P=indent)" + " " * rel + re.escape(content) + "\n"
+                    if content else "\n")
+    match = re.search(pattern, text)
+    if match is None:
+        raise AssertionError(f"snippet not found at any indentation: {old_lines[0][1]!r}")
+    indent = match.group("indent")
+    replacement = "".join((indent + " " * rel + content + "\n") if content else "\n"
+                          for rel, content in new_lines)
+    return text[:match.start()] + replacement + text[match.end():], match.group(0)
 
 
 def block_index(blocks, needle):
@@ -90,13 +120,15 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         both fetches, and both aliases are still adjacent to their includes.
         """
         text = self.fixture.read()
-        text = text.replace(
-            '- pin: dolt_sha256_amd64\n            value: "{{ _dolt_amd64_stat.stat.checksum }}"',
-            '- pin: dolt_sha256_amd64\n            value: "{{ _PLACEHOLDER_stat.stat.checksum }}"',
-        ).replace(
-            '- pin: dolt_sha256_arm64\n            value: "{{ _dolt_arm64_stat.stat.checksum }}"',
-            '- pin: dolt_sha256_arm64\n            value: "{{ _dolt_amd64_stat.stat.checksum }}"',
-        ).replace("_PLACEHOLDER_stat", "_dolt_arm64_stat")
+        text, _ = swap(
+            text,
+            '- pin: dolt_sha256_amd64\n  value: "{{ _dolt_amd64_stat.stat.checksum }}"',
+            '- pin: dolt_sha256_amd64\n  value: "{{ _PLACEHOLDER_stat.stat.checksum }}"')
+        text, _ = swap(
+            text,
+            '- pin: dolt_sha256_arm64\n  value: "{{ _dolt_arm64_stat.stat.checksum }}"',
+            '- pin: dolt_sha256_arm64\n  value: "{{ _dolt_amd64_stat.stat.checksum }}"')
+        text = text.replace("_PLACEHOLDER_stat", "_dolt_arm64_stat")
         self.fixture.write(text)
 
         code, out = self.fixture.run()
@@ -113,13 +145,15 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         swapped digests are written and no task fails.
         """
         text = self.fixture.read()
-        text = text.replace(
-            '- pin: rtk_sha256_x86_64_musl\n            value: "{{ fetched_rtk_sha256_x86_64_musl }}"',
-            '- pin: rtk_sha256_x86_64_musl\n            value: "{{ fetched_rtk_sha256_aarch64_gnu }}"',
-        ).replace(
-            '- pin: rtk_sha256_aarch64_gnu\n            value: "{{ fetched_rtk_sha256_aarch64_gnu }}"',
-            '- pin: rtk_sha256_aarch64_gnu\n            value: "{{ fetched_rtk_sha256_x86_64_musl }}"',
-        )
+        text, _ = swap(
+            text,
+            '- pin: rtk_sha256_x86_64_musl\n  value: "{{ fetched_rtk_sha256_x86_64_musl }}"',
+            '- pin: rtk_sha256_x86_64_musl\n  value: "{{ _PLACEHOLDER }}"')
+        text, _ = swap(
+            text,
+            '- pin: rtk_sha256_aarch64_gnu\n  value: "{{ fetched_rtk_sha256_aarch64_gnu }}"',
+            '- pin: rtk_sha256_aarch64_gnu\n  value: "{{ fetched_rtk_sha256_x86_64_musl }}"')
+        text = text.replace("_PLACEHOLDER", "fetched_rtk_sha256_aarch64_gnu")
         self.fixture.write(text)
 
         code, out = self.fixture.run()
@@ -134,10 +168,10 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         bd's first write, so ordering and platform pairing both pass. Only the
         source-name rule sees it.
         """
-        text = self.fixture.read().replace(
-            '- pin: beads_viewer_sha256_amd64\n            value: "{{ fetched_beads_viewer_sha256_amd64 }}"',
-            '- pin: beads_viewer_sha256_amd64\n            value: "{{ fetched_beads_go_sha256_amd64 }}"',
-        )
+        text, _ = swap(
+            self.fixture.read(),
+            '- pin: beads_viewer_sha256_amd64\n  value: "{{ fetched_beads_viewer_sha256_amd64 }}"',
+            '- pin: beads_viewer_sha256_amd64\n  value: "{{ fetched_beads_go_sha256_amd64 }}"')
         self.fixture.write(text)
 
         code, out = self.fixture.run()
@@ -279,10 +313,11 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         latest release, including one that carries no asset this tool installs.
         """
         text = self.fixture.read()
-        old = ("        required_asset_regexes:\n"
-               "          - '^Hack\\.zip$'\n")
-        self.assertIn(old, text)
-        self.fixture.write(text.replace(old, "", 1))
+        text, _ = swap(
+            text,
+            "required_asset_regexes:\n  - '^Hack\\.zip$'",
+            "required_asset_regexes: []")
+        self.fixture.write(re.sub(r"[ \t]*required_asset_regexes: \[\]\n", "", text, count=1))
 
         code, out = self.fixture.run()
         self.assertIn("1 asset violation(s)", out)
@@ -294,27 +329,75 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
     def test_release_include_with_stated_reason_is_accepted(self):
         """A tool installed outside the release assets states that instead."""
         text = self.fixture.read()
-        old = ("        required_asset_regexes:\n"
-               "          - '^Hack\\.zip$'\n")
-        self.assertIn(old, text)
-        text = text.replace(
-            old,
-            '        release_carries_no_consumed_asset: "installed from a '
-            'distribution package, not from release assets"\n', 1)
+        text, _ = swap(
+            text,
+            "required_asset_regexes:\n  - '^Hack\\.zip$'",
+            'release_carries_no_consumed_asset: "installed from a distribution '
+            'package, not from release assets"')
         self.fixture.write(text)
 
         code, out = self.fixture.run()
         self.assertIn("0 asset violation(s)", out)
         self.assertEqual(code, 0)
 
+    def test_ordering_violation_inside_a_block_is_still_caught(self):
+        """Nesting the tools in block/rescue must not hide an ordering error.
+
+        Every task now sits deeper than it used to, so a checker that keyed on
+        indentation would silently stop reporting a fetch after a write.
+        """
+        text = self.fixture.read()
+        text, _ = swap(
+            text,
+            '- name: Record that dolt_sql_server was updated',
+            '- name: "upstream: Download dolt again after the write"\n'
+            '  ansible.builtin.get_url:\n'
+            '    url: "https://example.invalid/{{ fetched_dolt_tag }}/late.tar.gz"\n'
+            '    dest: "/tmp/dolt-late.tar.gz"\n'
+            "    mode: '0644'\n"
+            '\n'
+            '- name: Record that dolt_sql_server was updated')
+        self.fixture.write(text)
+
+        code, out = self.fixture.run()
+        self.assertIn("1 ordering violation(s)", out)
+        self.assertIn("fetch for 'dolt_sql_server' runs after its first write", out)
+        self.assertEqual(code, 1)
+
+    def test_rescue_tasks_are_not_unattributable_fetches(self):
+        """A rescue's include of the failure recorder is not a fetch."""
+        code, out = self.fixture.run()
+        self.assertIn("0 unattributable fetch(es)", out)
+        self.assertIn("Record the apply failure of", self.fixture.read())
+        self.assertEqual(code, 0)
+
+    def test_phase_marker_keeps_its_indentation(self):
+        """The apply-phase marker must stay where the checker slices on it."""
+        self.assertIn(PHASE_MARKER + "\n", self.fixture.read())
+
+    def test_renamed_tracked_tool_is_caught_although_the_count_holds(self):
+        """A typo in _tracked_tools drops a tool out of the run accounting.
+
+        The count stays 18, so only comparing the sets catches it.
+        """
+        text = self.fixture.read()
+        text, _ = swap(text, "- beads_viewer\n- beads_rust",
+                       "- beads_viewerr\n- beads_rust")
+        self.fixture.write(text)
+
+        code, out = self.fixture.run()
+        self.assertIn("analysed 18/18 roles", out)
+        self.assertIn("_tracked_tools does not match the roles written here", out)
+        self.assertIn("beads_viewer", out)
+        self.assertEqual(code, 1)
+
     def test_reordered_value_before_pin_is_pairing_parse_error(self):
         """A pin whose value line is not directly after it cannot be skipped."""
         text = self.fixture.read()
-        old = ('          - pin: dolt_sha256_arm64\n'
-               '            value: "{{ _dolt_arm64_stat.stat.checksum }}"\n')
-        self.assertIn(old, text)
-        text = text.replace(old, '          - value: "{{ _dolt_arm64_stat.stat.checksum }}"\n'
-                                 '            pin: dolt_sha256_arm64\n')
+        text, _ = swap(
+            text,
+            '- pin: dolt_sha256_arm64\n  value: "{{ _dolt_arm64_stat.stat.checksum }}"',
+            '- value: "{{ _dolt_arm64_stat.stat.checksum }}"\n  pin: dolt_sha256_arm64')
         self.fixture.write(text)
 
         code, out = self.fixture.run()

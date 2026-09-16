@@ -16,7 +16,9 @@ Independent checks run over that classification:
   an error, not a pass.
 - SCOPE -- the number of roles analysed must equal the number of tracked pins
   derived from query-versions.yml, so a narrowed analysis cannot report a
-  clean subset.
+  clean subset; and the playbook's own _tracked_tools declaration must name
+  exactly the roles written here, so a tool cannot drop out of the run
+  accounting while the count still looks right.
 - BYPASS -- an apply-phase task that edits a file with replace, lineinfile,
   blockinfile, copy or template, instead of including tasks/write-pins.yml,
   is an error. Such an edit skips the check that its pin exists exactly once.
@@ -65,6 +67,25 @@ BYPASS = re.compile(r'^\s*(?:ansible\.builtin\.)?(?:replace|lineinfile|blockinfi
 
 PHASE_MARKER = "Apply updates to role defaults files"
 STALE_CLAUSE = re.compile(r"current_\w+\s*!=\s*fetched_\w+")
+# the playbook's own declaration of the tools it accounts for at runtime
+TRACKED_TOOLS = re.compile(r'^\s*_tracked_tools:\s*\n((?:\s*-\s*[a-z0-9_]+\s*\n)+)',
+                           re.MULTILINE)
+TRACKED_ENTRY = re.compile(r'-\s*([a-z0-9_]+)')
+
+
+def tracked_tools(path):
+    """The tool names the playbook declares for its own run accounting.
+
+    Compared as a SET against the roles derived from the write tasks, not as a
+    count: a renamed or duplicated entry keeps the count right while dropping a
+    real tool out of the accounting, which is exactly the mistake the runtime
+    asserts cannot catch on their own.
+    """
+    with open(path) as handle:
+        match = TRACKED_TOOLS.search(handle.read())
+    if match is None:
+        return None
+    return set(TRACKED_ENTRY.findall(match.group(1)))
 
 
 def expected_role_count(path):
@@ -202,6 +223,7 @@ def analyse(path):
         "bypass": bypass,
         "roles": first_write,
         "expected": expected_role_count(path),
+        "tracked": tracked_tools(path),
     }
 
 
@@ -252,6 +274,19 @@ def report(path, result):
               f"query-versions.yml's stale check; register it there "
               f"(Constitution II)")
 
+    tracked = result["tracked"]
+    tracked_ok = True
+    if tracked is not None:
+        derived = set(result["roles"])
+        missing, extra = derived - tracked, tracked - derived
+        tracked_ok = not missing and not extra
+        if not tracked_ok:
+            print(f"{path}: SCOPE ERROR: _tracked_tools does not match the roles "
+                  f"written here -- written but untracked: "
+                  f"{sorted(missing) or 'none'}; tracked but not written: "
+                  f"{sorted(extra) or 'none'}. A tool outside the accounting is "
+                  f"never reported as updated, skipped or failed")
+
     print(f"\n{len(result['violations'])} ordering violation(s), "
           f"{len(result['unattributed'])} unattributable fetch(es), "
           f"{len(result['pairing'])} pairing violation(s), "
@@ -261,7 +296,7 @@ def report(path, result):
 
     failed = (result["violations"] or result["unattributed"]
               or result["pairing"] or result["bypass"] or result["asset"]
-              or not scope_ok)
+              or not scope_ok or not tracked_ok)
     return 1 if failed else 0
 
 
