@@ -2,6 +2,28 @@
 ---
 # Required variable: github_repo (e.g. "arl/gitmux")
 # Sets fact: fetched_github_tag
+#
+# Optional: required_asset_regexes, a list of patterns. Each must match the
+# name of at least one asset of the resolved release, or the include fails.
+# The release the API calls "latest" is not necessarily one that carries the
+# asset a consumer downloads; see docs/architecture/version-update-playbooks.md
+# (section "Guarding release assets") for why this guard exists and where it
+# is mandatory. `release_carries_no_consumed_asset` states the opposite claim,
+# for a tool installed from somewhere other than the release assets.
+
+- name: Assert required_asset_regexes is a list of patterns for {{ github_repo }}
+  ansible.builtin.assert:
+    that:
+      - required_asset_regexes is iterable
+      - required_asset_regexes is not string
+      - required_asset_regexes is not mapping
+      - required_asset_regexes | select('string') | list | length == required_asset_regexes | length
+      - required_asset_regexes | select('equalto', '') | list | length == 0
+    fail_msg: >-
+      required_asset_regexes for {{ github_repo }} must be a list of non-empty
+      patterns, got '{{ required_asset_regexes }}'.
+    quiet: true
+  when: required_asset_regexes is defined
 
 - name: Fetch GitHub latest release for {{ github_repo }}
   ansible.builtin.uri:
@@ -34,6 +56,22 @@
       GitHub API (https://api.github.com/repos/{{ github_repo }}/releases/latest)
       response does not contain 'tag_name' field
   when: "'tag_name' not in _github_release_response.json"
+
+- name: Assert required assets exist in the latest release of {{ github_repo }}
+  vars:
+    _release_tag: "{{ _github_release_response.json.tag_name }}"
+    _release_assets: "{{ _github_release_response.json.assets | default([]) | map(attribute='name') | list }}"
+  ansible.builtin.assert:
+    that: _release_assets | select('match', _required_asset_regex) | list | length > 0
+    fail_msg: >-
+      {{ github_repo }} release {{ _release_tag }} has no asset matching
+      '{{ _required_asset_regex }}' ({{ _release_assets | length }} asset(s) in
+      the release) -- the latest release does not carry the asset this tool
+      installs.
+    quiet: true
+  loop: "{{ required_asset_regexes | default([]) }}"
+  loop_control:
+    loop_var: _required_asset_regex
 
 - name: Set GitHub tag fact for {{ github_repo }}
   ansible.builtin.set_fact:
