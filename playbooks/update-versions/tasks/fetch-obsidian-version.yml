@@ -22,7 +22,8 @@
 # Task naming contract: any task that can fail because of a third party carries
 # the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
 # defect in this repository. Input asserts stay unprefixed -- a bad argument is
-# ours. See ../../../docs/architecture/version-update-playbooks.md.
+# ours. Quote such a name: an unquoted YAML scalar cannot carry a colon and a
+# space. See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Set the Obsidian desktop release feed URL
   ansible.builtin.set_fact:
