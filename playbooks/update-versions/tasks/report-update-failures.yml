@@ -1,0 +1,39 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Renders the run report and ends the run non-zero. Included from two places:
+# the configuration-error path in record-tool-failure.yml, which stops the run
+# at that tool, and the end-of-run task, which stops it after every tool ran.
+# One renderer serves both, so the two exits cannot drift apart.
+#
+# Every recorded message is printed, never only the class, so a misclassified
+# failure stays diagnosable. A 404 adds a hint, not a classification: a mistyped
+# call-site argument and a withdrawn upstream release are indistinguishable
+# here. See ../../../docs/architecture/version-update-playbooks.md (section
+# "Isolating per-tool failures").
+
+- name: "report: render the update report"  # noqa: name[casing]
+  vars:
+    _report_has_404: >-
+      {{ (_update_failures | map(attribute='messages') | flatten
+          | select('search', '404') | list | length) > 0 }}
+  ansible.builtin.fail:
+    msg: |-
+      Version update run failed.
+
+      Failed ({{ _update_failures | length }}):
+      {% for _entry in _update_failures %}
+        {{ _entry.tool }} [{{ _entry.phase }}] {{ _entry.class }} -- {{ _entry.task }}
+      {% for _message in _entry.messages %}
+          {{ _message }}
+      {% endfor %}
+      {% endfor %}
+
+      Updated ({{ _update_updated | length }}): {{ _update_updated | join(', ') if (_update_updated | length) > 0 else 'none' }}
+      Skipped ({{ _update_skipped | length }}): {{ _update_skipped | join(', ') if (_update_skipped | length) > 0 else 'none' }}
+      {% if (_update_skipped | length) > 0 %}
+      A skipped tool wrote no pins because its own fetch failed; see its entry above.
+      {% endif %}
+      {% if _report_has_404 %}
+      Hint: a 404 can also mean a wrong call-site argument rather than a withdrawn
+      upstream release -- check the argument as well as the upstream.
+      {% endif %}

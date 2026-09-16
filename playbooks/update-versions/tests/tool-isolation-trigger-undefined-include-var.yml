@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Induces an undefined variable in an include's vars (classifier rule 2).
+
+- name: "upstream: include with an undefined var"
+  ansible.builtin.include_tasks: tool-isolation-trigger-noop.yml
+  vars:
+    _harness_passed: "{{ _harness_variable_that_is_never_set }}"

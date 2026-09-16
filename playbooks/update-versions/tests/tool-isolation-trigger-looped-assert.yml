@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Induces a looped assert failure, whose wrapper message is the literal
+# "One or more items failed" while the real text sits in results[].
+
+- name: "upstream: assert every harness item is large enough"
+  ansible.builtin.assert:
+    that: item | int > 5
+    fail_msg: "harness item {{ item }} is too small"
+  loop: [1, 2]

@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MIT-0
+---
+# A get_url whose dest cannot be written. This is OUR configuration error, and
+# the accepted blind spot of the classifier reports it as upstream. The case
+# exists so a future narrowing of the network rule is deliberate.
+
+- name: Download into a directory that does not exist
+  ansible.builtin.get_url:
+    url: "https://127.0.0.1:1/x"
+    dest: "{{ _harness_dir.path }}/no-such-directory/file"
+    mode: "0644"

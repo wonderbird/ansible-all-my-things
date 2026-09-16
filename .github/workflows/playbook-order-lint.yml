@@ -59,13 +59,17 @@ jobs:
           python3 scripts/version-update-order/check-version-update-order.py
           playbooks/update-versions/perform-updates.yml
 
-  write-pins-harness:
-    name: Test write-pins task file
+  update-versions-harness:
+    name: Test ${{ matrix.harness }} task file
     runs-on: ubuntu-24.04
     permissions:
       contents: read
     env:
       ANSIBLE_CONFIG: playbooks/update-versions/tests/ansible.cfg
+    strategy:
+      fail-fast: false
+      matrix:
+        harness: [write-pins, tool-isolation]
 
     steps:
       - name: Checkout repository
@@ -79,7 +83,7 @@ jobs:
       - name: Install ansible-core
         run: pip install "$(grep -E '^ansible-core' requirements.txt)"
 
-      - name: Run write-pins harness
+      - name: Run the ${{ matrix.harness }} harness
         run: >-
           ansible-playbook
-          playbooks/update-versions/tests/test-write-pins.yml
+          playbooks/update-versions/tests/test-${{ matrix.harness }}.yml

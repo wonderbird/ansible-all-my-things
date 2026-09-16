@@ -1,0 +1,85 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Required vars: failed_tool, failed_phase ("fetch" or "apply"),
+#                failed_task_name, failed_task_action,
+#                failed_task_resolved_action, failed_result
+#
+# Classifies one rescued failure and appends it to the _update_failures ledger.
+# A configuration failure renders the report immediately, which ends the run.
+# Why the run accumulates third-party failures instead of aborting on the first
+# one, and what each class means, is in
+# ../../../docs/architecture/version-update-playbooks.md (section "Isolating
+# per-tool failures").
+#
+# The caller passes the failure data explicitly rather than letting this file
+# read ansible_failed_task and ansible_failed_result, so the classifier is a
+# pure function the harness can drive with synthetic input.
+#
+# Observed on ansible-core 2.21.4, and the reason the rules look like this:
+#
+# - A templating or undefined-variable failure carries the literal
+#   "is undefined", usually inside "Error while resolving value for ...".
+#   The `exception` key does NOT discriminate: a plain connection-refused
+#   result carries it too.
+# - A failed looped task sets msg to the literal "One or more items failed";
+#   the real messages live only in results[].msg. Both failure modes that
+#   motivated this handling are looped asserts, so every rule and the report
+#   read results[] as well.
+# - A short-form task (`uri:`) reports action "uri" while _resolved_action
+#   reports "ansible.builtin.uri", so rule 4 accepts either spelling.
+
+- name: "record-failure: assert inputs for {{ failed_tool | default('<undefined tool>') }}"  # noqa: name[casing]
+  vars:
+    _tool_name_ok: '^[a-z0-9_]+\Z'
+  ansible.builtin.assert:
+    that:
+      - failed_tool is defined and failed_tool is string
+      - failed_tool is match(_tool_name_ok)
+      - failed_phase is defined and failed_phase in ['fetch', 'apply']
+      - failed_task_name is defined and failed_task_name is string
+      - failed_result is defined and failed_result is mapping
+    fail_msg: >-
+      record-failure: invalid inputs (tool='{{ failed_tool | default('<undefined>') }}',
+      phase='{{ failed_phase | default('<undefined>') }}',
+      task='{{ failed_task_name | default('<undefined>') }}').
+    quiet: true
+
+- name: "record-failure: classify the {{ failed_phase }} failure of {{ failed_tool }}"  # noqa: name[casing]
+  vars:
+    _failure_item_messages: >-
+      {{ ((failed_result.results | default([]))
+          | selectattr('failed', 'defined') | selectattr('failed')
+          | selectattr('msg', 'defined') | map(attribute='msg') | list) }}
+    _failure_messages: >-
+      {{ ((_failure_item_messages
+           if (_failure_item_messages | length > 0)
+           else [failed_result.msg | default('')]))
+         | reject('equalto', '') | list }}
+    _actions: "{{ [failed_task_action | default(''), failed_task_resolved_action | default('')] }}"
+    _is_network_module: >-
+      {{ (_actions | select('in', ['uri', 'get_url',
+                                   'ansible.builtin.uri', 'ansible.builtin.get_url'])
+          | list | length) > 0 }}
+    _is_templating_failure: >-
+      {{ (_failure_messages | select('search', 'is undefined') | list | length) > 0
+         or (_failure_messages | select('search', 'Error while resolving value for')
+             | list | length) > 0 }}
+    _class: >-
+      {{ 'configuration' if failed_task_name.startswith('write-pins: ')
+         else ('configuration' if _is_templating_failure
+               else ('upstream' if failed_task_name.startswith('upstream: ')
+                     else ('upstream' if _is_network_module
+                           else 'configuration'))) }}
+  ansible.builtin.set_fact:
+    _update_failures: >-
+      {{ _update_failures + [{'tool': failed_tool,
+                              'phase': failed_phase,
+                              'class': _class,
+                              'task': failed_task_name,
+                              'action': failed_task_action | default(''),
+                              'resolved_action': failed_task_resolved_action | default(''),
+                              'messages': _failure_messages}] }}
+
+- name: "record-failure: report and stop on a configuration error in {{ failed_tool }}"  # noqa: name[casing]
+  ansible.builtin.include_tasks: report-update-failures.yml
+  when: (_update_failures | last).class == 'configuration'
