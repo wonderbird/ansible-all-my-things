@@ -272,6 +272,41 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         self.assertIn("0 bypass violation(s)", out)
         self.assertEqual(code, 0)
 
+    def test_release_include_without_asset_declaration_is_asset_violation(self):
+        """Dropping a tool's asset patterns is caught, not silently accepted.
+
+        Without a declaration the include accepts whatever the API calls the
+        latest release, including one that carries no asset this tool installs.
+        """
+        text = self.fixture.read()
+        old = ("        required_asset_regexes:\n"
+               "          - '^Hack\\.zip$'\n")
+        self.assertIn(old, text)
+        self.fixture.write(text.replace(old, "", 1))
+
+        code, out = self.fixture.run()
+        self.assertIn("1 asset violation(s)", out)
+        self.assertIn("Fetch Nerd Fonts (Hack) upstream version", out)
+        self.assertIn("declares neither required_asset_regexes nor "
+                      "release_carries_no_consumed_asset", out)
+        self.assertEqual(code, 1)
+
+    def test_release_include_with_stated_reason_is_accepted(self):
+        """A tool installed outside the release assets states that instead."""
+        text = self.fixture.read()
+        old = ("        required_asset_regexes:\n"
+               "          - '^Hack\\.zip$'\n")
+        self.assertIn(old, text)
+        text = text.replace(
+            old,
+            '        release_carries_no_consumed_asset: "installed from a '
+            'distribution package, not from release assets"\n', 1)
+        self.fixture.write(text)
+
+        code, out = self.fixture.run()
+        self.assertIn("0 asset violation(s)", out)
+        self.assertEqual(code, 0)
+
     def test_reordered_value_before_pin_is_pairing_parse_error(self):
         """A pin whose value line is not directly after it cannot be skipped."""
         text = self.fixture.read()

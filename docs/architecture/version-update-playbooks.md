@@ -137,10 +137,8 @@ and resolves `GET /releases/latest`. That is the right oracle only for a
 repository whose latest tag always carries the asset the caller needs. A
 repository publishing more than one release line from one tag namespace
 breaks that assumption, which is why Obsidian has its own task file
-instead. Making the shared file take an optional required-asset guard —
-it already fetches and discards the asset list — would turn a future
-asset-less release into a named fetch-phase failure before any write, for
-any GitHub-backed tool; that is tracked in `ansible-all-my-things-nton`.
+instead. For every other GitHub-backed tool, the guard described next
+keeps that assumption from failing silently.
 
 `fetch-checksum-from-file.yml` is parametrized by `checksum_file_url` and
 `checksum_target_filename`, and is used instead of a local
@@ -161,6 +159,36 @@ still use a per-tool copy-paste convention for the download, stat and
 pin-write steps. This is retained deliberately at the current tool count: a
 data-driven tool-registry loop was evaluated and not judged worth the
 added indirection (tracked in `ansible-all-my-things-3ikt`).
+
+#### Guarding release assets
+
+`fetch-github-release.yml` takes an optional list of patterns in
+`required_asset_regexes`. Each pattern must match the name of at least one
+asset of the resolved release, or the include fails naming the repository,
+the resolved tag, the failing pattern and how many assets the release has.
+The asset list is already fetched and discarded by the API call the task
+makes anyway, so the guard costs no additional request against the hourly
+unauthenticated budget.
+
+The guard is what turns "the latest release happens to carry what we
+install" from an assumption into a checked claim. Without it a release
+published from a second release line — the Obsidian shape — is accepted,
+and the failure surfaces later as a 404 on a download, after that tool's
+section has begun. Patterns therefore describe what the consumer actually
+downloads, including downloads performed by the role rather than by the
+playbook: for those tools a rename upstream fails at fetch time instead of
+at install time on a real machine.
+
+In `perform-updates.yml` the declaration is mandatory. A tool that installs
+from somewhere other than the release assets says so in
+`release_carries_no_consumed_asset`, whose value is the reason, so the
+exemption is visible at the call site rather than implied by silence. The
+apply-order checker rejects an include that declares neither, and **this
+ban MUST survive any simplification or removal of that checker**; the
+minimum replacement is a CI step that fails when a release include in
+`perform-updates.yml` declares neither variable. `query-versions.yml` reads
+only `tag_name` and downloads nothing, so the declaration stays optional
+there rather than duplicating every pattern in a second place.
 
 #### Writing pins
 

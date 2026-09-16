@@ -29,6 +29,10 @@
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml
       vars:
         github_repo: "arl/gitmux"
+        required_asset_regexes:
+          - '^gitmux_.*_linux_amd64\.tar\.gz$'
+          - '^gitmux_.*_linux_arm64\.tar\.gz$'
+          - '^checksums\.txt$'
 
     - name: Save gitmux fetched tag
       ansible.builtin.set_fact:
@@ -38,6 +42,8 @@
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml
       vars:
         github_repo: "ryanoasis/nerd-fonts"
+        required_asset_regexes:
+          - '^Hack\.zip$'
 
     - name: Save Nerd Fonts fetched tag
       ansible.builtin.set_fact:
@@ -55,6 +61,9 @@
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml
       vars:
         github_repo: "dolthub/dolt"
+        required_asset_regexes:
+          - '^dolt-linux-amd64\.tar\.gz$'
+          - '^dolt-linux-arm64\.tar\.gz$'
 
     - name: Save Dolt fetched tag
       ansible.builtin.set_fact:
@@ -64,6 +73,9 @@
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml
       vars:
         github_repo: "anomalyco/opencode"
+        required_asset_regexes:
+          - '^opencode-linux-x64\.tar\.gz$'
+          - '^opencode-linux-arm64\.tar\.gz$'
 
     - name: Save OpenCode fetched tag
       ansible.builtin.set_fact:
@@ -73,6 +85,7 @@
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml
       vars:
         github_repo: "cli/cli"
+        release_carries_no_consumed_asset: "installed from the cli.github.com apt repository, not from release assets"
 
     - name: Save GitHub CLI fetched tag
       ansible.builtin.set_fact:
@@ -85,6 +98,10 @@
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml
       vars:
         github_repo: "rtk-ai/rtk"
+        required_asset_regexes:
+          - '^rtk-x86_64-unknown-linux-musl\.tar\.gz$'
+          - '^rtk-aarch64-unknown-linux-gnu\.tar\.gz$'
+          - '^checksums\.txt$'
 
     - name: Save rtk fetched tag
       ansible.builtin.set_fact:
@@ -94,6 +111,10 @@
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml
       vars:
         github_repo: "gastownhall/beads"
+        required_asset_regexes:
+          - '^beads_.*_linux_amd64\.tar\.gz$'
+          - '^beads_.*_linux_arm64\.tar\.gz$'
+          - '^checksums\.txt$'
 
     - name: Save bd fetched tag
       ansible.builtin.set_fact:
@@ -103,6 +124,10 @@
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml
       vars:
         github_repo: "Dicklesworthstone/beads_viewer"
+        required_asset_regexes:
+          - '^bv_.*_linux_amd64\.tar\.gz$'
+          - '^bv_.*_linux_arm64\.tar\.gz$'
+          - '^checksums\.txt$'
 
     - name: Save bv fetched tag
       ansible.builtin.set_fact:
@@ -112,6 +137,11 @@
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml
       vars:
         github_repo: "Dicklesworthstone/beads_rust"
+        required_asset_regexes:
+          - '^br-.*-linux_amd64\.tar\.gz$'
+          - '^br-.*-linux_amd64\.tar\.gz\.sha256$'
+          - '^br-.*-linux_arm64\.tar\.gz$'
+          - '^br-.*-linux_arm64\.tar\.gz\.sha256$'
 
     - name: Save br fetched tag
       ansible.builtin.set_fact:
@@ -124,6 +154,7 @@
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml
       vars:
         github_repo: "github/spec-kit"
+        release_carries_no_consumed_asset: "installed with pipx from the git tag, not from release assets"
 
     - name: Save specify-cli fetched tag
       ansible.builtin.set_fact:
@@ -146,6 +177,9 @@
       ansible.builtin.include_tasks: tasks/fetch-github-release.yml
       vars:
         github_repo: "direnv/direnv"
+        required_asset_regexes:
+          - '^direnv\.linux-amd64$'
+          - '^direnv\.linux-arm64$'
 
     - name: Save direnv fetched tag
       ansible.builtin.set_fact:
