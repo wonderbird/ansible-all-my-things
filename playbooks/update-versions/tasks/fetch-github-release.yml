@@ -10,6 +10,11 @@
 # (section "Guarding release assets") for why this guard exists and where it
 # is mandatory. `release_carries_no_consumed_asset` states the opposite claim,
 # for a tool installed from somewhere other than the release assets.
+#
+# Task naming contract: any task that can fail because of a third party carries
+# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
+# defect in this repository. Input asserts stay unprefixed -- a bad argument is
+# ours. See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Assert required_asset_regexes is a list of patterns for {{ github_repo }}
   ansible.builtin.assert:
@@ -33,7 +38,7 @@
     status_code: [200, 403]
   register: _github_release_response
 
-- name: Fail on GitHub API rate limit for {{ github_repo }}
+- name: "upstream: Fail on GitHub API rate limit for {{ github_repo }}"  # noqa: name[casing]
   ansible.builtin.fail:
     msg: >-
       GitHub API rate limit exceeded for {{ github_repo }}
@@ -43,21 +48,21 @@
     - _github_release_response.status == 403
     - (_github_release_response.x_ratelimit_remaining | default('1') | int) == 0
 
-- name: Fail on unexpected GitHub API status for {{ github_repo }}
+- name: "upstream: Fail on unexpected GitHub API status for {{ github_repo }}"  # noqa: name[casing]
   ansible.builtin.fail:
     msg: >-
       GitHub API (https://api.github.com/repos/{{ github_repo }}/releases/latest)
       returned unexpected status {{ _github_release_response.status }}
   when: _github_release_response.status != 200
 
-- name: Fail if tag_name missing from GitHub response for {{ github_repo }}
+- name: "upstream: Fail if tag_name missing from GitHub response for {{ github_repo }}"  # noqa: name[casing]
   ansible.builtin.fail:
     msg: >-
       GitHub API (https://api.github.com/repos/{{ github_repo }}/releases/latest)
       response does not contain 'tag_name' field
   when: "'tag_name' not in _github_release_response.json"
 
-- name: Assert required assets exist in the latest release of {{ github_repo }}
+- name: "upstream: Assert required assets exist in the latest release of {{ github_repo }}"  # noqa: name[casing]
   vars:
     _release_tag: "{{ _github_release_response.json.tag_name }}"
     _release_assets: "{{ _github_release_response.json.assets | default([]) | map(attribute='name') | list }}"

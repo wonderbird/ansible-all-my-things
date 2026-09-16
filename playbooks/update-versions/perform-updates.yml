@@ -237,7 +237,7 @@
             value: "{{ fetched_android_sha1 }}"
 
     # Dolt
-    - name: Download dolt amd64 tarball for sha256 computation
+    - name: "upstream: Download dolt amd64 tarball for sha256 computation"  # noqa: name[casing]
       ansible.builtin.get_url:
         url: "https://github.com/dolthub/dolt/releases/download/{{ fetched_dolt_tag }}/dolt-linux-amd64.tar.gz"
         dest: "/tmp/dolt-{{ fetched_dolt_tag }}-linux-amd64.tar.gz"
@@ -250,7 +250,7 @@
         get_checksum: true
       register: _dolt_amd64_stat
 
-    - name: Download dolt arm64 tarball for sha256 computation
+    - name: "upstream: Download dolt arm64 tarball for sha256 computation"  # noqa: name[casing]
       ansible.builtin.get_url:
         url: "https://github.com/dolthub/dolt/releases/download/{{ fetched_dolt_tag }}/dolt-linux-arm64.tar.gz"
         dest: "/tmp/dolt-{{ fetched_dolt_tag }}-linux-arm64.tar.gz"
@@ -275,7 +275,7 @@
           - pin: dolt_sha256_arm64
             value: "{{ _dolt_arm64_stat.stat.checksum }}"
 
-    - name: Download opencode linux-x64 tarball for sha256 computation
+    - name: "upstream: Download opencode linux-x64 tarball for sha256 computation"  # noqa: name[casing]
       ansible.builtin.get_url:
         url: "https://github.com/anomalyco/opencode/releases/download/{{ fetched_opencode_tag }}/opencode-linux-x64.tar.gz"
         dest: "/tmp/opencode-{{ fetched_opencode_tag }}-linux-x64.tar.gz"
@@ -288,7 +288,7 @@
         get_checksum: true
       register: _opencode_amd64_stat
 
-    - name: Download opencode linux-arm64 tarball for sha256 computation
+    - name: "upstream: Download opencode linux-arm64 tarball for sha256 computation"  # noqa: name[casing]
       ansible.builtin.get_url:
         url: "https://github.com/anomalyco/opencode/releases/download/{{ fetched_opencode_tag }}/opencode-linux-arm64.tar.gz"
         dest: "/tmp/opencode-{{ fetched_opencode_tag }}-linux-arm64.tar.gz"
@@ -323,7 +323,7 @@
             value: "{{ fetched_github_cli_tag }}"
 
     # Obsidian: version and sha256 (amd64-only) updated together
-    - name: Download Obsidian amd64 .deb for sha256 computation
+    - name: "upstream: Download Obsidian amd64 .deb for sha256 computation"  # noqa: name[casing]
       ansible.builtin.get_url:
         url: >-
           https://github.com/obsidianmd/obsidian-releases/releases/download/{{ fetched_obsidian_tag }}/obsidian_{{ fetched_obsidian_tag | regex_replace('^v', '') }}_amd64.deb
@@ -536,7 +536,7 @@
           - pin: skill_manager_version
             value: "{{ fetched_skill_manager_sha }}"
 
-    - name: Download direnv linux-amd64 binary for sha256 computation
+    - name: "upstream: Download direnv linux-amd64 binary for sha256 computation"  # noqa: name[casing]
       ansible.builtin.get_url:
         url: "https://github.com/direnv/direnv/releases/download/{{ fetched_direnv_tag }}/direnv.linux-amd64"
         dest: "/tmp/direnv-{{ fetched_direnv_tag }}-linux-amd64"
@@ -549,7 +549,7 @@
         get_checksum: true
       register: _direnv_amd64_stat
 
-    - name: Download direnv linux-arm64 binary for sha256 computation
+    - name: "upstream: Download direnv linux-arm64 binary for sha256 computation"  # noqa: name[casing]
       ansible.builtin.get_url:
         url: "https://github.com/direnv/direnv/releases/download/{{ fetched_direnv_tag }}/direnv.linux-arm64"
         dest: "/tmp/direnv-{{ fetched_direnv_tag }}-linux-arm64"

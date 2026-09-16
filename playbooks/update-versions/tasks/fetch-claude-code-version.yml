@@ -7,6 +7,11 @@
 # computed tarball hash or a GitHub-Releases tag_name alone, so this composes
 # fetch-github-release.yml (for the release tag) with a second uri GET
 # against the manifest.
+#
+# Task naming contract: any task that can fail because of a third party carries
+# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
+# defect in this repository. Input asserts stay unprefixed -- a bad argument is
+# ours. See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Fetch Claude Code release tag from GitHub Releases
   ansible.builtin.include_tasks: fetch-github-release.yml
@@ -31,7 +36,7 @@
     return_content: true
   register: _claude_code_manifest
 
-- name: Assert Claude Code manifest contains required platform keys
+- name: "upstream: Assert Claude Code manifest contains required platform keys"  # noqa: name[casing]
   ansible.builtin.assert:
     that:
       - "'linux-x64' in _claude_code_manifest.json.platforms"

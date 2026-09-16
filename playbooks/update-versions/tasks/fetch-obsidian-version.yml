@@ -18,6 +18,11 @@
 # On an Ansible module, failed_when REPLACES the module's own failure test, so
 # a guard meant to improve the message converts a 404 into ok. The module's own
 # error already prints HTTP Error 404, the status code and the full URL.
+#
+# Task naming contract: any task that can fail because of a third party carries
+# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
+# defect in this repository. Input asserts stay unprefixed -- a bad argument is
+# ours. See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Set the Obsidian desktop release feed URL
   ansible.builtin.set_fact:
@@ -44,7 +49,7 @@
          | regex_search('releases/download/(v[0-9]+\.[0-9]+\.[0-9]+)/', '\1')
          | default([], true) }}
 
-- name: Assert the Obsidian desktop feed downloadUrl carries a release tag
+- name: "upstream: Assert the Obsidian desktop feed downloadUrl carries a release tag"  # noqa: name[casing]
   ansible.builtin.assert:
     that: "_obsidian_tag_match | length > 0"
     fail_msg: >-
@@ -53,7 +58,7 @@
       'releases/download/vX.Y.Z/' segment
       (downloadUrl was: {{ _obsidian_desktop_feed.downloadUrl | default('<missing>') }}).
 
-- name: Assert the derived Obsidian tag agrees with the feed's latestVersion
+- name: "upstream: Assert the derived Obsidian tag agrees with the feed's latestVersion"  # noqa: name[casing]
   ansible.builtin.assert:
     that: "(_obsidian_tag_match | first) == 'v' ~ (_obsidian_desktop_feed.latestVersion | default('<missing>'))"
     fail_msg: >-

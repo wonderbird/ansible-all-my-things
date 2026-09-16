@@ -1,6 +1,11 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # Sets facts: fetched_android_build, fetched_android_sha1
+#
+# Task naming contract: any task that can fail because of a third party carries
+# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
+# defect in this repository. Input asserts stay unprefixed -- a bad argument is
+# ours. See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Fetch Android developer page
   ansible.builtin.uri:
@@ -16,7 +21,7 @@
          | regex_search('commandlinetools-linux-(\d+)_latest\.zip', '\1')
          | default([], true) }}
 
-- name: Fail if Android cmdline-tools build number not found on developer page
+- name: "upstream: Fail if Android cmdline-tools build number not found on developer page"  # noqa: name[casing]
   ansible.builtin.fail:
     msg: >-
       Android developer page (https://developer.android.com/studio) could not be parsed:
@@ -35,7 +40,7 @@
          | regex_search('commandlinetools-linux-' ~ fetched_android_build ~ '_latest\.zip[\s\S]{0,400}?([0-9a-f]{40})', '\1')
          | default([], true) }}
 
-- name: Fail if Android cmdline-tools SHA-1 not found on developer page
+- name: "upstream: Fail if Android cmdline-tools SHA-1 not found on developer page"  # noqa: name[casing]
   ansible.builtin.fail:
     msg: >-
       Android developer page (https://developer.android.com/studio) could not be parsed:

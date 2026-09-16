@@ -12,6 +12,11 @@
 # The caller names the result fact, so two includes never share one. Name it
 # after the pin it feeds (`fetched_<pin>`), which is what the apply-order
 # checker pairs a per-architecture pin against.
+#
+# Task naming contract: any task that can fail because of a third party carries
+# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
+# defect in this repository. Input asserts stay unprefixed -- a bad argument is
+# ours. See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Assert checksum_result_var is set for {{ checksum_target_filename }}
   vars:
@@ -42,7 +47,7 @@
          | regex_search('^([0-9a-f]{64})\s+' + (checksum_target_filename | regex_escape) + '$', '\1', multiline=True)
          | default([], true) }}
 
-- name: Fail if checksum not found in {{ checksum_file_url }}
+- name: "upstream: Fail if checksum not found in {{ checksum_file_url }}"  # noqa: name[casing]
   ansible.builtin.fail:
     msg: >-
       Checksum for '{{ checksum_target_filename }}' not found in

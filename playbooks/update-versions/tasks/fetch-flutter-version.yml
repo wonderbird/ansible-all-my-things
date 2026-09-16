@@ -1,5 +1,10 @@
 #SPDX-License-Identifier: MIT-0
 ---
+#
+# Task naming contract: any task that can fail because of a third party carries
+# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
+# defect in this repository. Input asserts stay unprefixed -- a bad argument is
+# ours. See ../../../docs/architecture/version-update-playbooks.md.
 - name: Fetch Flutter release manifest
   ansible.builtin.uri:
     url: "https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json"
@@ -13,7 +18,7 @@
          | sort(attribute='release_date')
          | list }}
 
-- name: Fail if no stable Flutter release found in manifest
+- name: "upstream: Fail if no stable Flutter release found in manifest"  # noqa: name[casing]
   ansible.builtin.fail:
     msg: >-
       Flutter manifest
@@ -21,7 +26,7 @@
       contains no stable release entries
   when: _flutter_stable | length == 0
 
-- name: Fail if latest stable Flutter entry is missing required fields
+- name: "upstream: Fail if latest stable Flutter entry is missing required fields"  # noqa: name[casing]
   vars:
     _latest: "{{ _flutter_stable | last }}"
   ansible.builtin.fail:

@@ -2,6 +2,11 @@
 ---
 # Required variable: java_sdkman_major (integer major version, e.g. 21)
 # Sets fact: fetched_java_identifier
+#
+# Task naming contract: any task that can fail because of a third party carries
+# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
+# defect in this repository. Input asserts stay unprefixed -- a bad argument is
+# ours. See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Fetch SDKMAN Java version list
   ansible.builtin.uri:
@@ -19,7 +24,7 @@
          | select('match', _java_regex)
          | list }}
 
-- name: Fail if no Java {{ java_sdkman_major }}.x.x-tem version found via SDKMAN
+- name: "upstream: Fail if no Java {{ java_sdkman_major }}.x.x-tem version found via SDKMAN"  # noqa: name[casing]
   ansible.builtin.fail:
     msg: >-
       SDKMAN API (https://api.sdkman.io/2/candidates/java/linuxx64/versions/all)
