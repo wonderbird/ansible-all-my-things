@@ -26,6 +26,13 @@ Independent checks run over that classification:
   write-pins include lists each pin as a `- pin:` line directly followed by a
   `value:` line; a `pin:` key that does not parse that way is a PAIRING
   parse error, so a layout change cannot make PAIRING skip a pin.
+- ASSET -- every include of tasks/fetch-github-release.yml in this playbook
+  must declare either required_asset_regexes, so a release lacking the asset
+  the tool installs fails at fetch time, or
+  release_carries_no_consumed_asset with a reason, for a tool that installs
+  from somewhere other than the release assets. Unlike the other rules this
+  one covers the whole file: the release includes sit in the fetch phase,
+  while what they protect is the download that follows.
 
 Why each check exists, and the limits of the attribution step, are documented
 in README.md beside this file.
@@ -48,6 +55,10 @@ PIN_ITEM = re.compile(r'^\s*-\s*pin:\s*([a-z0-9_]+)\s*\n\s*value:\s*"\{\{\s*([A-
                       re.MULTILINE)
 # any `pin:` key, whether or not it opens a list item
 PIN_KEY = re.compile(r'^\s*(?:-\s*)?pin:', re.MULTILINE)
+RELEASE_INCLUDE = re.compile(r'include_tasks:\s*tasks/fetch-github-release\.yml')
+ASSET_DECL = re.compile(r'^\s*required_asset_regexes:\s*$', re.MULTILINE)
+ASSET_WAIVER = re.compile(r'^\s*release_carries_no_consumed_asset:\s*"[^"\n]+"\s*$',
+                          re.MULTILINE)
 # anchored at key position: task bodies include comment lines and vars
 BYPASS = re.compile(r'^\s*(?:ansible\.builtin\.)?(?:replace|lineinfile|blockinfile|copy|template):',
                     re.MULTILINE)
@@ -72,11 +83,12 @@ def expected_role_count(path):
         return len(STALE_CLAUSE.findall(handle.read()))
 
 
-def parse_tasks(path):
-    """Split the apply phase of `path` into tasks."""
+def parse_tasks(path, whole_file=False):
+    """Split `path` into tasks, from the apply-phase marker unless whole_file."""
     with open(path) as handle:
         lines = handle.read().splitlines()
-    start = next(i for i, line in enumerate(lines) if PHASE_MARKER in line)
+    start = 0 if whole_file else next(
+        i for i, line in enumerate(lines) if PHASE_MARKER in line)
 
     tasks = []
     cur = None
@@ -173,8 +185,18 @@ def analyse(path):
     bypass = [(task["line"], task["name"]) for task in tasks
               if BYPASS.search("\n".join(task["body"]))]
 
+    # --- ASSET: a release include must state what the resolved release has to
+    # carry, or why it carries nothing this tool installs. The API's "latest"
+    # release is not necessarily one with the consumed asset. These includes
+    # run in the fetch phase, so this rule reads the whole playbook.
+    asset = [(task["line"], task["name"]) for task in parse_tasks(path, whole_file=True)
+             if RELEASE_INCLUDE.search("\n".join(task["body"]))
+             and not ASSET_DECL.search("\n".join(task["body"]))
+             and not ASSET_WAIVER.search("\n".join(task["body"]))]
+
     return {
         "violations": sorted(violations),
+        "asset": asset,
         "unattributed": unattributed,
         "pairing": pairing,
         "bypass": bypass,
@@ -195,6 +217,11 @@ def report(path, result):
 
     for line, name in result["bypass"]:
         print(f"{path}:{line}: BYPASS: file edited without tasks/write-pins.yml -- {name}")
+
+    for line, name in result["asset"]:
+        print(f"{path}:{line}: ASSET: release include declares neither "
+              f"required_asset_regexes nor release_carries_no_consumed_asset "
+              f"-- {name}")
 
     for line, name in result["unattributed"]:
         print(f"{path}:{line}: cannot attribute apply-phase fetch to a role -- {name}"
@@ -228,11 +255,13 @@ def report(path, result):
     print(f"\n{len(result['violations'])} ordering violation(s), "
           f"{len(result['unattributed'])} unattributable fetch(es), "
           f"{len(result['pairing'])} pairing violation(s), "
-          f"{len(result['bypass'])} bypass violation(s); {analysed} roles written")
+          f"{len(result['bypass'])} bypass violation(s), "
+          f"{len(result['asset'])} asset violation(s); {analysed} roles written")
     print(f"analysed {analysed}/{expected} roles")
 
     failed = (result["violations"] or result["unattributed"]
-              or result["pairing"] or result["bypass"] or not scope_ok)
+              or result["pairing"] or result["bypass"] or result["asset"]
+              or not scope_ok)
     return 1 if failed else 0
 
 
