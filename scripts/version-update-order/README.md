@@ -24,19 +24,11 @@ been bumped to the new tag while its checksum still held the previous version's
 digest — a defaults file that looks updated, installs nothing, and fails only
 on the next machine build.
 
-Further hazards are worse, because nothing observable reports them:
-
-- `tasks/fetch-checksum-from-file.yml` sets a single play-scoped
-  `fetched_checksum` fact that each include overwrites. Every reader must
-  therefore consume it before the next include runs. Hoisting the includes
-  together — an obvious-looking tidy-up — leaves every reader resolving to the
-  last include's value. Several roles then receive the same wrong digest, no
-  task fails, `failed=0` holds, and a second run is stably wrong, so a
-  diff-based idempotency probe passes too.
-- A reorder can transpose a pair of per-architecture values, or take a digest
-  from another tool's alias. Both write plausible, distinct digests into
-  plausible pins. Neither is visible to a positional check, to a distinctness
-  check, or to a human reading a large reorder diff.
+A further hazard is worse, because nothing observable reports it. A reorder
+can transpose a pair of per-architecture values, or take a digest from another
+tool's checksum fact. Both write plausible, distinct digests into plausible
+pins. Neither is visible to a positional check, to a distinctness check, or to
+a human reading a large reorder diff.
 
 None of these surface until a role installs the tool on a real machine, which
 is why they are worth a gate rather than a review convention.
@@ -49,14 +41,9 @@ describes the mechanism and links here for it.
 
 - **Per-tool ordering.** Within a tool's section, no network or checksum task
   may follow that tool's first pin write.
-- **`fetched_checksum` adjacency.** Every task that reads the shared
-  `fetched_checksum` fact must be the task immediately after its own
-  `tasks/fetch-checksum-from-file.yml` include. The rule binds any reader, not
-  only a `set_fact` alias: deleting an alias and interpolating the raw fact
-  into a pin write produces exactly the same corruption.
 - **Pairing.** A per-architecture pin must be written from a value whose own
   name carries the same platform token, and a checksum pin fed from a
-  `fetched_*` alias must be fed from its own alias rather than another tool's.
+  `fetched_*` fact must be fed from its own fact rather than another tool's.
 
 The contract is deliberately **not** full atomicity. Ansible has no
 transaction, so an abort part-way through the phase still leaves a prefix of
@@ -66,9 +53,8 @@ contract guarantees is that each individual tool's pin and checksums are
 consistent with one another, which is what the defaults files ask for.
 
 An alternative shape was available: hoist every network task out of the apply
-phase, leaving only pin writes. It was not taken. It *creates* the
-`fetched_checksum` aliasing hazard above rather than avoiding it, it makes a
-run all-or-nothing across every tracked upstream, and it splits each tool into
+phase, leaving only pin writes. It was not taken. It makes a run
+all-or-nothing across every tracked upstream, and it splits each tool into
 two halves hundreds of lines apart. Its one advantage — an invariant you can
 confirm by reading a single line — is obtained here instead by making the
 invariant machine-checked.
@@ -92,9 +78,9 @@ output.
    interpolate, or, failing that, through the stem of an included
    `tasks/fetch-<role>-version.yml`.
 4. **Judge.** The rules run over that classification: ordering and pairing on
-   the attributed tasks, adjacency on the readers of the shared fact, plus two
-   rules about the analysis itself — a FETCH that cannot be attributed to any
-   role is an error rather than a pass (Principle XII, fail loud), and the
+   the attributed tasks, plus two rules about the analysis itself — a FETCH
+   that cannot be attributed to any role is an error rather than a pass
+   (Principle XII, fail loud), and the
    number of roles analysed must equal the number of stale-check clauses in
    `query-versions.yml`. Two further guards keep pin writes honest: BYPASS
    and PAIRING parse, described below.
@@ -191,13 +177,12 @@ planning of the very change that introduced this checker enumerated the
 affected sections incorrectly on its first attempt. The silent-corruption modes
 above are invisible to a test run, to `failed=0` and to an idempotency diff.
 
-The complexity is reducible. Giving `tasks/fetch-checksum-from-file.yml` a
-result-variable parameter would remove the shared-fact aliasing at its root:
-each include would write its own named fact, the adjacency hazard would become
-unrepresentable, and both the adjacency rule and the alias half of the pairing
-rule could be deleted outright. It was not bundled into the change that
-introduced this checker because it touches every call site (tracked in
-`ansible-all-my-things-x3wy`).
+`tasks/fetch-checksum-from-file.yml` takes the name of the fact to set from
+its caller, so each include writes its own named fact. That removed a shared
+`fetched_checksum` fact every include overwrote, and with it an adjacency rule
+requiring each reader to sit directly after its own include. The pairing rule
+stayed: a pin written from the wrong tool's fact still agrees on platform and
+fails only when a role installs the tool.
 
 The gate also does not address the abort cascade it was written in response to:
 a fetch failure still aborts the run at that point, masking every tool after
