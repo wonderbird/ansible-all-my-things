@@ -1,13 +1,33 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Required vars: checksum_file_url, checksum_target_filename
-# Sets fact: fetched_checksum
+# Required vars: checksum_file_url, checksum_target_filename,
+#                checksum_result_var (name of the fact to set)
 #
 # Fetches an upstream-published sha256 checksums file (GNU sha256sum text
 # format: "<64-hex-sha256>  <filename>", one entry per line) and extracts the
 # line matching checksum_target_filename exactly. Use only when upstream
 # actually publishes a checksums file covering the exact consumed asset --
 # otherwise fall back to download + ansible.builtin.stat.
+#
+# The caller names the result fact, so two includes never share one. Name it
+# after the pin it feeds (`fetched_<pin>`), which is what the apply-order
+# checker pairs a per-architecture pin against.
+
+- name: Assert checksum_result_var is set for {{ checksum_target_filename }}
+  vars:
+    _result_var_ok: '^[a-z0-9_]+\Z'
+  ansible.builtin.assert:
+    that:
+      - checksum_result_var is defined
+      - checksum_result_var is string
+      - checksum_result_var is match(_result_var_ok)
+    fail_msg: >-
+      tasks/fetch-checksum-from-file.yml included for
+      '{{ checksum_target_filename }}' from {{ checksum_file_url }} without a
+      usable checksum_result_var
+      (got '{{ checksum_result_var | default('<undefined>') }}'): the including
+      task must name the fact to set, e.g. fetched_<pin>.
+    quiet: true
 
 - name: Fetch checksum file from {{ checksum_file_url }}
   ansible.builtin.uri:
@@ -29,6 +49,6 @@
       {{ checksum_file_url }} -- cannot resolve checksum.
   when: _checksum_match | length == 0
 
-- name: Set checksum fact
+- name: Set checksum fact {{ checksum_result_var }}
   ansible.builtin.set_fact:
-    fetched_checksum: "{{ _checksum_match | first }}"
+    "{{ checksum_result_var }}": "{{ _checksum_match | first }}"

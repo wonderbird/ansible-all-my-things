@@ -319,20 +319,14 @@
       vars:
         checksum_file_url: "https://github.com/rtk-ai/rtk/releases/download/{{ fetched_rtk_tag }}/checksums.txt"
         checksum_target_filename: "rtk-x86_64-unknown-linux-musl.tar.gz"
-
-    - name: Save rtk x86_64-musl fetched checksum
-      ansible.builtin.set_fact:
-        fetched_rtk_sha256_x86_64_musl: "{{ fetched_checksum }}"
+        checksum_result_var: fetched_rtk_sha256_x86_64_musl
 
     - name: Fetch rtk aarch64-gnu checksum from upstream checksums.txt
       ansible.builtin.include_tasks: tasks/fetch-checksum-from-file.yml
       vars:
         checksum_file_url: "https://github.com/rtk-ai/rtk/releases/download/{{ fetched_rtk_tag }}/checksums.txt"
         checksum_target_filename: "rtk-aarch64-unknown-linux-gnu.tar.gz"
-
-    - name: Save rtk aarch64-gnu fetched checksum
-      ansible.builtin.set_fact:
-        fetched_rtk_sha256_aarch64_gnu: "{{ fetched_checksum }}"
+        checksum_result_var: fetched_rtk_sha256_aarch64_gnu
 
     - name: Write rtk pins
       ansible.builtin.include_tasks: tasks/write-pins.yml
@@ -357,20 +351,14 @@
       vars:
         checksum_file_url: "https://github.com/gastownhall/beads/releases/download/{{ fetched_beads_go_tag }}/checksums.txt"
         checksum_target_filename: "beads_{{ _bd_stripped_version }}_linux_amd64.tar.gz"
-
-    - name: Save bd amd64 fetched checksum
-      ansible.builtin.set_fact:
-        fetched_beads_go_sha256_amd64: "{{ fetched_checksum }}"
+        checksum_result_var: fetched_beads_go_sha256_amd64
 
     - name: Fetch bd arm64 checksum from upstream checksums.txt
       ansible.builtin.include_tasks: tasks/fetch-checksum-from-file.yml
       vars:
         checksum_file_url: "https://github.com/gastownhall/beads/releases/download/{{ fetched_beads_go_tag }}/checksums.txt"
         checksum_target_filename: "beads_{{ _bd_stripped_version }}_linux_arm64.tar.gz"
-
-    - name: Save bd arm64 fetched checksum
-      ansible.builtin.set_fact:
-        fetched_beads_go_sha256_arm64: "{{ fetched_checksum }}"
+        checksum_result_var: fetched_beads_go_sha256_arm64
 
     - name: Write beads_go pins
       ansible.builtin.include_tasks: tasks/write-pins.yml
@@ -394,20 +382,14 @@
       vars:
         checksum_file_url: "https://github.com/Dicklesworthstone/beads_viewer/releases/download/{{ fetched_beads_viewer_tag }}/checksums.txt"
         checksum_target_filename: "bv_{{ _bv_stripped_version }}_linux_amd64.tar.gz"
-
-    - name: Save bv amd64 fetched checksum
-      ansible.builtin.set_fact:
-        fetched_beads_viewer_sha256_amd64: "{{ fetched_checksum }}"
+        checksum_result_var: fetched_beads_viewer_sha256_amd64
 
     - name: Fetch bv arm64 checksum from upstream checksums.txt
       ansible.builtin.include_tasks: tasks/fetch-checksum-from-file.yml
       vars:
         checksum_file_url: "https://github.com/Dicklesworthstone/beads_viewer/releases/download/{{ fetched_beads_viewer_tag }}/checksums.txt"
         checksum_target_filename: "bv_{{ _bv_stripped_version }}_linux_arm64.tar.gz"
-
-    - name: Save bv arm64 fetched checksum
-      ansible.builtin.set_fact:
-        fetched_beads_viewer_sha256_arm64: "{{ fetched_checksum }}"
+        checksum_result_var: fetched_beads_viewer_sha256_arm64
 
     - name: Write beads_viewer pins
       ansible.builtin.include_tasks: tasks/write-pins.yml
@@ -437,20 +419,14 @@
       vars:
         checksum_file_url: "https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ fetched_beads_rust_tag }}/br-{{ _br_stripped_version }}-linux_amd64.tar.gz.sha256"
         checksum_target_filename: "br-{{ _br_stripped_version }}-linux_amd64.tar.gz"
-
-    - name: Save br amd64 fetched checksum
-      ansible.builtin.set_fact:
-        fetched_beads_rust_sha256_amd64: "{{ fetched_checksum }}"
+        checksum_result_var: fetched_beads_rust_sha256_amd64
 
     - name: Fetch br arm64 checksum from upstream sidecar file
       ansible.builtin.include_tasks: tasks/fetch-checksum-from-file.yml
       vars:
         checksum_file_url: "https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ fetched_beads_rust_tag }}/br-{{ _br_stripped_version }}-linux_arm64.tar.gz.sha256"
         checksum_target_filename: "br-{{ _br_stripped_version }}-linux_arm64.tar.gz"
-
-    - name: Save br arm64 fetched checksum
-      ansible.builtin.set_fact:
-        fetched_beads_rust_sha256_arm64: "{{ fetched_checksum }}"
+        checksum_result_var: fetched_beads_rust_sha256_arm64
 
     - name: Write beads_rust pins
       ansible.builtin.include_tasks: tasks/write-pins.yml
@@ -470,20 +446,14 @@
       vars:
         checksum_file_url: "https://nodejs.org/dist/{{ fetched_nodejs_version }}/SHASUMS256.txt"
         checksum_target_filename: "node-{{ fetched_nodejs_version }}-linux-x64.tar.gz"
-
-    - name: Save Node.js x64 fetched checksum
-      ansible.builtin.set_fact:
-        fetched_node_sha256_x64: "{{ fetched_checksum }}"
+        checksum_result_var: fetched_node_sha256_x64
 
     - name: Fetch Node.js arm64 checksum from upstream SHASUMS256.txt
       ansible.builtin.include_tasks: tasks/fetch-checksum-from-file.yml
       vars:
         checksum_file_url: "https://nodejs.org/dist/{{ fetched_nodejs_version }}/SHASUMS256.txt"
         checksum_target_filename: "node-{{ fetched_nodejs_version }}-linux-arm64.tar.gz"
-
-    - name: Save Node.js arm64 fetched checksum
-      ansible.builtin.set_fact:
-        fetched_node_sha256_arm64: "{{ fetched_checksum }}"
+        checksum_result_var: fetched_node_sha256_arm64
 
     - name: Write nodejs pins
       ansible.builtin.include_tasks: tasks/write-pins.yml

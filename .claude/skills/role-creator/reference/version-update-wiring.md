@@ -14,7 +14,7 @@ source type.
 | Upstream source | Reuse this task | Inputs → fact |
 | --- | --- | --- |
 | GitHub tagged release | `fetch-github-release.yml` | `github_repo` → `fetched_github_tag` |
-| Checksum from a release file | `fetch-checksum-from-file.yml` | `checksum_file_url`, `checksum_target_filename` → `fetched_checksum` |
+| Checksum from a release file | `fetch-checksum-from-file.yml` | `checksum_file_url`, `checksum_target_filename`, `checksum_result_var` → the fact named by `checksum_result_var` |
 | GitHub branch HEAD commit (no releases) | `fetch-github-commit-sha.yml` | `github_repo`, `git_ref` → `fetched_github_sha` |
 | Structured JSON / SDKMAN / HTML | `fetch-flutter-version.yml` / `fetch-java-version.yml` / `fetch-android-version.yml` | see each file |
 
