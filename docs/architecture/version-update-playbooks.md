@@ -217,8 +217,9 @@ missing, duplicated or malformed pin.
 Within a tool's section of `perform-updates.yml`, no network or checksum
 task may follow that tool's first pin write, so a tool's version pin is
 never written before the checksums that belong with it are in hand.
-Further invariants protect the shared `fetched_checksum` fact and the
-pairing of per-architecture values.
+A further invariant protects the pairing of per-architecture values:
+each checksum fetch is told the name of the fact to set, so a pin is
+written from its own tool's digest and architecture.
 
 The full contract, why each invariant exists, and the checker that
 enforces it in CI are documented in

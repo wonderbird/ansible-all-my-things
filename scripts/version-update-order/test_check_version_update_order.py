@@ -78,36 +78,10 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
 
     def test_correct_reorder_passes(self):
         code, out = self.fixture.run()
-        self.assertIn("0 ordering violation(s), 0 adjacency violation(s), "
+        self.assertIn("0 ordering violation(s), "
                       "0 unattributable fetch(es), 0 pairing violation(s)", out)
         self.assertIn("analysed 18/18 roles", out)
         self.assertEqual(code, 0)
-
-    def test_batched_includes_break_adjacency(self):
-        """Hoisting both rtk includes ahead of their Save aliases is caught.
-
-        This edit satisfies the per-tool ordering check while leaving both
-        aliases reading the last include's value -- the silent corruption the
-        adjacency check exists to detect.
-        """
-        blocks = split_blocks(self.fixture.read())
-        names = [
-            "Fetch rtk x86_64-musl checksum",
-            "Save rtk x86_64-musl fetched checksum",
-            "Fetch rtk aarch64-gnu checksum",
-            "Save rtk aarch64-gnu fetched checksum",
-        ]
-        slots = [block_index(blocks, n) for n in names]
-        batched = [blocks[slots[0]], blocks[slots[2]], blocks[slots[1]], blocks[slots[3]]]
-        for slot, block in zip(slots, batched):
-            blocks[slot] = block
-        self.fixture.write(join_blocks(blocks))
-
-        code, out = self.fixture.run()
-        self.assertIn("1 adjacency violation(s)", out)
-        self.assertIn("Save rtk aarch64-gnu fetched checksum", out)
-        self.assertIn("does not immediately follow its include", out)
-        self.assertEqual(code, 1)
 
     def test_transposed_stat_registers_break_pairing(self):
         """Swapping dolt's two stat registers is caught by platform pairing.
@@ -132,11 +106,10 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         self.assertIn("transposed platform values", out)
         self.assertEqual(code, 1)
 
-    def test_transposed_checksum_aliases_break_pairing(self):
-        """Swapping rtk's two fetched_checksum aliases is caught too.
+    def test_transposed_checksum_sources_break_pairing(self):
+        """Swapping rtk's two checksum sources is caught too.
 
-        This is the transposition form of the shared-fact hazard, which the
-        distinctness of the written digests cannot detect: ten distinct but
+        Distinctness of the written digests cannot detect this: two valid but
         swapped digests are written and no task fails.
         """
         text = self.fixture.read()
@@ -154,39 +127,12 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         self.assertIn("transposed platform values", out)
         self.assertEqual(code, 1)
 
-    def test_replace_reading_raw_shared_fact_breaks_adjacency(self):
-        """Deleting an alias and reading fetched_checksum directly is caught.
-
-        This is the shape a plausible "simplify away the alias" cleanup takes.
-        At that point in the play fetched_checksum holds the LAST include's
-        value, so the write silently takes another architecture's digest.
-        """
-        text = self.fixture.read()
-        text = text.replace(
-            """    - name: Save Node.js x64 fetched checksum
-      ansible.builtin.set_fact:
-        fetched_node_sha256_x64: "{{ fetched_checksum }}"
-
-""",
-            "",
-        ).replace(
-            '- pin: node_sha256_x64\n            value: "{{ fetched_node_sha256_x64 }}"',
-            '- pin: node_sha256_x64\n            value: "{{ fetched_checksum }}"',
-        )
-        self.fixture.write(text)
-
-        code, out = self.fixture.run()
-        self.assertIn("1 adjacency violation(s)", out)
-        self.assertIn("Write nodejs pins", out)
-        self.assertIn("does not immediately follow its include", out)
-        self.assertEqual(code, 1)
-
     def test_cross_tool_checksum_source_breaks_pairing(self):
-        """A digest taken from another tool's alias is caught.
+        """A digest taken from another tool's checksum fact is caught.
 
         Platform tokens agree (amd64 to amd64) and bd's fetches still precede
-        bd's first write, so ordering, adjacency and platform pairing all pass.
-        Only the alias-name rule sees it.
+        bd's first write, so ordering and platform pairing both pass. Only the
+        source-name rule sees it.
         """
         text = self.fixture.read().replace(
             '- pin: beads_viewer_sha256_amd64\n            value: "{{ fetched_beads_viewer_sha256_amd64 }}"',
@@ -237,7 +183,7 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         """A correctly-added tool #19 is reported as a registration gap.
 
         The tool is wired here in the right order -- fetch before write -- so
-        no ordering, adjacency or pairing check fires. What is missing is the
+        no ordering or pairing check fires. What is missing is the
         stale-check clause in query-versions.yml, and the message must say so.
         """
         text = self.fixture.read().rstrip("\n")
@@ -263,7 +209,7 @@ class CheckVersionUpdateOrderTest(unittest.TestCase):
         self.assertIn("a tool was added here but not to query-versions.yml's "
                       "stale check", out)
         self.assertIn("Constitution II", out)
-        self.assertIn("0 ordering violation(s), 0 adjacency violation(s), "
+        self.assertIn("0 ordering violation(s), "
                       "0 unattributable fetch(es), 0 pairing violation(s), "
                       "1 bypass violation(s)", out)
         self.assertEqual(code, 1)

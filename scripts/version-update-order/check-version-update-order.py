@@ -12,11 +12,6 @@ Independent checks run over that classification:
 
 - ORDERING -- a FETCH attributed to role R must not appear after the first
   WRITE to R.
-- ADJACENCY -- every consumer of the shared, play-scoped `fetched_checksum`
-  fact must be the task immediately following its own
-  tasks/fetch-checksum-from-file.yml include. Any task that reads the fact
-  counts, not only a `set_fact` alias: deleting an alias and interpolating
-  the raw fact into a `replace` produces the same corruption.
 - FAIL CLOSED -- an apply-phase FETCH that cannot be attributed to a role is
   an error, not a pass.
 - SCOPE -- the number of roles analysed must equal the number of tracked pins
@@ -46,7 +41,6 @@ ROLEPATH = re.compile(r'_roles_dir\s*\}\}/([A-Za-z0-9_]+)/defaults/main\.yml')
 FACT = re.compile(r'fetched_([a-z0-9_]+?)(?:_tag|_version|_sha256\w*|_stripped\w*)?\b')
 # secondary attribution: tasks/fetch-<role>-version.yml names its own role
 INCLUDE_ROLE = re.compile(r'include_tasks:\s*tasks/fetch-([a-z0-9-]+?)-version\.yml')
-SHARED = "fetched_checksum"
 TOKENS = ("amd64", "arm64", "x86_64", "aarch64", "x64", "linux_amd64", "linux_arm64")
 PIN = re.compile(r"replace:\s*'([a-z0-9_]+):\s*\"\{\{\s*([A-Za-z0-9_.]+)")
 # write-pins include form: `- pin: <name>` directly followed by `value: "{{ <src>`
@@ -145,21 +139,6 @@ def analyse(path):
             if first is not None and task["line"] > first:
                 violations.append((task["line"], task["name"], role, first))
 
-    # --- ADJACENCY: every consumer of the shared `fetched_checksum` fact must be
-    # the task immediately following its own fetch-checksum-from-file include.
-    # The fact is play-scoped and overwritten by each include, so any separation
-    # silently gives the consumer a different tool's checksum.
-    adjacency = []
-    for idx, task in enumerate(tasks):
-        body = "\n".join(task["body"])
-        if re.search(rf"\b{SHARED}\b", body):
-            prev = tasks[idx - 1] if idx else None
-            prev_body = "\n".join(prev["body"]) if prev else ""
-            if not re.search(r"include_tasks:\s*tasks/fetch-checksum-from-file\.yml",
-                             prev_body):
-                adjacency.append((task["line"], task["name"],
-                                  prev["name"] if prev else "<start of phase>"))
-
     # --- PAIRING: platform-token pairing.
     # A `replace` writing a per-arch pin must interpolate a value whose own name
     # carries the SAME platform token. Catches a transposed register/alias pair,
@@ -196,7 +175,6 @@ def analyse(path):
 
     return {
         "violations": sorted(violations),
-        "adjacency": adjacency,
         "unattributed": unattributed,
         "pairing": pairing,
         "bypass": bypass,
@@ -214,10 +192,6 @@ def report(path, result):
     for line, name, role, first in result["violations"]:
         print(f"{path}:{line}: fetch for '{role}' runs after its first write "
               f"at :{first} -- {name}")
-
-    for line, name, prev in result["adjacency"]:
-        print(f"{path}:{line}: '{name}' reads {SHARED} but does not immediately "
-              f"follow its include (previous task: '{prev}')")
 
     for line, name in result["bypass"]:
         print(f"{path}:{line}: BYPASS: file edited without tasks/write-pins.yml -- {name}")
@@ -252,15 +226,13 @@ def report(path, result):
               f"(Constitution II)")
 
     print(f"\n{len(result['violations'])} ordering violation(s), "
-          f"{len(result['adjacency'])} adjacency violation(s), "
           f"{len(result['unattributed'])} unattributable fetch(es), "
           f"{len(result['pairing'])} pairing violation(s), "
           f"{len(result['bypass'])} bypass violation(s); {analysed} roles written")
     print(f"analysed {analysed}/{expected} roles")
 
-    failed = (result["violations"] or result["adjacency"]
-              or result["unattributed"] or result["pairing"] or result["bypass"]
-              or not scope_ok)
+    failed = (result["violations"] or result["unattributed"]
+              or result["pairing"] or result["bypass"] or not scope_ok)
     return 1 if failed else 0
 
 
