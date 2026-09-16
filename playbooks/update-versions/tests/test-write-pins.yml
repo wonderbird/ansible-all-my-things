@@ -1,0 +1,183 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Test harness for ../tasks/write-pins.yml. Runs on localhost against
+# fixture files in a temporary directory; no network, no vault.
+#
+# Run from the repository root:
+#   ANSIBLE_CONFIG=playbooks/update-versions/tests/ansible.cfg \
+#     ansible-playbook playbooks/update-versions/tests/test-write-pins.yml
+#
+# Case keys:
+#   id              fixture file name and label
+#   fixture         defaults file content before the run
+#   pins            list passed to write-pins.yml
+#   check_mode      run the include in check mode (optional)
+#   expect_fail     whether write-pins.yml must fail
+#   expect_task     failed task name prefix (failure cases)
+#   expect_msg      substrings of the failure result (failure cases)
+#   expect_changed  change status of the write task (success cases)
+#   expect_content  file content after the run (success cases)
+#
+# Every failure case sets an earlier pin to a stale value and expects the file
+# to stay byte-identical, which proves no pin of the file was written.
+
+- name: Test write-pins.yml
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars:
+    _base: |
+      # tool defaults
+      tool_version: "v1"
+      tool_sha256_amd64: "aaa"
+      other_setting: "keep"
+    _stale_pins:
+      - pin: tool_version
+        value: "v2"
+      - pin: tool_sha256_amd64
+        value: "bbb"
+    _cases:
+      - id: h1-current-pins
+        fixture: "{{ _base }}"
+        pins:
+          - pin: tool_version
+            value: "v1"
+          - pin: tool_sha256_amd64
+            value: "aaa"
+        expect_fail: false
+        expect_changed: false
+        expect_content: "{{ _base }}"
+
+      - id: h2-stale-pins
+        fixture: "{{ _base }}"
+        pins: "{{ _stale_pins }}"
+        expect_fail: false
+        expect_changed: true
+        expect_content: |
+          # tool defaults
+          tool_version: "v2"
+          tool_sha256_amd64: "bbb"
+          other_setting: "keep"
+
+      - id: h3-renamed-pin
+        fixture: "{{ _base | replace('tool_sha256_amd64:', 'tool_sha256_amd64_renamed:') }}"
+        pins: "{{ _stale_pins }}"
+        expect_fail: true
+        expect_task: "write-pins: assert"
+        expect_msg:
+          - "h3-renamed-pin.yml: pin 'tool_sha256_amd64' matched 0 line(s)"
+
+      - id: h4-duplicated-pin
+        fixture: "{{ _base ~ 'tool_sha256_amd64: \"ccc\"\n' }}"
+        pins: "{{ _stale_pins }}"
+        expect_fail: true
+        expect_task: "write-pins: assert"
+        expect_msg:
+          - "h4-duplicated-pin.yml: pin 'tool_sha256_amd64' matched 2 line(s)"
+
+      - id: h5-empty-value
+        fixture: "{{ _base }}"
+        pins:
+          - pin: tool_version
+            value: "v2"
+          - pin: tool_sha256_amd64
+            value: ""
+        expect_fail: true
+        expect_task: "write-pins: validate"
+        expect_msg:
+          - "write-pins: invalid inputs for"
+
+      - id: h5b-quote-in-value
+        fixture: "{{ _base }}"
+        pins:
+          - pin: tool_version
+            value: "v2"
+          - pin: tool_sha256_amd64
+            value: 'b"b'
+        expect_fail: true
+        expect_task: "write-pins: validate"
+        expect_msg:
+          - "write-pins: invalid inputs for"
+
+      - id: h5c-backslash-in-value
+        fixture: "{{ _base }}"
+        pins:
+          - pin: tool_version
+            value: "v2"
+          - pin: tool_sha256_amd64
+            value: 'a\1b'
+        expect_fail: true
+        expect_task: "write-pins: validate"
+        expect_msg:
+          - "write-pins: invalid inputs for"
+
+      - id: h5d-trailing-newline-in-value
+        fixture: "{{ _base }}"
+        pins:
+          - pin: tool_version
+            value: "v2"
+          - pin: tool_sha256_amd64
+            value: "bbb\n"
+        expect_fail: true
+        expect_task: "write-pins: validate"
+        expect_msg:
+          - "write-pins: invalid inputs for"
+
+      - id: h5e-pins-as-string
+        fixture: "{{ _base }}"
+        pins: "tool_version"
+        expect_fail: true
+        expect_task: "write-pins: validate"
+        expect_msg:
+          - "write-pins: invalid inputs for"
+
+      - id: h5f-invalid-pin-name
+        fixture: "{{ _base }}"
+        pins:
+          - pin: tool_version
+            value: "v2"
+          - pin: tool.sha256_amd64
+            value: "bbb"
+        expect_fail: true
+        expect_task: "write-pins: validate"
+        expect_msg:
+          - "write-pins: invalid inputs for"
+
+      - id: h6-check-mode
+        fixture: "{{ _base }}"
+        pins: "{{ _stale_pins }}"
+        check_mode: true
+        expect_fail: false
+        expect_changed: true
+        expect_content: "{{ _base }}"
+
+      - id: h7-decoy-lines
+        fixture: >-
+          {{ (_base | replace('tool_sha256_amd64:', 'tool_sha256_amd64_renamed:'))
+             ~ 'legacy_tool_sha256_amd64: "x"\n# tool_sha256_amd64: "x"\n' }}
+        pins: "{{ _stale_pins }}"
+        expect_fail: true
+        expect_task: "write-pins: assert"
+        expect_msg:
+          - "h7-decoy-lines.yml: pin 'tool_sha256_amd64' matched 0 line(s)"
+
+  tasks:
+    - name: Create fixture directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: write-pins
+      register: _harness_dir
+
+    - name: Run write-pins cases
+      block:
+        - name: Run write-pins case
+          ansible.builtin.include_tasks: write-pins-case.yml
+          loop: "{{ _cases }}"
+          loop_control:
+            loop_var: _case
+            label: "{{ _case.id }}"
+      always:
+        - name: Remove fixture directory
+          ansible.builtin.file:
+            path: "{{ _harness_dir.path }}"
+            state: absent

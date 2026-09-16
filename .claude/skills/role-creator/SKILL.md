@@ -151,8 +151,8 @@ Four touchpoints, all required — details and the fetch-task reuse matrix in
    parametrized one where possible.
 2. `query-versions.yml` — slurp defaults, extract current pin, fetch, report,
    add to the aggregate fail-when.
-3. `perform-updates.yml` — fetch + `replace` the pin (re-compute checksums if
-   any).
+3. `perform-updates.yml` — fetch (re-compute checksums if any), then write
+   the pins with one `tasks/write-pins.yml` include.
 4. `docs/architecture/version-update-playbooks.md` — source-type list, tasks
    tree, and Tracked-tools table.
 

@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Runs one test case of test-write-pins.yml against ../tasks/write-pins.yml.
+# Required var: _case (see test-write-pins.yml for its keys).
+#
+# The include runs inside block/rescue so an expected failure can be
+# inspected. A case that expects a failure but gets a success fails the
+# harness, so a weakened assert in write-pins.yml turns the run red.
+
+- name: "Write fixture for case {{ _case.id }}"
+  ansible.builtin.copy:
+    content: "{{ _case.fixture }}"
+    dest: "{{ _harness_dir.path }}/{{ _case.id }}.yml"
+    mode: "0644"
+
+- name: "Reset case state for case {{ _case.id }}"
+  ansible.builtin.set_fact:
+    _case_failed: false
+    _case_failed_task: ""
+    _case_failed_result: ""
+    _write_pins_result: {}
+
+- name: "Run write-pins for case {{ _case.id }}"
+  block:
+    - name: "Include write-pins for case {{ _case.id }}"
+      ansible.builtin.include_tasks:
+        file: ../tasks/write-pins.yml
+        apply:
+          check_mode: "{{ _case.check_mode | default(false) }}"
+      vars:
+        pin_file: "{{ _harness_dir.path }}/{{ _case.id }}.yml"
+        pins: "{{ _case.pins }}"
+  rescue:
+    - name: "Record failure for case {{ _case.id }}"
+      ansible.builtin.set_fact:
+        _case_failed: true
+        _case_failed_task: "{{ ansible_failed_task.name }}"
+        _case_failed_result: "{{ ansible_failed_result | to_json }}"
+
+- name: "Read fixture after for case {{ _case.id }}"
+  ansible.builtin.slurp:
+    src: "{{ _harness_dir.path }}/{{ _case.id }}.yml"
+  register: _case_after
+
+- name: "Fail when failure was expected but write-pins succeeded for case {{ _case.id }}"
+  ansible.builtin.fail:
+    msg: "Case {{ _case.id }}: expected write-pins to fail, but it succeeded"
+  when: _case.expect_fail and not _case_failed
+
+- name: "Fail when success was expected but write-pins failed for case {{ _case.id }}"
+  ansible.builtin.fail:
+    msg: "Case {{ _case.id }}: expected success, but '{{ _case_failed_task }}' failed: {{ _case_failed_result }}"
+  when: not _case.expect_fail and _case_failed
+
+- name: "Assert failure details and untouched file for case {{ _case.id }}"
+  ansible.builtin.assert:
+    that:
+      - _case_failed_task.startswith(_case.expect_task)
+      - _case.expect_msg | reject('in', _case_failed_result) | list | length == 0
+      - (_case_after.content | b64decode) == _case.fixture
+    fail_msg: >-
+      Case {{ _case.id }}: failed task '{{ _case_failed_task }}' (expected prefix
+      '{{ _case.expect_task }}'), result {{ _case_failed_result }}, expected
+      message parts {{ _case.expect_msg }}, file unchanged:
+      {{ (_case_after.content | b64decode) == _case.fixture }}
+  when: _case.expect_fail
+
+- name: "Assert change status and file content for case {{ _case.id }}"
+  ansible.builtin.assert:
+    that:
+      - _write_pins_result.changed == _case.expect_changed
+      - (_case_after.content | b64decode) == _case.expect_content
+    fail_msg: >-
+      Case {{ _case.id }}: changed={{ _write_pins_result.changed | default('<unset>') }}
+      (expected {{ _case.expect_changed }}), content
+      {{ _case_after.content | b64decode | to_json }} (expected
+      {{ _case.expect_content | to_json }})
+  when: not _case.expect_fail
