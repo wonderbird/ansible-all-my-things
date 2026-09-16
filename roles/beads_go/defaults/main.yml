@@ -3,7 +3,7 @@
 # Pinned bd (gastownhall/beads) release tag (v-prefixed). See
 # https://github.com/gastownhall/beads/releases for available versions.
 # Updated automatically by playbooks/update-versions/perform-updates.yml.
-beads_go_version: "v1.2.2"
+beads_go_version: "v1.3.0"
 
 # Maps Ansible architecture facts to the Go release filename fragment used by
 # bd (gastownhall/beads), which follows the {x86_64: amd64, aarch64: arm64}
@@ -17,5 +17,5 @@ beads_go_platform_map:
 # give the wrong hash):
 #   curl -sL https://github.com/gastownhall/beads/releases/download/<tag>/beads_<ver>_linux_<arch>.tar.gz -o /tmp/bd.tar.gz
 #   sha256sum /tmp/bd.tar.gz
-beads_go_sha256_amd64: "8140098a51d3b81d5548d1c5e6db1a2d9930e5d141efe2a4bff7d079c4d321e8"
-beads_go_sha256_arm64: "501f38a1070d4b9b3b6261a86a3c92c4a52366869021560430a4bb0036afd83a"
+beads_go_sha256_amd64: "2f92b904ecf35b607e44dc5c39229173af69c54f1183e8d709f1773540cdcf3b"
+beads_go_sha256_arm64: "4ce9446a68edc13202b76c84a47d66fb3dad2787b6464c9522a108faf9c1c608"
