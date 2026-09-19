@@ -1,9 +1,7 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Renders the run report and ends the run non-zero. Included from two places:
-# the configuration-error path in record-tool-failure.yml, which stops the run
-# at that tool, and the end-of-run task, which stops it after every tool ran.
-# One renderer serves both, so the two exits cannot drift apart.
+# Renders the run report and ends the run non-zero. It is the only renderer, so
+# every exit that reports failures reports them the same way.
 #
 # Every recorded message is printed, never only the class, so a misclassified
 # failure stays diagnosable. A 404 adds a hint, not a classification: a mistyped
