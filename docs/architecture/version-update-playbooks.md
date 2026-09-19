@@ -121,7 +121,10 @@ playbooks/update-versions/
 
 `tests/` holds the harnesses for the shared task files, with its own minimal
 Ansible configuration, so they run without the vault secret the repository root
-configuration expects.
+configuration expects. CI runs them, and `scripts/ci-local.sh` runs the same set
+plus a syntax check of both playbooks and a network-free run of the real task
+files over a fixture registry — the gate a change to this mechanism must pass
+before it is committed, because CI never runs either playbook for real.
 
 The authoritative enumeration of **tracked tools** is `vars/tools.yml`. Each
 entry names the role whose defaults carry the pins, the task file that queries
