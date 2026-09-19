@@ -1,5 +1,14 @@
 #SPDX-License-Identifier: MIT-0
 ---
+# Reports, for every tracked tool, the pin the roles carry and the version
+# upstream offers. It writes nothing: perform-updates.yml applies what this
+# playbook reports.
+#
+# One tool's outage no longer ends the query. Each tool is fetched inside its
+# own block and rescue, so an unreachable upstream is reported against that tool
+# while the rest are still queried. The play still exits non-zero when any pin is
+# stale or any tool failed, and a tool nobody could reach is reported as unknown,
+# never as up to date.
 - name: Query upstream versions for tracked tools
   hosts: localhost
   gather_facts: false
@@ -13,470 +22,67 @@
     - name: Check the preconditions of this run
       ansible.builtin.include_tasks: tasks/preflight.yml
 
-    # --- Read current pins from role defaults ---
-    - name: Read flutter role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/flutter/defaults/main.yml"
-      register: _flutter_defaults_raw
-
-    - name: Read tmux role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/tmux/defaults/main.yml"
-      register: _tmux_defaults_raw
-
-    - name: Read nerd_font role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/nerd_font/defaults/main.yml"
-      register: _nerd_font_defaults_raw
-
-    - name: Read android_studio role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/android_studio/defaults/main.yml"
-      register: _android_defaults_raw
-
-    - name: Read java role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/java/defaults/main.yml"
-      register: _java_defaults_raw
-
-    - name: Read dolt_sql_server role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/dolt_sql_server/defaults/main.yml"
-      register: _dolt_defaults_raw
-
-    - name: Read opencode role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/opencode/defaults/main.yml"
-      register: _opencode_defaults_raw
-
-    - name: Read github_cli role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/github_cli/defaults/main.yml"
-      register: _github_cli_defaults_raw
-
-    - name: Read obsidian role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/obsidian/defaults/main.yml"
-      register: _obsidian_defaults_raw
-
-    - name: Read rtk role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/rtk/defaults/main.yml"
-      register: _rtk_defaults_raw
-
-    - name: Read beads_go role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/beads_go/defaults/main.yml"
-      register: _beads_go_defaults_raw
-
-    - name: Read beads_viewer role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/beads_viewer/defaults/main.yml"
-      register: _beads_viewer_defaults_raw
-
-    - name: Read beads_rust role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/beads_rust/defaults/main.yml"
-      register: _beads_rust_defaults_raw
-
-    - name: Read nodejs role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/nodejs/defaults/main.yml"
-      register: _nodejs_defaults_raw
-
-    - name: Read specify_cli role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/specify_cli/defaults/main.yml"
-      register: _specify_cli_defaults_raw
-
-    - name: Read claude_code role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/claude_code/defaults/main.yml"
-      register: _claude_code_defaults_raw
-
-    - name: Read skill_manager role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/skill_manager/defaults/main.yml"
-      register: _skill_manager_defaults_raw
-
-    - name: Read direnv role defaults
-      ansible.builtin.slurp:
-        src: "{{ _roles_dir }}/direnv/defaults/main.yml"
-      register: _direnv_defaults_raw
-
-    - name: Extract current pinned values from role defaults
-      vars:
-        _java_id_match: >-
-          {{ _java_defaults_raw.content | b64decode
-             | regex_search('java_sdkman_identifier:\s*"([^"]+)"', '\1')
-             | default([], true) }}
+    - name: Initialise the run ledgers
       ansible.builtin.set_fact:
-        current_flutter_version: >-
-          {{ _flutter_defaults_raw.content | b64decode
-             | regex_search('flutter_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_tmux_gitmux_version: >-
-          {{ _tmux_defaults_raw.content | b64decode
-             | regex_search('tmux_gitmux_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_nerd_font_version: >-
-          {{ _nerd_font_defaults_raw.content | b64decode
-             | regex_search('nerd_font_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_android_build: >-
-          {{ _android_defaults_raw.content | b64decode
-             | regex_search('android_cmdlinetools_build:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_java_identifier: "{{ _java_id_match | first }}"
-        _current_java_major: "{{ (_java_id_match | first).split('.')[0] | int }}"
-        current_dolt_version: >-
-          {{ _dolt_defaults_raw.content | b64decode
-             | regex_search('dolt_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_opencode_version: >-
-          {{ _opencode_defaults_raw.content | b64decode
-             | regex_search('opencode_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_github_cli_version: >-
-          {{ _github_cli_defaults_raw.content | b64decode
-             | regex_search('github_cli_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_obsidian_version: >-
-          {{ _obsidian_defaults_raw.content | b64decode
-             | regex_search('obsidian_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_rtk_version: >-
-          {{ _rtk_defaults_raw.content | b64decode
-             | regex_search('rtk_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_beads_go_version: >-
-          {{ _beads_go_defaults_raw.content | b64decode
-             | regex_search('beads_go_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_beads_viewer_version: >-
-          {{ _beads_viewer_defaults_raw.content | b64decode
-             | regex_search('beads_viewer_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_beads_rust_version: >-
-          {{ _beads_rust_defaults_raw.content | b64decode
-             | regex_search('beads_rust_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_node_version: >-
-          {{ _nodejs_defaults_raw.content | b64decode
-             | regex_search('node_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_specify_cli_version: >-
-          {{ _specify_cli_defaults_raw.content | b64decode
-             | regex_search('specify_cli_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_claude_code_version: >-
-          {{ _claude_code_defaults_raw.content | b64decode
-             | regex_search('claude_code_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_skill_manager_version: >-
-          {{ _skill_manager_defaults_raw.content | b64decode
-             | regex_search('skill_manager_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
-        current_direnv_version: >-
-          {{ _direnv_defaults_raw.content | b64decode
-             | regex_search('direnv_version:\s*"([^"]+)"', '\1')
-             | default([], true) | first }}
+        _update_failures: []
+        _update_updated: []
+        _update_skipped: []
+        _fetch_results: {}
 
-    # --- Fetch upstream versions ---
-    - name: Fetch Flutter upstream version
-      ansible.builtin.include_tasks: tasks/fetch-flutter-version.yml
+    - name: Read the pins the roles carry today
+      ansible.builtin.include_tasks: tasks/read-current-pins.yml
 
-    - name: Fetch gitmux upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
+    - name: Fetch the upstream data of every tool
+      ansible.builtin.include_tasks: tasks/fetch-tool.yml
+      # names only: a loop over whole registry entries templates every
+      # expression of every entry before the first task runs, outside any block
+      loop: "{{ _tools.keys() | list }}"
+      loop_control:
+        loop_var: _name
+        label: "{{ _name }}"
+
+    - name: Report the status of every tool
       vars:
-        github_repo: "arl/gitmux"
+        _failed: "{{ _name in (_update_failures | map(attribute='tool') | list) }}"
+        _pinned: "{{ _current[_name][_tools[_name].current_pin] }}"
+        _upstream: "{{ _fetch_results[_name].version | default('unknown') }}"
+      ansible.builtin.debug:
+        msg: >-
+          {{ _name }}: current={{ _pinned }},
+          upstream={{ 'unknown' if _failed else _upstream }},
+          status={{ 'UNKNOWN' if _failed
+                    else ('UP TO DATE' if _pinned == _upstream else 'STALE') }}
+      loop: "{{ _tools.keys() | list }}"
+      loop_control:
+        loop_var: _name
+        label: "{{ _name }}"
 
-    - name: Save gitmux fetched tag
+    - name: Collect the tools whose pin is stale
+      vars:
+        _upstream: "{{ _fetch_results[_name].version | default('') }}"
+        _pinned: "{{ _current[_name][_tools[_name].current_pin] }}"
       ansible.builtin.set_fact:
-        fetched_gitmux_tag: "{{ fetched_github_tag }}"
+        _stale_tools: >-
+          {{ (_stale_tools | default([]))
+             + ([_name] if ((_upstream | length) > 0 and _pinned != _upstream) else []) }}
+      loop: "{{ _tools.keys() | list }}"
+      loop_control:
+        loop_var: _name
+        label: "{{ _name }}"
 
-    - name: Fetch Nerd Fonts (Hack) upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-      vars:
-        github_repo: "ryanoasis/nerd-fonts"
+    - name: Report the tools that could not be queried
+      # Renders the same report perform-updates.yml renders, and ends the play
+      # non-zero: an outage must not read as success.
+      ansible.builtin.include_tasks: tasks/report-update-failures.yml
+      when: _update_failures | length > 0
 
-    - name: Save Nerd Fonts fetched tag
-      ansible.builtin.set_fact:
-        fetched_font_tag: "{{ fetched_github_tag }}"
-
-    - name: Fetch Java upstream version for major {{ _current_java_major }}
-      ansible.builtin.include_tasks: tasks/fetch-java-version.yml
-      vars:
-        java_sdkman_major: "{{ _current_java_major }}"
-
-    - name: Fetch Android cmdline-tools upstream version
-      ansible.builtin.include_tasks: tasks/fetch-android-version.yml
-
-    - name: Fetch Dolt upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-      vars:
-        github_repo: "dolthub/dolt"
-
-    - name: Save Dolt fetched tag
-      ansible.builtin.set_fact:
-        fetched_dolt_tag: "{{ fetched_github_tag }}"
-
-    - name: Fetch OpenCode upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-      vars:
-        github_repo: "anomalyco/opencode"
-
-    - name: Save OpenCode fetched tag
-      ansible.builtin.set_fact:
-        fetched_opencode_tag: "{{ fetched_github_tag }}"
-
-    - name: Fetch GitHub CLI upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-      vars:
-        github_repo: "cli/cli"
-
-    - name: Save GitHub CLI fetched tag
-      ansible.builtin.set_fact:
-        fetched_github_cli_tag: "{{ fetched_github_tag }}"
-
-    - name: Fetch Obsidian upstream version
-      ansible.builtin.include_tasks: tasks/fetch-obsidian-version.yml
-
-    - name: Fetch rtk upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-      vars:
-        github_repo: "rtk-ai/rtk"
-
-    - name: Save rtk fetched tag
-      ansible.builtin.set_fact:
-        fetched_rtk_tag: "{{ fetched_github_tag }}"
-
-    - name: Fetch bd upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-      vars:
-        github_repo: "gastownhall/beads"
-
-    - name: Save bd fetched tag
-      ansible.builtin.set_fact:
-        fetched_beads_go_tag: "{{ fetched_github_tag }}"
-
-    - name: Fetch bv upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-      vars:
-        github_repo: "Dicklesworthstone/beads_viewer"
-
-    - name: Save bv fetched tag
-      ansible.builtin.set_fact:
-        fetched_beads_viewer_tag: "{{ fetched_github_tag }}"
-
-    - name: Fetch br upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-      vars:
-        github_repo: "Dicklesworthstone/beads_rust"
-
-    - name: Save br fetched tag
-      ansible.builtin.set_fact:
-        fetched_beads_rust_tag: "{{ fetched_github_tag }}"
-
-    - name: Fetch Node.js upstream LTS version
-      ansible.builtin.include_tasks: tasks/fetch-nodejs-version.yml
-
-    - name: Fetch specify-cli upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-      vars:
-        github_repo: "github/spec-kit"
-
-    - name: Save specify-cli fetched tag
-      ansible.builtin.set_fact:
-        fetched_specify_cli_tag: "{{ fetched_github_tag }}"
-
-    - name: Fetch Claude Code upstream version and checksums
-      ansible.builtin.include_tasks: tasks/fetch-claude-code-version.yml
-
-    - name: Fetch skill-manager upstream commit SHA
-      ansible.builtin.include_tasks: tasks/fetch-github-commit-sha.yml
-      vars:
-        github_repo: "omrikais/skill-manager"
-        git_ref: "master"
-
-    - name: Save skill-manager fetched commit SHA
-      ansible.builtin.set_fact:
-        fetched_skill_manager_sha: "{{ fetched_github_sha }}"
-
-    - name: Fetch direnv upstream version
-      ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-      vars:
-        github_repo: "direnv/direnv"
-
-    - name: Save direnv fetched tag
-      ansible.builtin.set_fact:
-        fetched_direnv_tag: "{{ fetched_github_tag }}"
-
-    # --- Compare and report ---
-    - name: Report Flutter SDK version status
-      ansible.builtin.debug:
-        msg: >-
-          Flutter SDK:
-          current={{ current_flutter_version }},
-          upstream={{ fetched_flutter_version }},
-          status={{ 'UP TO DATE' if current_flutter_version == fetched_flutter_version else 'STALE' }}
-
-    - name: Report gitmux version status
-      ansible.builtin.debug:
-        msg: >-
-          gitmux:
-          current={{ current_tmux_gitmux_version }},
-          upstream={{ fetched_gitmux_tag }},
-          status={{ 'UP TO DATE' if current_tmux_gitmux_version == fetched_gitmux_tag else 'STALE' }}
-
-    - name: Report Nerd Fonts (Hack) version status
-      ansible.builtin.debug:
-        msg: >-
-          Nerd Fonts (Hack):
-          current={{ current_nerd_font_version }},
-          upstream={{ fetched_font_tag }},
-          status={{ 'UP TO DATE' if current_nerd_font_version == fetched_font_tag else 'STALE' }}
-
-    - name: Report Java (Temurin) version status
-      ansible.builtin.debug:
-        msg: >-
-          Java (Temurin):
-          current={{ current_java_identifier }},
-          upstream={{ fetched_java_identifier }},
-          status={{ 'UP TO DATE' if current_java_identifier == fetched_java_identifier else 'STALE' }}
-
-    - name: Report Android cmdline-tools version status
-      ansible.builtin.debug:
-        msg: >-
-          Android cmdline-tools:
-          current={{ current_android_build }},
-          upstream={{ fetched_android_build }},
-          status={{ 'UP TO DATE' if current_android_build == fetched_android_build else 'STALE' }}
-
-    - name: Report Dolt version status
-      ansible.builtin.debug:
-        msg: >-
-          Dolt:
-          current={{ current_dolt_version }},
-          upstream={{ fetched_dolt_tag }},
-          status={{ 'UP TO DATE' if current_dolt_version == fetched_dolt_tag else 'STALE' }}
-
-    - name: Report OpenCode version status
-      ansible.builtin.debug:
-        msg: >-
-          OpenCode:
-          current={{ current_opencode_version }},
-          upstream={{ fetched_opencode_tag }},
-          status={{ 'UP TO DATE' if current_opencode_version == fetched_opencode_tag else 'STALE' }}
-
-    - name: Report GitHub CLI version status
-      ansible.builtin.debug:
-        msg: >-
-          GitHub CLI:
-          current={{ current_github_cli_version }},
-          upstream={{ fetched_github_cli_tag }},
-          status={{ 'UP TO DATE' if current_github_cli_version == fetched_github_cli_tag else 'STALE' }}
-
-    - name: Report Obsidian version status
-      ansible.builtin.debug:
-        msg: >-
-          Obsidian:
-          current={{ current_obsidian_version }},
-          upstream={{ fetched_obsidian_tag }},
-          status={{ 'UP TO DATE' if current_obsidian_version == fetched_obsidian_tag else 'STALE' }}
-
-    - name: Report rtk version status
-      ansible.builtin.debug:
-        msg: >-
-          rtk:
-          current={{ current_rtk_version }},
-          upstream={{ fetched_rtk_tag }},
-          status={{ 'UP TO DATE' if current_rtk_version == fetched_rtk_tag else 'STALE' }}
-
-    - name: Report bd version status
-      ansible.builtin.debug:
-        msg: >-
-          bd:
-          current={{ current_beads_go_version }},
-          upstream={{ fetched_beads_go_tag }},
-          status={{ 'UP TO DATE' if current_beads_go_version == fetched_beads_go_tag else 'STALE' }}
-
-    - name: Report bv version status
-      ansible.builtin.debug:
-        msg: >-
-          bv:
-          current={{ current_beads_viewer_version }},
-          upstream={{ fetched_beads_viewer_tag }},
-          status={{ 'UP TO DATE' if current_beads_viewer_version == fetched_beads_viewer_tag else 'STALE' }}
-
-    - name: Report br version status
-      ansible.builtin.debug:
-        msg: >-
-          br:
-          current={{ current_beads_rust_version }},
-          upstream={{ fetched_beads_rust_tag }},
-          status={{ 'UP TO DATE' if current_beads_rust_version == fetched_beads_rust_tag else 'STALE' }}
-
-    - name: Report Node.js version status
-      ansible.builtin.debug:
-        msg: >-
-          Node.js:
-          current={{ current_node_version }},
-          upstream={{ fetched_nodejs_version }},
-          status={{ 'UP TO DATE' if current_node_version == fetched_nodejs_version else 'STALE' }}
-
-    - name: Report specify-cli version status
-      ansible.builtin.debug:
-        msg: >-
-          specify-cli:
-          current={{ current_specify_cli_version }},
-          upstream={{ fetched_specify_cli_tag }},
-          status={{ 'UP TO DATE' if current_specify_cli_version == fetched_specify_cli_tag else 'STALE' }}
-
-    - name: Report Claude Code version status
-      ansible.builtin.debug:
-        msg: >-
-          Claude Code:
-          current={{ current_claude_code_version }},
-          upstream={{ fetched_claude_code_version }},
-          status={{ 'UP TO DATE' if current_claude_code_version == fetched_claude_code_version else 'STALE' }}
-
-    - name: Report skill-manager version status
-      ansible.builtin.debug:
-        msg: >-
-          skill-manager:
-          current={{ current_skill_manager_version }},
-          upstream={{ fetched_skill_manager_sha }},
-          status={{ 'UP TO DATE' if current_skill_manager_version == fetched_skill_manager_sha else 'STALE' }}
-
-    - name: Report direnv version status
-      ansible.builtin.debug:
-        msg: >-
-          direnv:
-          current={{ current_direnv_version }},
-          upstream={{ fetched_direnv_tag }},
-          status={{ 'UP TO DATE' if current_direnv_version == fetched_direnv_tag else 'STALE' }}
-
-    - name: Fail if any version pins are stale
+    - name: Fail if any version pin is stale
       ansible.builtin.fail:
         msg: >-
-          One or more version pins are stale. Run perform-updates.yml to apply updates.
-      when: >-
-        current_flutter_version != fetched_flutter_version or
-        current_tmux_gitmux_version != fetched_gitmux_tag or
-        current_nerd_font_version != fetched_font_tag or
-        current_java_identifier != fetched_java_identifier or
-        current_android_build != fetched_android_build or
-        current_dolt_version != fetched_dolt_tag or
-        current_opencode_version != fetched_opencode_tag or
-        current_github_cli_version != fetched_github_cli_tag or
-        current_obsidian_version != fetched_obsidian_tag or
-        current_rtk_version != fetched_rtk_tag or
-        current_beads_go_version != fetched_beads_go_tag or
-        current_beads_viewer_version != fetched_beads_viewer_tag or
-        current_beads_rust_version != fetched_beads_rust_tag or
-        current_node_version != fetched_nodejs_version or
-        current_specify_cli_version != fetched_specify_cli_tag or
-        current_claude_code_version != fetched_claude_code_version or
-        current_skill_manager_version != fetched_skill_manager_sha or
-        current_direnv_version != fetched_direnv_tag
+          Stale: {{ _stale_tools | default([]) | join(', ') }}.
+          Run perform-updates.yml to apply the updates.
+      when: (_stale_tools | default([])) | length > 0
+
+    - name: Report that every pin is current
+      ansible.builtin.debug:
+        msg: "All {{ _tools | length }} tracked pins are up to date."
