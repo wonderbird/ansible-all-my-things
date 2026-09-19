@@ -1,0 +1,373 @@
+#SPDX-License-Identifier: MIT-0
+---
+# The tracked tools, declared once and read by both version-update playbooks.
+#
+# A tool is written down here and nowhere else: query-versions.yml compares its
+# current pin against upstream, perform-updates.yml writes its pins, and the run
+# accounting expects exactly these names. Adding a tool is one entry.
+#
+# Entry shape:
+#   role          the role under roles/ whose defaults/main.yml carries the pins
+#   fetch.file    a task file under tasks/ that queries the upstream source
+#   fetch.args    variables that task file requires
+#   fetch.results every output of that task file this tool consumes, named, so a
+#                 value can never be taken from the tool that ran before
+#   current_pin   the pin query-versions.yml compares against upstream
+#   checksums     per-artefact digests, each resolved into _checksums[<key>]:
+#                 kind "checksum_file" reads a published checksums file,
+#                 kind "download" fetches the artefact and hashes it locally
+#   pins          what perform-updates.yml writes, as {pin, value}
+#
+# Expressions are templated per tool, inside that tool's own rescued block:
+# _fetched holds this tool's fetch.results, _checksums this tool's resolved
+# digests. Referencing anything else is what the pre-flight schema assert and
+# the runtime fail-closed default exist to catch.
+
+_tools:
+  flutter:
+    role: flutter
+    fetch:
+      file: fetch-flutter-version.yml
+      results:
+        version: "{{ fetched_flutter_version }}"
+        sha256: "{{ fetched_flutter_sha256 }}"
+    current_pin: flutter_version
+    pins:
+      - {pin: flutter_version, value: "{{ _fetched.version }}"}
+      - {pin: flutter_sha256, value: "{{ _fetched.sha256 }}"}
+
+  tmux:
+    role: tmux
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: arl/gitmux
+        required_asset_regexes:
+          - '^gitmux_.*_linux_amd64\.tar\.gz$'
+          - '^gitmux_.*_linux_arm64\.tar\.gz$'
+          - '^checksums\.txt$'
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: tmux_gitmux_version
+    pins:
+      - {pin: tmux_gitmux_version, value: "{{ _fetched.version }}"}
+
+  nerd_font:
+    role: nerd_font
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: ryanoasis/nerd-fonts
+        required_asset_regexes: ['^Hack\.zip$']
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: nerd_font_version
+    pins:
+      - {pin: nerd_font_version, value: "{{ _fetched.version }}"}
+
+  java:
+    role: java
+    fetch:
+      file: fetch-java-version.yml
+      args:
+        # Only same-major patches are tracked, so the major version comes from
+        # the pin this tool already carries.
+        java_sdkman_major: "{{ _current.java.java_sdkman_identifier.split('.')[0] }}"
+      results:
+        identifier: "{{ fetched_java_identifier }}"
+    current_pin: java_sdkman_identifier
+    pins:
+      - {pin: java_sdkman_identifier, value: "{{ _fetched.identifier }}"}
+
+  android_studio:
+    role: android_studio
+    fetch:
+      file: fetch-android-version.yml
+      results:
+        build: "{{ fetched_android_build }}"
+        sha1: "{{ fetched_android_sha1 }}"
+    current_pin: android_cmdlinetools_build
+    pins:
+      - {pin: android_cmdlinetools_build, value: "{{ _fetched.build }}"}
+      - {pin: android_cmdlinetools_sha1, value: "{{ _fetched.sha1 }}"}
+
+  dolt_sql_server:
+    role: dolt_sql_server
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: dolthub/dolt
+        required_asset_regexes:
+          - '^dolt-linux-amd64\.tar\.gz$'
+          - '^dolt-linux-arm64\.tar\.gz$'
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: dolt_version
+    checksums:
+      - key: amd64
+        kind: download
+        url: "https://github.com/dolthub/dolt/releases/download/{{ _fetched.version }}/dolt-linux-amd64.tar.gz"
+      - key: arm64
+        kind: download
+        url: "https://github.com/dolthub/dolt/releases/download/{{ _fetched.version }}/dolt-linux-arm64.tar.gz"
+    pins:
+      - {pin: dolt_version, value: "{{ _fetched.version }}"}
+      - {pin: dolt_sha256_amd64, value: "{{ _checksums.amd64 }}"}
+      - {pin: dolt_sha256_arm64, value: "{{ _checksums.arm64 }}"}
+
+  opencode:
+    role: opencode
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: anomalyco/opencode
+        required_asset_regexes:
+          - '^opencode-linux-x64\.tar\.gz$'
+          - '^opencode-linux-arm64\.tar\.gz$'
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: opencode_version
+    checksums:
+      - key: amd64
+        kind: download
+        url: "https://github.com/anomalyco/opencode/releases/download/{{ _fetched.version }}/opencode-linux-x64.tar.gz"
+      - key: arm64
+        kind: download
+        url: "https://github.com/anomalyco/opencode/releases/download/{{ _fetched.version }}/opencode-linux-arm64.tar.gz"
+    pins:
+      - {pin: opencode_version, value: "{{ _fetched.version }}"}
+      - {pin: opencode_sha256_amd64, value: "{{ _checksums.amd64 }}"}
+      - {pin: opencode_sha256_arm64, value: "{{ _checksums.arm64 }}"}
+
+  github_cli:
+    role: github_cli
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: cli/cli
+        release_carries_no_consumed_asset: >-
+          installed from the cli.github.com apt repository, not from release assets
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: github_cli_version
+    pins:
+      - {pin: github_cli_version, value: "{{ _fetched.version }}"}
+
+  obsidian:
+    role: obsidian
+    fetch:
+      file: fetch-obsidian-version.yml
+      results:
+        version: "{{ fetched_obsidian_tag }}"
+    current_pin: obsidian_version
+    checksums:
+      - key: amd64
+        kind: download
+        url: >-
+          https://github.com/obsidianmd/obsidian-releases/releases/download/{{ _fetched.version
+          }}/obsidian_{{ _fetched.version | regex_replace('^v', '') }}_amd64.deb
+    pins:
+      - {pin: obsidian_version, value: "{{ _fetched.version }}"}
+      - {pin: obsidian_sha256_amd64, value: "{{ _checksums.amd64 }}"}
+
+  rtk:
+    role: rtk
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: rtk-ai/rtk
+        required_asset_regexes:
+          - '^rtk-x86_64-unknown-linux-musl\.tar\.gz$'
+          - '^rtk-aarch64-unknown-linux-gnu\.tar\.gz$'
+          - '^checksums\.txt$'
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: rtk_version
+    checksums:
+      - key: x86_64_musl
+        kind: checksum_file
+        url: "https://github.com/rtk-ai/rtk/releases/download/{{ _fetched.version }}/checksums.txt"
+        filename: rtk-x86_64-unknown-linux-musl.tar.gz
+      - key: aarch64_gnu
+        kind: checksum_file
+        url: "https://github.com/rtk-ai/rtk/releases/download/{{ _fetched.version }}/checksums.txt"
+        filename: rtk-aarch64-unknown-linux-gnu.tar.gz
+    pins:
+      - {pin: rtk_version, value: "{{ _fetched.version }}"}
+      - {pin: rtk_sha256_x86_64_musl, value: "{{ _checksums.x86_64_musl }}"}
+      - {pin: rtk_sha256_aarch64_gnu, value: "{{ _checksums.aarch64_gnu }}"}
+
+  beads_go:
+    role: beads_go
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: gastownhall/beads
+        required_asset_regexes:
+          - '^beads_.*_linux_amd64\.tar\.gz$'
+          - '^beads_.*_linux_arm64\.tar\.gz$'
+          - '^checksums\.txt$'
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: beads_go_version
+    checksums:
+      - key: amd64
+        kind: checksum_file
+        url: "https://github.com/gastownhall/beads/releases/download/{{ _fetched.version }}/checksums.txt"
+        # The release tag is v-prefixed; the artefacts are not.
+        filename: "beads_{{ _fetched.version | regex_replace('^v', '') }}_linux_amd64.tar.gz"
+      - key: arm64
+        kind: checksum_file
+        url: "https://github.com/gastownhall/beads/releases/download/{{ _fetched.version }}/checksums.txt"
+        filename: "beads_{{ _fetched.version | regex_replace('^v', '') }}_linux_arm64.tar.gz"
+    pins:
+      - {pin: beads_go_version, value: "{{ _fetched.version }}"}
+      - {pin: beads_go_sha256_amd64, value: "{{ _checksums.amd64 }}"}
+      - {pin: beads_go_sha256_arm64, value: "{{ _checksums.arm64 }}"}
+
+  beads_viewer:
+    role: beads_viewer
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: Dicklesworthstone/beads_viewer
+        required_asset_regexes:
+          - '^bv_.*_linux_amd64\.tar\.gz$'
+          - '^bv_.*_linux_arm64\.tar\.gz$'
+          - '^checksums\.txt$'
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: beads_viewer_version
+    checksums:
+      - key: amd64
+        kind: checksum_file
+        url: "https://github.com/Dicklesworthstone/beads_viewer/releases/download/{{ _fetched.version }}/checksums.txt"
+        filename: "bv_{{ _fetched.version | regex_replace('^v', '') }}_linux_amd64.tar.gz"
+      - key: arm64
+        kind: checksum_file
+        url: "https://github.com/Dicklesworthstone/beads_viewer/releases/download/{{ _fetched.version }}/checksums.txt"
+        filename: "bv_{{ _fetched.version | regex_replace('^v', '') }}_linux_arm64.tar.gz"
+    pins:
+      - {pin: beads_viewer_version, value: "{{ _fetched.version }}"}
+      - {pin: beads_viewer_sha256_amd64, value: "{{ _checksums.amd64 }}"}
+      - {pin: beads_viewer_sha256_arm64, value: "{{ _checksums.arm64 }}"}
+
+  beads_rust:
+    role: beads_rust
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: Dicklesworthstone/beads_rust
+        required_asset_regexes:
+          - '^br-.*-linux_amd64\.tar\.gz$'
+          - '^br-.*-linux_amd64\.tar\.gz\.sha256$'
+          - '^br-.*-linux_arm64\.tar\.gz$'
+          - '^br-.*-linux_arm64\.tar\.gz\.sha256$'
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: beads_rust_version
+    checksums:
+      # The per-archive sidecar, not a combined file: upstream has renamed the
+      # combined one across releases.
+      - key: amd64
+        kind: checksum_file
+        url: >-
+          https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ _fetched.version
+          }}/br-{{ _fetched.version | regex_replace('^v', '') }}-linux_amd64.tar.gz.sha256
+        filename: "br-{{ _fetched.version | regex_replace('^v', '') }}-linux_amd64.tar.gz"
+      - key: arm64
+        kind: checksum_file
+        url: >-
+          https://github.com/Dicklesworthstone/beads_rust/releases/download/{{ _fetched.version
+          }}/br-{{ _fetched.version | regex_replace('^v', '') }}-linux_arm64.tar.gz.sha256
+        filename: "br-{{ _fetched.version | regex_replace('^v', '') }}-linux_arm64.tar.gz"
+    pins:
+      - {pin: beads_rust_version, value: "{{ _fetched.version }}"}
+      - {pin: beads_rust_sha256_amd64, value: "{{ _checksums.amd64 }}"}
+      - {pin: beads_rust_sha256_arm64, value: "{{ _checksums.arm64 }}"}
+
+  nodejs:
+    role: nodejs
+    fetch:
+      file: fetch-nodejs-version.yml
+      results:
+        version: "{{ fetched_nodejs_version }}"
+    current_pin: node_version
+    checksums:
+      - key: x64
+        kind: checksum_file
+        url: "https://nodejs.org/dist/{{ _fetched.version }}/SHASUMS256.txt"
+        filename: "node-{{ _fetched.version }}-linux-x64.tar.gz"
+      - key: arm64
+        kind: checksum_file
+        url: "https://nodejs.org/dist/{{ _fetched.version }}/SHASUMS256.txt"
+        filename: "node-{{ _fetched.version }}-linux-arm64.tar.gz"
+    pins:
+      - {pin: node_version, value: "{{ _fetched.version }}"}
+      - {pin: node_sha256_x64, value: "{{ _checksums.x64 }}"}
+      - {pin: node_sha256_arm64, value: "{{ _checksums.arm64 }}"}
+
+  specify_cli:
+    role: specify_cli
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: github/spec-kit
+        release_carries_no_consumed_asset: >-
+          installed with pipx from the git tag, not from release assets
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: specify_cli_version
+    pins:
+      - {pin: specify_cli_version, value: "{{ _fetched.version }}"}
+
+  claude_code:
+    role: claude_code
+    fetch:
+      file: fetch-claude-code-version.yml
+      results:
+        version: "{{ fetched_claude_code_version }}"
+        sha256_linux_x64: "{{ fetched_claude_code_sha256_linux_x64 }}"
+        sha256_linux_arm64: "{{ fetched_claude_code_sha256_linux_arm64 }}"
+    current_pin: claude_code_version
+    pins:
+      - {pin: claude_code_version, value: "{{ _fetched.version }}"}
+      - {pin: claude_code_sha256_linux_x64, value: "{{ _fetched.sha256_linux_x64 }}"}
+      - {pin: claude_code_sha256_linux_arm64, value: "{{ _fetched.sha256_linux_arm64 }}"}
+
+  skill_manager:
+    role: skill_manager
+    fetch:
+      file: fetch-github-commit-sha.yml
+      args:
+        github_repo: omrikais/skill-manager
+        git_ref: master
+      results:
+        version: "{{ fetched_github_sha }}"
+    current_pin: skill_manager_version
+    pins:
+      - {pin: skill_manager_version, value: "{{ _fetched.version }}"}
+
+  direnv:
+    role: direnv
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: direnv/direnv
+        required_asset_regexes:
+          - '^direnv\.linux-amd64$'
+          - '^direnv\.linux-arm64$'
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: direnv_version
+    checksums:
+      - key: amd64
+        kind: download
+        url: "https://github.com/direnv/direnv/releases/download/{{ _fetched.version }}/direnv.linux-amd64"
+      - key: arm64
+        kind: download
+        url: "https://github.com/direnv/direnv/releases/download/{{ _fetched.version }}/direnv.linux-arm64"
+    pins:
+      - {pin: direnv_version, value: "{{ _fetched.version }}"}
+      - {pin: direnv_sha256_amd64, value: "{{ _checksums.amd64 }}"}
+      - {pin: direnv_sha256_arm64, value: "{{ _checksums.arm64 }}"}

@@ -3,8 +3,12 @@
 - name: Query upstream versions for tracked tools
   hosts: localhost
   gather_facts: false
+  vars_files:
+    - vars/tools.yml
   vars:
     _roles_dir: "{{ playbook_dir }}/../../roles"
+    _registry_file: "{{ playbook_dir }}/vars/tools.yml"
+    _registry_roles_dir: "{{ _roles_dir }}"
   tasks:
     - name: Check the preconditions of this run
       ansible.builtin.include_tasks: tasks/preflight.yml

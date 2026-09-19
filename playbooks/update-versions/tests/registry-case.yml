@@ -1,0 +1,85 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Runs one registry case of test-tool-registry.yml through ../tasks/preflight.yml.
+# Required var: _case with keys id, expect_reject, content (the registry as
+# text) and optionally why and extra_role (a pinned role written into the
+# fixture tree but deliberately left out of the registry).
+#
+# The pre-flight include runs inside block/rescue so a rejection can be
+# inspected. A case that expects a rejection but validates clean fails the
+# harness, which is what keeps a weakened rule from passing silently.
+
+- name: "Write the registry of case {{ _case.id }}"
+  vars:
+    # read and written as text: a registry value is a template, so putting it in
+    # a play variable would render it here instead of inside a tool's block
+    _base: "{{ lookup('ansible.builtin.file', _registry_fixture) }}"
+  ansible.builtin.copy:
+    content: "{{ _base | replace(_case.replace | default(''), _case.with | default('')) }}"
+    dest: "{{ _harness_dir.path }}/vars/{{ _case.id }}.yml"
+    mode: "0644"
+
+- name: "Create the unregistered role directory for case {{ _case.id }}"
+  ansible.builtin.file:
+    path: "{{ _harness_dir.path }}/roles/{{ _case.extra_role }}/defaults"
+    state: directory
+    mode: "0755"
+  when: _case.extra_role is defined
+
+- name: "Write the unregistered pinned role for case {{ _case.id }}"
+  ansible.builtin.copy:
+    content: |
+      ---
+      {{ _case.extra_role }}_version: "v9.9.9"
+    dest: "{{ _harness_dir.path }}/roles/{{ _case.extra_role | default('unused') }}/defaults/main.yml"
+    mode: "0644"
+  when: _case.extra_role is defined
+
+- name: "Reset the verdict for case {{ _case.id }}"
+  ansible.builtin.set_fact:
+    _case_rejected: false
+    _case_reason: ""
+    _registry_rejected: "{{ _registry_rejected | default([]) }}"
+    _registry_expected_rejected: >-
+      {{ (_registry_expected_rejected | default([]))
+         + ([_case.id] if _case.expect_reject else []) }}
+
+- name: "Validate the registry of case {{ _case.id }}"
+  block:
+    - name: "Run pre-flight for case {{ _case.id }}"
+      ansible.builtin.include_tasks: ../tasks/preflight.yml
+      vars:
+        _tools: >-
+          {{ (lookup('ansible.builtin.file',
+                     _harness_dir.path ~ '/vars/' ~ _case.id ~ '.yml') | from_yaml)._tools }}
+        _registry_file: "{{ _harness_dir.path }}/vars/{{ _case.id }}.yml"
+        _registry_roles_dir: "{{ _harness_dir.path }}/roles"
+        _registry_tasks_dir: "{{ (playbook_dir ~ '/../tasks') | realpath }}"
+  rescue:
+    - name: "Record the rejection of case {{ _case.id }}"
+      ansible.builtin.set_fact:
+        _case_rejected: true
+        _case_reason: "{{ ansible_failed_result.msg | default('') }}"
+        _registry_rejected: "{{ _registry_rejected + [_case.id] }}"
+
+- name: "Fail when case {{ _case.id }} was accepted but must be rejected"
+  ansible.builtin.fail:
+    msg: >-
+      Case {{ _case.id }} validated clean, but it is a mutant that must be
+      rejected: {{ _case.why | default('see the harness') }}
+  when:
+    - _case.expect_reject
+    - not _case_rejected
+
+- name: "Fail when case {{ _case.id }} was rejected but must be accepted"
+  ansible.builtin.fail:
+    msg: "Case {{ _case.id }} must validate clean, but pre-flight rejected it: {{ _case_reason }}"
+  when:
+    - not _case.expect_reject
+    - _case_rejected
+
+- name: "Remove the unregistered pinned role after case {{ _case.id }}"
+  ansible.builtin.file:
+    path: "{{ _harness_dir.path }}/roles/{{ _case.extra_role }}"
+    state: absent
+  when: _case.extra_role is defined

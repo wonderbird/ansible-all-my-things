@@ -13,8 +13,12 @@
 - name: Update pinned versions in role defaults files
   hosts: localhost
   gather_facts: false
+  vars_files:
+    - vars/tools.yml
   vars:
     _roles_dir: "{{ playbook_dir }}/../../roles"
+    _registry_file: "{{ playbook_dir }}/vars/tools.yml"
+    _registry_roles_dir: "{{ _roles_dir }}"
     # The tools this playbook maintains. Declared rather than derived, so the
     # accounting assert below compares two independently written sets instead of
     # comparing a set with itself.
