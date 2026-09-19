@@ -1,0 +1,62 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Queries one tool's upstream source and records what it returned. Required
+# vars: _name (the tool, supplied by the loop) and _tools (the registry).
+#
+# The block/rescue lives here rather than in the playbook, so every tool is
+# isolated by construction: a third-party failure is recorded against this tool
+# and the loop continues, while a configuration error stops the run from inside
+# record-tool-failure.yml.
+#
+# The loop that includes this file iterates tool NAMES and nothing else. A loop
+# over whole registry entries would template every expression of every entry
+# before the first task runs, and that failure happens outside any block, so no
+# rescue could catch it.
+
+- name: "Fetch the upstream data of {{ _name }}"
+  block:
+    - name: "Query the upstream source of {{ _name }}"
+      ansible.builtin.include_tasks: "{{ _tools[_name].fetch.file }}"
+      # `vars:` on an include must be a literal mapping, so the argument names
+      # are written out and each falls back to omit when this tool does not use
+      # it. Adding a fetch argument means adding it here once.
+      vars:
+        _args: "{{ _tools[_name].fetch.args | default({}) }}"
+        github_repo: "{{ _args.github_repo | default(omit) }}"
+        git_ref: "{{ _args.git_ref | default(omit) }}"
+        java_sdkman_major: "{{ _args.java_sdkman_major | default(omit) }}"
+        required_asset_regexes: "{{ _args.required_asset_regexes | default(omit) }}"
+        release_carries_no_consumed_asset: >-
+          {{ _args.release_carries_no_consumed_asset | default(omit) }}
+
+    - name: "Record what the fetch of {{ _name }} returned"
+      # Bound inside the block: an output the fetch file did not set is
+      # undefined here, which is rescued and classified, rather than silently
+      # leaving the previous tool's value in place.
+      ansible.builtin.set_fact:
+        _fetch_results: >-
+          {{ _fetch_results | combine({_name: _tools[_name].fetch.results}) }}
+
+    - name: "Publish the legacy fetch facts of {{ _name }}"
+      # TEMPORARY. The apply phase still reads the per-tool fetched_* facts the
+      # hand-written fetch blocks used to set. Each value comes from this tool's
+      # own results, so the bridge cannot carry another tool's value. Deleted in
+      # the commit that rewrites the apply phase to read _fetch_results.
+      ansible.builtin.set_fact:
+        "{{ _legacy.key }}": "{{ _fetch_results[_name][_legacy.value] }}"
+      loop: "{{ _legacy_fetch_facts[_name] | default({}) | dict2items }}"
+      loop_control:
+        loop_var: _legacy
+        label: "{{ _legacy.key }}"
+
+  rescue:
+    - name: "Record the fetch failure of {{ _name }}"
+      ansible.builtin.include_tasks: record-tool-failure.yml
+      vars:
+        failed_tool: "{{ _name }}"
+        failed_phase: fetch
+        failed_task_name: "{{ ansible_failed_task.name }}"
+        failed_task_action: "{{ ansible_failed_task.action }}"
+        failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
+        failed_task_source: "{{ ansible_failed_task.vars.failure_source | default('') }}"
+        failed_result: "{{ ansible_failed_result }}"

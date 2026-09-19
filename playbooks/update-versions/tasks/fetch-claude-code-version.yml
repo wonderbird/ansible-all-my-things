@@ -8,11 +8,11 @@
 # fetch-github-release.yml (for the release tag) with a second uri GET
 # against the manifest.
 #
-# Task naming contract: any task that can fail because of a third party carries
-# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
-# defect in this repository. Input asserts stay unprefixed -- a bad argument is
-# ours. Quote such a name: an unquoted YAML scalar cannot carry a colon and a
-# space. See ../../../docs/architecture/version-update-playbooks.md.
+# Failure-source contract: any task that can fail because of a third party
+# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
+# tell an outage from a defect in this repository. An input assert declares
+# nothing -- a bad argument is ours, and the default class is configuration.
+# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Fetch Claude Code release tag from GitHub Releases
   ansible.builtin.include_tasks: fetch-github-release.yml
@@ -37,7 +37,11 @@
     return_content: true
   register: _claude_code_manifest
 
-- name: "upstream: Assert Claude Code manifest contains required platform keys"  # noqa: name[casing]
+- name: Assert Claude Code manifest contains required platform keys
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.assert:
     that:
       - "'linux-x64' in _claude_code_manifest.json.platforms"

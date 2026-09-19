@@ -20,6 +20,7 @@
     _update_updated: []
     _update_skipped: []
     _case_task: "{{ _case.task | default('') }}"
+    _case_source: "{{ _case.source | default('') }}"
     _case_action: "{{ _case.action | default('') }}"
     _case_resolved_action: "{{ _case.resolved_action | default('') }}"
     _case_result: "{{ _case.result | default({}) }}"
@@ -35,6 +36,9 @@
     - name: "Capture the induced failure for case {{ _case.id }}"
       ansible.builtin.set_fact:
         _case_task: "{{ ansible_failed_task.name }}"
+        # one extracted scalar, never the whole vars dict: rendering that dict
+        # here raises a sibling var's undefined error and ends the play
+        _case_source: "{{ ansible_failed_task.vars.failure_source | default('') }}"
         _case_action: "{{ ansible_failed_task.action }}"
         _case_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
         _case_result: "{{ ansible_failed_result }}"
@@ -55,6 +59,7 @@
         failed_tool: "{{ _case.tool | default('harness_tool') }}"
         failed_phase: "{{ _case.phase | default('fetch') }}"
         failed_task_name: "{{ _case_task }}"
+        failed_task_source: "{{ _case_source }}"
         failed_task_action: "{{ _case_action }}"
         failed_task_resolved_action: "{{ _case_resolved_action }}"
         failed_result: "{{ _case_result }}"

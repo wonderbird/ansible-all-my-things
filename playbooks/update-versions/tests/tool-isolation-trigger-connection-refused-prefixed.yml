@@ -1,9 +1,0 @@
-# SPDX-License-Identifier: MIT-0
----
-# The same failure through an upstream-prefixed task (classifier rule 3).
-
-- name: "upstream: download from a closed port"
-  ansible.builtin.get_url:
-    url: "https://127.0.0.1:1/x"
-    dest: "{{ _harness_dir.path }}/refused-prefixed"
-    mode: "0644"

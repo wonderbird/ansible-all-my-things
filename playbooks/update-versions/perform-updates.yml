@@ -15,6 +15,7 @@
   gather_facts: false
   vars_files:
     - vars/tools.yml
+    - vars/legacy-fetch-facts.yml
   vars:
     _roles_dir: "{{ playbook_dir }}/../../roles"
     _registry_file: "{{ playbook_dir }}/vars/tools.yml"
@@ -50,401 +51,20 @@
         _update_failures: []
         _update_updated: []
         _update_skipped: []
+        _fetch_results: {}
 
     # --- Fetch upstream versions ---
-    - name: Fetch flutter upstream data
-      block:
-        - name: Fetch Flutter upstream version
-          ansible.builtin.include_tasks: tasks/fetch-flutter-version.yml
-      rescue:
-        - name: Record the fetch failure of flutter
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: flutter
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
+    - name: Read the pins the roles carry today
+      ansible.builtin.include_tasks: tasks/read-current-pins.yml
 
-    - name: Fetch tmux upstream data
-      block:
-        - name: Fetch gitmux upstream version
-          ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-          vars:
-            github_repo: "arl/gitmux"
-            required_asset_regexes:
-              - '^gitmux_.*_linux_amd64\.tar\.gz$'
-              - '^gitmux_.*_linux_arm64\.tar\.gz$'
-              - '^checksums\.txt$'
-
-        - name: Save gitmux fetched tag
-          ansible.builtin.set_fact:
-            fetched_gitmux_tag: "{{ fetched_github_tag }}"
-      rescue:
-        - name: Record the fetch failure of tmux
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: tmux
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch nerd_font upstream data
-      block:
-        - name: Fetch Nerd Fonts (Hack) upstream version
-          ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-          vars:
-            github_repo: "ryanoasis/nerd-fonts"
-            required_asset_regexes:
-              - '^Hack\.zip$'
-
-        - name: Save Nerd Fonts fetched tag
-          ansible.builtin.set_fact:
-            fetched_font_tag: "{{ fetched_github_tag }}"
-      rescue:
-        - name: Record the fetch failure of nerd_font
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: nerd_font
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch java upstream data
-      block:
-        # --- Read current Java identifier to derive major version for fetch ---
-        - name: Read java role defaults
-          ansible.builtin.slurp:
-            src: "{{ _roles_dir }}/java/defaults/main.yml"
-          register: _java_defaults_raw
-
-        - name: Derive Java major version from current identifier
-          vars:
-            _java_id_match: >-
-              {{ _java_defaults_raw.content | b64decode
-                 | regex_search('java_sdkman_identifier:\s*"([^"]+)"', '\1')
-                 | default([], true) }}
-          ansible.builtin.set_fact:
-            _current_java_major: "{{ (_java_id_match | first).split('.')[0] | int }}"
-
-        - name: Fetch Java upstream version for major {{ _current_java_major }}
-          ansible.builtin.include_tasks: tasks/fetch-java-version.yml
-          vars:
-            java_sdkman_major: "{{ _current_java_major }}"
-      rescue:
-        - name: Record the fetch failure of java
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: java
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch android_studio upstream data
-      block:
-        - name: Fetch Android cmdline-tools upstream version
-          ansible.builtin.include_tasks: tasks/fetch-android-version.yml
-      rescue:
-        - name: Record the fetch failure of android_studio
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: android_studio
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch dolt_sql_server upstream data
-      block:
-        - name: Fetch Dolt upstream version
-          ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-          vars:
-            github_repo: "dolthub/dolt"
-            required_asset_regexes:
-              - '^dolt-linux-amd64\.tar\.gz$'
-              - '^dolt-linux-arm64\.tar\.gz$'
-
-        - name: Save Dolt fetched tag
-          ansible.builtin.set_fact:
-            fetched_dolt_tag: "{{ fetched_github_tag }}"
-      rescue:
-        - name: Record the fetch failure of dolt_sql_server
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: dolt_sql_server
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch opencode upstream data
-      block:
-        - name: Fetch OpenCode upstream version
-          ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-          vars:
-            github_repo: "anomalyco/opencode"
-            required_asset_regexes:
-              - '^opencode-linux-x64\.tar\.gz$'
-              - '^opencode-linux-arm64\.tar\.gz$'
-
-        - name: Save OpenCode fetched tag
-          ansible.builtin.set_fact:
-            fetched_opencode_tag: "{{ fetched_github_tag }}"
-      rescue:
-        - name: Record the fetch failure of opencode
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: opencode
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch github_cli upstream data
-      block:
-        - name: Fetch GitHub CLI upstream version
-          ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-          vars:
-            github_repo: "cli/cli"
-            release_carries_no_consumed_asset: "installed from the cli.github.com apt repository, not from release assets"
-
-        - name: Save GitHub CLI fetched tag
-          ansible.builtin.set_fact:
-            fetched_github_cli_tag: "{{ fetched_github_tag }}"
-      rescue:
-        - name: Record the fetch failure of github_cli
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: github_cli
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch obsidian upstream data
-      block:
-        - name: Fetch Obsidian upstream version
-          ansible.builtin.include_tasks: tasks/fetch-obsidian-version.yml
-      rescue:
-        - name: Record the fetch failure of obsidian
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: obsidian
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch rtk upstream data
-      block:
-        - name: Fetch rtk upstream version
-          ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-          vars:
-            github_repo: "rtk-ai/rtk"
-            required_asset_regexes:
-              - '^rtk-x86_64-unknown-linux-musl\.tar\.gz$'
-              - '^rtk-aarch64-unknown-linux-gnu\.tar\.gz$'
-              - '^checksums\.txt$'
-
-        - name: Save rtk fetched tag
-          ansible.builtin.set_fact:
-            fetched_rtk_tag: "{{ fetched_github_tag }}"
-      rescue:
-        - name: Record the fetch failure of rtk
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: rtk
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch beads_go upstream data
-      block:
-        - name: Fetch bd upstream version
-          ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-          vars:
-            github_repo: "gastownhall/beads"
-            required_asset_regexes:
-              - '^beads_.*_linux_amd64\.tar\.gz$'
-              - '^beads_.*_linux_arm64\.tar\.gz$'
-              - '^checksums\.txt$'
-
-        - name: Save bd fetched tag
-          ansible.builtin.set_fact:
-            fetched_beads_go_tag: "{{ fetched_github_tag }}"
-      rescue:
-        - name: Record the fetch failure of beads_go
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: beads_go
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch beads_viewer upstream data
-      block:
-        - name: Fetch bv upstream version
-          ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-          vars:
-            github_repo: "Dicklesworthstone/beads_viewer"
-            required_asset_regexes:
-              - '^bv_.*_linux_amd64\.tar\.gz$'
-              - '^bv_.*_linux_arm64\.tar\.gz$'
-              - '^checksums\.txt$'
-
-        - name: Save bv fetched tag
-          ansible.builtin.set_fact:
-            fetched_beads_viewer_tag: "{{ fetched_github_tag }}"
-      rescue:
-        - name: Record the fetch failure of beads_viewer
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: beads_viewer
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch beads_rust upstream data
-      block:
-        - name: Fetch br upstream version
-          ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-          vars:
-            github_repo: "Dicklesworthstone/beads_rust"
-            required_asset_regexes:
-              - '^br-.*-linux_amd64\.tar\.gz$'
-              - '^br-.*-linux_amd64\.tar\.gz\.sha256$'
-              - '^br-.*-linux_arm64\.tar\.gz$'
-              - '^br-.*-linux_arm64\.tar\.gz\.sha256$'
-
-        - name: Save br fetched tag
-          ansible.builtin.set_fact:
-            fetched_beads_rust_tag: "{{ fetched_github_tag }}"
-      rescue:
-        - name: Record the fetch failure of beads_rust
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: beads_rust
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch nodejs upstream data
-      block:
-        - name: Fetch Node.js upstream LTS version
-          ansible.builtin.include_tasks: tasks/fetch-nodejs-version.yml
-      rescue:
-        - name: Record the fetch failure of nodejs
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: nodejs
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch specify_cli upstream data
-      block:
-        - name: Fetch specify-cli upstream version
-          ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-          vars:
-            github_repo: "github/spec-kit"
-            release_carries_no_consumed_asset: "installed with pipx from the git tag, not from release assets"
-
-        - name: Save specify-cli fetched tag
-          ansible.builtin.set_fact:
-            fetched_specify_cli_tag: "{{ fetched_github_tag }}"
-      rescue:
-        - name: Record the fetch failure of specify_cli
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: specify_cli
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch claude_code upstream data
-      block:
-        - name: Fetch Claude Code upstream version and checksums
-          ansible.builtin.include_tasks: tasks/fetch-claude-code-version.yml
-      rescue:
-        - name: Record the fetch failure of claude_code
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: claude_code
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch skill_manager upstream data
-      block:
-        - name: Fetch skill-manager upstream commit SHA
-          ansible.builtin.include_tasks: tasks/fetch-github-commit-sha.yml
-          vars:
-            github_repo: "omrikais/skill-manager"
-            git_ref: "master"
-
-        - name: Save skill-manager fetched commit SHA
-          ansible.builtin.set_fact:
-            fetched_skill_manager_sha: "{{ fetched_github_sha }}"
-      rescue:
-        - name: Record the fetch failure of skill_manager
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: skill_manager
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
-
-    - name: Fetch direnv upstream data
-      block:
-        - name: Fetch direnv upstream version
-          ansible.builtin.include_tasks: tasks/fetch-github-release.yml
-          vars:
-            github_repo: "direnv/direnv"
-            required_asset_regexes:
-              - '^direnv\.linux-amd64$'
-              - '^direnv\.linux-arm64$'
-
-        - name: Save direnv fetched tag
-          ansible.builtin.set_fact:
-            fetched_direnv_tag: "{{ fetched_github_tag }}"
-      rescue:
-        - name: Record the fetch failure of direnv
-          ansible.builtin.include_tasks: tasks/record-tool-failure.yml
-          vars:
-            failed_tool: direnv
-            failed_phase: fetch
-            failed_task_name: "{{ ansible_failed_task.name }}"
-            failed_task_action: "{{ ansible_failed_task.action }}"
-            failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
-            failed_result: "{{ ansible_failed_result }}"
+    - name: Fetch the upstream data of every tool
+      ansible.builtin.include_tasks: tasks/fetch-tool.yml
+      # names only: a loop over whole registry entries templates every
+      # expression of every entry before the first task runs, outside any block
+      loop: "{{ _tools.keys() | list }}"
+      loop_control:
+        loop_var: _name
+        label: "{{ _name }}"
 
     # --- Apply updates to role defaults files ---
 
@@ -652,7 +272,9 @@
                          | selectattr('phase', 'equalto', 'fetch')
                          | map(attribute='tool') | list)
       block:
-        - name: "upstream: Download dolt amd64 tarball for sha256 computation"  # noqa: name[casing]
+        - name: Download dolt amd64 tarball for sha256 computation
+          vars:
+            failure_source: upstream
           ansible.builtin.get_url:
             url: "https://github.com/dolthub/dolt/releases/download/{{ fetched_dolt_tag }}/dolt-linux-amd64.tar.gz"
             dest: "/tmp/dolt-{{ fetched_dolt_tag }}-linux-amd64.tar.gz"
@@ -665,7 +287,11 @@
             get_checksum: true
           register: _dolt_amd64_stat
 
-        - name: "upstream: Download dolt arm64 tarball for sha256 computation"  # noqa: name[casing]
+        - name: Download dolt arm64 tarball for sha256 computation
+
+          vars:
+
+            failure_source: upstream
           ansible.builtin.get_url:
             url: "https://github.com/dolthub/dolt/releases/download/{{ fetched_dolt_tag }}/dolt-linux-arm64.tar.gz"
             dest: "/tmp/dolt-{{ fetched_dolt_tag }}-linux-arm64.tar.gz"
@@ -718,7 +344,9 @@
                          | selectattr('phase', 'equalto', 'fetch')
                          | map(attribute='tool') | list)
       block:
-        - name: "upstream: Download opencode linux-x64 tarball for sha256 computation"  # noqa: name[casing]
+        - name: Download opencode linux-x64 tarball for sha256 computation
+          vars:
+            failure_source: upstream
           ansible.builtin.get_url:
             url: "https://github.com/anomalyco/opencode/releases/download/{{ fetched_opencode_tag }}/opencode-linux-x64.tar.gz"
             dest: "/tmp/opencode-{{ fetched_opencode_tag }}-linux-x64.tar.gz"
@@ -731,7 +359,11 @@
             get_checksum: true
           register: _opencode_amd64_stat
 
-        - name: "upstream: Download opencode linux-arm64 tarball for sha256 computation"  # noqa: name[casing]
+        - name: Download opencode linux-arm64 tarball for sha256 computation
+
+          vars:
+
+            failure_source: upstream
           ansible.builtin.get_url:
             url: "https://github.com/anomalyco/opencode/releases/download/{{ fetched_opencode_tag }}/opencode-linux-arm64.tar.gz"
             dest: "/tmp/opencode-{{ fetched_opencode_tag }}-linux-arm64.tar.gz"
@@ -822,7 +454,9 @@
                          | selectattr('phase', 'equalto', 'fetch')
                          | map(attribute='tool') | list)
       block:
-        - name: "upstream: Download Obsidian amd64 .deb for sha256 computation"  # noqa: name[casing]
+        - name: Download Obsidian amd64 .deb for sha256 computation
+          vars:
+            failure_source: upstream
           ansible.builtin.get_url:
             url: >-
               https://github.com/obsidianmd/obsidian-releases/releases/download/{{ fetched_obsidian_tag
@@ -1292,7 +926,9 @@
                          | selectattr('phase', 'equalto', 'fetch')
                          | map(attribute='tool') | list)
       block:
-        - name: "upstream: Download direnv linux-amd64 binary for sha256 computation"  # noqa: name[casing]
+        - name: Download direnv linux-amd64 binary for sha256 computation
+          vars:
+            failure_source: upstream
           ansible.builtin.get_url:
             url: "https://github.com/direnv/direnv/releases/download/{{ fetched_direnv_tag }}/direnv.linux-amd64"
             dest: "/tmp/direnv-{{ fetched_direnv_tag }}-linux-amd64"
@@ -1305,7 +941,11 @@
             get_checksum: true
           register: _direnv_amd64_stat
 
-        - name: "upstream: Download direnv linux-arm64 binary for sha256 computation"  # noqa: name[casing]
+        - name: Download direnv linux-arm64 binary for sha256 computation
+
+          vars:
+
+            failure_source: upstream
           ansible.builtin.get_url:
             url: "https://github.com/direnv/direnv/releases/download/{{ fetched_direnv_tag }}/direnv.linux-arm64"
             dest: "/tmp/direnv-{{ fetched_direnv_tag }}-linux-arm64"

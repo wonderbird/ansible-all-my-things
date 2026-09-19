@@ -13,11 +13,11 @@
 # after the pin it feeds (`fetched_<pin>`), which is what the apply-order
 # checker pairs a per-architecture pin against.
 #
-# Task naming contract: any task that can fail because of a third party carries
-# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
-# defect in this repository. Input asserts stay unprefixed -- a bad argument is
-# ours. Quote such a name: an unquoted YAML scalar cannot carry a colon and a
-# space. See ../../../docs/architecture/version-update-playbooks.md.
+# Failure-source contract: any task that can fail because of a third party
+# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
+# tell an outage from a defect in this repository. An input assert declares
+# nothing -- a bad argument is ours, and the default class is configuration.
+# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Assert checksum_result_var is set for {{ checksum_target_filename }}
   vars:
@@ -48,7 +48,11 @@
          | regex_search('^([0-9a-f]{64})\s+' + (checksum_target_filename | regex_escape) + '$', '\1', multiline=True)
          | default([], true) }}
 
-- name: "upstream: Fail if checksum not found in {{ checksum_file_url }}"  # noqa: name[casing]
+- name: Fail if checksum not found in {{ checksum_file_url }}
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.fail:
     msg: >-
       Checksum for '{{ checksum_target_filename }}' not found in

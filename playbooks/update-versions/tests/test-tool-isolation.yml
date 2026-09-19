@@ -64,8 +64,8 @@
         expect_class: upstream
         expect_messages: ["Connection refused"]
 
-      - id: connection-refused-prefixed
-        trigger: connection-refused-prefixed
+      - id: connection-refused-declared-upstream
+        trigger: connection-refused-declared
         phase: apply
         expect_class: upstream
         expect_messages: ["Connection refused"]
@@ -84,14 +84,9 @@
         phase: apply
         expect_class: configuration
 
-      - id: write-pins-failure
-        trigger: write-pins
-        phase: apply
-        expect_class: configuration
-        expect_messages: ["pin_that_is_absent"]
-
       - id: rate-limit-fixture
-        task: "upstream: fetch the latest release of example/tool"
+        task: Fetch the latest release of example/tool
+        source: upstream
         action: uri
         resolved_action: ansible.builtin.uri
         result:
@@ -103,7 +98,8 @@
         expect_messages: ["rate limit exceeded"]
 
       - id: unexpected-status-fixture
-        task: "upstream: fetch the latest release of example/tool"
+        task: Fetch the latest release of example/tool
+        source: upstream
         action: uri
         resolved_action: ansible.builtin.uri
         result:
@@ -116,7 +112,8 @@
         expect_messages: ["unexpected status 500"]
 
       - id: no-results-key
-        task: "upstream: some third-party task"
+        task: Some third-party task
+        source: upstream
         action: uri
         resolved_action: ansible.builtin.uri
         result:
@@ -130,6 +127,42 @@
         resolved_action: ansible.builtin.command
         result: {}
         expect_class: configuration
+
+      - id: declaration-loses-to-the-veto
+        task: A task that blames upstream but names a variable that is not set
+        source: upstream
+        action: get_url
+        resolved_action: ansible.builtin.get_url
+        result:
+          msg: >-
+            Task failed: Finalization of task args for 'ansible.builtin.get_url'
+            failed: Error while resolving value for 'url': 'fetched_tag' is undefined
+        expect_class: configuration
+
+      - id: no-declaration-non-network
+        task: A local task that declares nothing
+        action: command
+        resolved_action: ansible.builtin.command
+        result: {msg: "the command exited with status 1"}
+        expect_class: configuration
+
+      - id: unknown-declaration-value
+        task: A task whose declaration is a typo
+        source: upstraem
+        action: command
+        resolved_action: ansible.builtin.command
+        result: {msg: "something went wrong"}
+        expect_class: configuration
+
+      - id: declared-configuration
+        trigger: write-pins
+        phase: apply
+        expect_class: configuration
+        expect_messages: ["pin_that_is_absent"]
+
+      - id: declaration-survives-a-loop-and-an-include
+        trigger: declared-upstream-in-loop
+        expect_class: upstream
 
   tasks:
     - name: Create the harness working directory

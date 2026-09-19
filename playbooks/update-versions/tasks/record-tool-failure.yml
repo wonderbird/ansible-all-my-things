@@ -3,6 +3,9 @@
 # Required vars: failed_tool, failed_phase ("fetch" or "apply"),
 #                failed_task_name, failed_task_action,
 #                failed_task_resolved_action, failed_result
+# Optional var:  failed_task_source, the failing task's own failure_source
+#                declaration ("upstream" or "configuration"); any other value,
+#                a typo included, counts as no declaration at all
 #
 # Classifies one rescued failure and appends it to the _update_failures ledger.
 # A configuration failure renders the report immediately, which ends the run.
@@ -26,7 +29,11 @@
 #   motivated this handling are looped asserts, so every rule and the report
 #   read results[] as well.
 # - A short-form task (`uri:`) reports action "uri" while _resolved_action
-#   reports "ansible.builtin.uri", so rule 4 accepts either spelling.
+#   reports "ansible.builtin.uri", so the network rule accepts either spelling.
+# - The caller extracts failure_source from ansible_failed_task.vars and passes
+#   the scalar. Rendering that dict whole inside a rescue raises a SIBLING var's
+#   undefined error there and ends the play past the isolation, and
+#   `| default({})` does not protect, because the dict itself renders.
 
 - name: "record-failure: assert inputs for {{ failed_tool | default('<undefined tool>') }}"  # noqa: name[casing]
   vars:
@@ -64,12 +71,16 @@
       {{ (_failure_messages | select('search', 'is undefined') | list | length) > 0
          or (_failure_messages | select('search', 'Error while resolving value for')
              | list | length) > 0 }}
+    # an unrecognised value is treated as NO declaration, never as upstream: a
+    # typo must not be able to label our own defect a vendor outage
+    _declared: "{{ failed_task_source | default('') }}"
+    # 1 veto, above the declaration so a declaration can never override it;
+    # 2 the failing task's own declaration; 3 a network module; 4 fail closed.
     _class: >-
-      {{ 'configuration' if failed_task_name.startswith('write-pins: ')
-         else ('configuration' if _is_templating_failure
-               else ('upstream' if failed_task_name.startswith('upstream: ')
-                     else ('upstream' if _is_network_module
-                           else 'configuration'))) }}
+      {{ 'configuration' if _is_templating_failure
+         else (_declared if _declared in ['upstream', 'configuration']
+               else ('upstream' if _is_network_module
+                     else 'configuration')) }}
   ansible.builtin.set_fact:
     _update_failures: >-
       {{ _update_failures + [{'tool': failed_tool,
@@ -77,6 +88,7 @@
                               'class': _class,
                               'task': failed_task_name,
                               'action': failed_task_action | default(''),
+                              'source': _declared,
                               'resolved_action': failed_task_resolved_action | default(''),
                               'messages': _failure_messages}] }}
 

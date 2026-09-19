@@ -6,11 +6,11 @@
 # roles/nodejs/tasks/main.yml's own (now-retired) inline LTS-resolution logic
 # rather than reusing fetch-github-release.yml.
 #
-# Task naming contract: any task that can fail because of a third party carries
-# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
-# defect in this repository. Input asserts stay unprefixed -- a bad argument is
-# ours. Quote such a name: an unquoted YAML scalar cannot carry a colon and a
-# space. See ../../../docs/architecture/version-update-playbooks.md.
+# Failure-source contract: any task that can fail because of a third party
+# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
+# tell an outage from a defect in this repository. An input assert declares
+# nothing -- a bad argument is ours, and the default class is configuration.
+# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Get Node.js release index
   ansible.builtin.uri:
@@ -23,7 +23,11 @@
   ansible.builtin.set_fact:
     _nodejs_lts_versions: "{{ _nodejs_index.json | selectattr('lts') | map(attribute='version') | list }}"
 
-- name: "upstream: Assert a Node.js LTS version was resolved"  # noqa: name[casing]
+- name: Assert a Node.js LTS version was resolved
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.assert:
     that: "_nodejs_lts_versions | length > 0"
     fail_msg: >-

@@ -8,11 +8,11 @@
 #   git_ref     (branch name, e.g. "master")
 # Sets fact: fetched_github_sha
 #
-# Task naming contract: any task that can fail because of a third party carries
-# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
-# defect in this repository. Input asserts stay unprefixed -- a bad argument is
-# ours. Quote such a name: an unquoted YAML scalar cannot carry a colon and a
-# space. See ../../../docs/architecture/version-update-playbooks.md.
+# Failure-source contract: any task that can fail because of a third party
+# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
+# tell an outage from a defect in this repository. An input assert declares
+# nothing -- a bad argument is ours, and the default class is configuration.
+# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Fetch GitHub HEAD commit for {{ github_repo }}@{{ git_ref }}
   ansible.builtin.uri:
@@ -22,7 +22,11 @@
     status_code: [200, 403]
   register: _github_commit_response
 
-- name: "upstream: Fail on GitHub API rate limit for {{ github_repo }}"  # noqa: name[casing]
+- name: Fail on GitHub API rate limit for {{ github_repo }}
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.fail:
     msg: >-
       GitHub API rate limit exceeded for {{ github_repo }}
@@ -32,14 +36,22 @@
     - _github_commit_response.status == 403
     - (_github_commit_response.x_ratelimit_remaining | default('1') | int) == 0
 
-- name: "upstream: Fail on unexpected GitHub API status for {{ github_repo }}"  # noqa: name[casing]
+- name: Fail on unexpected GitHub API status for {{ github_repo }}
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.fail:
     msg: >-
       GitHub API (https://api.github.com/repos/{{ github_repo }}/commits/{{ git_ref }})
       returned unexpected status {{ _github_commit_response.status }}
   when: _github_commit_response.status != 200
 
-- name: "upstream: Fail if sha missing from GitHub response for {{ github_repo }}"  # noqa: name[casing]
+- name: Fail if sha missing from GitHub response for {{ github_repo }}
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.fail:
     msg: >-
       GitHub API (https://api.github.com/repos/{{ github_repo }}/commits/{{ git_ref }})

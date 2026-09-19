@@ -19,11 +19,11 @@
 # a guard meant to improve the message converts a 404 into ok. The module's own
 # error already prints HTTP Error 404, the status code and the full URL.
 #
-# Task naming contract: any task that can fail because of a third party carries
-# the "upstream: " name prefix, so a per-tool rescue can tell an outage from a
-# defect in this repository. Input asserts stay unprefixed -- a bad argument is
-# ours. Quote such a name: an unquoted YAML scalar cannot carry a colon and a
-# space. See ../../../docs/architecture/version-update-playbooks.md.
+# Failure-source contract: any task that can fail because of a third party
+# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
+# tell an outage from a defect in this repository. An input assert declares
+# nothing -- a bad argument is ours, and the default class is configuration.
+# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Set the Obsidian desktop release feed URL
   ansible.builtin.set_fact:
@@ -50,7 +50,11 @@
          | regex_search('releases/download/(v[0-9]+\.[0-9]+\.[0-9]+)/', '\1')
          | default([], true) }}
 
-- name: "upstream: Assert the Obsidian desktop feed downloadUrl carries a release tag"  # noqa: name[casing]
+- name: Assert the Obsidian desktop feed downloadUrl carries a release tag
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.assert:
     that: "_obsidian_tag_match | length > 0"
     fail_msg: >-
@@ -59,7 +63,11 @@
       'releases/download/vX.Y.Z/' segment
       (downloadUrl was: {{ _obsidian_desktop_feed.downloadUrl | default('<missing>') }}).
 
-- name: "upstream: Assert the derived Obsidian tag agrees with the feed's latestVersion"  # noqa: name[casing]
+- name: Assert the derived Obsidian tag agrees with the feed's latestVersion
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.assert:
     that: "(_obsidian_tag_match | first) == 'v' ~ (_obsidian_desktop_feed.latestVersion | default('<missing>'))"
     fail_msg: >-
