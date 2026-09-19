@@ -4,7 +4,10 @@
 
 ### Tracked Tool
 
-Represents a tool whose version pin is managed by the update playbooks.
+Represents a tool whose version pin is managed by the update playbooks. A
+tracked tool is declared once, as one entry of
+`playbooks/update-versions/vars/tools.yml`; both playbooks loop over that
+registry rather than carrying per-tool tasks.
 
 | Field | Description |
 |-------|-------------|
@@ -15,6 +18,8 @@ Represents a tool whose version pin is managed by the update playbooks.
 | `checksum_key` | Variable name holding the paired checksum, if applicable (e.g. `flutter_sha256`) |
 | `checksum_algorithm` | Hash algorithm: `sha256` or `sha1` (null if no checksum) |
 | `upstream_source` | Reference to the Upstream Source used to fetch latest version |
+| `fetch_results` | Every value the tool consumes from its upstream query, named, so a value cannot be taken from the tool queried before |
+| `checksum_sources` | Per-artefact digest sources, each read from a published checksums file or computed from a download |
 
 **Tracked Tool Inventory** (all tools in scope for first increment):
 
