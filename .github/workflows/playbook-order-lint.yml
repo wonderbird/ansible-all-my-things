@@ -2,40 +2,38 @@
 ---
 name: Playbook Order Lint
 
-# Enforce the apply-phase invariants of
-# playbooks/update-versions/perform-updates.yml. The invariants, why each
-# exists, and the checker's design are documented in
-# scripts/version-update-order/README.md.
+# Guard the version-update playbooks. Why each rule exists is documented in
+# docs/architecture/version-update-playbooks.md.
 #
 # Jobs:
 # - playbook-order-lint runs
-#   scripts/version-update-order/check-version-update-order.py and its tests
-#   (no network, no Podman, no pip).
-# - write-pins-harness installs ansible-core and runs the test harness for
-#   playbooks/update-versions/tasks/write-pins.yml on localhost (no network
-#   beyond the pip install, no Podman). It selects
-#   playbooks/update-versions/tests/ansible.cfg instead of the repository root
-#   ansible.cfg, whose vault password script exits non-zero without a vault
-#   secret, and fork pull requests receive no secrets.
+#   scripts/version-update-order/check-write-pins-bypass.py and its tests: no
+#   task outside tasks/write-pins.yml may edit a file, because a direct edit
+#   skips the check that the pin exists exactly once (no network, no pip).
+# - update-versions-harness installs ansible-core and runs the localhost test
+#   harnesses for the registry, the failure classifier and write-pins. It
+#   selects playbooks/update-versions/tests/ansible.cfg instead of the
+#   repository root ansible.cfg, whose vault password script exits non-zero
+#   without a vault secret, and fork pull requests receive no secrets.
 
 on:
   push:
     branches: ["main"]
     paths:
       - "playbooks/**"
-      - "scripts/version-update-order/**"
+      - "scripts/**"
       - ".github/workflows/playbook-order-lint.yml"
   pull_request:
     branches: ["main"]
     paths:
       - "playbooks/**"
-      - "scripts/version-update-order/**"
+      - "scripts/**"
       - ".github/workflows/playbook-order-lint.yml"
   workflow_dispatch:
 
 jobs:
   playbook-order-lint:
-    name: Check version-update apply order
+    name: Check the version-update write-pins ban
     runs-on: ubuntu-24.04
     permissions:
       contents: read
@@ -49,23 +47,27 @@ jobs:
         with:
           python-version: "3.14"
 
-      - name: Test the apply-order checker
+      - name: Test the write-pins bypass check
         run: >-
           python3
-          scripts/version-update-order/test_check_version_update_order.py
+          scripts/version-update-order/test_check_write_pins_bypass.py
 
-      - name: Check version-update apply order
+      - name: Check that no task edits a file outside write-pins
         run: >-
-          python3 scripts/version-update-order/check-version-update-order.py
-          playbooks/update-versions/perform-updates.yml
+          python3 scripts/version-update-order/check-write-pins-bypass.py
+          playbooks/update-versions
 
-  write-pins-harness:
-    name: Test write-pins task file
+  update-versions-harness:
+    name: Test ${{ matrix.harness }} task file
     runs-on: ubuntu-24.04
     permissions:
       contents: read
     env:
       ANSIBLE_CONFIG: playbooks/update-versions/tests/ansible.cfg
+    strategy:
+      fail-fast: false
+      matrix:
+        harness: [write-pins, tool-isolation, tool-registry, fixture-registry-smoke]
 
     steps:
       - name: Checkout repository
@@ -79,7 +81,7 @@ jobs:
       - name: Install ansible-core
         run: pip install "$(grep -E '^ansible-core' requirements.txt)"
 
-      - name: Run write-pins harness
+      - name: Run the ${{ matrix.harness }} harness
         run: >-
           ansible-playbook
-          playbooks/update-versions/tests/test-write-pins.yml
+          playbooks/update-versions/tests/test-${{ matrix.harness }}.yml

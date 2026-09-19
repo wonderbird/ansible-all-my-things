@@ -1,0 +1,45 @@
+#SPDX-License-Identifier: MIT-0
+---
+# A three-tool registry for the loop-isolation harness. It reaches no network:
+# every fetch is a local task file under this directory, and the one deliberate
+# outage points at a closed port on the loopback interface.
+_tools:
+  first_tool:
+    role: first_tool
+    fetch:
+      file: ../tests/fixtures/fetch-fixture-ok.yml
+      args:
+        github_repo: example/first
+      results:
+        version: "{{ fixture_version }}"
+        extra: "{{ fixture_extra }}"
+    current_pin: first_version
+    pins:
+      - {pin: first_version, value: "{{ _fetched.version }}"}
+      - {pin: first_extra, value: "{{ _fetched.extra }}"}
+
+  broken_tool:
+    role: broken_tool
+    fetch:
+      file: ../tests/fixtures/fetch-fixture-refused.yml
+      args:
+        github_repo: example/broken
+      results:
+        version: "{{ fixture_version }}"
+    current_pin: broken_version
+    pins:
+      - {pin: broken_version, value: "{{ _fetched.version }}"}
+
+  third_tool:
+    role: third_tool
+    fetch:
+      file: ../tests/fixtures/fetch-fixture-ok.yml
+      args:
+        github_repo: example/third
+      results:
+        version: "{{ fixture_version }}"
+        extra: "{{ fixture_extra }}"
+    current_pin: third_version
+    pins:
+      - {pin: third_version, value: "{{ _fetched.version }}"}
+      - {pin: third_extra, value: "{{ _fetched.extra }}"}

@@ -14,6 +14,15 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   or empty.
 - Roles that configure per-user state fail when `login_user_names` is
   undefined or empty.
+- `perform-updates.yml` reports every tool that failed, and keeps updating the
+  other tools when one upstream source is unavailable.
+- `query-versions.yml` reports every tool, and keeps querying the others when
+  one upstream source is unavailable. A tool it cannot reach is reported as
+  unknown, and the run still exits non-zero.
+- Both version-update playbooks refuse to run with `--check`, naming the
+  reason.
+- Tracked tools are declared in `playbooks/update-versions/vars/tools.yml`;
+  adding a tool is one entry, and a malformed one fails at play start.
 
 ### Removed
 

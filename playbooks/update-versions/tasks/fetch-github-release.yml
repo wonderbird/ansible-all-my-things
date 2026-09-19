@@ -10,20 +10,40 @@
 # (section "Guarding release assets") for why this guard exists and where it
 # is mandatory. `release_carries_no_consumed_asset` states the opposite claim,
 # for a tool installed from somewhere other than the release assets.
+#
+# Failure-source contract: any task that can fail because of a third party
+# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
+# tell an outage from a defect in this repository. An input assert declares
+# nothing -- a bad argument is ours, and the default class is configuration.
+# See ../../../docs/architecture/version-update-playbooks.md.
+
+- name: Normalise the required assets of {{ github_repo }}
+  # A caller that passes nothing leaves the omit placeholder here, which is
+  # neither a list nor testable for length, so it is turned into an empty list
+  # once. Set on every include, so it can never hold a previous tool's value.
+  ansible.builtin.set_fact:
+    _required_assets: >-
+      {{ required_asset_regexes
+         if (required_asset_regexes is defined
+             and required_asset_regexes is sequence
+             and required_asset_regexes is not string
+             and required_asset_regexes is not mapping)
+         else [] }}
 
 - name: Assert required_asset_regexes is a list of patterns for {{ github_repo }}
+  # Whether a caller must declare patterns at all is checked once over the whole
+  # registry, in tasks/preflight.yml. This only checks the shape of what was
+  # passed, and an include that passes nothing (a caller with no patterns) is
+  # skipped rather than rejected here.
   ansible.builtin.assert:
     that:
-      - required_asset_regexes is iterable
-      - required_asset_regexes is not string
-      - required_asset_regexes is not mapping
-      - required_asset_regexes | select('string') | list | length == required_asset_regexes | length
-      - required_asset_regexes | select('equalto', '') | list | length == 0
+      - _required_assets | select('string') | list | length == _required_assets | length
+      - _required_assets | select('equalto', '') | list | length == 0
     fail_msg: >-
       required_asset_regexes for {{ github_repo }} must be a list of non-empty
-      patterns, got '{{ required_asset_regexes }}'.
+      patterns, got '{{ _required_assets }}'.
     quiet: true
-  when: required_asset_regexes is defined
+  when: _required_assets | length > 0
 
 - name: Fetch GitHub latest release for {{ github_repo }}
   ansible.builtin.uri:
@@ -34,6 +54,10 @@
   register: _github_release_response
 
 - name: Fail on GitHub API rate limit for {{ github_repo }}
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.fail:
     msg: >-
       GitHub API rate limit exceeded for {{ github_repo }}
@@ -44,6 +68,10 @@
     - (_github_release_response.x_ratelimit_remaining | default('1') | int) == 0
 
 - name: Fail on unexpected GitHub API status for {{ github_repo }}
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.fail:
     msg: >-
       GitHub API (https://api.github.com/repos/{{ github_repo }}/releases/latest)
@@ -51,6 +79,10 @@
   when: _github_release_response.status != 200
 
 - name: Fail if tag_name missing from GitHub response for {{ github_repo }}
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.fail:
     msg: >-
       GitHub API (https://api.github.com/repos/{{ github_repo }}/releases/latest)
@@ -58,6 +90,10 @@
   when: "'tag_name' not in _github_release_response.json"
 
 - name: Assert required assets exist in the latest release of {{ github_repo }}
+
+  vars:
+
+    failure_source: upstream
   vars:
     _release_tag: "{{ _github_release_response.json.tag_name }}"
     _release_assets: "{{ _github_release_response.json.assets | default([]) | map(attribute='name') | list }}"
@@ -69,7 +105,7 @@
       the release) -- the latest release does not carry the asset this tool
       installs.
     quiet: true
-  loop: "{{ required_asset_regexes | default([]) }}"
+  loop: "{{ _required_assets }}"
   loop_control:
     loop_var: _required_asset_regex
 

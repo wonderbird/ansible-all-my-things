@@ -1,26 +1,26 @@
 <!--
-Sync Impact Report — 1.24.0 → 1.25.0 (MINOR)
-- Principle XII (Fail Loud): new concrete rule prohibiting `failed_when:` on a
-  module task when the only intent is a better error message. On a module
-  task `failed_when:` replaces the module's own failure test instead of adding
-  to it, so such a guard reclassifies a genuine failure as `ok` — the exact
-  regression the rule list exists to prevent. The rule names the two safe
-  alternatives (`block`/`rescue` with `fail`, or leaving the module error
-  intact).
-- Placement rationale: the existing Principle XII rule list already enumerates
-  the Ansible constructs that silently swallow failures (`default(omit)`,
-  `ignore_errors`), and the Agent Environment section directs Ansible
-  prohibitions to this constitution. MINOR: material expansion of guidance in
-  an existing principle, no principle removed or redefined.
+Sync Impact Report — 1.25.0 → 1.26.0 (MINOR)
+- Principle II (Role-First Organisation): the version-update registration
+  requirement now names the tool registry. The two playbooks used to carry
+  per-tool tasks, so registering a tool meant editing both; they now read
+  `playbooks/update-versions/vars/tools.yml`, and a tool is declared once.
+  The obligation to implement the upstream query is kept as its own bullet:
+  a registry entry cannot query a source that nothing implements, and
+  dropping that bullet would let a tool be registered with no way to fetch it.
+- Placement rationale: the requirement lives where it already lived, in
+  Principle II beside the Molecule obligation, because it is the same kind of
+  rule — a role is not finished until the mechanism knows about it. MINOR:
+  an existing requirement is restated against the current mechanism; no
+  principle is added, removed or redefined.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: no propagation required — the new rule binds Ansible task
-  authoring, not agent runtime behaviour, and mandates no skill invocation.
-- CLAUDE.md checked: no propagation required
-- .claude/skills/*/SKILL.md checked: no skill states rules for `failed_when:`;
-  restating it in one would duplicate the principle (Principle XI).
+- AGENTS.md checked: the language rule now exempts `.omc/` plan files, which
+  are transient working notes rather than durable artefacts.
+- CLAUDE.md checked: no propagation required — it points at this file.
+- .claude/skills/*/SKILL.md checked: `role-creator` names the wiring and is
+  updated in the same change, together with its version-update reference.
 -->
 # ansible-all-my-things Constitution
 
@@ -71,12 +71,12 @@ on a local Tart or Docker VM as described in
 Every role that pins a tool version in `defaults/main.yml` MUST also register
 the tool in the version-update mechanism:
 
+- An entry in `playbooks/update-versions/vars/tools.yml` naming the role, the
+  pins it writes, the upstream source and the values each pin is written from.
+  Both version-update playbooks read that entry; neither is edited per tool.
 - A fetch task file under `playbooks/update-versions/tasks/` implementing the
-  upstream version query.
-- A read-current-pin task and an upstream-query task in
-  `playbooks/update-versions/query-versions.yml`.
-- An update task and matching fetch task include in
-  `playbooks/update-versions/perform-updates.yml`.
+  upstream version query, unless an existing one already serves that source. A
+  registry entry alone cannot query a source nothing implements.
 
 A role that installs a versioned tool without this wiring silently escapes
 version tracking. The mechanism structure is documented in
@@ -521,4 +521,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.25.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-13
+**Version**: 1.26.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-19

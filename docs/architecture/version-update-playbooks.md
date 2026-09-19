@@ -97,37 +97,65 @@ that one covers consuming it.
 
 Two playbooks — `query-versions.yml` (detect drift, report, exit
 non-zero if stale) and `perform-updates.yml` (apply updates in place,
-create no commits) — share one directory of upstream-fetch task files:
+create no commits) — read one registry and share one directory of task
+files:
 
 ```text
 playbooks/update-versions/
 ├── query-versions.yml
 ├── perform-updates.yml
+├── vars/
+│   └── tools.yml
 ├── tasks/
+│   ├── preflight.yml
+│   ├── read-current-pins*.yml
+│   ├── fetch-tool.yml
+│   ├── apply-tool.yml
+│   ├── resolve-checksum.yml
 │   ├── fetch-*.yml
-│   └── write-pins.yml
+│   ├── write-pins.yml
+│   ├── record-tool-failure.yml
+│   └── report-update-failures.yml
 └── tests/
 ```
 
-`tests/` holds the harness for the shared task files in `tasks/`, with its own
-minimal Ansible configuration, so it runs without the vault secret the
-repository root configuration expects.
+`tests/` holds the harnesses for the shared task files, with its own minimal
+Ansible configuration, so they run without the vault secret the repository root
+configuration expects. CI runs them, and `scripts/ci-local.sh` runs the same set
+plus a syntax check of both playbooks and a network-free run of the real task
+files over a fixture registry — the gate a change to this mechanism must pass
+before it is committed, because CI never runs either playbook for real.
 
-Each task file in `tasks/` implements one fetch strategy and sets
-`fetched_*` facts for its callers. A file is parametrized and shared
-whenever more than one tool can use it, so both playbooks share one copy
-of the fetch logic, and tool-specific only where the upstream shape
-leaves no choice. The
-directory listing is the authoritative catalogue; it is not restated
-here.
+The authoritative enumeration of **tracked tools** is `vars/tools.yml`. Each
+entry names the role whose defaults carry the pins, the task file that queries
+the upstream source and its arguments, every output the tool consumes, the
+digests it needs and the pins it writes. Neither playbook contains per-tool
+tasks: both loop over the registry's keys and include the same shared task
+files, so the two cannot disagree about which tools exist, and adding a tool is
+one entry rather than an edit in each playbook.
 
-The authoritative enumeration of **tracked tools** is the stale-check
-`when:` list in `query-versions.yml`. It names, for each tool, the role,
-the pinned variable and the upstream source it is compared against.
-`scripts/version-update-order/check-version-update-order.py` derives its
-own expected tool count from that same list rather than carrying a
-second copy, and this document follows the same principle: read
-`query-versions.yml` for the current set.
+The loop iterates tool **names**, never whole entries. A loop over entries
+templates every expression of every entry before the first task runs, which
+happens outside any block, where no rescue can catch the failure.
+
+Each `fetch-*.yml` file implements one kind of upstream query and is
+parametrized wherever more than one tool can use it. The directory listing is
+the authoritative catalogue; it is not restated here.
+
+`tasks/preflight.yml` runs first in both plays and validates the whole registry
+before anything is queried: entry shape, unique pin names, per-architecture
+agreement between a pin and the digest it is written from, an asset claim for
+every GitHub release fetch, and that every role carrying a version or checksum
+pin is registered at all. A rule checked inside the per-tool loop would never
+run for a tool whose fetch failed, which is exactly when a malformed entry
+matters.
+
+Pre-flight reads the registry a second time through a lookup rather than
+through the loaded variable, and validates that copy. A value loaded from
+`vars_files` is a trusted template, so merely reading it renders it — and a
+registry value renders to "`_fetched` is undefined" outside a tool's block,
+which would end the play before it starts. A lookup copy is untrusted, so its
+values stay as written and can be inspected as text.
 
 Two of those task files are worth describing by their selection rule,
 because choosing wrongly is how a tool gets mis-pinned:
@@ -240,18 +268,19 @@ checker; the minimum replacement is a CI step that fails when
 run by its own CI job, proves that the task file keeps failing on a
 missing, duplicated or malformed pin.
 
-#### Apply-phase ordering contract
+#### Apply-phase ordering
 
-Within a tool's section of `perform-updates.yml`, no network or checksum
-task may follow that tool's first pin write, so a tool's version pin is
-never written before the checksums that belong with it are in hand.
-A further invariant protects the pairing of per-architecture values:
-each checksum fetch is told the name of the fact to set, so a pin is
-written from its own tool's digest and architecture.
+A tool's version pin is never written before the digests that belong with it are
+in hand. That used to be an invariant the apply phase had to respect per tool,
+enforced by a static checker over the file. It is now structural: `apply-tool.yml`
+resolves every digest the tool's pins reference, asserts that each one resolved,
+and only then includes `write-pins.yml` — there is one apply path, and it cannot
+be written in the wrong order.
 
-The full contract, why each invariant exists, and the checker that
-enforces it in CI are documented in
-[`scripts/version-update-order/README.md`](../../scripts/version-update-order/README.md).
+Which digest belongs to which tool is structural for the same reason: digests are
+bound per tool inside that tool's own block, so a tool that resolves fewer than
+its pins reference fails the assert instead of inheriting the value of the tool
+that ran before.
 
 ### Sources for Further Information
 
@@ -277,8 +306,11 @@ enforces it in CI are documented in
 
 ### Running query-versions.yml
 
-Detects which pinned versions are stale. Exits 0 if all are current;
-exits non-zero if any are stale.
+Detects which pinned versions are stale. Exits 0 if all are current; exits
+non-zero if any pin is stale **or** any tool could not be queried. One
+unreachable upstream no longer ends the query: that tool is reported as
+`UNKNOWN` and the rest are still checked, so an outage cannot read as
+"up to date".
 
 ```bash
 ansible-playbook playbooks/update-versions/query-versions.yml
@@ -288,10 +320,10 @@ Output example (stale pin):
 
 ```text
 ok: [localhost] => {
-    "msg": "Flutter SDK: current=3.29.0, upstream=3.41.6, status=STALE"
+    "msg": "flutter: current=3.29.0, upstream=3.41.6, status=STALE"
 }
 ...
-FAILED! => {"msg": "One or more version pins are stale. Run perform-updates.yml to apply updates."}
+FAILED! => {"msg": "Stale: flutter, direnv. Run perform-updates.yml to apply the updates."}
 ```
 
 ### Running perform-updates.yml
@@ -318,30 +350,130 @@ current produces no changes (idempotent).
 
 ### Diagnosing a stuck version pin
 
-`perform-updates.yml` applies the tracked tools sequentially with no per-tool
-failure isolation. One tool's upstream query or rewrite failing therefore
-aborts the play, and **every tool listed after it in the apply phase is
-skipped**. The skipped tools report no error of their own — their pins simply
-never move — so a single upstream breakage presents as several tools being
-stale at once, and one defect can mask another.
+`perform-updates.yml` isolates the tools from one another: each runs inside a
+fetch block and an apply block, and a failure of either is recorded against
+that tool instead of ending the play. A third-party failure therefore no longer
+hides the tools after it, and the run reports every failure it collected.
 
-When a pin looks stuck, do not start by debugging that tool. Instead:
+When a pin looks stuck, run
+`ansible-playbook playbooks/update-versions/perform-updates.yml` and read the
+report at the end. It lists, for every failed tool, the phase, the class, the
+task that failed and every message that task produced, then the tools that were
+updated and the tools that were skipped. A skipped tool is one whose own fetch
+failed: it wrote none of its pins, which is deliberate, since a version pin
+written without the checksums that belong with it is worse than no update.
 
-1. Run `ansible-playbook playbooks/update-versions/perform-updates.yml` and
-   read which task aborts. That is the only tool with a real failure.
-2. Fix that tool.
-3. Treat every tool listed *after* it in the apply phase as unverified, and
-   re-run until the play completes.
+The class says whose problem it is:
 
-Typical upstream breakages behind the aborting task are a vendor publishing
-releases for several products from one repository, so the "latest release"
-carries no artefact for the platform this repository installs, and a vendor
-renaming its release archives, so a checksum lookup or a download URL no
-longer resolves.
+- `upstream` — a third party failed: a network error, an HTTP status, a release
+  without the asset this project installs, a checksums file without the line
+  this project needs. Re-run later, or wire the tool to a different source.
+- `configuration` — this repository is wrong: a renamed or duplicated pin, an
+  undefined variable, a call-site argument of the wrong shape. The run stops at
+  the first one of these, because every later tool would be running against a
+  broken playbook. Its report still lists the third-party failures collected
+  before it.
 
-Adding per-tool failure isolation, so that one failing tool no longer hides
-the state of the rest, is tracked as a follow-up (beads
-`ansible-all-my-things-clf3`).
+A 404 is reported as `upstream` and carries a hint, because a mistyped
+repository name and a withdrawn release are the same response. Check the
+call-site argument as well as the upstream before concluding it is an outage.
+
+Typical third-party breakages are a vendor publishing releases for several
+products from one repository, so the latest release carries no artefact for the
+platform this repository installs, and a vendor renaming its release archives,
+so a checksum lookup or a download URL no longer resolves.
+
+### Classifying a failure
+
+Whether a failure is `upstream` or `configuration` is decided in
+`tasks/record-tool-failure.yml` by four ordered rules, first match winning:
+
+1. any message of the failure, including the per-item messages of a looped
+   task, reports an undefined variable or a templating error;
+2. the failed task declared `failure_source` in its own `vars:`;
+3. the failed task's module is `uri` or `get_url`;
+4. anything else.
+
+Rules 1 and 4 mean `configuration`, rule 3 means `upstream`, and rule 2 means
+whatever the task declared. The order carries the weight. The veto sits above
+the declaration, so a task that blames a vendor is still reported as this
+repository's defect when it failed on an undefined variable; and the default is
+`configuration`, so an unrecognised failure stops the run rather than being
+reported as somebody else's problem. A wrong label is worse than a stopped run,
+because it is invisible. A `failure_source` value that is neither `upstream`
+nor `configuration` — a typo — counts as no declaration at all, so a misspelling
+cannot relabel our own defect as an outage.
+
+The declaration is a task property rather than a registry field on purpose. One
+shared task file contains third-party tasks and this repository's own input
+asserts, and it runs for many tools; a per-tool field could not tell the two
+apart, and a tool has no single failure source anyway — its fetch can fail
+upstream while its pin write fails on our own defect in the same run.
+
+The rescue passes one extracted value, never the whole `vars` dict: rendering
+that dict inside a rescue raises a *sibling* variable's undefined error there
+and ends the play past the isolation, and a `default({})` does not protect,
+because the dict itself renders.
+
+Rule 3 covers downloads without depending on anyone remembering a convention,
+and it is a deliberate blind spot: it reports **every** non-templating
+`uri`/`get_url` failure as upstream, including an unwritable destination, a bad
+mode, a `status_code` list that does not match reality and a checksum mismatch,
+which are all this repository's own errors. The alternative — treating them as
+configuration errors — would stop the run every time a download is added
+without a declaration, which is the cascade this isolation exists to remove.
+
+One rule therefore binds anyone adding to these playbooks. **A task that can
+fail because of a third party declares `failure_source: upstream` in its own
+`vars:`**, unless it is a `uri` or `get_url` task, which rule 3 already covers.
+An input assert declares nothing, because a bad argument is this repository's
+fault and the default already says so. A forgotten declaration therefore stops
+the run loudly; it can never mask an outage as success or a defect as an
+outage.
+
+### Guarding the pin write
+
+Every pin write goes through `tasks/write-pins.yml`, which checks that the pin
+it is about to change exists exactly once. A task that edits a defaults file
+directly skips that check, so a renamed pin would silently stop being updated.
+
+That ban cannot be enforced at runtime — a task that never calls
+`write-pins.yml` never runs anything that could object — so it is checked
+statically by `scripts/version-update-order/check-write-pins-bypass.py` in CI,
+over everything under `playbooks/update-versions/` except `write-pins.yml`
+itself and the test harnesses. **The ban MUST survive any simplification or
+removal of that script**; the minimum replacement is a CI step that fails when a
+file-editing module appears outside `write-pins.yml`.
+
+### What guards what
+
+Guarantees this mechanism used to get from a 900-line apply-order checker now
+live in cheaper places, and the table records where, so a later reader can see
+that nothing was dropped silently.
+
+| Guarantee | Where it lives now |
+| --- | --- |
+| No network task after a tool's first pin write | Structural: one apply path resolves every digest before the single `write-pins.yml` include |
+| A fetch must be attributable to a tool | Structural: the loop variable is the tool |
+| The two playbooks track the same tools | Structural: one registry serves both |
+| A tool cannot be dropped unnoticed | Pre-flight: every role carrying a pin must be registered |
+| A release fetch states what the release must carry | Pre-flight, over the registry |
+| A per-architecture pin is fed from its own architecture | Pre-flight, plus per-tool digest binding |
+| No file edit outside `write-pins.yml` | `check-write-pins-bypass.py` in CI |
+
+A registered role whose entry names the *wrong* pin names still passes
+pre-flight and fails later as a configuration abort: loud, but late. Pin-by-pin
+reconciliation between the registry and the role defaults is not done here.
+
+### Check mode is not supported
+
+Both playbooks refuse `--check`, in the first task of the shared pre-flight.
+Under check mode `ansible.builtin.uri` skips while `ansible.builtin.get_url`
+still performs its request, so a check run of `perform-updates.yml` mixes real
+downloads with skipped fetches, and a check run of `query-versions.yml` leaves
+every fetched value undefined and fails with a templating error that names a
+variable instead of the cause. The refusal is code rather than a comment, so
+the rule cannot be read and ignored.
 
 ---
 

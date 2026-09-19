@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Induces an undefined variable in a module argument (classifier rule 2).
+
+- name: Read a variable that was never set
+  vars:
+    failure_source: upstream
+  ansible.builtin.debug:
+    msg: "{{ _harness_variable_that_is_never_set }}"

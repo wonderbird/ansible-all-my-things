@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Induces an undefined variable inside a loop of an upstream-prefixed task, so
+# the veto must beat the prefix even though the message is only in results[].
+
+- name: Loop over an undefined variable
+  vars:
+    failure_source: upstream
+  ansible.builtin.debug:
+    msg: "{{ _harness_variable_that_is_never_set[item] }}"
+  loop: [0]

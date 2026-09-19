@@ -1,7 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Required vars: checksum_file_url, checksum_target_filename,
-#                checksum_result_var (name of the fact to set)
+# Required vars: checksum_file_url, checksum_target_filename
 #
 # Fetches an upstream-published sha256 checksums file (GNU sha256sum text
 # format: "<64-hex-sha256>  <filename>", one entry per line) and extracts the
@@ -9,25 +8,15 @@
 # actually publishes a checksums file covering the exact consumed asset --
 # otherwise fall back to download + ansible.builtin.stat.
 #
-# The caller names the result fact, so two includes never share one. Name it
-# after the pin it feeds (`fetched_<pin>`), which is what the apply-order
-# checker pairs a per-architecture pin against.
-
-- name: Assert checksum_result_var is set for {{ checksum_target_filename }}
-  vars:
-    _result_var_ok: '^[a-z0-9_]+\Z'
-  ansible.builtin.assert:
-    that:
-      - checksum_result_var is defined
-      - checksum_result_var is string
-      - checksum_result_var is match(_result_var_ok)
-    fail_msg: >-
-      tasks/fetch-checksum-from-file.yml included for
-      '{{ checksum_target_filename }}' from {{ checksum_file_url }} without a
-      usable checksum_result_var
-      (got '{{ checksum_result_var | default('<undefined>') }}'): the including
-      task must name the fact to set, e.g. fetched_<pin>.
-    quiet: true
+# The digest lands in fetched_checksum, and the caller -- resolve-checksum.yml --
+# stores it under the key it asked for, inside the tool's own block, so two
+# tools can never share a value.
+#
+# Failure-source contract: any task that can fail because of a third party
+# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
+# tell an outage from a defect in this repository. An input assert declares
+# nothing -- a bad argument is ours, and the default class is configuration.
+# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Fetch checksum file from {{ checksum_file_url }}
   ansible.builtin.uri:
@@ -43,12 +32,16 @@
          | default([], true) }}
 
 - name: Fail if checksum not found in {{ checksum_file_url }}
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.fail:
     msg: >-
       Checksum for '{{ checksum_target_filename }}' not found in
       {{ checksum_file_url }} -- cannot resolve checksum.
   when: _checksum_match | length == 0
 
-- name: Set checksum fact {{ checksum_result_var }}
+- name: Set the checksum fact for {{ checksum_target_filename }}
   ansible.builtin.set_fact:
-    "{{ checksum_result_var }}": "{{ _checksum_match | first }}"
+    fetched_checksum: "{{ _checksum_match | first }}"

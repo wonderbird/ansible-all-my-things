@@ -1,0 +1,226 @@
+#SPDX-License-Identifier: MIT-0
+---
+# The first task file of both version-update plays. Everything here must hold
+# before any upstream is queried or any pin is written, so a malformed input is
+# a loud abort at play start rather than a surprise half way through a run.
+#
+# The registry checks run over the WHOLE registry, never per tool: a rule
+# checked inside the per-tool loop would never run for a tool whose fetch
+# failed, which is exactly when a malformed entry matters.
+#
+# Required vars: _registry_file (path of the registry both plays load) and
+# _registry_roles_dir (the roles tree the registration check reads). Both are
+# set by the plays and overridden by the harness to point at fixtures;
+# _registry_tasks_dir overrides where fetch task files are looked for.
+#
+# The checks read the registry through a lookup rather than through the loaded
+# _tools variable. A value loaded from vars_files is a trusted template, so
+# merely reading it renders it -- and a registry value renders to "_fetched is
+# undefined" outside a tool's fetch block, which would abort the play before it
+# starts. The lookup copy is untrusted, so its values stay as written and can be
+# inspected as text.
+
+- name: Refuse to run in check mode
+  ansible.builtin.assert:
+    that: not ansible_check_mode
+    fail_msg: >-
+      The version-update playbooks do not support --check: ansible.builtin.uri
+      skips under check mode while ansible.builtin.get_url still downloads, so a
+      check run mixes real downloads with skipped fetches, and every fetched
+      value is undefined.
+    quiet: true
+
+- name: Read the registry as text
+  ansible.builtin.set_fact:
+    _registry: "{{ (lookup('ansible.builtin.file', _registry_file) | from_yaml)._tools }}"
+
+- name: Assert the registry is a non-empty mapping of tools
+  ansible.builtin.assert:
+    that:
+      - _tools is defined
+      - _registry is mapping
+      - _registry | length > 0
+      - _registry.keys() | list | sort == _tools.keys() | list | sort
+    fail_msg: "The tool registry is missing or is not a mapping of tool names."
+    quiet: true
+
+- name: Assert every registry entry has the required shape
+  vars:
+    _entry: "{{ _registry[_tool_name] }}"
+    _name_ok: '^[a-z0-9_]+\Z'
+  ansible.builtin.assert:
+    that:
+      - _tool_name is match(_name_ok)
+      - _entry.role is defined and _entry.role is string and _entry.role is match(_name_ok)
+      - _entry.current_pin is defined and _entry.current_pin is match(_name_ok)
+      - _entry.fetch is defined and _entry.fetch is mapping
+      - _entry.fetch.file is defined and _entry.fetch.file is string
+      - (_entry.fetch.results | default({})) is mapping
+      - (_entry.fetch.results | default({})) | length > 0
+      - _entry.pins is defined and _entry.pins is sequence and _entry.pins is not string
+      - _entry.pins | length > 0
+      - _entry.pins | map(attribute='pin') | select('match', _name_ok) | list | length
+        == _entry.pins | length
+      - _entry.pins | map(attribute='value') | select('string') | list | length
+        == _entry.pins | length
+      - _entry.current_pin in (_entry.pins | map(attribute='pin') | list)
+      - (_entry.checksums | default([])) is sequence
+      - (_entry.checksums | default([])) | selectattr('kind', 'in', ['checksum_file', 'download'])
+        | list | length == (_entry.checksums | default([])) | length
+      - (_entry.checksums | default([])) | map(attribute='key') | select('match', _name_ok)
+        | list | length == (_entry.checksums | default([])) | length
+      - (_entry.checksums | default([])) | selectattr('kind', 'equalto', 'checksum_file')
+        | selectattr('filename', 'defined') | list | length
+        == (_entry.checksums | default([])) | selectattr('kind', 'equalto', 'checksum_file')
+        | list | length
+    fail_msg: >-
+      Registry entry '{{ _tool_name }}' is malformed. Every entry needs role,
+      current_pin (which must be one of its own pins), fetch.file, a non-empty
+      fetch.results map and at least one pin; every checksum needs a key and a
+      kind of checksum_file or download, and a checksum_file needs a filename.
+    quiet: true
+  loop: "{{ _registry.keys() | list }}"
+  loop_control:
+    loop_var: _tool_name
+    label: "{{ _tool_name }}"
+
+- name: Assert every fetch task file the registry names exists
+  vars:
+    _missing: >-
+      {{ _registry | dict2items
+         | map(attribute='key') | list
+         | zip(_registry | dict2items | map(attribute='value.fetch.file')
+               | map('basename') | list)
+         | rejectattr(1, 'in', _available_fetch_files)
+         | map(attribute=0) | list }}
+    _available_fetch_files: >-
+      {{ lookup('ansible.builtin.fileglob', _tasks_dir ~ '/fetch-*.yml', wantlist=True)
+         | map('basename') | list }}
+    # the registry lives in vars/ beside the tasks/ directory it names, unless
+    # the caller says otherwise (the harness validates fixtures from elsewhere)
+    _tasks_dir: "{{ _registry_tasks_dir | default(_registry_file | dirname | dirname ~ '/tasks') }}"
+  ansible.builtin.assert:
+    that: _missing | length == 0
+    fail_msg: >-
+      These registry entries name a fetch task file that does not exist under
+      tasks/: {{ _missing }}. A registry entry alone cannot query an upstream
+      source; the task file that implements it has to exist.
+    quiet: true
+
+- name: Assert pin names are unique across the whole registry
+  vars:
+    _all_pins: "{{ _registry | dict2items | map(attribute='value.pins') | flatten | map(attribute='pin') | list }}"
+  ansible.builtin.assert:
+    that: _all_pins | length == _all_pins | unique | length
+    fail_msg: >-
+      A pin name is claimed by more than one tool, so two tools would write the
+      same line: {{ _all_pins | difference(_all_pins | unique) | unique }}.
+    quiet: true
+
+- name: Assert every pin value references only this tool's own resolved values
+  vars:
+    _entry: "{{ _registry[_tool_name] }}"
+    _declared_results: "{{ (_entry.fetch.results | default({})).keys() | list }}"
+    _declared_keys: "{{ (_entry.checksums | default([])) | map(attribute='key') | list }}"
+    _referenced_results: >-
+      {{ _entry.pins | map(attribute='value') | join(' ')
+         | regex_findall('_fetched\.([a-z0-9_]+)') }}
+    _referenced_keys: >-
+      {{ _entry.pins | map(attribute='value') | join(' ')
+         | regex_findall('_checksums\.([a-z0-9_]+)') }}
+    _value_shape: '^\{\{\s*_(fetched|checksums)\.[a-z0-9_]+\s*\}\}\Z'
+  ansible.builtin.assert:
+    that:
+      - _referenced_results | difference(_declared_results) | length == 0
+      - _referenced_keys | difference(_declared_keys) | length == 0
+      - _entry.pins | map(attribute='value') | select('match', _value_shape) | list | length
+        == _entry.pins | length
+    fail_msg: >-
+      Tool '{{ _tool_name }}' writes a pin from a value it does not declare.
+      Declared fetch results {{ _declared_results }}, declared checksum keys
+      {{ _declared_keys }}; referenced {{ _referenced_results }} and
+      {{ _referenced_keys }}. Every pin value must be exactly one reference to
+      this tool's own _fetched.<name> or _checksums.<key>, so a digest can never
+      come from the tool that ran before.
+    quiet: true
+  loop: "{{ _registry.keys() | list }}"
+  loop_control:
+    loop_var: _tool_name
+    label: "{{ _tool_name }}"
+
+- name: Assert a per-architecture pin is written from a value of the same architecture
+  vars:
+    _entry: "{{ _registry[_tool_name] }}"
+    _tokens: ['amd64', 'arm64', 'x86_64', 'aarch64', 'x64']
+    _mismatched: >-
+      {{ _entry.pins
+         | rejectattr('pin', 'equalto', _entry.current_pin)
+         | selectattr('value', 'search', '_checksums\.')
+         | map('dict2items') | map('items2dict')
+         | selectattr('pin', 'search', '(' ~ (_tokens | join('|')) ~ ')')
+         | rejectattr('value', 'search',
+                      '_checksums\.' ~ '[a-z0-9_]*(' ~ (_tokens | join('|')) ~ ')')
+         | map(attribute='pin') | list }}
+  ansible.builtin.assert:
+    that: _mismatched | length == 0
+    fail_msg: >-
+      Tool '{{ _tool_name }}' writes {{ _mismatched }} from a checksum key that
+      carries no matching architecture token, so one architecture's digest would
+      land in another architecture's pin.
+    quiet: true
+  loop: "{{ _registry.keys() | list }}"
+  loop_control:
+    loop_var: _tool_name
+    label: "{{ _tool_name }}"
+
+- name: Assert a GitHub release fetch states what the release must carry
+  vars:
+    _release_tools: >-
+      {{ _registry | dict2items
+         | selectattr('value.fetch.file', 'equalto', 'fetch-github-release.yml')
+         | list }}
+    _undeclared: >-
+      {{ _release_tools
+         | rejectattr('value.fetch.args.required_asset_regexes', 'defined')
+         | rejectattr('value.fetch.args.release_carries_no_consumed_asset', 'defined')
+         | map(attribute='key') | list }}
+  ansible.builtin.assert:
+    that: _undeclared | length == 0
+    fail_msg: >-
+      These tools fetch a GitHub release without saying what it must carry:
+      {{ _undeclared }}. Declare required_asset_regexes, or state in
+      release_carries_no_consumed_asset why the tool installs from somewhere
+      else. Otherwise the run accepts whatever the API calls the latest release,
+      including one published from a second release line.
+    quiet: true
+
+- name: Find the roles that pin a version or a checksum
+  vars:
+    _pin_suffixes: >-
+      {{ _registry | dict2items | map(attribute='value.pins') | flatten
+         | map(attribute='pin') | map('regex_replace', '^.*?(_[a-z0-9]+)$', '\1')
+         | unique | list }}
+  ansible.builtin.find:
+    paths: "{{ _registry_roles_dir }}"
+    patterns: main.yml
+    recurse: true
+    contains: "^[a-z0-9_]*({{ _pin_suffixes | map('regex_escape') | join('|') }})[0-9a-z_]*:.*"
+  register: _pinned_role_files
+
+- name: Assert every role that pins a version or a checksum is in the registry
+  vars:
+    _registered: "{{ _registry | dict2items | map(attribute='value.role') | list }}"
+    # <roles tree>/<role>/defaults/main.yml -- the role is two directories up,
+    # named without assuming the tree is called roles/ (the harness uses its own)
+    _pinned_roles: >-
+      {{ _pinned_role_files.files | map(attribute='path')
+         | map('dirname') | map('dirname') | map('basename') | unique | list }}
+    _unregistered: "{{ _pinned_roles | difference(_registered) }}"
+  ansible.builtin.assert:
+    that: _unregistered | length == 0
+    fail_msg: >-
+      These roles carry a version or checksum pin but no registry entry:
+      {{ _unregistered }}. A role outside the registry is never queried and
+      never updated, and nothing else reports that: register it in
+      vars/tools.yml, or remove the pin.
+    quiet: true

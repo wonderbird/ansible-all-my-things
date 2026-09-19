@@ -1,0 +1,91 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Runs one classifier case of test-tool-isolation.yml against
+# ../tasks/record-tool-failure.yml. Required var: _case (keys documented in
+# test-tool-isolation.yml).
+#
+# A case whose `trigger` is set induces a real failure through a block/rescue
+# and feeds the rescued facts to the classifier, so a drift in Ansible's
+# message shapes turns the harness red. A case without a trigger passes a
+# recorded result instead, for shapes that cannot be induced locally.
+#
+# Capturing the failure and classifying it are two separate block/rescue pairs
+# on purpose: a `configuration` verdict makes the classifier render the report,
+# which is a `fail`, and a `fail` raised inside a rescue cannot be caught by
+# that same rescue.
+
+- name: "Reset case state for case {{ _case.id }}"
+  ansible.builtin.set_fact:
+    _update_failures: []
+    _update_updated: []
+    _update_skipped: []
+    _case_task: "{{ _case.task | default('') }}"
+    _case_source: "{{ _case.source | default('') }}"
+    _case_action: "{{ _case.action | default('') }}"
+    _case_resolved_action: "{{ _case.resolved_action | default('') }}"
+    _case_result: "{{ _case.result | default({}) }}"
+    _case_induced: false
+    _case_reported: false
+
+- name: "Induce the failure for case {{ _case.id }}"
+  when: _case.trigger | default('') | length > 0
+  block:
+    - name: "Trigger for case {{ _case.id }}"
+      ansible.builtin.include_tasks: "tool-isolation-trigger-{{ _case.trigger }}.yml"
+  rescue:
+    - name: "Capture the induced failure for case {{ _case.id }}"
+      ansible.builtin.set_fact:
+        _case_task: "{{ ansible_failed_task.name }}"
+        # one extracted scalar, never the whole vars dict: rendering that dict
+        # here raises a sibling var's undefined error and ends the play
+        _case_source: "{{ ansible_failed_task.vars.failure_source | default('') }}"
+        _case_action: "{{ ansible_failed_task.action }}"
+        _case_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
+        _case_result: "{{ ansible_failed_result }}"
+        _case_induced: true
+
+- name: "Fail when nothing failed in case {{ _case.id }}"
+  ansible.builtin.fail:
+    msg: "Case {{ _case.id }}: trigger '{{ _case.trigger | default('') }}' did not fail"
+  when:
+    - _case.trigger | default('') | length > 0
+    - not _case_induced
+
+- name: "Classify the failure of case {{ _case.id }}"
+  block:
+    - name: "Run the classifier for case {{ _case.id }}"
+      ansible.builtin.include_tasks: ../tasks/record-tool-failure.yml
+      vars:
+        failed_tool: "{{ _case.tool | default('harness_tool') }}"
+        failed_phase: "{{ _case.phase | default('fetch') }}"
+        failed_task_name: "{{ _case_task }}"
+        failed_task_source: "{{ _case_source }}"
+        failed_task_action: "{{ _case_action }}"
+        failed_task_resolved_action: "{{ _case_resolved_action }}"
+        failed_result: "{{ _case_result }}"
+  rescue:
+    - name: "Capture the rendered report for case {{ _case.id }}"
+      ansible.builtin.set_fact:
+        _case_reported: true
+        _case_report: "{{ ansible_failed_result.msg | default('') }}"
+
+- name: "Assert the verdict for case {{ _case.id }}"
+  vars:
+    _entry: "{{ _update_failures | last }}"
+    _messages: "{{ _entry.messages | join(' ~ ') }}"
+  ansible.builtin.assert:
+    that:
+      - _update_failures | length == 1
+      - _entry.class == _case.expect_class
+      - _entry.phase == (_case.phase | default('fetch'))
+      - _case_reported == (_case.expect_class == 'configuration')
+      - _case.expect_messages | default([]) | reject('in', _messages) | list | length == 0
+      - _case.reject_messages | default([]) | select('in', _messages) | list | length == 0
+      - _case.expect_report | default([]) | reject('in', _case_report | default(''))
+        | list | length == 0
+    fail_msg: >-
+      Case {{ _case.id }}: class '{{ _entry.class }}' (expected
+      '{{ _case.expect_class }}'), reported={{ _case_reported }}, task
+      '{{ _entry.task }}', action '{{ _entry.action }}'/'{{ _entry.resolved_action }}',
+      messages {{ _entry.messages | to_json }}, report
+      {{ _case_report | default('') | to_json }}.

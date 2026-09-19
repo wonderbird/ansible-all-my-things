@@ -1,0 +1,24 @@
+#SPDX-License-Identifier: MIT-0
+---
+# The registry the pre-flight harness validates, and the base every mutant is
+# made from by replacing one line. It reaches no network: nothing here is ever
+# fetched, only validated.
+_tools:
+  fixture_tool:
+    role: fixture_tool
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: example/fixture
+        required_asset_regexes: ['^fixture-linux-amd64\.tar\.gz$']
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: fixture_version
+    checksums:
+      - key: amd64
+        kind: checksum_file
+        url: "https://example.invalid/{{ _fetched.version }}/checksums.txt"
+        filename: fixture-linux-amd64.tar.gz
+    pins:
+      - {pin: fixture_version, value: "{{ _fetched.version }}"}
+      - {pin: fixture_sha256_amd64, value: "{{ _checksums.amd64 }}"}

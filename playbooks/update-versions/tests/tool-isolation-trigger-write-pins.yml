@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MIT-0
+---
+# A real write-pins failure, whose task name prefix is rule 1.
+
+- name: "Write a pin that does not exist in the fixture"
+  ansible.builtin.include_tasks: ../tasks/write-pins.yml
+  vars:
+    pin_file: "{{ _harness_dir.path }}/write-pins-fixture.yml"
+    pins:
+      - pin: pin_that_is_absent
+        value: "v2"

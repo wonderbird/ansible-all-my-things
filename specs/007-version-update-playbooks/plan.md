@@ -52,7 +52,12 @@ specs/007-version-update-playbooks/
 playbooks/update-versions/
 ├── query-versions.yml           # Detect version drift; report to stdout; exit non-zero if stale
 ├── perform-updates.yml          # Apply updates to role defaults files; no commits
+├── vars/
+│   └── tools.yml                     # The tracked-tool registry both playbooks read
 └── tasks/
+    ├── preflight.yml                 # Validates the registry before anything runs
+    ├── fetch-tool.yml                # One tool's fetch, isolated by block/rescue
+    ├── apply-tool.yml                # One tool's digests and pin write
     ├── fetch-flutter-version.yml     # Flutter release manifest JSON → version + sha256
     ├── fetch-github-release.yml      # GitHub /releases/latest API → tag_name (parametrized; used for gitmux + nerd-fonts)
     ├── fetch-java-version.yml        # SDKMAN REST API → latest same-major patch for tem distribution
@@ -62,7 +67,7 @@ docs/architecture/
 └── version-update-playbooks.md  # Concept documentation (section structure per agreed template)
 ```
 
-**Structure Decision**: Maintenance playbooks follow the established `playbooks/<operation>/` convention (mirrors `playbooks/backup/` and `playbooks/restore/`). Shared upstream-fetching logic lives in `playbooks/update-versions/tasks/` and is imported by both top-level playbooks, satisfying FR-006 (no duplication). `fetch-github-release.yml` is parametrized for reuse across gitmux and nerd-fonts (same API, same response shape). Android fetching is isolated in its own task file (FR-007). Concept documentation lives at `docs/architecture/<feature>.md` as a top-level technical-concept file (sibling to `solution-strategy.md`), per the feature-level decision recorded in beads task `ansible-all-my-things-gz5` (technical concepts → `docs/architecture/`).
+**Structure Decision**: Maintenance playbooks follow the established `playbooks/<operation>/` convention (mirrors `playbooks/backup/` and `playbooks/restore/`). Shared upstream-fetching logic lives in `playbooks/update-versions/tasks/` and is imported by both top-level playbooks, satisfying FR-006 (no duplication). The tools themselves are declared in `playbooks/update-versions/vars/tools.yml`, which both playbooks loop over, so neither contains per-tool tasks and the two cannot disagree about which tools exist. `fetch-github-release.yml` is parametrized for reuse across gitmux and nerd-fonts (same API, same response shape). Android fetching is isolated in its own task file (FR-007). Concept documentation lives at `docs/architecture/<feature>.md` as a top-level technical-concept file (sibling to `solution-strategy.md`), per the feature-level decision recorded in beads task `ansible-all-my-things-gz5` (technical concepts → `docs/architecture/`).
 
 ## Complexity Tracking
 

@@ -1,0 +1,10 @@
+#SPDX-License-Identifier: MIT-0
+---
+# A fetch that fails the way an outage does: a refused connection from a task
+# that declares its source.
+
+- name: "Query the unreachable upstream of {{ github_repo }}"
+  vars:
+    failure_source: upstream
+  ansible.builtin.uri:
+    url: "https://127.0.0.1:1/latest"

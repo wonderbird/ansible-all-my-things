@@ -1,0 +1,155 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Runs the real fetch and apply task files over a three-tool fixture registry,
+# and asserts what the loop guarantees. Needs no network: two tools resolve
+# locally and the third fails against a closed port on the loopback interface.
+#
+# Run from the repository root:
+#   ANSIBLE_CONFIG=playbooks/update-versions/tests/ansible.cfg \
+#     ansible-playbook playbooks/update-versions/tests/smoke-fixture-registry.yml
+#
+# This is what proves a commit works rather than merely passing CI: CI never
+# runs either real playbook, because both need the network and the GitHub API
+# budget. What is asserted here:
+#   a) a tool after a failed one still runs;
+#   b) the failed tool's defaults file is untouched;
+#   c) every tool appears exactly once across updated, skipped and failed;
+#   d) a fetch failure is recorded as skipped, never as updated;
+#   e) values are never taken from the tool that ran before, secondary outputs
+#      included;
+#   f) the run ends non-zero.
+
+- name: Exercise the registry loop over a fixture registry
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - fixtures/loop-registry.yml
+  vars:
+    _registry_file: "{{ (playbook_dir ~ '/fixtures/loop-registry.yml') | realpath }}"
+    _registry_tasks_dir: "{{ (playbook_dir ~ '/fixtures') | realpath }}"
+    _expected_pins:
+      first_tool:
+        first_version: v-first
+        first_extra: extra-first
+      third_tool:
+        third_version: v-third
+        third_extra: extra-third
+      broken_tool:
+        broken_version: v-unchanged
+  tasks:
+    - name: Create the fixture roles tree
+      ansible.builtin.file:
+        path: "{{ _smoke_dir }}/{{ _tool }}/defaults"
+        state: directory
+        mode: "0755"
+      vars:
+        _smoke_dir: "{{ playbook_dir }}/../../../.smoke-roles"
+      loop: "{{ _tools.keys() | list }}"
+      loop_control:
+        loop_var: _tool
+      register: _smoke_dirs
+
+    - name: Name the fixture roles tree
+      ansible.builtin.set_fact:
+        _roles_dir: "{{ (playbook_dir ~ '/../../../.smoke-roles') | realpath }}"
+        _registry_roles_dir: "{{ (playbook_dir ~ '/../../../.smoke-roles') | realpath }}"
+
+    - name: Write the fixture role defaults
+      ansible.builtin.copy:
+        content: |
+          ---
+          {% for _pin in _tools[_tool].pins %}
+          {{ _pin.pin }}: "v-unchanged"
+          {% endfor %}
+        dest: "{{ _roles_dir }}/{{ _tool }}/defaults/main.yml"
+        mode: "0644"
+      loop: "{{ _tools.keys() | list }}"
+      loop_control:
+        loop_var: _tool
+
+    - name: Check the preconditions of this run
+      ansible.builtin.include_tasks: ../tasks/preflight.yml
+
+    - name: Initialise the run ledgers
+      ansible.builtin.set_fact:
+        _update_failures: []
+        _update_updated: []
+        _update_skipped: []
+        _fetch_results: {}
+
+    - name: Read the pins the fixture roles carry
+      ansible.builtin.include_tasks: ../tasks/read-current-pins.yml
+
+    - name: Fetch the upstream data of every fixture tool
+      ansible.builtin.include_tasks: ../tasks/fetch-tool.yml
+      loop: "{{ _tools.keys() | list }}"
+      loop_control:
+        loop_var: _name
+        label: "{{ _name }}"
+
+    - name: Record the fixture tools whose fetch failed as skipped
+      ansible.builtin.set_fact:
+        _update_skipped: >-
+          {{ _update_failures | selectattr('phase', 'equalto', 'fetch')
+             | map(attribute='tool') | list }}
+
+    - name: Write the pins of every fixture tool whose fetch succeeded
+      ansible.builtin.include_tasks: ../tasks/apply-tool.yml
+      when: >-
+        _name not in (_update_failures
+                      | selectattr('phase', 'equalto', 'fetch')
+                      | map(attribute='tool') | list)
+      loop: "{{ _tools.keys() | list }}"
+      loop_control:
+        loop_var: _name
+        label: "{{ _name }}"
+
+    - name: Read back what the run wrote
+      ansible.builtin.slurp:
+        src: "{{ _roles_dir }}/{{ _tool }}/defaults/main.yml"
+      register: _written
+      loop: "{{ _tools.keys() | list }}"
+      loop_control:
+        loop_var: _tool
+        label: "{{ _tool }}"
+
+    - name: Assert the loop isolated the failure and wrote the right values
+      vars:
+        _contents: >-
+          {{ dict(_tools.keys() | list
+                  | zip(_written.results | map(attribute='content') | map('b64decode') | list)) }}
+        _failed_tools: "{{ _update_failures | map(attribute='tool') | list }}"
+        _outcomes: "{{ _update_updated + _update_skipped }}"
+      ansible.builtin.assert:
+        that:
+          # a) and d): the broken tool failed and was skipped, the others ran
+          - _failed_tools == ['broken_tool']
+          - _update_skipped == ['broken_tool']
+          - _update_updated | sort == ['first_tool', 'third_tool']
+          # c) every tool has exactly one outcome
+          - _outcomes | sort == _tools.keys() | list | sort
+          - _outcomes | unique | length == _outcomes | length
+          # b) the failed tool's file is untouched
+          - '''broken_version: "v-unchanged"'' in _contents.broken_tool'
+          # e) each tool wrote its own values, secondary outputs included
+          - '''first_version: "v-first"'' in _contents.first_tool'
+          - '''first_extra: "extra-first"'' in _contents.first_tool'
+          - '''third_version: "v-third"'' in _contents.third_tool'
+          - '''third_extra: "extra-third"'' in _contents.third_tool'
+          # the classifier called the outage upstream, not our own defect
+          - (_update_failures | first).class == 'upstream'
+        fail_msg: >-
+          updated={{ _update_updated }}, skipped={{ _update_skipped }},
+          failures={{ _update_failures }}, files={{ _contents }}
+        quiet: true
+
+    - name: Remove the fixture roles tree
+      ansible.builtin.file:
+        path: "{{ _roles_dir }}"
+        state: absent
+
+    - name: Report what the smoke run proved
+      ansible.builtin.debug:
+        msg: >-
+          fixture-registry smoke run: one tool's outage was isolated, the other
+          two wrote their own values, and every tool had exactly one outcome

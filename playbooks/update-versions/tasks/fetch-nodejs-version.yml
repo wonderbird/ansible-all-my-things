@@ -5,6 +5,12 @@
 # nodejs.org is not GitHub-Releases-shaped, so this mirrors
 # roles/nodejs/tasks/main.yml's own (now-retired) inline LTS-resolution logic
 # rather than reusing fetch-github-release.yml.
+#
+# Failure-source contract: any task that can fail because of a third party
+# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
+# tell an outage from a defect in this repository. An input assert declares
+# nothing -- a bad argument is ours, and the default class is configuration.
+# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Get Node.js release index
   ansible.builtin.uri:
@@ -18,6 +24,10 @@
     _nodejs_lts_versions: "{{ _nodejs_index.json | selectattr('lts') | map(attribute='version') | list }}"
 
 - name: Assert a Node.js LTS version was resolved
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.assert:
     that: "_nodejs_lts_versions | length > 0"
     fail_msg: >-

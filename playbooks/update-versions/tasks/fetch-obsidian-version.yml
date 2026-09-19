@@ -18,6 +18,12 @@
 # On an Ansible module, failed_when REPLACES the module's own failure test, so
 # a guard meant to improve the message converts a 404 into ok. The module's own
 # error already prints HTTP Error 404, the status code and the full URL.
+#
+# Failure-source contract: any task that can fail because of a third party
+# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
+# tell an outage from a defect in this repository. An input assert declares
+# nothing -- a bad argument is ours, and the default class is configuration.
+# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Set the Obsidian desktop release feed URL
   ansible.builtin.set_fact:
@@ -45,6 +51,10 @@
          | default([], true) }}
 
 - name: Assert the Obsidian desktop feed downloadUrl carries a release tag
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.assert:
     that: "_obsidian_tag_match | length > 0"
     fail_msg: >-
@@ -54,6 +64,10 @@
       (downloadUrl was: {{ _obsidian_desktop_feed.downloadUrl | default('<missing>') }}).
 
 - name: Assert the derived Obsidian tag agrees with the feed's latestVersion
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.assert:
     that: "(_obsidian_tag_match | first) == 'v' ~ (_obsidian_desktop_feed.latestVersion | default('<missing>'))"
     fail_msg: >-
