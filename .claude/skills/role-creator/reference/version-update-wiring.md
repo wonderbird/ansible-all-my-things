@@ -70,9 +70,15 @@ source type.
 
 A new fetch task must fail loud (Principle XII): explicit failures on API
 rate-limit, unexpected status and missing field. Mirror
-`fetch-github-commit-sha.yml`. Name its outputs in the registry entry's
-`fetch.results`, and add any new argument name to the argument list in
-`tasks/fetch-tool.yml`, which must be a literal mapping.
+`fetch-github-commit-sha.yml`, and name its outputs in the registry entry's
+`fetch.results`.
+
+**A new fetch argument is declared twice**, and both are required: once in the
+registry entry that passes it, and once in the argument list of
+`tasks/fetch-tool.yml`. Ansible requires `vars:` on an include to be a literal
+mapping, so that list cannot be derived from the registry; an argument missing
+from it is simply never passed, and the fetch task fails on a value it never
+received.
 
 **Every task that can fail because of a third party declares
 `failure_source: upstream` in its own `vars:`.** An input assert declares
