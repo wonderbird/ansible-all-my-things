@@ -1,0 +1,9 @@
+#SPDX-License-Identifier: MIT-0
+---
+# A fetch that succeeds, naming values after the repository it was given, so a
+# value taken from another tool is visible in the pin that gets written.
+
+- name: "Resolve the fixture version of {{ github_repo }}"
+  ansible.builtin.set_fact:
+    fixture_version: "v-{{ github_repo | regex_replace('^example/', '') }}"
+    fixture_extra: "extra-{{ github_repo | regex_replace('^example/', '') }}"

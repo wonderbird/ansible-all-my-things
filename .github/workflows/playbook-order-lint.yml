@@ -67,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        harness: [write-pins, tool-isolation, tool-registry]
+        harness: [write-pins, tool-isolation, tool-registry, fixture-registry-smoke]
 
     steps:
       - name: Checkout repository

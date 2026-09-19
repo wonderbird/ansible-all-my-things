@@ -88,8 +88,11 @@
   vars:
     _missing: >-
       {{ _registry | dict2items
-         | rejectattr('value.fetch.file', 'in', _available_fetch_files)
-         | map(attribute='key') | list }}
+         | map(attribute='key') | list
+         | zip(_registry | dict2items | map(attribute='value.fetch.file')
+               | map('basename') | list)
+         | rejectattr(1, 'in', _available_fetch_files)
+         | map(attribute=0) | list }}
     _available_fetch_files: >-
       {{ lookup('ansible.builtin.fileglob', _tasks_dir ~ '/fetch-*.yml', wantlist=True)
          | map('basename') | list }}
@@ -207,10 +210,11 @@
 - name: Assert every role that pins a version or a checksum is in the registry
   vars:
     _registered: "{{ _registry | dict2items | map(attribute='value.role') | list }}"
+    # <roles tree>/<role>/defaults/main.yml -- the role is two directories up,
+    # named without assuming the tree is called roles/ (the harness uses its own)
     _pinned_roles: >-
       {{ _pinned_role_files.files | map(attribute='path')
-         | map('regex_replace', '^.*/roles/([^/]+)/defaults/main\.yml$', '\1')
-         | unique | list }}
+         | map('dirname') | map('dirname') | map('basename') | unique | list }}
     _unregistered: "{{ _pinned_roles | difference(_registered) }}"
   ansible.builtin.assert:
     that: _unregistered | length == 0

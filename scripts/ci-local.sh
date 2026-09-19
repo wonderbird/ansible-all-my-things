@@ -4,8 +4,8 @@
 # CI never runs either version-update playbook: both need the network and the
 # unauthenticated GitHub API budget. A commit can therefore be green in CI and
 # still be broken, so this script adds what CI cannot cover -- a syntax check of
-# both playbooks and, once a fixture registry exists, a network-free smoke run
-# of it.
+# both playbooks, and a network-free run of the real task files over a fixture
+# registry.
 #
 # Usage, from the repository root:
 #   ./scripts/ci-local.sh
@@ -45,15 +45,11 @@ for playbook in perform-updates query-versions; do
     "playbooks/update-versions/$playbook.yml"
 done
 
-for harness in test-write-pins test-tool-isolation test-tool-registry; do
+for harness in test-write-pins test-tool-isolation test-tool-registry \
+               test-fixture-registry-smoke; do
   path="playbooks/update-versions/tests/$harness.yml"
   [ -e "$path" ] || continue
   run env -u ANSIBLE_VAULT_PASSWORD "$ansible_playbook" "$path"
 done
-
-smoke="playbooks/update-versions/tests/smoke-fixture-registry.yml"
-if [ -e "$smoke" ]; then
-  run env -u ANSIBLE_VAULT_PASSWORD "$ansible_playbook" "$smoke"
-fi
 
 echo "== ci-local: all gates passed"
