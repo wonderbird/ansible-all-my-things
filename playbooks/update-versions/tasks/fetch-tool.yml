@@ -37,18 +37,6 @@
         _fetch_results: >-
           {{ _fetch_results | combine({_name: _tools[_name].fetch.results}) }}
 
-    - name: "Publish the legacy fetch facts of {{ _name }}"
-      # TEMPORARY. The apply phase still reads the per-tool fetched_* facts the
-      # hand-written fetch blocks used to set. Each value comes from this tool's
-      # own results, so the bridge cannot carry another tool's value. Deleted in
-      # the commit that rewrites the apply phase to read _fetch_results.
-      ansible.builtin.set_fact:
-        "{{ _legacy.key }}": "{{ _fetch_results[_name][_legacy.value] }}"
-      loop: "{{ _legacy_fetch_facts[_name] | default({}) | dict2items }}"
-      loop_control:
-        loop_var: _legacy
-        label: "{{ _legacy.key }}"
-
   rescue:
     - name: "Record the fetch failure of {{ _name }}"
       ansible.builtin.include_tasks: record-tool-failure.yml
