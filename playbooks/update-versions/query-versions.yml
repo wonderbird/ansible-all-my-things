@@ -6,6 +6,9 @@
   vars:
     _roles_dir: "{{ playbook_dir }}/../../roles"
   tasks:
+    - name: Check the preconditions of this run
+      ansible.builtin.include_tasks: tasks/preflight.yml
+
     # --- Read current pins from role defaults ---
     - name: Read flutter role defaults
       ansible.builtin.slurp:

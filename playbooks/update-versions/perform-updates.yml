@@ -1,10 +1,5 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Check mode is NOT supported: under --check, ansible.builtin.uri skips while
-# ansible.builtin.get_url still performs its request, so a check run mixes real
-# downloads with skipped fetches and reports failures that a real run would not
-# have. Run this playbook for real, or not at all.
-#
 # One tool's upstream outage must not hide every later tool, so each tool runs
 # inside a fetch block and an apply block with a rescue. Third-party failures
 # accumulate in _update_failures and the run reports all of them at the end; a
@@ -43,6 +38,9 @@
       - skill_manager
       - direnv
   tasks:
+    - name: Check the preconditions of this run
+      ansible.builtin.include_tasks: tasks/preflight.yml
+
     - name: Initialise the run ledgers
       ansible.builtin.set_fact:
         _update_failures: []
