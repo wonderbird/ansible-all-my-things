@@ -9,7 +9,7 @@
 # here. See ../../../docs/architecture/version-update-playbooks.md (section
 # "Diagnosing a stuck version pin").
 
-- name: "report: render the update report"  # noqa: name[casing]
+- name: Render the update report
   vars:
     _report_has_404: >-
       {{ (_update_failures | map(attribute='messages') | flatten

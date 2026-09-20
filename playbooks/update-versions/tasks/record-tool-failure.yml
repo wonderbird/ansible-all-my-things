@@ -35,7 +35,7 @@
 #   undefined error there and ends the play past the isolation, and
 #   `| default({})` does not protect, because the dict itself renders.
 
-- name: "record-failure: assert inputs for {{ failed_tool | default('<undefined tool>') }}"  # noqa: name[casing]
+- name: Assert the failure-record inputs for {{ failed_tool | default('<undefined tool>') }}
   vars:
     _tool_name_ok: '^[a-z0-9_]+\Z'
   ansible.builtin.assert:
@@ -51,7 +51,7 @@
       task='{{ failed_task_name | default('<undefined>') }}').
     quiet: true
 
-- name: "record-failure: classify the failure of {{ failed_tool }}"  # noqa: name[casing]
+- name: Classify the failure of {{ failed_tool }}
   vars:
     _failure_item_messages: >-
       {{ ((failed_result.results | default([]))
@@ -92,6 +92,6 @@
                               'resolved_action': failed_task_resolved_action | default(''),
                               'messages': _failure_messages}] }}
 
-- name: "record-failure: report and stop on a configuration error in {{ failed_tool }}"  # noqa: name[casing]
+- name: Report and stop on a configuration error in {{ failed_tool }}
   ansible.builtin.include_tasks: report-update-failures.yml
   when: (_update_failures | last).class == 'configuration'
