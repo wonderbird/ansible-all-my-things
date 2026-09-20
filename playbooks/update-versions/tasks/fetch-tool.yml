@@ -8,6 +8,9 @@
 # and the loop continues, while a configuration error stops the run from inside
 # record-tool-failure.yml.
 #
+# The failure-source contract every included fetch file must honour is stated
+# once in ../../../docs/architecture/version-update-playbooks.md.
+#
 # The loop that includes this file iterates tool NAMES and nothing else. A loop
 # over whole registry entries would template every expression of every entry
 # before the first task runs, and that failure happens outside any block, so no

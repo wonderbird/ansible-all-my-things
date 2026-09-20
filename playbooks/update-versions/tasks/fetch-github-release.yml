@@ -10,12 +10,6 @@
 # (section "Guarding release assets") for why this guard exists and where it
 # is mandatory. `release_carries_no_consumed_asset` states the opposite claim,
 # for a tool installed from somewhere other than the release assets.
-#
-# Failure-source contract: any task that can fail because of a third party
-# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
-# tell an outage from a defect in this repository. An input assert declares
-# nothing -- a bad argument is ours, and the default class is configuration.
-# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Normalise the required assets of {{ github_repo }}
   # A caller that passes nothing leaves the omit placeholder here, which is

@@ -5,12 +5,6 @@
 # nodejs.org is not GitHub-Releases-shaped, so this mirrors
 # roles/nodejs/tasks/main.yml's own (now-retired) inline LTS-resolution logic
 # rather than reusing fetch-github-release.yml.
-#
-# Failure-source contract: any task that can fail because of a third party
-# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
-# tell an outage from a defect in this repository. An input assert declares
-# nothing -- a bad argument is ours, and the default class is configuration.
-# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Get Node.js release index
   ansible.builtin.uri:

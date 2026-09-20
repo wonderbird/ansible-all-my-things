@@ -1,12 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # Sets facts: fetched_android_build, fetched_android_sha1
-#
-# Failure-source contract: any task that can fail because of a third party
-# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
-# tell an outage from a defect in this repository. An input assert declares
-# nothing -- a bad argument is ours, and the default class is configuration.
-# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Fetch Android developer page
   ansible.builtin.uri:

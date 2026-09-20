@@ -7,12 +7,6 @@
 # computed tarball hash or a GitHub-Releases tag_name alone, so this composes
 # fetch-github-release.yml (for the release tag) with a second uri GET
 # against the manifest.
-#
-# Failure-source contract: any task that can fail because of a third party
-# declares `failure_source: upstream` in its own vars, so a per-tool rescue can
-# tell an outage from a defect in this repository. An input assert declares
-# nothing -- a bad argument is ours, and the default class is configuration.
-# See ../../../docs/architecture/version-update-playbooks.md.
 
 - name: Fetch Claude Code release tag from GitHub Releases
   ansible.builtin.include_tasks: fetch-github-release.yml
