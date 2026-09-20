@@ -7,19 +7,19 @@
 
 ## User Scenarios & Testing *(mandatory)*
 
-### User Story 1 - Detect Stale Version Pins (Priority: P1)
+### User Story 1 - See What Moved (Priority: P1)
 
-The maintainer runs a single command to see which of the pinned tool versions in role defaults are outdated compared to their upstream sources. The output shows current pinned version, latest available version, and whether they match — for every tracked tool.
+The maintainer sees which pinned tool versions were behind upstream. This was originally a separate query playbook that reported drift without changing anything; it is now the update run itself, which names every tool it updated, skipped or failed, plus `git diff` on the working tree, which shows exactly which pins moved and to what. The separate preview was removed: it could not be acted on differently, and it doubled the cost of a maintenance cycle against the hourly limit of the unauthenticated GitHub API.
 
-**Why this priority**: Detection is the foundation. Without knowing what is stale, no informed update decision is possible. Delivers standalone value as a drift report even without the update playbook.
+**Why this priority**: Knowing what changed is the foundation. A maintainer who cannot see which pins moved cannot review them before committing.
 
-**Independent Test**: Run the query playbook against a repository where at least one version pin is known to be outdated. Verify that the report identifies the stale pin and shows the correct upstream version.
+**Independent Test**: Run the update playbook against a repository where at least one version pin is known to be outdated. Verify that the run names that tool and that `git diff` shows the new version.
 
 **Acceptance Scenarios**:
 
-1. **Given** all pinned versions are current, **When** the query playbook runs, **Then** the output confirms all tools are up to date and the playbook exits with code 0.
-2. **Given** one or more pinned versions are outdated, **When** the query playbook runs, **Then** the output lists each stale tool with its current pinned version and the latest available version, and the playbook exits with a non-zero code.
-3. **Given** an upstream source is unreachable, **When** the query playbook runs, **Then** the playbook fails with a clear error message identifying which upstream source could not be reached.
+1. **Given** all pinned versions are current, **When** the update playbook runs, **Then** it reports every tool as updated, exits with code 0, and `git diff` is empty.
+2. **Given** one or more pinned versions are outdated, **When** the update playbook runs, **Then** `git diff` shows the new version for each stale tool and the run names every tool it updated.
+3. **Given** an upstream source is unreachable, **When** the update playbook runs, **Then** that tool is reported as an upstream failure with the message the source produced, every other tool is still updated, and the run exits with a non-zero code.
 
 ---
 
@@ -47,7 +47,7 @@ The maintainer reads concept documentation that explains the purpose of the upda
 
 **Why this priority**: Documentation prevents future maintainers from needing to reverse-engineer the mechanism and ensures known limitations (such as HTML scraping fragility) are visible.
 
-**Independent Test**: A new maintainer unfamiliar with the feature can read the concept document and successfully run both playbooks without additional guidance.
+**Independent Test**: A new maintainer unfamiliar with the feature can read the concept document and successfully run the update playbook without additional guidance.
 
 **Acceptance Scenarios**:
 
@@ -68,33 +68,36 @@ The maintainer reads concept documentation that explains the purpose of the upda
 
 ### Functional Requirements
 
-- **FR-001**: The query playbook MUST compare each pinned version in role defaults files against the corresponding upstream source and report the result to stdout.
-- **FR-002**: The query playbook MUST exit with a non-zero exit code when one or more pinned versions are outdated.
 - **FR-003**: The update playbook MUST fetch the latest version for each tracked tool from its upstream source and write the updated value to the role defaults file.
 - **FR-004**: When a tool version requires a paired checksum, the update playbook MUST update both the version value and the checksum value together in a single operation.
 - **FR-005**: The update playbook MUST NOT create git commits or make any changes to version control state.
-- **FR-006**: Upstream-fetching logic MUST be shared between the query and update playbooks — duplication of fetch logic is not permitted.
+- **FR-006**: The tracked tools MUST be enumerated in exactly one place, and each kind of upstream source MUST be implemented by exactly one fetch task file, reused by every tool that shares that shape. Duplication of either the enumeration or the fetch logic is not permitted.
 - **FR-007**: The update logic for Android SDK command-line tools MUST be isolated in a separate task file, distinct from the shared fetch tasks, to contain the risk of HTML scraping fragility.
-- **FR-008**: Both playbooks MUST run on the control node (localhost) without requiring a connection to any managed host.
+- **FR-008**: The update playbook MUST run on the control node (localhost) without requiring a connection to any managed host.
 - **FR-009**: Concept documentation MUST be created in `docs/architecture/` covering: purpose, directory structure, per-tool upstream sources, known constraints, and usage instructions.
 - **FR-010**: The update playbook MUST preserve all comments and unrelated content in defaults files when writing updated values.
-- **FR-011**: When the GitHub API rate limit is reached (HTTP 403 with rate-limit response headers), both playbooks MUST fail fast with an explicit error message identifying GitHub as the source and the rate-limit window. They MUST NOT silently skip or partially complete.
+- **FR-011**: When the GitHub API rate limit is reached (HTTP 403 with rate-limit response headers), the affected tool MUST be recorded as an upstream failure with an explicit message identifying GitHub as the source and the rate-limit window, and MUST have none of its pins written. The run MUST continue with the remaining tools, MUST report every failure it collected, and MUST exit with a non-zero exit code. Silently skipping a tool, or writing a version without the checksums that belong with it, is not permitted.
 - **FR-012**: All upstream-fetch task files MUST fail with an explicit error message identifying the upstream source when the response cannot be parsed (e.g. unexpected format, missing field, regex no-match). Silent fallthrough or empty fact values are not permitted.
+
+FR-001 and FR-002 were removed with the query playbook they described; the
+surviving requirements keep their original numbers, because a stable identifier
+is worth more to anyone citing one than a gapless sequence.
 
 ### Key Entities
 
 - **Version Pin**: A key-value pair in a role defaults file that specifies the exact version of a tool to install. May be paired with a checksum.
 - **Checksum**: A hash value paired with a version pin, used to verify download integrity. The hash algorithm varies by upstream source (SHA-256 for Flutter, SHA-1 for Android cmdline-tools per TD-009).
 - **Upstream Source**: The authoritative external location from which the latest version of a tool is fetched. Each tool has exactly one upstream source (structured API or HTML page).
-- **Tracked Tool**: A tool whose version pin is managed by the update playbooks. Currently: Flutter SDK, gitmux, Nerd Fonts (Hack), Android SDK command-line tools, Java (Temurin via SDKMAN).
+- **Tracked Tool**: A tool whose version pin is managed by the update playbook. Declared as one entry of the tool registry, which names the role, the upstream source, the digests the tool needs and the pins it writes. The registry is the authoritative enumeration; the first increment covered Flutter SDK, gitmux, Nerd Fonts (Hack), Android SDK command-line tools and Java (Temurin via SDKMAN).
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: The maintainer can identify all stale version pins across all tracked tools by running a single command.
+- **SC-001**: The maintainer can see which pins moved, and which tools failed, from a single command and the `git diff` it leaves behind.
 - **SC-002**: The maintainer can update all stale version pins and their paired checksums across all tracked tools by running a single command.
 - **SC-003**: After running the update playbook, every updated defaults file passes an idempotency check — running the update playbook a second time makes no further changes.
+- **SC-004**: One unavailable upstream source leaves every other tool updated and reported, rather than hiding them.
 - **SC-005**: No manual lookup of version strings or checksum values is required from the maintainer during an update run.
 
 ## Assumptions
