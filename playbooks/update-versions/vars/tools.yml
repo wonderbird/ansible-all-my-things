@@ -1,10 +1,10 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# The tracked tools, declared once and read by both version-update playbooks.
+# The tracked tools, declared once and read by perform-updates.yml.
 #
-# A tool is written down here and nowhere else: query-versions.yml compares its
-# current pin against upstream, perform-updates.yml writes its pins, and the run
-# accounting expects exactly these names. Adding a tool is one entry.
+# A tool is written down here and nowhere else: perform-updates.yml writes its
+# pins, and the run accounting expects exactly these names. Adding a tool is one
+# entry.
 #
 # Entry shape:
 #   role          the role under roles/ whose defaults/main.yml carries the pins
@@ -12,7 +12,7 @@
 #   fetch.args    variables that task file requires
 #   fetch.results every output of that task file this tool consumes, named, so a
 #                 value can never be taken from the tool that ran before
-#   current_pin   the pin query-versions.yml compares against upstream
+#   current_pin   the pin carrying the tool's version, as opposed to a digest
 #   checksums     per-artefact digests, each resolved into _checksums[<key>]:
 #                 kind "checksum_file" reads a published checksums file,
 #                 kind "download" fetches the artefact and hashes it locally

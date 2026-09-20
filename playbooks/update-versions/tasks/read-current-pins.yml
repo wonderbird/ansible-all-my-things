@@ -2,9 +2,9 @@
 ---
 # Reads the pins the roles carry today into _current[<tool>][<pin name>], for
 # every pin the registry names. Runs once per play, after pre-flight and before
-# any upstream is queried: query-versions.yml compares against these values, and
-# a fetch that derives an argument from the current pin (java's major version)
-# reads them too.
+# any upstream is queried, because a fetch can derive an argument from the pin
+# the role carries: java tracks same-major patches, so its major version comes
+# from its own current pin.
 #
 # A pin the registry names that the role file does not carry is a configuration
 # error, and it aborts the play rather than failing one tool: it means the

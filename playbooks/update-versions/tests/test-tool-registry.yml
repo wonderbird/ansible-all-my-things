@@ -45,7 +45,7 @@
         replace: "    role: fixture_tool\n"
         with: ""
       - id: missing-current-pin
-        why: an entry with no current_pin, so query-versions has nothing to compare
+        why: an entry with no current_pin, so nothing says which pin carries the version
         replace: "    current_pin: fixture_version\n"
         with: ""
       - id: current-pin-not-written
