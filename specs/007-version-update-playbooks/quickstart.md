@@ -6,14 +6,6 @@
 - Network access to upstream sources (GitHub, Flutter CDN, SDKMAN API, Google Android developer page)
 - Run from repository root
 
-## Check for stale version pins
-
-```bash
-ansible-playbook playbooks/update-versions/query-versions.yml
-```
-
-Exits with code `0` if all pins are current. Exits non-zero and reports stale tools if any pin is outdated.
-
 ## Apply version updates
 
 ```bash
@@ -25,8 +17,6 @@ Updates all stale version pins and paired checksums in role `defaults/main.yml` 
 ## Typical workflow
 
 ```bash
-# 1. Check for drift
-ansible-playbook playbooks/update-versions/query-versions.yml
 
 # 2. If stale pins found, apply updates
 ansible-playbook playbooks/update-versions/perform-updates.yml

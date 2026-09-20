@@ -56,8 +56,6 @@ release-tag tools it tracks a commit SHA:
 
 - `tasks/fetch-github-commit-sha.yml` queries the GitHub API for the HEAD
   commit of the upstream default branch (`master`).
-- `query-versions.yml` reads the pinned SHA from `defaults/main.yml` and reports
-  STALE when it differs from upstream HEAD.
 - `perform-updates.yml` writes the new HEAD SHA back into `defaults/main.yml`.
   There is no checksum to recompute — the commit SHA is itself the integrity
   pin.

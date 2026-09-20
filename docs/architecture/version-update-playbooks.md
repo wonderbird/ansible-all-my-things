@@ -95,14 +95,12 @@ for how a role verifies a checksum for a version this mechanism has
 already pinned — this document covers resolving and writing the pin;
 that one covers consuming it.
 
-Two playbooks — `query-versions.yml` (detect drift, report, exit
-non-zero if stale) and `perform-updates.yml` (apply updates in place,
-create no commits) — read one registry and share one directory of task
-files:
+One playbook — `perform-updates.yml`, which resolves upstream versions and
+rewrites the defaults files in place, creating no commits — reads a registry
+of tracked tools and a directory of task files:
 
 ```text
 playbooks/update-versions/
-├── query-versions.yml
 ├── perform-updates.yml
 ├── vars/
 │   └── tools.yml
@@ -182,11 +180,8 @@ no matching line. Tools whose upstream publishes no checksums file
 covering the consumed asset keep the download-and-`ansible.builtin.stat`
 pattern instead.
 
-Beyond that shared fetch step, `query-versions.yml`/`perform-updates.yml`
-still use a per-tool copy-paste convention for the download, stat and
-pin-write steps. This is retained deliberately at the current tool count: a
-data-driven tool-registry loop was evaluated and not judged worth the
-added indirection (tracked in `ansible-all-my-things-3ikt`).
+Every tool's download, digest and pin write runs through the same loop over
+the registry, so a new tool adds an entry rather than a section.
 
 #### Guarding release assets
 
@@ -210,13 +205,10 @@ at install time on a real machine.
 In `perform-updates.yml` the declaration is mandatory. A tool that installs
 from somewhere other than the release assets says so in
 `release_carries_no_consumed_asset`, whose value is the reason, so the
-exemption is visible at the call site rather than implied by silence. The
-apply-order checker rejects an include that declares neither, and **this
-ban MUST survive any simplification or removal of that checker**; the
-minimum replacement is a CI step that fails when a release include in
-`perform-updates.yml` declares neither variable. `query-versions.yml` reads
-only `tag_name` and downloads nothing, so the declaration stays optional
-there rather than duplicating every pattern in a second place.
+exemption is visible at the call site rather than implied by silence.
+Pre-flight rejects an entry that declares neither, over the whole registry
+before anything runs, so a tool whose fetch later fails has still been
+checked.
 
 #### Writing pins
 
@@ -303,28 +295,6 @@ that ran before.
   `ansible-galaxy collection install -r requirements.yml`
 - Network access to all tracked tools' upstream sources from the control node
 - Run from the repository root
-
-### Running query-versions.yml
-
-Detects which pinned versions are stale. Exits 0 if all are current; exits
-non-zero if any pin is stale **or** any tool could not be queried. One
-unreachable upstream no longer ends the query: that tool is reported as
-`UNKNOWN` and the rest are still checked, so an outage cannot read as
-"up to date".
-
-```bash
-ansible-playbook playbooks/update-versions/query-versions.yml
-```
-
-Output example (stale pin):
-
-```text
-ok: [localhost] => {
-    "msg": "flutter: current=3.29.0, upstream=3.41.6, status=STALE"
-}
-...
-FAILED! => {"msg": "Stale: flutter, direnv. Run perform-updates.yml to apply the updates."}
-```
 
 ### Running perform-updates.yml
 
@@ -470,10 +440,9 @@ reconciliation between the registry and the role defaults is not done here.
 Both playbooks refuse `--check`, in the first task of the shared pre-flight.
 Under check mode `ansible.builtin.uri` skips while `ansible.builtin.get_url`
 still performs its request, so a check run of `perform-updates.yml` mixes real
-downloads with skipped fetches, and a check run of `query-versions.yml` leaves
-every fetched value undefined and fails with a templating error that names a
-variable instead of the cause. The refusal is code rather than a comment, so
-the rule cannot be read and ignored.
+downloads with skipped fetches: `ansible.builtin.uri` skips under check mode
+while `ansible.builtin.get_url` still performs its request. The refusal is code
+rather than a comment, so the rule cannot be read and ignored.
 
 ---
 
@@ -497,9 +466,11 @@ the rule cannot be read and ignored.
 
 ### Next Steps
 
-- **GitHub Actions integration**: Run `query-versions.yml` on a
-  schedule (e.g., weekly) and open a pull request automatically when
-  stale pins are detected. This is the primary planned next step.
+- **GitHub Actions integration**: Run `perform-updates.yml` on a
+  schedule (e.g., weekly) and open a pull request automatically with the
+  pins it moved. This is the primary planned next step, and it would need
+  an authenticated GitHub token: the run costs twelve requests against the
+  sixty an hour an unauthenticated caller is allowed.
 - **Per-role targeting**: Add optional role-filtering to update only
   a subset of tools in a single run.
 - **Checksum algorithm expansion**: Flutter and Android currently use

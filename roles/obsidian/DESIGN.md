@@ -94,8 +94,6 @@ dedicated `fetch-obsidian-version.yml` task rather than the shared
 tag the way it does is documented in its own header comment, which is what
 someone editing it will have in front of them.
 
-- `query-versions.yml` reads the pinned tag from `defaults/main.yml`,
-  fetches the desktop feed's tag, and reports STALE if the two differ.
 - `perform-updates.yml` downloads the amd64 `.deb` and computes its SHA-256
   **before** writing either pin, so an upstream failure cannot leave a new
   version paired with the previous version's checksum. That ordering is

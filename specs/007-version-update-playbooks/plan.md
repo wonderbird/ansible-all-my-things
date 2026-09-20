@@ -5,7 +5,7 @@
 
 ## Summary
 
-Maintenance playbooks that detect stale version pins across role defaults files and apply updates — fetching current versions and paired checksums from each tool's upstream source. Two playbooks share upstream-fetching task files and run on the control node (localhost). No automation beyond file updates; the operator retains full control over committing.
+A maintenance playbook that refreshes stale version pins across role defaults files — fetching current versions and paired checksums from each tool's upstream source, and reporting what it moved. It runs on the control node (localhost). No automation beyond file updates; the operator retains full control over committing.
 
 ## Technical Context
 
@@ -50,7 +50,6 @@ specs/007-version-update-playbooks/
 
 ```text
 playbooks/update-versions/
-├── query-versions.yml           # Detect version drift; report to stdout; exit non-zero if stale
 ├── perform-updates.yml          # Apply updates to role defaults files; no commits
 ├── vars/
 │   └── tools.yml                     # The tracked-tool registry both playbooks read

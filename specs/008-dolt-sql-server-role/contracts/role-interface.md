@@ -54,8 +54,8 @@ On success against a systemd host:
 ## Version maintenance
 
 `dolt_version` is tracked by `playbooks/update-versions/` as a GitHub-release
-tool (`dolthub/dolt`). `query-versions.yml` reports it stale when a newer
-release exists; `perform-updates.yml` rewrites the pin in `defaults/main.yml`.
+tool (`dolthub/dolt`). `perform-updates.yml` rewrites the pin in
+`defaults/main.yml` when a newer release exists, and reports what it moved.
 The maintainer reviews `git diff roles/` and commits manually. See
 `docs/architecture/version-update-playbooks.md`.
 

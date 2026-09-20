@@ -87,19 +87,6 @@ The authoritative external location from which the latest version of a tool is f
 
 ## State Transitions
 
-### query-versions.yml
-
-```
-defaults file (current_value)
-    ↓ read
-Version Pin (current_value set)
-    ↓ fetch upstream
-Upstream Source → latest_value
-    ↓ compare
-is_current = true  → report "up to date"
-is_current = false → report "stale: current=X latest=Y", exit non-zero
-```
-
 ### perform-updates.yml
 
 ```

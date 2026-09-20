@@ -40,9 +40,8 @@ no-op. Molecule's `idempotence` phase enforces this.
 
 The role registers with the project-wide version-update mechanism:
 
-- `query-versions.yml` reads the pinned tag from `defaults/main.yml`,
-  fetches the latest GitHub release tag, and reports STALE if the two
-  differ.
+- The registry entry names the shared GitHub-release task and the repository
+  it queries.
 - `perform-updates.yml` writes the new tag and re-downloads both the
   `linux-x64` and `linux-arm64` tarballs to recompute their SHA-256 values,
   then writes both pins back into `defaults/main.yml`. The three values are
