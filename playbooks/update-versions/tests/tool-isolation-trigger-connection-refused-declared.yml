@@ -2,6 +2,8 @@
 ---
 # The same failure as the unprefixed case, through a task that declares its
 # source (classifier rule 2).
+#
+# Required var: _harness_dir, the registered temporary directory.
 
 - name: Download from a closed port, declaring the source
   vars:

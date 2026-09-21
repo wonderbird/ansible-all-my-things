@@ -1,9 +1,14 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # Runs one registry case of test-tool-registry.yml through ../tasks/preflight.yml.
-# Required var: _case with keys id, expect_reject, content (the registry as
+# Required vars: _case with keys id, expect_reject, content (the registry as
 # text) and optionally why and extra_role (a pinned role written into the
-# fixture tree but deliberately left out of the registry).
+# fixture tree but deliberately left out of the registry); _harness_dir, the
+# registered temporary directory the fixture registry and roles tree are
+# written into; and _registry_fixture, the registry file each case mutates.
+# Optional vars: _registry_rejected and _registry_expected_rejected, the two
+# tallies this file appends to; each defaults to an empty list on the first
+# case.
 #
 # The pre-flight include runs inside block/rescue so a rejection can be
 # inspected. A case that expects a rejection but validates clean fails the

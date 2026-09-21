@@ -2,6 +2,8 @@
 ---
 # Induces a connection-refused download in an UNPREFIXED task, so only the
 # structural network rule can classify it.
+#
+# Required var: _harness_dir, the registered temporary directory.
 
 - name: Download from a closed port
   ansible.builtin.get_url:

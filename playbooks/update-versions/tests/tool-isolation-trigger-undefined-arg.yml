@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # Induces an undefined variable in a module argument (classifier rule 2).
+#
+# Reads _harness_variable_that_is_never_set, which NOTHING defines. That is
+# the point of this file: defining it removes the failure under test.
 
 - name: Read a variable that was never set
   vars:

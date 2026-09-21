@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # Does nothing; the failure under test happens while templating the include.
+#
+# Required var: _harness_passed, whose value is never inspected: the caller
+# templates it, and that is where the failure under test occurs.
 
 - name: "Consume the passed variable"
   ansible.builtin.debug:
