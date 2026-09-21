@@ -232,10 +232,10 @@ and leaves that defaults file untouched rather than half-updated. The
 anchor at the start of a line stops a comment or a similarly named
 variable from absorbing the write after a rename.
 
-Every task in `write-pins.yml` carries the `write-pins:` name prefix. A
-failure there is a configuration error in this repository, never an
-upstream failure, and any future per-tool failure handling must classify
-it that way; it can recognise it by that prefix.
+A failure in `write-pins.yml` is a configuration error in this
+repository, never an upstream failure. Each of its tasks declares
+`failure_source: configuration`, and the classifier reads that
+declaration.
 
 Alternatives considered for this guard:
 
@@ -251,12 +251,10 @@ Alternatives considered for this guard:
   one `copy`. Rejected: it still needs the same exactly-once check, is
   harder to read, and hides which pin changed.
 
-The guard only protects writes that go through the task file. The
-apply-order checker therefore rejects any apply-phase task that edits a
-file directly (`replace`, `lineinfile`, `blockinfile`, `copy`,
-`template`). This ban MUST survive any simplification or removal of the
-checker; the minimum replacement is a CI step that fails when
-`perform-updates.yml` contains such a module. A harness in `tests/`,
+The guard only protects writes that go through the task file. A task
+that edits a defaults file directly would bypass it;
+`scripts/version-update-order/check-write-pins-bypass.py` rejects that
+statically in CI (see "Guarding the pin write"). A harness in `tests/`,
 run by its own CI job, proves that the task file keeps failing on a
 missing, duplicated or malformed pin.
 
