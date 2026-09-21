@@ -8,10 +8,12 @@
 # checked inside the per-tool loop would never run for a tool whose fetch
 # failed, which is exactly when a malformed entry matters.
 #
-# Required vars: _registry_file (path of the registry both plays load) and
-# _registry_roles_dir (the roles tree the registration check reads). Both are
-# set by the plays and overridden by the harness to point at fixtures;
-# _registry_tasks_dir overrides where fetch task files are looked for.
+# Required vars: _registry_file (path of the registry both plays load),
+# _registry_roles_dir (the roles tree the registration check reads) and _tools
+# (the registry as the play loaded it, compared here against the same file read
+# as text). All are set by the plays and overridden by the harness to point at
+# fixtures. Optional var: _registry_tasks_dir, where fetch task files are
+# looked for; it defaults to the tasks directory beside the registry file.
 #
 # The checks read the registry through a lookup rather than through the loaded
 # _tools variable. A value loaded from vars_files is a trusted template, so

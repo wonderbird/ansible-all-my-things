@@ -2,7 +2,8 @@
 ---
 # Required vars: failed_tool, failed_phase ("fetch" or "apply"),
 #                failed_task_name, failed_task_action,
-#                failed_task_resolved_action, failed_result
+#                failed_task_resolved_action, failed_result,
+#                _update_failures (the ledger this file appends to)
 # Optional var:  failed_task_source, the failing task's own failure_source
 #                declaration ("upstream" or "configuration"); any other value,
 #                a typo included, counts as no declaration at all

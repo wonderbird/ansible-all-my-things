@@ -1,8 +1,9 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Reads one tool's current pins into _current[<tool>]. Required vars: _pin_tool
-# (the tool name), _tools, _roles_dir. Called once per tool by
-# read-current-pins.yml.
+# Reads one tool's current pins into _current[<tool>]. Required vars:
+# _pin_tool (the tool name), _tools, _roles_dir and _current, the mapping this
+# file adds to. Called once per tool by read-current-pins.yml, which
+# initialises _current.
 
 - name: "Read the defaults of {{ _tools[_pin_tool].role }}"
   ansible.builtin.slurp:

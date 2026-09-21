@@ -1,9 +1,11 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # Resolves one artefact's sha256 into _checksums[<key>]. Required vars: _name
-# (the tool), _checksum (one entry of that tool's checksums list), _fetched
-# (that tool's fetch results). Called from inside the tool's apply block, so a
-# failure here is rescued and classified like any other.
+# (the tool), _checksum (one entry of that tool's checksums list), _checksums
+# (the digests resolved for this tool so far, which this file adds to) and
+# _artefact_path (where a downloaded artefact is written before it is hashed).
+# Called from inside the tool's apply block, so a failure here is rescued and
+# classified like any other.
 #
 # Two kinds of source, which is the only thing that varies between tools:
 #   checksum_file  upstream publishes the digest, and it is read from there

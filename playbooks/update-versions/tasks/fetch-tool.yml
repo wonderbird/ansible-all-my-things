@@ -1,7 +1,8 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # Queries one tool's upstream source and records what it returned. Required
-# vars: _name (the tool, supplied by the loop) and _tools (the registry).
+# vars: _name (the tool, supplied by the loop), _tools (the registry) and
+# _fetch_results (the per-tool results mapping this file adds to).
 #
 # The block/rescue lives here rather than in the playbook, so every tool is
 # isolated by construction: a third-party failure is recorded against this tool

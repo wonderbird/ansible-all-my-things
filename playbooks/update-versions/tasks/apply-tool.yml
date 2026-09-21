@@ -1,8 +1,11 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Writes one tool's pins. Required vars: _name (the tool, supplied by the loop)
-# and _tools (the registry). Runs only for a tool whose fetch succeeded; the
-# guard lives on the include in the playbook.
+# Writes one tool's pins. Required vars: _name (the tool, supplied by the
+# loop), _tools (the registry), _fetch_results (what the fetch phase returned,
+# keyed by tool), _roles_dir (the roles tree whose defaults files are written)
+# and _update_updated (the list of updated tools this file appends to). Runs
+# only for a tool whose fetch succeeded; the guard lives on the include in the
+# playbook.
 #
 # The block/rescue lives here, so a third-party failure during the apply phase
 # is recorded against this tool and the remaining tools still run, exactly as in
