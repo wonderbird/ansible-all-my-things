@@ -9,7 +9,7 @@
 
 ### User Story 1 - See What Moved (Priority: P1)
 
-The maintainer sees which pinned tool versions were behind upstream. This was originally a separate query playbook that reported drift without changing anything; it is now the update run itself, which names every tool it updated, skipped or failed, plus `git diff` on the working tree, which shows exactly which pins moved and to what. The separate preview was removed: it could not be acted on differently, and it doubled the cost of a maintenance cycle against the hourly limit of the unauthenticated GitHub API.
+The maintainer sees which pinned tool versions were behind upstream. The update run names every tool it updated, skipped or failed, and `git diff` on the working tree shows exactly which pins moved and to what.
 
 **Why this priority**: Knowing what changed is the foundation. A maintainer who cannot see which pins moved cannot review them before committing.
 
