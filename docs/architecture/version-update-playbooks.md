@@ -261,11 +261,10 @@ missing, duplicated or malformed pin.
 #### Apply-phase ordering
 
 A tool's version pin is never written before the digests that belong with it are
-in hand. That used to be an invariant the apply phase had to respect per tool,
-enforced by a static checker over the file. It is now structural: `apply-tool.yml`
-resolves every digest the tool's pins reference, asserts that each one resolved,
-and only then includes `write-pins.yml` — there is one apply path, and it cannot
-be written in the wrong order.
+in hand. This is structural: `apply-tool.yml` resolves every digest the tool's
+pins reference, asserts that each one resolved, and only then includes
+`write-pins.yml` — there is one apply path, and it cannot be written in the
+wrong order.
 
 Which digest belongs to which tool is structural for the same reason: digests are
 bound per tool inside that tool's own block, so a tool that resolves fewer than
