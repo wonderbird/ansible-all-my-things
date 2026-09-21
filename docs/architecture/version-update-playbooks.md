@@ -414,9 +414,9 @@ file-editing module appears outside `write-pins.yml`.
 
 ### What guards what
 
-Guarantees this mechanism used to get from a 900-line apply-order checker now
-live in cheaper places, and the table records where, so a later reader can see
-that nothing was dropped silently.
+Each guarantee below is enforced at exactly one point. The table names that
+point, so a reader can see what would have to change for a guarantee to be
+lost.
 
 | Guarantee | Where it lives now |
 | --- | --- |
