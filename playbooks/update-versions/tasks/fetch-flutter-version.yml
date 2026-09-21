@@ -28,9 +28,7 @@
 - name: Fail if latest stable Flutter entry is missing required fields
 
   vars:
-
     failure_source: upstream
-  vars:
     _latest: "{{ _flutter_stable | last }}"
   ansible.builtin.fail:
     msg: >-

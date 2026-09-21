@@ -86,9 +86,7 @@
 - name: Assert required assets exist in the latest release of {{ github_repo }}
 
   vars:
-
     failure_source: upstream
-  vars:
     _release_tag: "{{ _github_release_response.json.tag_name }}"
     _release_assets: "{{ _github_release_response.json.assets | default([]) | map(attribute='name') | list }}"
   ansible.builtin.assert:
