@@ -23,9 +23,7 @@
 - name: Validate inputs for {{ pin_file | default('<undefined pin_file>') }}
 
   vars:
-
     failure_source: configuration
-  vars:
     _pin_name_ok: '^[a-z0-9_]+\Z'
     _pin_value_ok: '^[^"\\\n]+\Z'
   ansible.builtin.assert:
@@ -41,7 +39,6 @@
 - name: Read {{ pin_file }}
 
   vars:
-
     failure_source: configuration
   ansible.builtin.slurp:
     src: "{{ pin_file }}"
@@ -50,9 +47,7 @@
 - name: Assert each pin appears once in {{ pin_file }}
 
   vars:
-
     failure_source: configuration
-  vars:
     _pin_regexp: '^{{ _write_pin.pin }}:[ \t]*"[^"\n]+"'
     _pin_count: "{{ _write_pins_raw.content | b64decode | regex_findall(_pin_regexp, multiline=True) | length }}"
   ansible.builtin.assert:
@@ -67,9 +62,7 @@
 - name: Write pins in {{ pin_file }}
 
   vars:
-
     failure_source: configuration
-  vars:
     _pin_regexp: '^{{ _write_pin.pin }}:[ \t]*"[^"\n]+"'
   ansible.builtin.replace:
     path: "{{ pin_file }}"
