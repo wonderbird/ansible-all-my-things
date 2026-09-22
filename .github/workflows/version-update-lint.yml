@@ -12,7 +12,8 @@ name: Version Update Lint
 #   skips the check that the pin exists exactly once (no network, no pip).
 # - update-versions-harness installs ansible-core and runs the localhost test
 #   harnesses for the registry, the failure classifier, write-pins and the
-#   failure-source declarations of the task files. It
+#   failure-source declarations of the task files, and syntax-checks the
+#   playbook itself. It
 #   selects playbooks/update-versions/tests/ansible.cfg instead of the
 #   repository root ansible.cfg, whose vault password script exits non-zero
 #   without a vault secret, and fork pull requests receive no secrets.
@@ -86,6 +87,11 @@ jobs:
 
       - name: Install ansible-core
         run: pip install "$(grep -E '^ansible-core' requirements.txt)"
+
+      - name: Check the syntax of the version-update playbook
+        run: >-
+          ansible-playbook --syntax-check
+          playbooks/update-versions/perform-updates.yml
 
       - name: Run the ${{ matrix.harness }} harness
         run: >-

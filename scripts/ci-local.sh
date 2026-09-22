@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # Run the gates that must hold for EVERY commit of a version-update change.
 #
-# CI never runs the version-update playbook: it needs the network and the
-# unauthenticated GitHub API budget. A commit can therefore be green in CI and
-# still be broken, so this script adds what CI cannot cover -- a syntax check of
-# the playbook, and a network-free run of the real task files over a fixture
-# registry.
+# Every gate below also runs as a job of .github/workflows/version-update-lint.yml,
+# so this script adds no coverage of its own: it is the pre-push convenience
+# that runs them all in one command, per commit rather than per branch, and
+# without waiting for a runner. Keep the two in step -- a gate added here
+# belongs in that workflow too.
+#
+# What neither can cover is the playbook run itself. It needs the network and
+# the unauthenticated GitHub API budget of 60 requests an hour, so a commit can
+# pass every gate here and still fail against a real upstream.
 #
 # Usage, from the repository root:
 #   ./scripts/ci-local.sh
@@ -29,11 +33,6 @@ for script in scripts/version-update-order/test_*.py; do
   [ -e "$script" ] || continue
   run python3 "$script"
 done
-
-if [ -e scripts/version-update-order/check-version-update-order.py ]; then
-  run python3 scripts/version-update-order/check-version-update-order.py \
-    playbooks/update-versions/perform-updates.yml
-fi
 
 if [ -e scripts/version-update-order/check-write-pins-bypass.py ]; then
   run python3 scripts/version-update-order/check-write-pins-bypass.py \
