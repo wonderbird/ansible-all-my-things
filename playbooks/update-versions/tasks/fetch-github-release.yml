@@ -8,8 +8,10 @@
 # The release the API calls "latest" is not necessarily one that carries the
 # asset a consumer downloads; see docs/architecture/version-update-playbooks.md
 # (section "Guarding release assets") for why this guard exists and where it
-# is mandatory. `release_carries_no_consumed_asset` states the opposite claim,
-# for a tool installed from somewhere other than the release assets.
+# is mandatory. A registry entry states the opposite claim with
+# `release_carries_no_consumed_asset`, for a tool installed from somewhere
+# other than the release assets; the pre-flight reads it from the registry, and
+# this file never receives it.
 
 - name: Normalise the required assets of {{ github_repo }}
   # A caller that passes nothing leaves the omit placeholder here, which is

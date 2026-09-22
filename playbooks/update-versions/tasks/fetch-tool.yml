@@ -23,15 +23,15 @@
       ansible.builtin.include_tasks: "{{ _tools[_name].fetch.file }}"
       # `vars:` on an include must be a literal mapping, so the argument names
       # are written out and each falls back to omit when this tool does not use
-      # it. Adding a fetch argument means adding it here once.
+      # it. Adding a fetch argument means adding it here once. Only arguments a
+      # fetch task file reads belong here: a registry argument that only the
+      # pre-flight inspects is never passed down.
       vars:
         _args: "{{ _tools[_name].fetch.args | default({}) }}"
         github_repo: "{{ _args.github_repo | default(omit) }}"
         git_ref: "{{ _args.git_ref | default(omit) }}"
         java_sdkman_major: "{{ _args.java_sdkman_major | default(omit) }}"
         required_asset_regexes: "{{ _args.required_asset_regexes | default(omit) }}"
-        release_carries_no_consumed_asset: >-
-          {{ _args.release_carries_no_consumed_asset | default(omit) }}
 
     - name: "Record what the fetch of {{ _name }} returned"
       # Bound inside the block: an output the fetch file did not set is
