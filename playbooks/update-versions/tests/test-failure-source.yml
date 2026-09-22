@@ -1,0 +1,144 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Test harness for the failure-source contract of ../tasks/. Runs on localhost,
+# needs no vault, and reaches no third-party host: it only reads task files.
+#
+# Run from the repository root:
+#   ANSIBLE_CONFIG=playbooks/update-versions/tests/ansible.cfg \
+#     ansible-playbook playbooks/update-versions/tests/test-failure-source.yml
+#
+# Every assert and fail task that runs inside a tool's fetch or apply block
+# must declare failure_source, unless it is one of the input asserts the
+# contract exempts. Without a declaration the classifier falls closed to
+# `configuration`, and a configuration error ends the whole run, so a lost
+# declaration turns a third party's bad release into an aborted run. The loss
+# is invisible otherwise: a duplicate YAML key parses, passes the syntax check,
+# and is discarded silently.
+#
+# The files are read with lookup + from_yaml rather than vars_files, for the
+# reason the pre-flight reads the registry the same way: under ansible-core
+# 2.21 a value loaded through vars_files renders when merely read. from_yaml
+# also collapses a duplicate key exactly as Ansible does, so this check sees
+# the vars the run would see, not the vars the file appears to declare.
+#
+# This file must not fall to the defect it checks for. Every value lives in the
+# single play-level vars block and no task declares vars of its own, so there
+# is no second vars key for YAML to discard. A check that silently stopped
+# finding tasks would pass vacuously, so the last assert requires a floor of
+# declarations found.
+
+- name: Assert every failure-raising task inside a tool's block declares its source
+  hosts: localhost
+  gather_facts: false
+  vars:
+    _tasks_dir: "{{ playbook_dir }}/../tasks"
+
+    # Files whose tasks never run inside a tool's block, so no rescue ever
+    # classifies their failure: the pre-flight and the pin read run before the
+    # tool loop, and the classifier and the report are the mechanism itself.
+    _outside_any_tool_block:
+      - preflight.yml
+      - read-current-pins.yml
+      - read-current-pins-of-tool.yml
+      - record-tool-failure.yml
+      - report-update-failures.yml
+
+    # The input asserts, which the contract exempts: a bad argument and an
+    # unresolved digest are this repository's own fault, and the classifier's
+    # default already says so. Whether a task is an input assert cannot be read
+    # off the file, so the exemption is named here and nowhere else.
+    #
+    # Matched as one regular expression rather than a list of names, because a
+    # task name read from a task file keeps its Jinja as text while this play's
+    # own vars are rendered, and a rendered `{{ _name }}` would fail the play.
+    _input_asserts: "(required_asset_regexes is a list|every digest .* pins has resolved)"
+
+    _minimum_declarations: 15
+
+    _failure_modules:
+      - assert
+      - fail
+      - ansible.builtin.assert
+      - ansible.builtin.fail
+
+    _candidate_files: >-
+      {{ (lookup('ansible.builtin.fileglob', _tasks_dir ~ '/*.yml', wantlist=True)
+          | map('basename') | reject('in', _outside_any_tool_block)
+          | sort | list) }}
+
+    # One record per task, including the tasks of a block, rescue or always
+    # section: file, name, whether it raises a failure, and whether it declares
+    # a source. `vars` is read from the loaded mapping, so a discarded
+    # duplicate key shows up here as a task with no declaration.
+    _records: >-
+      {%- set out = [] -%}
+      {%- for file, tasks in _file_tasks | dictsort -%}
+      {%-   for outer in tasks -%}
+      {%-     set nested = (outer.block | default([])) + (outer.rescue | default([]))
+                           + (outer.always | default([])) -%}
+      {%-     for task in [outer] + nested -%}
+      {%-       set _ = out.append({
+                  'file': file,
+                  'name': task.name | default('<unnamed>'),
+                  'raises': (task.keys() | select('in', _failure_modules)
+                             | list | length) > 0,
+                  'declares': 'failure_source' in (task.vars | default({})),
+                }) -%}
+      {%-     endfor -%}
+      {%-   endfor -%}
+      {%- endfor -%}
+      {{ out }}
+
+    _raising: "{{ _records | selectattr('raises') | list }}"
+    _declared: "{{ _raising | selectattr('declares') | list }}"
+    _undeclared: >-
+      {{ _raising | rejectattr('declares') | map(attribute='name')
+         | reject('search', _input_asserts) | list }}
+
+  tasks:
+    - name: Read every task file that runs inside a tool's block
+      ansible.builtin.set_fact:
+        _file_tasks: >-
+          {{ _file_tasks | default({})
+             | combine({item: (lookup('ansible.builtin.file',
+                                      _tasks_dir ~ '/' ~ item) | from_yaml)}) }}
+      loop: "{{ _candidate_files }}"
+
+    - name: Assert every task file was found and read
+      ansible.builtin.assert:
+        that:
+          - _candidate_files | length > 0
+          - _file_tasks | length == _candidate_files | length
+        fail_msg: >-
+          Read {{ _file_tasks | default({}) | length }} of
+          {{ _candidate_files | length }} task files in {{ _tasks_dir }}.
+        quiet: true
+
+    - name: Assert every failure-raising task declares its failure source
+      ansible.builtin.assert:
+        that: _undeclared | length == 0
+        fail_msg: >-
+          These tasks raise a failure inside a tool's block and declare no
+          failure_source, so the classifier would call a vendor's bad release
+          this repository's own error and end the run: {{ _undeclared }}.
+          Declare `failure_source: upstream` or `failure_source: configuration`
+          in the task's own vars, in ONE vars block -- a second vars key on the
+          same task discards the first silently.
+        quiet: true
+
+    - name: Assert the check still finds the declarations it guards
+      ansible.builtin.assert:
+        that: _declared | length >= _minimum_declarations
+        fail_msg: >-
+          Only {{ _declared | length }} declared failure-raising tasks were
+          found, below the floor of {{ _minimum_declarations }}. Either the
+          declarations were removed, or this check stopped seeing them and
+          would now pass vacuously.
+        quiet: true
+
+    - name: Report what the check proved
+      ansible.builtin.debug:
+        msg: >-
+          {{ _raising | length }} failure-raising tasks in
+          {{ _candidate_files | length }} task files; every one declares its
+          failure source, except the input asserts the contract exempts.

@@ -11,7 +11,8 @@ name: Version Update Lint
 #   task outside tasks/write-pins.yml may edit a file, because a direct edit
 #   skips the check that the pin exists exactly once (no network, no pip).
 # - update-versions-harness installs ansible-core and runs the localhost test
-#   harnesses for the registry, the failure classifier and write-pins. It
+#   harnesses for the registry, the failure classifier, write-pins and the
+#   failure-source declarations of the task files. It
 #   selects playbooks/update-versions/tests/ansible.cfg instead of the
 #   repository root ansible.cfg, whose vault password script exits non-zero
 #   without a vault secret, and fork pull requests receive no secrets.
@@ -67,7 +68,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        harness: [write-pins, tool-isolation, tool-registry, fixture-registry-smoke]
+        harness:
+          - write-pins
+          - tool-isolation
+          - tool-registry
+          - fixture-registry-smoke
+          - failure-source
 
     steps:
       - name: Checkout repository

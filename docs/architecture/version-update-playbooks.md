@@ -398,6 +398,12 @@ fault and the default already says so. A forgotten declaration therefore stops
 the run loudly; it can never mask an outage as success or a defect as an
 outage.
 
+A declaration can also be lost without anyone forgetting it: a second `vars:`
+key on the same task discards the first, and YAML reports nothing. The harness
+`tests/test-failure-source.yml` therefore reads each task file the way Ansible
+loads it and fails when a failure-raising task outside those input asserts
+carries no declaration.
+
 ### Guarding the pin write
 
 Every pin write goes through `tasks/write-pins.yml`, which checks that the pin

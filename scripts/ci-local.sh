@@ -44,7 +44,7 @@ run env -u ANSIBLE_VAULT_PASSWORD "$ansible_playbook" --syntax-check \
   playbooks/update-versions/perform-updates.yml
 
 for harness in test-write-pins test-tool-isolation test-tool-registry \
-               test-fixture-registry-smoke; do
+               test-fixture-registry-smoke test-failure-source; do
   path="playbooks/update-versions/tests/$harness.yml"
   [ -e "$path" ] || continue
   run env -u ANSIBLE_VAULT_PASSWORD "$ansible_playbook" "$path"
