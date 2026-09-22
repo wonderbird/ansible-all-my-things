@@ -424,7 +424,7 @@ Each guarantee below is enforced at exactly one point. The table names that
 point, so a reader can see what would have to change for a guarantee to be
 lost.
 
-| Guarantee | Where it lives now |
+| Guarantee | Where it is enforced |
 | --- | --- |
 | No network task after a tool's first pin write | Structural: one apply path resolves every digest before the single `write-pins.yml` include |
 | A fetch must be attributable to a tool | Structural: the loop variable is the tool |
