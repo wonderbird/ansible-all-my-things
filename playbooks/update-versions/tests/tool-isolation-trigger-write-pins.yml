@@ -3,7 +3,7 @@
 # A real write-pins failure, classified by the failure_source the pin-write
 # tasks declare.
 #
-# Required var: _harness_dir, the registered temporary directory.
+# Required vars: _harness_dir, the registered temporary directory.
 
 - name: "Write a pin that does not exist in the fixture"
   ansible.builtin.include_tasks: ../tasks/write-pins.yml

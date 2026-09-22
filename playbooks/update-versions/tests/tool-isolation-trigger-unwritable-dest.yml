@@ -4,7 +4,7 @@
 # the accepted blind spot of the classifier reports it as upstream. The case
 # exists so a future narrowing of the network rule is deliberate.
 #
-# Required var: _harness_dir, the registered temporary directory.
+# Required vars: _harness_dir, the registered temporary directory.
 
 - name: Download into a directory that does not exist
   ansible.builtin.get_url:

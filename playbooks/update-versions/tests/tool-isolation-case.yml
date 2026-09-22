@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # Runs one classifier case of test-tool-isolation.yml against
-# ../tasks/record-tool-failure.yml. Required var: _case (keys documented in
+# ../tasks/record-tool-failure.yml. Required vars: _case (keys documented in
 # test-tool-isolation.yml).
 #
 # A case whose `trigger` is set induces a real failure through a block/rescue

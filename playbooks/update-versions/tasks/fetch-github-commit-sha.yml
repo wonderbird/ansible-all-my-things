@@ -3,7 +3,7 @@
 # Fetch the HEAD commit SHA of a branch on a GitHub repository. Used for tools
 # that ship no tagged releases and are pinned to a commit SHA instead.
 #
-# Required variables:
+# Required vars:
 #   github_repo (e.g. "omrikais/skill-manager")
 #   git_ref     (branch name, e.g. "master")
 # Sets fact: fetched_github_sha
