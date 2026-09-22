@@ -69,9 +69,8 @@ extract the matching platform's hash is:
 
 Regardless of which shape resolved it, every role consumes the result
 identically at converge time: a literal `checksum: "sha256:{{
-pinned_var }}"` passed to `get_url`. None of the roles pass a live
-checksums-file URL to `get_url`'s own URL-lookup form any more — that
-consumption shape is retired.
+pinned_var }}"` passed to `get_url`. No role passes a live
+checksums-file URL to `get_url`'s own URL-lookup form.
 
 ## Idempotency semantics: static pin is the rule, not a live-resolve freeze
 
@@ -83,31 +82,18 @@ in the role's
 `playbooks/update-versions/perform-updates.yml` (Constitution
 Principle II). The source of truth for what to install is always the
 pinned default variable — never a live upstream query made at converge
-time. This mirrors the original reference tools for the version-update
-mechanism, `flutter` and `obsidian`, which have followed the same
-static-pin shape since before `rtk`/`beads_go`/`beads_viewer`/`nodejs`/`claude_code`
-adopted it.
+time. `flutter` and `obsidian`, the reference tools of the
+version-update mechanism, follow the same static-pin shape.
 
 A `stat` check on the resulting binary path still gates the whole
 download block in every role (`/usr/local/bin/rtk`, `/usr/local/bin/bd`,
 `/usr/local/bin/bv`, `/usr/local/bin/node`, or the per-user
-`~/.local/bin/claude`). This gate is load-bearing, but for a narrower
-reason than it once was: because the pin is already static, the gate
-carries no version-drift risk either way — its only job is avoiding a
+`~/.local/bin/claude`). This gate is load-bearing for one narrow
+reason: because the pin is already static, the gate carries no
+version-drift risk either way — its only job is avoiding a
 redundant re-download/re-extract of the same pinned archive on every
 converge (`unarchive`/binary placement has no `creates:`-based
 idempotency of its own).
-
-`claude_code` previously worked differently: `install-claude-code.yml`
-used to always re-run the vendor installer script unconditionally, then
-re-verify the *installed binary's* checksum against the manifest
-afterward — deleting and failing on a still-working binary the moment
-an upstream release bumped the expected checksum
-(`ansible-all-my-things-jvs4.1.14.1`). That always-reverify model is
-retired. `claude_code` now follows the exact same verify-before-
-placement, stat-gated, static-pin shape as every other tool in this
-document — see `roles/claude_code/tasks/install-claude-code.yml`'s own
-comment describing this convergence.
 
 Refreshing any tool's pin to a newer upstream release is exclusively
 the job of `perform-updates.yml` — see
@@ -127,13 +113,12 @@ runtime behavior.
 System-wide install (a single scalar `stat` gate on a version-agnostic
 path, no per-user placement) is the preferred default for any new tool
 following this pattern, unless a tool has genuine per-user state that
-requires otherwise. All four post-migration tools plus the two original
-static-pin examples follow the same static-pin, verify-before-placement
-shape:
+requires otherwise. Every tool in this document follows the same
+static-pin, verify-before-placement shape:
 
 - `roles/flutter/tasks/main.yml`, `roles/obsidian/tasks/main.yml` — the
-  original static-pin reference implementations; version and checksum
-  both explicit literals in `defaults/main.yml`.
+  static-pin reference implementations; version and checksum both
+  explicit literals in `defaults/main.yml`.
 - `roles/rtk/tasks/main.yml` — `rtk_version` and a per-architecture
   `rtk_sha256_*` literal, stat-gated, single system-wide artefact.
 - `roles/beads_go/tasks/main.yml` — `bd` uses a static `beads_go_version`
@@ -148,6 +133,6 @@ shape:
 - `roles/claude_code/tasks/install-claude-code.yml` — static
   `claude_code_version` pin and per-architecture literal checksums
   (resolved from the upstream manifest once, at maintenance time, by
-  `playbooks/update-versions/tasks/fetch-claude-code-version.yml`), now
-  converged onto the same stat-gated, verify-before-placement shape as
-  every role above — no longer an exception to this pattern.
+  `playbooks/update-versions/tasks/fetch-claude-code-version.yml`), on
+  the same stat-gated, verify-before-placement shape as every role
+  above.
