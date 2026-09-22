@@ -10,8 +10,6 @@
 # rejected are documented in ../../../docs/architecture/version-update-playbooks.md
 # (section "Writing pins"). Constraints for editing this file:
 #
-# - The list key is `pin:`, not `name:`: the apply-order checker splits tasks on
-#   every `- name:` line. Keep `value:` on the line directly after `pin:`.
 # - A failure here is always a configuration error, never an upstream one, so
 #   every task declares failure_source: configuration. A pin that cannot be
 #   written is this repository's problem, never a vendor's.
