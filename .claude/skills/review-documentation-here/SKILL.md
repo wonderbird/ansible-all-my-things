@@ -10,6 +10,12 @@ description: >
 Review the project documentation according to the rules here and to the
 rules in the "review-documentation" skill.
 
+The writing rules every durable artefact must satisfy — intent over
+implementation details, current state over history, and the variable contract a
+task file header states — are defined in `.specify/memory/constitution.md`,
+Documentation Standards. Review against them there; they bind every agent, so
+they are not restated here (Principle XI).
+
 ## Role Documentation Co-Location
 
 Each Ansible role MUST keep its documentation inside its own directory

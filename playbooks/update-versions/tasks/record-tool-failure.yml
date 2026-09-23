@@ -1,0 +1,98 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Required vars: failed_tool, failed_phase ("fetch" or "apply"),
+#                failed_task_name, failed_task_action,
+#                failed_task_resolved_action, failed_result,
+#                _update_failures (the ledger this file appends to)
+# Optional var:  failed_task_source, the failing task's own failure_source
+#                declaration ("upstream" or "configuration"); any other value,
+#                a typo included, counts as no declaration at all
+#
+# Classifies one rescued failure and appends it to the _update_failures ledger.
+# A configuration failure renders the report immediately, which ends the run.
+# Why the run accumulates third-party failures instead of aborting on the first
+# one, and what each class means, is in
+# ../../../docs/architecture/version-update-playbooks.md (section
+# "Classifying a failure").
+#
+# The caller passes the failure data explicitly rather than letting this file
+# read ansible_failed_task and ansible_failed_result, so the classifier is a
+# pure function the harness can drive with synthetic input.
+#
+# Observed on ansible-core 2.21.4, and the reason the rules look like this:
+#
+# - A templating or undefined-variable failure carries the literal
+#   "is undefined", usually inside "Error while resolving value for ...".
+#   The `exception` key does NOT discriminate: a plain connection-refused
+#   result carries it too.
+# - A failed looped task sets msg to the literal "One or more items failed";
+#   the real messages live only in results[].msg. Both failure modes that
+#   motivated this handling are looped asserts, so every rule and the report
+#   read results[] as well.
+# - A short-form task (`uri:`) reports action "uri" while _resolved_action
+#   reports "ansible.builtin.uri", so the network rule accepts either spelling.
+# - The caller extracts failure_source from ansible_failed_task.vars and passes
+#   the scalar. Rendering that dict whole inside a rescue raises a SIBLING var's
+#   undefined error there and ends the play past the isolation, and
+#   `| default({})` does not protect, because the dict itself renders.
+
+- name: Assert the failure-record inputs for {{ failed_tool | default('<undefined tool>') }}
+  vars:
+    _tool_name_ok: '^[a-z0-9_]+\Z'
+  ansible.builtin.assert:
+    that:
+      - failed_tool is defined and failed_tool is string
+      - failed_tool is match(_tool_name_ok)
+      - failed_phase is defined and failed_phase in ['fetch', 'apply']
+      - failed_task_name is defined and failed_task_name is string
+      - failed_result is defined and failed_result is mapping
+    fail_msg: >-
+      record-failure: invalid inputs (tool='{{ failed_tool | default('<undefined>') }}',
+      phase='{{ failed_phase | default('<undefined>') }}',
+      task='{{ failed_task_name | default('<undefined>') }}').
+    quiet: true
+
+- name: Classify the failure of {{ failed_tool }}
+  vars:
+    _failure_item_messages: >-
+      {{ ((failed_result.results | default([]))
+          | selectattr('failed', 'defined') | selectattr('failed')
+          | selectattr('msg', 'defined') | map(attribute='msg') | list) }}
+    _failure_messages: >-
+      {{ ((_failure_item_messages
+           if (_failure_item_messages | length > 0)
+           else [failed_result.msg | default('')]))
+         | reject('equalto', '') | list }}
+    _actions: "{{ [failed_task_action | default(''), failed_task_resolved_action | default('')] }}"
+    _is_network_module: >-
+      {{ (_actions | select('in', ['uri', 'get_url',
+                                   'ansible.builtin.uri', 'ansible.builtin.get_url'])
+          | list | length) > 0 }}
+    _is_templating_failure: >-
+      {{ (_failure_messages | select('search', 'is undefined') | list | length) > 0
+         or (_failure_messages | select('search', 'Error while resolving value for')
+             | list | length) > 0 }}
+    # an unrecognised value is treated as NO declaration, never as upstream: a
+    # typo must not be able to label our own defect a vendor outage
+    _declared: "{{ failed_task_source | default('') }}"
+    # 1 veto, above the declaration so a declaration can never override it;
+    # 2 the failing task's own declaration; 3 a network module; 4 fail closed.
+    _class: >-
+      {{ 'configuration' if _is_templating_failure
+         else (_declared if _declared in ['upstream', 'configuration']
+               else ('upstream' if _is_network_module
+                     else 'configuration')) }}
+  ansible.builtin.set_fact:
+    _update_failures: >-
+      {{ _update_failures + [{'tool': failed_tool,
+                              'phase': failed_phase,
+                              'class': _class,
+                              'task': failed_task_name,
+                              'action': failed_task_action | default(''),
+                              'source': _declared,
+                              'resolved_action': failed_task_resolved_action | default(''),
+                              'messages': _failure_messages}] }}
+
+- name: Report and stop on a configuration error in {{ failed_tool }}
+  ansible.builtin.include_tasks: report-update-failures.yml
+  when: (_update_failures | last).class == 'configuration'

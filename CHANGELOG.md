@@ -14,11 +14,18 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   or empty.
 - Roles that configure per-user state fail when `login_user_names` is
   undefined or empty.
+- `perform-updates.yml` reports every tool that failed, and keeps updating the
+  other tools when one upstream source is unavailable.
+- `perform-updates.yml` refuses to run with `--check`, naming the reason.
+- Tracked tools are declared in `playbooks/update-versions/vars/tools.yml`;
+  adding a tool is one entry, and a malformed one fails at play start.
 
 ### Removed
 
 - `podman` role default `login_user_names: []` — callers must supply at least
   one user name.
+- `query-versions.yml`. Run `perform-updates.yml` and read `git diff`: it
+  reports the same drift, having already applied it.
 
 ### Fixed
 

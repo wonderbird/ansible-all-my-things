@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: MIT-0
+---
+# The same failure as the unprefixed case, through a task that declares its
+# source (classifier rule 2).
+#
+# Required vars: _harness_dir, the registered temporary directory.
+
+- name: Download from a closed port, declaring the source
+  vars:
+    failure_source: upstream
+  ansible.builtin.get_url:
+    url: "https://127.0.0.1:1/x"
+    dest: "{{ _harness_dir.path }}/refused-declared"
+    mode: "0644"

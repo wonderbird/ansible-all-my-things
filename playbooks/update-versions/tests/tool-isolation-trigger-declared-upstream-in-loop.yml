@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT-0
+---
+# The declaration must survive a loop and an include boundary: the rescue reads
+# it from ansible_failed_task.vars after this file was included and the failing
+# task ran as a loop item.
+
+- name: Fail an item while declaring the source
+  vars:
+    failure_source: upstream
+  ansible.builtin.fail:
+    msg: "the vendor returned nothing for item {{ item }}"
+  loop: [1]

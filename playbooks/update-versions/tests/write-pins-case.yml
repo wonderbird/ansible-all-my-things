@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: MIT-0
 ---
 # Runs one test case of test-write-pins.yml against ../tasks/write-pins.yml.
-# Required var: _case (see test-write-pins.yml for its keys).
+# Required vars: _case (see test-write-pins.yml for its keys) and
+# _harness_dir, the registered temporary directory holding the fixture
+# defaults file this case writes to.
 #
 # The include runs inside block/rescue so an expected failure can be
 # inspected. A case that expects a failure but gets a success fails the

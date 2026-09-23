@@ -17,6 +17,10 @@
          | default([], true) }}
 
 - name: Fail if Android cmdline-tools build number not found on developer page
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.fail:
     msg: >-
       Android developer page (https://developer.android.com/studio) could not be parsed:
@@ -36,6 +40,10 @@
          | default([], true) }}
 
 - name: Fail if Android cmdline-tools SHA-1 not found on developer page
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.fail:
     msg: >-
       Android developer page (https://developer.android.com/studio) could not be parsed:

@@ -110,7 +110,6 @@ roles/dolt_sql_server/
 configure-linux-roles.yml         # add `dolt_sql_server` to roles list
 
 playbooks/update-versions/
-├── query-versions.yml            # add Dolt: slurp defaults, fetch, report, fail-if-stale
 └── perform-updates.yml           # add Dolt: fetch + replace dolt_version
 # tasks/fetch-github-release.yml reused as-is (github_repo: dolthub/dolt)
 

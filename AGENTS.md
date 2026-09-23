@@ -381,7 +381,9 @@ when no issue is marked `in_progress`.
   beads issues); `caveman wenyan-ultra` for internal and inter-agent content
   (thinking, subagents, MCP, tool calls, all files under `.omc/`). Code blocks,
   commit messages, and security warnings stay in normal English regardless of
-  mode. The skills define each mode.
+  mode, and so do plan files under `.omc/plans/`: a plan is read and reviewed
+  by people, and a compressed one cannot be reviewed unambiguously. The skills
+  define each mode.
 - **One question at a time**: when asking the user a question, ask one
   question at a time so they can focus.
 - **Avoid ambiguity**: if instructions are unclear, contradictory, or

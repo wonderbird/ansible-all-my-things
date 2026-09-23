@@ -1,0 +1,67 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Writes one tool's pins. Required vars: _name (the tool, supplied by the
+# loop), _tools (the registry), _fetch_results (what the fetch phase returned,
+# keyed by tool), _roles_dir (the roles tree whose defaults files are written)
+# and _update_updated (the list of updated tools this file appends to). Runs
+# only for a tool whose fetch succeeded; the guard lives on the include in the
+# playbook.
+#
+# The block/rescue lives here, so a third-party failure during the apply phase
+# is recorded against this tool and the remaining tools still run, exactly as in
+# the fetch phase.
+
+- name: "Apply the updates of {{ _name }}"
+  block:
+    - name: "Bind the fetched values and clear the digests of {{ _name }}"
+      # Both are bound inside the block, which is rescued: _fetched names this
+      # tool's own outputs, and _checksums starts empty for every tool, so a
+      # tool that resolves fewer digests than its pins reference fails the
+      # assert below instead of inheriting the previous tool's digest.
+      ansible.builtin.set_fact:
+        _fetched: "{{ _fetch_results[_name] }}"
+        _checksums: {}
+
+    - name: "Resolve the digests of {{ _name }}"
+      ansible.builtin.include_tasks: resolve-checksum.yml
+      vars:
+        _artefact_path: "/tmp/{{ _name }}-{{ _checksum.key }}"
+      loop: "{{ _tools[_name].checksums | default([]) }}"
+      loop_control:
+        loop_var: _checksum
+        label: "{{ _checksum.key }}"
+
+    - name: "Assert every digest {{ _name }} pins has resolved"
+      vars:
+        _referenced: >-
+          {{ _tools[_name].pins | map(attribute='value') | join(' ')
+             | regex_findall('_checksums\.([a-z0-9_]+)') }}
+        _missing: "{{ _referenced | difference(_checksums.keys() | list) }}"
+      ansible.builtin.assert:
+        that: _missing | length == 0
+        fail_msg: >-
+          {{ _name }} pins {{ _missing }} but nothing resolved
+          {{ 'those digests' if (_missing | length) > 1 else 'that digest' }}.
+          Writing now would take another tool's value or leave the pin stale.
+        quiet: true
+
+    - name: "Write the pins of {{ _name }}"
+      ansible.builtin.include_tasks: write-pins.yml
+      vars:
+        pin_file: "{{ _roles_dir }}/{{ _tools[_name].role }}/defaults/main.yml"
+        pins: "{{ _tools[_name].pins }}"
+
+    - name: "Record that {{ _name }} was updated"
+      ansible.builtin.set_fact:
+        _update_updated: "{{ _update_updated + [_name] }}"
+  rescue:
+    - name: "Record the apply failure of {{ _name }}"
+      ansible.builtin.include_tasks: record-tool-failure.yml
+      vars:
+        failed_tool: "{{ _name }}"
+        failed_phase: apply
+        failed_task_name: "{{ ansible_failed_task.name }}"
+        failed_task_action: "{{ ansible_failed_task.action }}"
+        failed_task_resolved_action: "{{ ansible_failed_task._resolved_action | default('') }}"
+        failed_task_source: "{{ ansible_failed_task.vars.failure_source | default('') }}"
+        failed_result: "{{ ansible_failed_result }}"

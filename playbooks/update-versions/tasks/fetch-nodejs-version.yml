@@ -18,6 +18,10 @@
     _nodejs_lts_versions: "{{ _nodejs_index.json | selectattr('lts') | map(attribute='version') | list }}"
 
 - name: Assert a Node.js LTS version was resolved
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.assert:
     that: "_nodejs_lts_versions | length > 0"
     fail_msg: >-

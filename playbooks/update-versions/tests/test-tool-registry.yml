@@ -1,0 +1,155 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Test harness for ../tasks/preflight.yml, the pre-flight validation of the tool
+# registry. Runs on localhost, needs no vault and reaches no network.
+#
+# Run from the repository root:
+#   ANSIBLE_CONFIG=playbooks/update-versions/tests/ansible.cfg \
+#     ansible-playbook playbooks/update-versions/tests/test-tool-registry.yml
+#
+# The real registry must validate clean, and every mutant must be rejected. A
+# harness that only checked the real registry would pass just as happily with
+# every rule commented out, so the play asserts that the number of mutants
+# rejected equals the number written.
+#
+# A mutant is the fixture registry with one line changed, written as text: a
+# registry value is a template, so building one in play vars would render it
+# here instead of inside a tool's block, so no mutation string carries one.
+
+- name: Test the tool registry pre-flight validation
+  hosts: localhost
+  gather_facts: false
+  vars:
+    _repo_dir: "{{ (playbook_dir ~ '/../../..') | realpath }}"
+    _real_registry: "{{ (playbook_dir ~ '/../vars/tools.yml') | realpath }}"
+    _registry_fixture: "{{ (playbook_dir ~ '/fixtures/registry-fixture.yml') | realpath }}"
+    _mutants:
+      - id: missing-asset-declaration
+        why: a GitHub release fetch that says nothing about the assets it needs
+        replace: "      required_asset_regexes: ['^fixture-linux-amd64\\.tar\\.gz$']\n"
+        with: ""
+      - id: wrong-architecture-source
+        why: an amd64 pin written from an arm64 checksum key
+        replace: "    - key: amd64\n"
+        with: "    - key: arm64\n"
+      - id: undeclared-checksum-key
+        why: a pin referencing a checksum key the tool does not declare
+        replace: "_checksums.amd64 "
+        with: "_checksums.nosuchkey "
+      - id: undeclared-fetch-result
+        why: a pin referencing a fetch output the tool does not declare
+        replace: "        version: "
+        with: "        renamed_output: "
+      - id: missing-role
+        why: an entry with no role, so nothing says which defaults file to write
+        replace: "    role: fixture_tool\n"
+        with: ""
+      - id: missing-current-pin
+        why: an entry with no current_pin, so nothing says which pin carries the version
+        replace: "    current_pin: fixture_version\n"
+        with: ""
+      - id: current-pin-not-written
+        why: a current_pin that is not one of the tool's own pins
+        replace: "    current_pin: fixture_version"
+        with: "    current_pin: pin_this_tool_never_writes"
+      - id: missing-fetch-file
+        why: a fetch file that does not exist under tasks/
+        replace: "      file: fetch-github-release.yml"
+        with: "      file: fetch-nothing-implements-this.yml"
+      - id: checksum-file-without-filename
+        why: a published checksums file with no line to look for
+        replace: "        filename: fixture-linux-amd64.tar.gz\n"
+        with: ""
+      - id: unknown-checksum-kind
+        why: a checksum source no resolver implements
+        replace: "      kind: checksum_file"
+        with: "      kind: telepathy"
+      - id: pin-value-reaching-outside-the-tool
+        why: a pin value reaching a playbook global instead of this tool's own results
+        replace: "_checksums.amd64 "
+        with: "fetched_github_tag "
+
+  tasks:
+    - name: Create the harness working directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: tool-registry
+      register: _harness_dir
+
+    - name: Create the fixture roles tree
+      ansible.builtin.file:
+        path: "{{ _harness_dir.path }}/roles/fixture_tool/defaults"
+        state: directory
+        mode: "0755"
+
+    - name: Write the fixture role defaults
+      ansible.builtin.copy:
+        content: |
+          ---
+          fixture_version: "v1.0.0"
+          fixture_sha256_amd64: "0000000000000000000000000000000000000000000000000000000000000000"
+        dest: "{{ _harness_dir.path }}/roles/fixture_tool/defaults/main.yml"
+        mode: "0644"
+
+    - name: Create the fixture registry directory
+      ansible.builtin.file:
+        path: "{{ _harness_dir.path }}/vars"
+        state: directory
+        mode: "0755"
+
+    - name: Validate the REAL registry against the real roles tree
+      ansible.builtin.include_tasks: ../tasks/preflight.yml
+      vars:
+        _tools: "{{ (lookup('ansible.builtin.file', _real_registry) | from_yaml)._tools }}"
+        _registry_file: "{{ _real_registry }}"
+        _registry_roles_dir: "{{ _repo_dir }}/roles"
+
+    - name: Validate the clean fixture registry
+      ansible.builtin.include_tasks: registry-case.yml
+      vars:
+        _case:
+          id: clean-fixture
+          expect_reject: false
+
+    - name: Reject every mutant registry
+      ansible.builtin.include_tasks: registry-case.yml
+      loop: "{{ _mutants }}"
+      loop_control:
+        loop_var: _mutant
+        label: "{{ _mutant.id }}"
+      vars:
+        _case:
+          id: "{{ _mutant.id }}"
+          why: "{{ _mutant.why }}"
+          expect_reject: true
+          replace: "{{ _mutant.replace }}"
+          with: "{{ _mutant.with }}"
+
+    - name: Assert an unregistered pinned role is rejected
+      ansible.builtin.include_tasks: registry-case.yml
+      vars:
+        _case:
+          id: unregistered-pinned-role
+          why: a role carrying a version pin that no registry entry names
+          expect_reject: true
+          extra_role: stowaway
+
+    - name: Assert every mutant was rejected
+      ansible.builtin.assert:
+        that: _registry_rejected | sort == _registry_expected_rejected | sort
+        fail_msg: >-
+          Rejected {{ _registry_rejected | sort }}, expected
+          {{ _registry_expected_rejected | sort }}. A mutant the pre-flight
+          accepts means that rule is not enforced.
+        quiet: true
+
+    - name: Remove the harness working directory
+      ansible.builtin.file:
+        path: "{{ _harness_dir.path }}"
+        state: absent
+
+    - name: Report the number of cases run
+      ansible.builtin.debug:
+        msg: >-
+          tool-registry harness: the real registry and the clean fixture
+          validated, {{ _registry_rejected | length }} mutant(s) rejected

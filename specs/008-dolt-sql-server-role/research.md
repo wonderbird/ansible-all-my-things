@@ -180,12 +180,10 @@ with `github_repo: dolthub/dolt`. Version-only pin (no checksum), matching the
 gitmux / Nerd Fonts precedent. Concrete changes (implemented in the tasks
 phase, not this plan):
 
-- `query-versions.yml`: slurp `roles/dolt_sql_server/defaults/main.yml`,
-  extract `current_dolt_version`, `include_tasks fetch-github-release.yml`
-  with `github_repo: dolthub/dolt`, save `fetched_dolt_tag`, add a status
-  report, and extend the fail-if-stale condition.
-- `perform-updates.yml`: fetch the same tag and
-  `ansible.builtin.replace` the `dolt_version` line in the role defaults.
+- `vars/tools.yml`: one entry naming the role, `fetch-github-release.yml`
+  with `github_repo: dolthub/dolt`, the version it consumes, the digests it
+  needs and the pins it writes. Both the fetch and the pin write run from
+  that entry.
 - `docs/architecture/version-update-playbooks.md`: add a Dolt row to the
   tracked-tools table (Role `dolt_sql_server`, version_key `dolt_version`,
   checksum_key —, source GitHub Releases API `dolthub/dolt`).
@@ -199,7 +197,7 @@ number without the `v`, so Molecule's version assertion compares against
 
 **Rationale**: The version-update design (FR-001/FR-002) exists precisely so
 pins do not drift behind upstream security releases. A new pinned tool that is
-not registered would be invisible to `query-versions.yml` and silently rot —
+not registered would be invisible to the update run and silently rot —
 the exact failure the design prevents. Reusing `fetch-github-release.yml`
 satisfies FR-006 (no duplicated fetch logic) and Principle XI (DRY).
 

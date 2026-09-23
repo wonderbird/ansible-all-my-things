@@ -1,0 +1,46 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Resolves one artefact's sha256 into _checksums[<key>]. Required vars: _name
+# (the tool), _checksum (one entry of that tool's checksums list), _checksums
+# (the digests resolved for this tool so far, which this file adds to) and
+# _artefact_path (where a downloaded artefact is written before it is hashed).
+# Called from inside the tool's apply block, so a failure here is rescued and
+# classified like any other.
+#
+# Two kinds of source, which is the only thing that varies between tools:
+#   checksum_file  upstream publishes the digest, and it is read from there
+#   download       upstream publishes no digest, so the artefact is downloaded
+#                  and hashed locally
+# Reading a published digest is preferred: it needs no artefact download, and it
+# is the vendor's own statement about the file.
+
+- name: "Read the published digest of {{ _name }} {{ _checksum.key }}"
+  ansible.builtin.include_tasks: fetch-checksum-from-file.yml
+  vars:
+    checksum_file_url: "{{ _checksum.url }}"
+    checksum_target_filename: "{{ _checksum.filename }}"
+  when: _checksum.kind == 'checksum_file'
+
+- name: "Download {{ _name }} {{ _checksum.key }} to hash it"
+  vars:
+    failure_source: upstream
+  ansible.builtin.get_url:
+    url: "{{ _checksum.url }}"
+    dest: "{{ _artefact_path }}"
+    mode: "0644"
+  when: _checksum.kind == 'download'
+
+- name: "Hash the downloaded {{ _name }} {{ _checksum.key }}"
+  ansible.builtin.stat:
+    path: "{{ _artefact_path }}"
+    checksum_algorithm: sha256
+  register: _artefact_stat
+  when: _checksum.kind == 'download'
+
+- name: "Record the digest of {{ _name }} {{ _checksum.key }}"
+  vars:
+    _digest: >-
+      {{ _artefact_stat.stat.checksum if _checksum.kind == 'download'
+         else fetched_checksum }}
+  ansible.builtin.set_fact:
+    _checksums: "{{ _checksums | combine({_checksum.key: _digest}) }}"

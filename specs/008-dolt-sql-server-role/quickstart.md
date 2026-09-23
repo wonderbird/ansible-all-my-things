@@ -96,7 +96,7 @@ source `dolthub/dolt`). Detect drift and apply updates:
 
 ```bash
 # Report stale pins (exits non-zero if any tool, incl. Dolt, is stale)
-ansible-playbook playbooks/update-versions/query-versions.yml
+ansible-playbook playbooks/update-versions/perform-updates.yml
 
 # Rewrite pins in role defaults (no commit created)
 ansible-playbook playbooks/update-versions/perform-updates.yml

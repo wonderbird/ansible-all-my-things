@@ -1,0 +1,25 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Reads the pins the roles carry today into _current[<tool>][<pin name>], for
+# every pin the registry names. Runs once per play, after pre-flight and before
+# any upstream is queried, because a fetch can derive an argument from the pin
+# the role carries: java tracks same-major patches, so its major version comes
+# from its own current pin.
+#
+# A pin the registry names that the role file does not carry is a configuration
+# error, and it aborts the play rather than failing one tool: it means the
+# registry and the roles disagree, which makes every later comparison and every
+# write for that tool meaningless.
+#
+# Required vars: _tools (the registry), _roles_dir.
+
+- name: Start with no current pins
+  ansible.builtin.set_fact:
+    _current: {}
+
+- name: Read the current pins of every registered tool
+  ansible.builtin.include_tasks: read-current-pins-of-tool.yml
+  loop: "{{ _tools.keys() | list }}"
+  loop_control:
+    loop_var: _pin_tool
+    label: "{{ _pin_tool }}"
