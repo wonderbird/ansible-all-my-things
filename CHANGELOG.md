@@ -10,8 +10,11 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 
 ### Added
 
-- The desktop profile installs Android Studio, Flutter and Cursor on
-  AMD64 hosts.
+- The desktop profile installs Android Studio and Flutter on AMD64 hosts, and
+  Cursor on every desktop host. ARM64 hosts must pass
+  `--skip-tags not-supported-on-arm64`.
+- The first desktop apply downloads several gigabytes for each login user,
+  and every later apply re-downloads the Cursor package.
 
 ### Changed
 
