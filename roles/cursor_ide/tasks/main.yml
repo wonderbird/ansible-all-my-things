@@ -43,7 +43,7 @@
 
 - name: Create empty .cursor/argv.json
   copy:
-    src: "{{ playbook_dir }}/configuration/home/my_desktop_user/.cursor/argv.json"
+    src: argv.json
     dest: /home/{{ item }}/.cursor/argv.json
     force: no
     owner: "{{ item }}"
