@@ -28,9 +28,10 @@ See TD-009 in the technical debt register for the accepted risk.
 
 ## Dependencies
 
-The `java` role must be applied before this role (provides Temurin JDK via
-sdkman for `sdkmanager`). This dependency is documented here only;
-`meta/main.yml` keeps `dependencies: []` following project convention.
+The `java` role, declared in `meta/main.yml`: `sdkmanager` is invoked with
+`JAVA_HOME` pointing into the sdkman JDK that `java` installs, and the
+identifier it reads is that role's own default, so this role hard-fails
+without it. The desktop play also lists `java`'s play before this one.
 
 ## Example Playbook
 

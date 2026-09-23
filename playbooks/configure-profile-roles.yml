@@ -59,3 +59,9 @@
       tags: not-supported-on-arm64
     - role: obsidian
       tags: not-supported-on-arm64
+    - role: android_studio
+      tags: not-supported-on-arm64
+    - role: flutter
+      tags: not-supported-on-arm64
+    - role: cursor_ide
+      tags: not-supported-on-arm64

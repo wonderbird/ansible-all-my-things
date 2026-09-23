@@ -39,7 +39,9 @@ that must be applied before this role in the provisioning playbook:
 - `android_studio` — provides the Android SDK required by Flutter.
 - `google_chrome` — provides the Chrome browser required for the web target.
 
-All three roles are listed before `flutter` in `configure-profile-roles.yml`.
+In `configure-profile-roles.yml`, `java` runs in the base play, and
+`android_studio` and `google_chrome` are listed before `flutter` in the
+desktop play.
 
 ## Example Playbook
 
