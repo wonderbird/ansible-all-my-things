@@ -33,7 +33,7 @@ is defined and how the entities relate.
 |-----------|-------|
 | Definition | `login_users` list of `{name, password, ...}` objects |
 | Defined in | `inventories/group_vars/all/vars.yml` (existing, unmodified — currently one entry, `galadriel`) |
-| Relationships | Each entry becomes a member of the `sudo` group and receives an SSH public key (FR-003, FR-005) via `setup-users.yml`'s `all_users = console_users + login_users`; each entry's `.name` is extracted into `login_user_names` (a list of strings) by both `playbooks/setup-nodejs.yml` and `playbooks/configure-profile-roles.yml` via `login_users \| map(attribute='name') \| list` |
+| Relationships | Each entry becomes a member of the `sudo` group and receives an SSH public key (FR-003, FR-005) via `setup-users.yml`'s `all_users = console_users + login_users`; each entry's `.name` is extracted into `login_user_names` (a list of strings) via `login_users \| map(attribute='name') \| list` by every play that applies per-user roles (grep `login_user_names:` under `playbooks/` for the current set) |
 | Receives | Node Version Manager, Node.js LTS (default version), and global npm tools `eslint`, `markdownlint-cli`, `prettier`, `typescript` (FR-010–FR-012) via `playbooks/setup-nodejs.yml` (existing, unmodified) |
 
 ### Development Tool Role
