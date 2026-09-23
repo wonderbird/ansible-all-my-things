@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: MIT-0
+---
+# An unprefixed slurp of a missing file: not a network module, so the
+# fail-closed default must call it a configuration error.
+#
+# Required vars: _harness_dir, the registered temporary directory.
+
+- name: Read a file that is not there
+  ansible.builtin.slurp:
+    src: "{{ _harness_dir.path }}/no-such-file"

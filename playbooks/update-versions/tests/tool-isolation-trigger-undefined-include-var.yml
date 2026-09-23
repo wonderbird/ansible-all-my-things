@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Induces an undefined variable in an include's vars (classifier rule 2).
+#
+# Reads _harness_variable_that_is_never_set, which NOTHING defines. That is
+# the point of this file: defining it removes the failure under test.
+
+- name: Include with an undefined var
+  vars:
+    failure_source: upstream
+    _harness_passed: "{{ _harness_variable_that_is_never_set }}"
+  ansible.builtin.include_tasks: tool-isolation-trigger-noop.yml

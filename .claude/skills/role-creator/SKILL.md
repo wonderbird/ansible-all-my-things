@@ -144,17 +144,17 @@ Rules that bite:
 ## Step 4 — Version-update wiring (mandatory when a version/SHA is pinned)
 
 A pinned tool with no wiring silently escapes drift tracking (Principle II).
-Four touchpoints, all required — details and the fetch-task reuse matrix in
+Both playbooks loop over one registry, so registering a tool is an entry rather
+than an edit per playbook — details, the entry shape, the validation rules and
+the fetch-task reuse matrix in
 [reference/version-update-wiring.md](reference/version-update-wiring.md):
 
-1. A fetch task under `playbooks/update-versions/tasks/` — **reuse** an existing
-   parametrized one where possible.
-2. `query-versions.yml` — slurp defaults, extract current pin, fetch, report,
-   add to the aggregate fail-when.
-3. `perform-updates.yml` — fetch (re-compute checksums if any), then write
-   the pins with one `tasks/write-pins.yml` include.
-4. `docs/architecture/version-update-playbooks.md` — source-type list, tasks
-   tree, and Tracked-tools table.
+1. An entry in `playbooks/update-versions/vars/tools.yml`: the role, the
+   upstream source, the outputs the tool consumes, its digests and its pins.
+2. A fetch task under `playbooks/update-versions/tasks/` — only when no existing
+   one already queries that kind of source; **reuse** where possible.
+3. `docs/architecture/version-update-playbooks.md` — source-type list and
+   Tracked-tools table.
 
 ## Step 5 — Molecule scenario
 

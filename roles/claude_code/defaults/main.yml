@@ -11,10 +11,10 @@ claude_code_platform_map:
 # manifest URL's own path convention, e.g. ".../claude-code-releases/2.1.204/").
 # See https://github.com/anthropics/claude-code/releases for available versions.
 # Updated automatically by playbooks/update-versions/perform-updates.yml.
-claude_code_version: "2.1.273"
+claude_code_version: "2.1.278"
 
 # SHA-256 checksums for the linux binaries (x64 and arm64), taken from the
 # pinned version's own manifest.json (claude_code_manifest_base_url above).
 # All three values (version + both checksums) must be updated together.
-claude_code_sha256_linux_x64: "6c752e2cc7c110c9df15f26d8d134d438c5ae95dbd610efc1a308bf7f9c5f6c1"
-claude_code_sha256_linux_arm64: "103cfab4d6ae898b6af692336fb662ffcc607075cc6408892bd350b3f549ebee"
+claude_code_sha256_linux_x64: "5c4735937844e84f8a93306e841a5b0e12252909b07870f789b190468da147ab"
+claude_code_sha256_linux_arm64: "7de6cab134e48321148e30182c98614118e8f4666819412bead45865190b34ed"

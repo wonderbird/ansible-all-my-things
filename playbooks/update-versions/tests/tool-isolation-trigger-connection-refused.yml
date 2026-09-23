@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Induces a connection-refused download in an UNPREFIXED task, so only the
+# structural network rule can classify it.
+#
+# Required vars: _harness_dir, the registered temporary directory.
+
+- name: Download from a closed port
+  ansible.builtin.get_url:
+    url: "https://127.0.0.1:1/x"
+    dest: "{{ _harness_dir.path }}/refused"
+    mode: "0644"

@@ -63,7 +63,7 @@
         fixture: "{{ _base | replace('tool_sha256_amd64:', 'tool_sha256_amd64_renamed:') }}"
         pins: "{{ _stale_pins }}"
         expect_fail: true
-        expect_task: "write-pins: assert"
+        expect_task: "Assert each pin"
         expect_msg:
           - "h3-renamed-pin.yml: pin 'tool_sha256_amd64' matched 0 line(s)"
 
@@ -71,7 +71,7 @@
         fixture: "{{ _base ~ 'tool_sha256_amd64: \"ccc\"\n' }}"
         pins: "{{ _stale_pins }}"
         expect_fail: true
-        expect_task: "write-pins: assert"
+        expect_task: "Assert each pin"
         expect_msg:
           - "h4-duplicated-pin.yml: pin 'tool_sha256_amd64' matched 2 line(s)"
 
@@ -83,7 +83,7 @@
           - pin: tool_sha256_amd64
             value: ""
         expect_fail: true
-        expect_task: "write-pins: validate"
+        expect_task: "Validate inputs"
         expect_msg:
           - "write-pins: invalid inputs for"
 
@@ -95,7 +95,7 @@
           - pin: tool_sha256_amd64
             value: 'b"b'
         expect_fail: true
-        expect_task: "write-pins: validate"
+        expect_task: "Validate inputs"
         expect_msg:
           - "write-pins: invalid inputs for"
 
@@ -107,7 +107,7 @@
           - pin: tool_sha256_amd64
             value: 'a\1b'
         expect_fail: true
-        expect_task: "write-pins: validate"
+        expect_task: "Validate inputs"
         expect_msg:
           - "write-pins: invalid inputs for"
 
@@ -119,7 +119,7 @@
           - pin: tool_sha256_amd64
             value: "bbb\n"
         expect_fail: true
-        expect_task: "write-pins: validate"
+        expect_task: "Validate inputs"
         expect_msg:
           - "write-pins: invalid inputs for"
 
@@ -127,7 +127,7 @@
         fixture: "{{ _base }}"
         pins: "tool_version"
         expect_fail: true
-        expect_task: "write-pins: validate"
+        expect_task: "Validate inputs"
         expect_msg:
           - "write-pins: invalid inputs for"
 
@@ -139,7 +139,7 @@
           - pin: tool.sha256_amd64
             value: "bbb"
         expect_fail: true
-        expect_task: "write-pins: validate"
+        expect_task: "Validate inputs"
         expect_msg:
           - "write-pins: invalid inputs for"
 
@@ -157,7 +157,7 @@
              ~ 'legacy_tool_sha256_amd64: "x"\n# tool_sha256_amd64: "x"\n' }}
         pins: "{{ _stale_pins }}"
         expect_fail: true
-        expect_task: "write-pins: assert"
+        expect_task: "Assert each pin"
         expect_msg:
           - "h7-decoy-lines.yml: pin 'tool_sha256_amd64' matched 0 line(s)"
 

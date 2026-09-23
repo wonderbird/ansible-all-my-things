@@ -53,9 +53,8 @@ login users.
 
 The role registers with the project-wide version-update mechanism:
 
-- `query-versions.yml` reads the pinned tag from `defaults/main.yml`,
-  fetches the latest GitHub release tag via the shared
-  `fetch-github-release.yml` task, and reports STALE if the two differ.
+- The registry entry names the shared `fetch-github-release.yml` task and the
+  repository it queries.
 - `perform-updates.yml` writes the new tag and re-downloads both the
   `linux-amd64` and `linux-arm64` binaries to recompute their SHA-256
   values, then writes both pins back into `defaults/main.yml`. The three

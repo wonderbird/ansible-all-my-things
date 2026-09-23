@@ -5,13 +5,14 @@ Prerequisite: You have run through [First Steps: Docker VM with Basic Profile](.
 ## Periodically check for updates
 
 ```shell
-ansible-playbook playbooks/update-versions/query-versions.yml > query-versions.log 2>&1; grep -E "(\"msg\".*status=STALE)|(ok=)" query-versions.log
 ansible-playbook playbooks/update-versions/perform-updates.yml
-ansible-playbook playbooks/update-versions/query-versions.yml > query-versions.log 2>&1; grep -E "(\"msg\".*status=STALE)|(ok=)" query-versions.log
-git status
-git commit -am "deps: update [application], [application]"
+git diff
+git commit -am "build(deps): update [application], [application]"
 git push
 ```
+
+The run reports which tools it updated, which it skipped and which failed,
+and `git diff` shows exactly what moved.
 
 More information can be found in [Version Update Playbooks](./docs/architecture/version-update-playbooks.md).
 

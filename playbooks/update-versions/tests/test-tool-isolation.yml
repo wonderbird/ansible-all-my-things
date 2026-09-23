@@ -1,0 +1,208 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Test harness for ../tasks/record-tool-failure.yml and
+# ../tasks/report-update-failures.yml. Runs on localhost, needs no vault, and
+# reaches no third-party host: the one network case targets a closed port on
+# the loopback interface.
+#
+# Run from the repository root:
+#   ANSIBLE_CONFIG=playbooks/update-versions/tests/ansible.cfg \
+#     ansible-playbook playbooks/update-versions/tests/test-tool-isolation.yml
+#
+# Case keys:
+#   id               short name, used in every message
+#   trigger          name of a tool-isolation-trigger-<name>.yml file whose
+#                    failure is induced live; omit to classify `result` instead
+#   tool, phase      what the classifier records the failure against
+#   task, action, resolved_action, result
+#                    the failure data, for a case without a trigger
+#   expect_class     "upstream" or "configuration"
+#   expect_messages  substrings that must appear in the recorded messages
+#   reject_messages  substrings that must NOT appear there
+#   expect_report    substrings that must appear in the rendered report
+#
+# Most cases induce their failure through the real block/rescue path, so a
+# change in Ansible's message shapes turns this red rather than silently
+# reclassifying a failure. Only the shapes that cannot be produced without a
+# third party -- a rate-limit response and an unexpected status -- are passed
+# in as recorded results.
+
+- name: Test the per-tool failure classifier and the run report
+  hosts: localhost
+  gather_facts: false
+  vars:
+    _update_failures: []
+    _update_updated: []
+    _update_skipped: []
+    _cases:
+      - id: undefined-argument
+        trigger: undefined-arg
+        expect_class: configuration
+        expect_messages: ["is undefined"]
+        expect_report: ["configuration", "is undefined"]
+
+      - id: undefined-include-var
+        trigger: undefined-include-var
+        expect_class: configuration
+        expect_messages: ["is undefined"]
+
+      - id: undefined-inside-loop
+        trigger: undefined-in-loop
+        expect_class: configuration
+        expect_messages: ["is undefined"]
+        reject_messages: ["One or more items failed"]
+
+      - id: looped-assert
+        trigger: looped-assert
+        expect_class: upstream
+        expect_messages: ["harness item 1 is too small", "harness item 2 is too small"]
+        reject_messages: ["One or more items failed"]
+
+      - id: connection-refused-unprefixed
+        trigger: connection-refused
+        phase: apply
+        expect_class: upstream
+        expect_messages: ["Connection refused"]
+
+      - id: connection-refused-declared-upstream
+        trigger: connection-refused-declared
+        phase: apply
+        expect_class: upstream
+        expect_messages: ["Connection refused"]
+
+      - id: short-form-uri
+        trigger: short-form-uri
+        expect_class: upstream
+
+      - id: unwritable-dest
+        trigger: unwritable-dest
+        phase: apply
+        expect_class: upstream
+
+      - id: slurp-missing-file
+        trigger: slurp
+        phase: apply
+        expect_class: configuration
+
+      - id: rate-limit-fixture
+        task: Fetch the latest release of example/tool
+        source: upstream
+        action: uri
+        resolved_action: ansible.builtin.uri
+        result:
+          msg: >-
+            GitHub API rate limit exceeded for example/tool
+            (https://api.github.com/repos/example/tool/releases/latest).
+          failed: true
+        expect_class: upstream
+        expect_messages: ["rate limit exceeded"]
+
+      - id: unexpected-status-fixture
+        task: Fetch the latest release of example/tool
+        source: upstream
+        action: uri
+        resolved_action: ansible.builtin.uri
+        result:
+          msg: >-
+            GitHub API
+            (https://api.github.com/repos/example/tool/releases/latest)
+            returned unexpected status 500
+          failed: true
+        expect_class: upstream
+        expect_messages: ["unexpected status 500"]
+
+      - id: no-results-key
+        task: Some third-party task
+        source: upstream
+        action: uri
+        resolved_action: ansible.builtin.uri
+        result:
+          msg: "a plain message with no results key"
+        expect_class: upstream
+        expect_messages: ["a plain message with no results key"]
+
+      - id: empty-message
+        task: Some unnamed local task
+        action: command
+        resolved_action: ansible.builtin.command
+        result: {}
+        expect_class: configuration
+
+      - id: declaration-loses-to-the-veto
+        task: A task that blames upstream but names a variable that is not set
+        source: upstream
+        action: get_url
+        resolved_action: ansible.builtin.get_url
+        result:
+          msg: >-
+            Task failed: Finalization of task args for 'ansible.builtin.get_url'
+            failed: Error while resolving value for 'url': 'fetched_tag' is undefined
+        expect_class: configuration
+
+      - id: no-declaration-non-network
+        task: A local task that declares nothing
+        action: command
+        resolved_action: ansible.builtin.command
+        result: {msg: "the command exited with status 1"}
+        expect_class: configuration
+
+      - id: unknown-declaration-value
+        task: A task whose declaration is a typo
+        source: upstraem
+        action: command
+        resolved_action: ansible.builtin.command
+        result: {msg: "something went wrong"}
+        expect_class: configuration
+
+      - id: declared-configuration
+        trigger: write-pins
+        phase: apply
+        expect_class: configuration
+        expect_messages: ["pin_that_is_absent"]
+
+      - id: declaration-survives-a-loop-and-an-include
+        trigger: declared-upstream-in-loop
+        expect_class: upstream
+
+  tasks:
+    - name: Create the harness working directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: tool-isolation
+      register: _harness_dir
+
+    - name: Write the write-pins fixture
+      ansible.builtin.copy:
+        content: |
+          ---
+          pin_that_is_present: "v1"
+        dest: "{{ _harness_dir.path }}/write-pins-fixture.yml"
+        mode: "0644"
+
+    - name: Assert the block guard evaluates against an empty ledger
+      ansible.builtin.assert:
+        that:
+          - >-
+            'tmux' not in (_update_failures
+                           | selectattr('phase', 'equalto', 'fetch')
+                           | map(attribute='tool') | list)
+        fail_msg: >-
+          The guard expression does not evaluate against an empty ledger, so a
+          first-tool failure would abort past its own rescue.
+        quiet: true
+
+    - name: Run each classifier case
+      ansible.builtin.include_tasks: tool-isolation-case.yml
+      loop: "{{ _cases }}"
+      loop_control:
+        loop_var: _case
+        label: "{{ _case.id }}"
+
+    - name: Remove the harness working directory
+      ansible.builtin.file:
+        path: "{{ _harness_dir.path }}"
+        state: absent
+
+    - name: Report the number of cases run
+      ansible.builtin.debug:
+        msg: "tool-isolation harness: {{ _cases | length }} case(s) passed"

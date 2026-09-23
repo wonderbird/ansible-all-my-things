@@ -45,6 +45,10 @@
          | default([], true) }}
 
 - name: Assert the Obsidian desktop feed downloadUrl carries a release tag
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.assert:
     that: "_obsidian_tag_match | length > 0"
     fail_msg: >-
@@ -54,6 +58,10 @@
       (downloadUrl was: {{ _obsidian_desktop_feed.downloadUrl | default('<missing>') }}).
 
 - name: Assert the derived Obsidian tag agrees with the feed's latestVersion
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.assert:
     that: "(_obsidian_tag_match | first) == 'v' ~ (_obsidian_desktop_feed.latestVersion | default('<missing>'))"
     fail_msg: >-

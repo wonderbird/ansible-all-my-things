@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: MIT-0
+---
+# A SHORT-FORM uri task: action reads "uri" while _resolved_action reads the
+# FQCN, so rule 4 must accept either spelling.
+
+- name: Query a closed port with the short module name
+  uri:  # noqa: fqcn[action-core]
+    url: "https://127.0.0.1:1/x"

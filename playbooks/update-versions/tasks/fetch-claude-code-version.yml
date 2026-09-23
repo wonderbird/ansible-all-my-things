@@ -32,6 +32,10 @@
   register: _claude_code_manifest
 
 - name: Assert Claude Code manifest contains required platform keys
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.assert:
     that:
       - "'linux-x64' in _claude_code_manifest.json.platforms"

@@ -2,90 +2,103 @@
 
 Constitution Principle II: a role that pins a tool version in `defaults/main.yml`
 MUST register with the version-update mechanism, or the pin silently drifts
-behind upstream. All four touchpoints are required. Mechanism overview:
+behind upstream. Mechanism overview and the rules that govern it:
 `docs/architecture/version-update-playbooks.md`.
 
-## Touchpoint 1 — fetch task (reuse before writing)
+Registering a tool is one registry entry, plus a fetch task file when no
+existing one already queries that kind of source. Neither playbook is edited
+per tool: both loop over the registry.
+
+## Touchpoint 1 — the registry entry
+
+Add the tool to `playbooks/update-versions/vars/tools.yml`:
+
+```yaml
+  <tool>:
+    role: <role>                     # roles/<role>/defaults/main.yml
+    fetch:
+      file: fetch-github-release.yml # a task file under tasks/
+      args:
+        github_repo: owner/project
+        required_asset_regexes: ['^tool-linux-amd64\.tar\.gz$']
+      results:                       # every output this tool consumes, named
+        version: "{{ fetched_github_tag }}"
+    current_pin: <tool>_version      # the pin drift is measured against
+    checksums:                       # omit when the role pins no digest
+      - key: amd64
+        kind: checksum_file          # checksum_file | download
+        url: "https://example.invalid/{{ _fetched.version }}/checksums.txt"
+        filename: "tool-linux-amd64.tar.gz"
+    pins:
+      - {pin: <tool>_version, value: "{{ _fetched.version }}"}
+      - {pin: <tool>_sha256_amd64, value: "{{ _checksums.amd64 }}"}
+```
+
+Rules the pre-flight validation enforces, so a mistake fails at play start
+rather than mid-run:
+
+- every pin value is exactly one reference to this tool's own `_fetched.<name>`
+  or `_checksums.<key>`, both of which are bound per tool, so a value can never
+  come from the tool that ran before;
+- `current_pin` is one of the tool's own pins;
+- a per-architecture pin is written from a key carrying the same architecture;
+- a GitHub release fetch declares `required_asset_regexes`, or states in
+  `release_carries_no_consumed_asset` why the tool installs from elsewhere;
+- pin names are unique across the whole registry;
+- every role carrying a version or checksum pin has an entry at all.
+
+Two digest sources exist, and the choice is not free: `checksum_file` reads a
+digest upstream publishes, `download` fetches the artefact and hashes it
+locally. Prefer `checksum_file` where upstream publishes one covering the exact
+artefact. Where a project publishes both a combined checksums file and a
+per-archive `<filename>.sha256` sidecar, wire the sidecar: a combined file has
+been renamed across releases in at least one tracked project, and one spelling
+carried hashes that did not match the archives.
+
+## Touchpoint 2 — a fetch task, only for a new kind of source
 
 Reuse a parametrized task under `playbooks/update-versions/tasks/` if the
-upstream source type already exists. Only write a new one for a genuinely new
+upstream source type already exists. Write a new one only for a genuinely new
 source type.
 
-| Upstream source | Reuse this task | Inputs → fact |
+| Upstream source | Reuse this task | Arguments → results |
 | --- | --- | --- |
-| GitHub tagged release | `fetch-github-release.yml` | `github_repo`, and in `perform-updates.yml` either `required_asset_regexes` or `release_carries_no_consumed_asset` → `fetched_github_tag` |
-| Checksum from a release file | `fetch-checksum-from-file.yml` | `checksum_file_url`, `checksum_target_filename`, `checksum_result_var` → the fact named by `checksum_result_var` |
+| GitHub tagged release | `fetch-github-release.yml` | `github_repo`, plus `required_asset_regexes` or `release_carries_no_consumed_asset` → `fetched_github_tag` |
+| Digest from a published checksums file | `fetch-checksum-from-file.yml` | wired by `kind: checksum_file`, not called directly |
 | GitHub branch HEAD commit (no releases) | `fetch-github-commit-sha.yml` | `github_repo`, `git_ref` → `fetched_github_sha` |
 | Structured JSON / SDKMAN / HTML | `fetch-flutter-version.yml` / `fetch-java-version.yml` / `fetch-android-version.yml` | see each file |
 
 A new fetch task must fail loud (Principle XII): explicit failures on API
-rate-limit, unexpected status, and missing field. Mirror
-`fetch-github-commit-sha.yml`.
+rate-limit, unexpected status and missing field. Mirror
+`fetch-github-commit-sha.yml`, and name its outputs in the registry entry's
+`fetch.results`.
 
-## Touchpoint 2 — `query-versions.yml` (detect drift)
+**A new fetch argument is declared twice**, and both are required: once in the
+registry entry that passes it, and once in the argument list of
+`tasks/fetch-tool.yml`. Ansible requires `vars:` on an include to be a literal
+mapping, so that list cannot be derived from the registry; an argument missing
+from it is simply never passed, and the fetch task fails on a value it never
+received.
 
-Add, in the existing groups:
+**Every task that can fail because of a third party declares
+`failure_source: upstream` in its own `vars:`.** An input assert declares
+nothing: a bad argument is this repository's fault, and anything unclassified
+is treated as ours and stops the run. `uri` and `get_url` tasks need no
+declaration; a network module failing is recognised as third-party already.
 
-1. Slurp the role defaults.
-2. Extract the current pin into a `current_<role>_version` fact in the
-   `set_fact` block.
-3. Include the fetch task + save the fetched fact.
-4. Add a `debug` report line (`current=… upstream=… status=…`).
-5. Add the comparison to the aggregate `Fail if any version pins are stale`
-   `when:` condition.
+## Touchpoint 3 — documentation
 
-Slurp + extract shape:
+Update `docs/architecture/version-update-playbooks.md` where it lists source
+types and tracked tools.
 
-```yaml
-- name: Read <role> role defaults
-  ansible.builtin.slurp:
-    src: "{{ _roles_dir }}/<role>/defaults/main.yml"
-  register: _<role>_defaults_raw
-
-# ...in the set_fact block:
-current_<role>_version: >-
-  {{ _<role>_defaults_raw.content | b64decode
-     | regex_search('<role>_version:\s*"([^"]+)"', '\1')
-     | default([], true) | first }}
-```
-
-## Touchpoint 3 — `perform-updates.yml` (apply)
-
-1. Include the same fetch task + save the fetched fact (fetch section).
-2. If checksummed: re-download the artefact and `stat` with
-   `checksum_algorithm: sha256` (or fetch a published checksum) before the
-   write — version and checksums are always updated together (see the
-   `opencode` block).
-3. Write all of the role's pins with one include of `tasks/write-pins.yml`
-   (apply section). Never edit the defaults file with `replace`, `lineinfile`,
-   `copy` or similar: the apply-order checker rejects it, because only
-   `write-pins.yml` fails when a pin is missing or duplicated.
-
-Pin write shape (key `pin:`, not `name:`; `value:` on the next line):
-
-```yaml
-- name: Write <role> pins
-  ansible.builtin.include_tasks: tasks/write-pins.yml
-  vars:
-    pin_file: "{{ _roles_dir }}/<role>/defaults/main.yml"
-    pins:
-      - pin: <role>_version
-        value: "{{ fetched_<role>_value }}"
-```
-
-## Touchpoint 4 — the doc
-
-Update `docs/architecture/version-update-playbooks.md` in three places:
-
-- the upstream source-type sentence,
-- the `tasks/` tree (only if you added a new fetch task),
-- the Tracked-tools table row.
-
-## Verify the wiring
+## Checking the wiring
 
 ```bash
-cd playbooks/update-versions
-ansible-playbook query-versions.yml        # reports UP TO DATE / STALE per tool
+ANSIBLE_CONFIG=playbooks/update-versions/tests/ansible.cfg \
+  ansible-playbook playbooks/update-versions/tests/test-tool-registry.yml
+./scripts/ci-local.sh
 ```
 
-A freshly pinned tool should report `UP TO DATE` immediately after pinning.
+The first validates the registry, including the new entry. The second runs
+every gate a commit must pass, including a network-free run of the real task
+files over a fixture registry.

@@ -1,0 +1,99 @@
+# SPDX-License-Identifier: MIT-0
+---
+name: Version Update Lint
+
+# Guard the version-update playbooks. Why each rule exists is documented in
+# docs/architecture/version-update-playbooks.md.
+#
+# Jobs:
+# - version-update-lint runs
+#   scripts/version-update-order/check-write-pins-bypass.py and its tests: no
+#   task outside tasks/write-pins.yml may edit a file, because a direct edit
+#   skips the check that the pin exists exactly once (no network, no pip).
+# - update-versions-harness installs ansible-core and runs the localhost test
+#   harnesses for the registry, the failure classifier, write-pins and the
+#   failure-source declarations of the task files, and syntax-checks the
+#   playbook itself. It
+#   selects playbooks/update-versions/tests/ansible.cfg instead of the
+#   repository root ansible.cfg, whose vault password script exits non-zero
+#   without a vault secret, and fork pull requests receive no secrets.
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "playbooks/**"
+      - "scripts/**"
+      - ".github/workflows/version-update-lint.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "playbooks/**"
+      - "scripts/**"
+      - ".github/workflows/version-update-lint.yml"
+  workflow_dispatch:
+
+jobs:
+  version-update-lint:
+    name: Check the version-update write-pins ban
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Test the write-pins bypass check
+        run: >-
+          python3
+          scripts/version-update-order/test_check_write_pins_bypass.py
+
+      - name: Check that no task edits a file outside write-pins
+        run: >-
+          python3 scripts/version-update-order/check-write-pins-bypass.py
+          playbooks/update-versions
+
+  update-versions-harness:
+    name: Test ${{ matrix.harness }} task file
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      ANSIBLE_CONFIG: playbooks/update-versions/tests/ansible.cfg
+    strategy:
+      fail-fast: false
+      matrix:
+        harness:
+          - write-pins
+          - tool-isolation
+          - tool-registry
+          - fixture-registry-smoke
+          - failure-source
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+
+      - name: Install ansible-core
+        run: pip install "$(grep -E '^ansible-core' requirements.txt)"
+
+      - name: Check the syntax of the version-update playbook
+        run: >-
+          ansible-playbook --syntax-check
+          playbooks/update-versions/perform-updates.yml
+
+      - name: Run the ${{ matrix.harness }} harness
+        run: >-
+          ansible-playbook
+          playbooks/update-versions/tests/test-${{ matrix.harness }}.yml

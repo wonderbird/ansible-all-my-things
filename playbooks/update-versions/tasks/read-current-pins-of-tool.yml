@@ -1,0 +1,42 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Reads one tool's current pins into _current[<tool>]. Required vars:
+# _pin_tool (the tool name), _tools, _roles_dir and _current, the mapping this
+# file adds to. Called once per tool by read-current-pins.yml, which
+# initialises _current.
+
+- name: "Read the defaults of {{ _tools[_pin_tool].role }}"
+  ansible.builtin.slurp:
+    src: "{{ _roles_dir }}/{{ _tools[_pin_tool].role }}/defaults/main.yml"
+  register: _pin_file
+
+- name: "Assert {{ _tools[_pin_tool].role }} carries every pin the registry names"
+  vars:
+    _content: "{{ _pin_file.content | b64decode }}"
+    _declared: "{{ _tools[_pin_tool].pins | map(attribute='pin') | list }}"
+    _present: "{{ _content | regex_findall('(?m)^([a-z0-9_]+):[ \t]*\"') }}"
+    _missing: "{{ _declared | difference(_present) }}"
+  ansible.builtin.assert:
+    that: _missing | length == 0
+    fail_msg: >-
+      The registry says {{ _pin_tool }} pins {{ _missing }}, but
+      roles/{{ _tools[_pin_tool].role }}/defaults/main.yml does not carry
+      {{ 'them' if (_missing | length) > 1 else 'it' }}. The registry and the
+      role disagree, so every comparison and every write for this tool would be
+      meaningless.
+    quiet: true
+
+- name: "Record the current pins of {{ _pin_tool }}"
+  vars:
+    _content: "{{ _pin_file.content | b64decode }}"
+    _value: >-
+      {{ (_content | regex_search('(?m)^' ~ _pin_name ~ ':[ \t]*"([^"]+)"', '\1')
+          | default([], true) | first) }}
+  ansible.builtin.set_fact:
+    _current: >-
+      {{ _current | combine({_pin_tool: (_current[_pin_tool] | default({}))
+                                        | combine({_pin_name: _value})}) }}
+  loop: "{{ _tools[_pin_tool].pins | map(attribute='pin') | list }}"
+  loop_control:
+    loop_var: _pin_name
+    label: "{{ _pin_name }}"

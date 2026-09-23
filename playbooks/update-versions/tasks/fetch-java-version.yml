@@ -1,6 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Required variable: java_sdkman_major (integer major version, e.g. 21)
+# Required vars: java_sdkman_major (integer major version, e.g. 21)
 # Sets fact: fetched_java_identifier
 
 - name: Fetch SDKMAN Java version list
@@ -20,6 +20,10 @@
          | list }}
 
 - name: Fail if no Java {{ java_sdkman_major }}.x.x-tem version found via SDKMAN
+
+  vars:
+
+    failure_source: upstream
   ansible.builtin.fail:
     msg: >-
       SDKMAN API (https://api.sdkman.io/2/candidates/java/linuxx64/versions/all)
