@@ -173,6 +173,9 @@ The `cursor_ide` role has two issues:
   guard. The subsequent `apt: deb:` install is idempotent, but the network
   download is not — it hits the Cursor API endpoint unnecessarily on every run.
 
+The desktop play of `playbooks/configure-profile-roles.yml` applies this role,
+so the unguarded download costs roughly 197 MB on every desktop apply.
+
 ### TD-005: Mitigation
 
 The role is functional. The redundant download is a minor inefficiency rather
@@ -475,3 +478,68 @@ a `stat` guard on the specific paths is the appropriate substitute.
 
 Open — to be addressed per-script. Priority matches the source backup hardening
 work.
+
+---
+
+## TD-012 — flutter and cursor_ide are applied without Molecule scenarios
+
+- **Category:** Technical Debt
+- **Severity:** Medium
+- **Affected file(s):**
+  - [roles/flutter/tasks/main.yml](../../roles/flutter/tasks/main.yml)
+  - [roles/cursor_ide/tasks/main.yml](../../roles/cursor_ide/tasks/main.yml)
+  - [playbooks/configure-profile-roles.yml](../../playbooks/configure-profile-roles.yml)
+- **Date added:** 2026-09-23
+
+### TD-012: Description
+
+The desktop play of `playbooks/configure-profile-roles.yml` applies the
+`flutter` and `cursor_ide` roles. Neither role has a `molecule/` directory.
+Both can be exercised in a container, so Principle II obliges a scenario for
+each, and neither obligation is met today. Until it is, a regression in either
+role is caught by an operator on a real desktop host rather than by a local
+test run.
+
+Both scenarios are deferred, not waived. Wiring the roles into the desktop play
+changed which playbook applies them, not any task inside them, and writing two
+full create → prepare → converge → idempotence → verify → destroy scenarios was
+judged disproportionate to that change. The `flutter` scenario additionally
+needs an AMD64 runner the project does not have.
+
+Each deferral is tracked as its own open issue at the same priority as the
+wiring work, and both block the review checkpoint that covers it
+(`ansible-all-my-things-88p6` for `flutter`, `ansible-all-my-things-5tu4` for
+`cursor_ide`).
+
+`android_studio` was wired into the same play and is **not** covered here: it
+carries no scenario by standing decision rather than by deferral, recorded in
+[ADR-007](../decisions/007-android-studio-molecule-exemption.md).
+
+This entry also records a governance deviation on the same branch: the
+Complexity Tracking record for that work was written after the implementation
+was committed, not before it. The deviations it covers — these two deferrals,
+the `android_studio` exemption, and the fact that no task of the three roles
+was executed before commit — are recorded in full, in this register, in ADR-007
+and in the pull request. Nothing was concealed in the interval, but the record
+did not precede the code as it should have.
+
+### TD-012: Ideas for solution
+
+Write each scenario per the `molecule-testing` skill, which is the
+authoritative source for the scenario file contract:
+
+- `flutter` — `converge.yml` sets `login_user_names` in its `vars:` block and
+  `prepare.yml` creates those users with home directories. The interesting case
+  is idempotence: the role decides what to re-extract by comparing
+  `~/flutter/.ansible_installed_version` against `flutter_version`. The role
+  also runs `ansible.builtin.systemd` with `daemon_reload: true`, and no
+  scenario in this repository runs an init system, so this task needs a
+  decision before the scenario can pass.
+- `cursor_ide` — the seed `argv.json` now lives in `roles/cursor_ide/files/`,
+  so it resolves from a scenario as it does from a playbook. Verify that the
+  seed is written only where a user has none.
+
+### TD-012: Status
+
+Open — one scenario per role, each tracked as its own issue. The `flutter`
+scenario needs an AMD64 runner.
