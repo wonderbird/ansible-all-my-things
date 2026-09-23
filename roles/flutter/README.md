@@ -6,7 +6,6 @@ and configure PATH for all desktop users on AMD64 Ubuntu Linux.
 ## Requirements
 
 - AMD64 Ubuntu Linux.
-- `login_user_names` variable defined (list of users to receive the SDK).
 - Internet access on the first provisioning run (SDK download).
 - The `java` role must have run before this role. It installs the Eclipse
   Temurin JDK via sdkman, required by the Android SDK tooling.
@@ -21,6 +20,7 @@ and configure PATH for all desktop users on AMD64 Ubuntu Linux.
 
 | Variable | Default | Description |
 | --- | --- | --- |
+| `login_user_names` | *(required)* | List of local usernames to install the Flutter SDK for. Must contain at least one name; the role fails loudly if it is undefined or empty. |
 | `flutter_version` | `3.41.6` | Pinned Flutter stable release to install. |
 | `flutter_sha256` | `503b3e6b7d352fca5d21b6474eca95ad544d8fc3b053782eab63a360c7fc7569` | SHA-256 checksum of the Flutter SDK archive for `flutter_version`. |
 
