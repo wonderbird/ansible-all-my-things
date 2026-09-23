@@ -11,15 +11,18 @@
       `login_users | map(attribute='name') | list`; a Molecule converge
       play sets it directly in its `vars:` block.
 
-# The following URL will automatically redirect to the latest version
-# (tested on 2026-01-14)
+- name: Assert Cursor publishes a package for this architecture
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['architecture'] in cursor_urls
+    fail_msg: >-
+      Cursor publishes no Debian package for the architecture reported by
+      ansible_facts['architecture']: '{{ ansible_facts['architecture'] }}'.
+      Known architectures: {{ cursor_urls.keys() | list | join(', ') }}.
+
 - name: Set architecture-specific download URL
   set_fact:
-    cursor_download_url: "{{ cursor_urls[ansible_facts['architecture']] | default(cursor_urls['aarch64']) }}"
-  vars:
-    cursor_urls:
-      x86_64:  'https://api2.cursor.sh/updates/download/golden/linux-x64-deb/cursor/'
-      aarch64: 'https://api2.cursor.sh/updates/download/golden/linux-arm64-deb/cursor/'
+    cursor_download_url: "{{ cursor_urls[ansible_facts['architecture']] }}"
 
 - name: Download Cursor
   get_url:
