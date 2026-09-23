@@ -44,14 +44,14 @@
     mode: '0775'
   loop: "{{ login_user_names }}"
 
-- name: Create empty .cursor/argv.json
+- name: Seed .cursor/argv.json where the user has none
   copy:
     src: argv.json
     dest: /home/{{ item }}/.cursor/argv.json
     force: no
     owner: "{{ item }}"
     group: "{{ item }}"
-    mode: '0775'
+    mode: '0644'
   loop: "{{ login_user_names }}"
 
 - name: Configure keyring for Cursor
