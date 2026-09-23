@@ -8,8 +8,7 @@ for all desktop users.
 - AMD64 Ubuntu Linux with snapd pre-installed.
 - Internet access on the first provisioning run (snap and SDK downloads).
 - `community.general` collection (already in `requirements.yml`).
-- The `java` role MUST run before this role. It installs the Eclipse Temurin
-  JDK via sdkman, which provides the Java 17+ runtime required by sdkmanager.
+- The `java` role applied first — see Dependencies below.
 
 ## Role Variables
 

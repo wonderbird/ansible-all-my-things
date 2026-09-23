@@ -8,6 +8,11 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- The desktop profile installs Android Studio, Flutter and Cursor on
+  AMD64 hosts.
+
 ### Changed
 
 - `configure-profile.yml` fails at preflight when `login_users` is undefined

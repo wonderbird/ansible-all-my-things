@@ -8,11 +8,11 @@ expects.
 ## Boundary
 
 The role installs the distribution `tmux` package, installs the pinned
-`gitmux` binary to `/usr/local/bin/gitmux`, clones TPM and the catppuccin and
-cpu plugins into each user's `~/.tmux/plugins`, and deploys the role's own
-`.tmux.conf` and `.gitmux.conf` to each user's home directory. It overwrites
-those two files rather than merging into a user's existing configuration, and
-it does not start, attach or reload any tmux server.
+`gitmux` binary to `/usr/local/bin/gitmux`, clones the plugins listed in
+`defaults/main.yml` into each user's `~/.tmux/plugins`, and deploys the
+role's own `.tmux.conf` and `.gitmux.conf` to each user's home directory. It
+overwrites those two files rather than merging into a user's existing
+configuration, and it does not start, attach or reload any tmux server.
 
 ## Requirements
 
