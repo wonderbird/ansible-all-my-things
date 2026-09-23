@@ -59,9 +59,15 @@
       tags: not-supported-on-arm64
     - role: obsidian
       tags: not-supported-on-arm64
+    # android_studio and flutter are tagged not-supported-on-arm64 because
+    # each builds a download URL with no architecture branch — an x64-only
+    # cmdline-tools zip and an x64-only Flutter tarball — and android_studio
+    # additionally installs an AMD64 classic snap. Both reasons are inferred
+    # from the URLs the roles build, not confirmed against Google's or
+    # Canonical's own publication listings. cursor_ide carries no tag:
+    # upstream serves an arm64 .deb from the URL that role selects.
     - role: android_studio
       tags: not-supported-on-arm64
     - role: flutter
       tags: not-supported-on-arm64
-    - role: cursor_ide
-      tags: not-supported-on-arm64
+    - cursor_ide
