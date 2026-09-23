@@ -30,7 +30,9 @@ See TD-009 in the technical debt register for the accepted risk.
 The `java` role, declared in `meta/main.yml`: `sdkmanager` is invoked with
 `JAVA_HOME` pointing into the sdkman JDK that `java` installs, and the
 identifier it reads is that role's own default, so this role hard-fails
-without it. The desktop play also lists `java`'s play before this one.
+without it. `java` runs in the base play of `configure-profile-roles.yml`,
+and because this role declares it, Ansible resolves it again inside the
+desktop play and re-runs its tasks there.
 
 ## Example Playbook
 

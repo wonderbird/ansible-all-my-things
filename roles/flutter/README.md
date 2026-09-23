@@ -30,18 +30,22 @@ listed in the Flutter release manifest at:
 
 ## Dependencies
 
-This role has no Ansible meta-level dependencies (`meta/main.yml` keeps
-`dependencies: []`). The following roles are **prerequisite dependencies**
-that must be applied before this role in the provisioning playbook:
+This role has no apply-time dependencies: no task in it consumes an artefact
+another role provisions, and `meta/main.yml` keeps `dependencies: []`
+accordingly. It installs the Flutter SDK on any host on its own.
 
-- `java` — provides the Eclipse Temurin JDK via sdkman (required by Android
-  SDK tooling invoked through `android_studio`).
-- `android_studio` — provides the Android SDK required by Flutter.
-- `google_chrome` — provides the Chrome browser required for the web target.
+A *working* Flutter installation needs three more roles, at use time rather
+than at apply time:
 
-In `configure-profile-roles.yml`, `java` runs in the base play, and
-`android_studio` and `google_chrome` are listed before `flutter` in the
-desktop play.
+- `java` — the Eclipse Temurin JDK via sdkman, which the Android SDK tooling
+  needs.
+- `android_studio` — the Android SDK that `flutter doctor` and the Android
+  build targets look for.
+- `google_chrome` — the browser the web target runs in.
+
+`configure-profile-roles.yml` therefore orders `flutter` after
+`android_studio` and `google_chrome` in the desktop play, and `java` runs in
+the base play before either.
 
 ## Example Playbook
 
