@@ -515,13 +515,11 @@ wiring work, and both block the review checkpoint that covers it
 carries no scenario by standing decision rather than by deferral, recorded in
 [ADR-007](../decisions/007-android-studio-molecule-exemption.md).
 
-This entry also records a governance deviation on the same branch: the
-Complexity Tracking record for that work was written after the implementation
-was committed, not before it. The deviations it covers — these two deferrals,
-the `android_studio` exemption, and the fact that no task of the three roles
-was executed before commit — are recorded in full, in this register, in ADR-007
-and in the pull request. Nothing was concealed in the interval, but the record
-did not precede the code as it should have.
+This entry also records a governance deviation: the Complexity Tracking record
+for the wiring work was written after its implementation was committed, not
+before it. Every deviation that record covers — these two deferrals, the
+`android_studio` exemption, and the fact that no task of the three roles ran
+before commit — is recorded in full, here, in ADR-007 and in the pull request.
 
 ### TD-012: Ideas for solution
 
