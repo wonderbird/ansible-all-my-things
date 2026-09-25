@@ -77,7 +77,7 @@ ruby, python, the Dolt SQL server, and the Claude Code CLI are all available.
 - [x] T003 [US1] Create `playbooks/configure-profile.yml`: a flat
   `import_playbook` chain, in order —
   `playbooks/setup-users.yml`, `playbooks/setup-basics.yml`,
-  `playbooks/setup-nodejs.yml`, `configure-profile-roles.yml`,
+  `configure-profile-roles.yml` (whose base play applies the `nodejs` role),
   `playbooks/reboot-if-required.yml` — mirroring `configure-linux.yml`'s
   pattern minus the desktop-only steps excluded by FR-018
   (research.md "Orchestrator playbook structure"). Depends on: T002 (the

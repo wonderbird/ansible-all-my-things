@@ -28,7 +28,7 @@ ansible-playbook playbooks/configure-profile.yml -i inventories/tart_autogenerat
 ```
 
 - Applies the same shared steps as the `basic` profile
-  (`setup-users.yml`/`setup-basics.yml`/`setup-nodejs.yml`).
+  (`setup-users.yml`/`setup-basics.yml`).
 - Additionally imports `setup-desktop.yml`, `setup-keyring.yml`,
   `setup-desktop-apps.yml` verbatim (XFCE + XRDP desktop, GNOME keyring,
   Chromium/VS Code/git setup).

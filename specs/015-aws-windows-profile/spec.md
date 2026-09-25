@@ -227,8 +227,8 @@ or container is created, with a message naming both the rejected provider and
   and `win_ai_agent` roles (already used by the legacy
   `setup-roles-windows.yml`), verbatim and unmodified.
 - **FR-011**: `configure-profile.yml` MUST NOT apply any of its existing
-  Linux-only plays (`setup-users.yml`, `setup-basics.yml`,
-  `setup-nodejs.yml`, or the `configure-profile-roles.yml` Linux role lists)
+  Linux-only plays (`setup-users.yml`, `setup-basics.yml`, or the
+  `configure-profile-roles.yml` Linux role lists)
   to hosts in the `windows` inventory group.
 - **FR-012**: This feature MUST NOT modify the behavior, output, or files
   touched by `create-vm.yml`/`destroy-vm.yml`/`configure-profile.yml` when

@@ -34,7 +34,7 @@ is defined and how the entities relate.
 | Definition | `login_users` list of `{name, password, ...}` objects |
 | Defined in | `inventories/group_vars/all/vars.yml` (existing, unmodified — currently one entry, `galadriel`) |
 | Relationships | Each entry becomes a member of the `sudo` group and receives an SSH public key (FR-003, FR-005) via `setup-users.yml`'s `all_users = console_users + login_users`; each entry's `.name` is extracted into `login_user_names` (a list of strings) via `login_users \| map(attribute='name') \| list` by every play that applies per-user roles (grep `login_user_names:` under `playbooks/` for the current set) |
-| Receives | Node Version Manager, Node.js LTS (default version), and global npm tools `eslint`, `markdownlint-cli`, `prettier`, `typescript` (FR-010–FR-012) via `playbooks/setup-nodejs.yml` (existing, unmodified) |
+| Receives | Node Version Manager, Node.js LTS (default version), and global npm tools `eslint`, `markdownlint-cli`, `prettier`, `typescript` (FR-010–FR-012) via the `nodejs` role, applied by the base play of the roles-application playbook |
 
 ### Development Tool Role
 
@@ -67,20 +67,17 @@ inventories/group_vars/all/vars.yml         │
                               → apt update/upgrade, Europe/Berlin timezone
                                                    │
                                                    ▼
-                              playbooks/setup-nodejs.yml (existing, unmodified)
-                              → NVM + Node LTS + global npm tools
-                              for each name in login_user_names
-                                                   │
-                                                   ▼
                               playbooks/configure-profile-roles.yml (NEW)
                               hosts: tart
-                              roles: podman, ruby, python,
-                                     dolt_sql_server, claude_code
+                              roles: nodejs (NVM + Node LTS + global npm
+                                     tools for each name in
+                                     login_user_names), podman, ruby,
+                                     python, dolt_sql_server, claude_code
                                                    │
                                                    ▼
                               playbooks/reboot-if-required.yml (existing, unmodified)
                               → reboot + wait if /var/run/reboot-required exists
 ```
 
-All five layers above are chained by `playbooks/configure-profile.yml` (NEW) via
+All layers above are chained by `playbooks/configure-profile.yml` (NEW) via
 `import_playbook`, in the order shown.

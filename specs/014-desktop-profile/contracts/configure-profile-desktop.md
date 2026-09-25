@@ -18,7 +18,7 @@ applies to a given host.)
 
 ## Effects on success
 
-1. `setup-users.yml`, `setup-basics.yml`, `setup-nodejs.yml` run exactly as
+1. `setup-users.yml` and `setup-basics.yml` run exactly as
    they do for the `basic` profile (FR-012 — unchanged for shared steps).
 2. `setup-desktop.yml`, `setup-keyring.yml`, `setup-desktop-apps.yml` run
    verbatim, unmodified, against the host (FR-005) — installing the desktop

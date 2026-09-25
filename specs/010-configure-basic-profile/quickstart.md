@@ -140,5 +140,5 @@ fi
 
 `no_log: true` tasks censor their item details in the diagnostic grep above;
 the preceding `TASK [...]` line is still printed even for `no_log` tasks —
-cross-reference it against `playbooks/setup-users.yml` /
-`playbooks/setup-nodejs.yml` to identify which task is non-idempotent.
+cross-reference it against `playbooks/setup-users.yml` to identify which
+task is non-idempotent.
