@@ -25,10 +25,11 @@ editor or desktop setting to use the font.
 | Variable | Default | Description |
 | --- | --- | --- |
 | `login_user_names` | *(required)* | List of local usernames to install the font for. Must contain at least one name; the role fails loudly if it is undefined or empty. |
-| `nerd_font_version` | `"v3.5.1"` | Pinned nerd-fonts release tag (`v`-prefixed). One universal `Hack.zip` serves every architecture. |
+| `nerd_font_version` | *(see defaults)* | Pinned nerd-fonts release tag (`v`-prefixed). One universal `Hack.zip` serves every architecture. |
 
-The pinned version is updated by
-`playbooks/update-versions/perform-updates.yml`.
+`defaults/main.yml` carries the pinned version, and the version-update
+playbooks refresh it — see
+[version-update-playbooks.md](../../docs/architecture/version-update-playbooks.md).
 
 ## Dependencies
 
