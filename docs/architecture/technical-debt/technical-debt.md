@@ -505,9 +505,11 @@ scenarios are deferred, not waived. Wiring the roles into the desktop play
 changed which playbook applies them, not any task inside them, and writing two
 full create → prepare → converge → idempotence → verify → destroy scenarios was
 judged disproportionate to that change. The `flutter` scenario additionally
-needs an AMD64 runner the project does not have. Each deferral is tracked as
-its own open issue at the same priority as the wiring work, and each blocks the
-review checkpoint that covers it.
+needs an AMD64 runner the project does not have. Both deferrals are tracked in
+this register and nowhere else: no open issue and no review checkpoint carries
+them. Each is discharged by one Molecule scenario covering the full lifecycle
+above — one for `flutter` and one for `cursor_ide`. "Ideas for solution" below
+states what each scenario must cover.
 
 `android_studio` carries no scenario for a different reason. The role installs
 Android Studio as a classic snap (`community.general.snap`, `classic: true`),
@@ -547,6 +549,7 @@ install design changes, re-evaluate the obligation under Principle II.
 
 ### TD-012: Status
 
-Open — one scenario per deferred role, each tracked as its own issue. The
-`flutter` scenario needs an AMD64 runner. The `android_studio` exemption stands
-until the role's install design changes.
+Open — this register is the only place the two deferrals are tracked. Each is
+discharged by one Molecule scenario: one for `flutter`, one for `cursor_ide`.
+The `flutter` scenario needs an AMD64 runner the project does not have. The
+`android_studio` exemption stands until the role's install design changes.
