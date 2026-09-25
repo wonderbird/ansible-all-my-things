@@ -173,6 +173,9 @@ The `cursor_ide` role has two issues:
   guard. The subsequent `apt: deb:` install is idempotent, but the network
   download is not — it hits the Cursor API endpoint unnecessarily on every run.
 
+The desktop play of `playbooks/configure-profile-roles.yml` applies this role,
+so the unguarded download costs roughly 197 MB on every desktop apply.
+
 ### TD-005: Mitigation
 
 The role is functional. The redundant download is a minor inefficiency rather
@@ -475,3 +478,75 @@ a `stat` guard on the specific paths is the appropriate substitute.
 
 Open — to be addressed per-script. Priority matches the source backup hardening
 work.
+
+---
+
+## TD-012 — android_studio, flutter, cursor_ide lack Molecule scenarios
+
+- **Category:** Technical Debt
+- **Severity:** Medium
+- **Affected file(s):**
+  - [roles/android_studio/tasks/main.yml](../../roles/android_studio/tasks/main.yml)
+  - [roles/flutter/tasks/main.yml](../../roles/flutter/tasks/main.yml)
+  - [roles/cursor_ide/tasks/main.yml](../../roles/cursor_ide/tasks/main.yml)
+  - [playbooks/configure-profile-roles.yml](../../playbooks/configure-profile-roles.yml)
+- **Date added:** 2026-09-23
+
+### TD-012: Description
+
+The desktop play of `playbooks/configure-profile-roles.yml` applies the
+`android_studio`, `flutter` and `cursor_ide` roles. None of the three has a
+`molecule/` directory. Until that changes, a regression in any of them is
+caught by an operator on a real desktop host rather than by a local test run.
+
+`flutter` and `cursor_ide` can be exercised in a container, so Principle II
+obliges a scenario for each, and neither obligation is met today. Both
+scenarios are deferred, not waived. Wiring the roles into the desktop play
+changed which playbook applies them, not any task inside them, and writing two
+full create → prepare → converge → idempotence → verify → destroy scenarios was
+judged disproportionate to that change. The `flutter` scenario additionally
+needs an AMD64 runner the project does not have. Each deferral is tracked as
+its own open issue at the same priority as the wiring work, and each blocks the
+review checkpoint that covers it.
+
+`android_studio` carries no scenario for a different reason. The role installs
+Android Studio as a classic snap (`community.general.snap`, `classic: true`),
+snapd requires systemd as PID 1, and no `molecule.yml` in this repository runs
+systemd, `/sbin/init` or a privileged container. Building that harness for a
+single role is disproportionate to what the scenario would verify, so the role
+is validated on a local VM per
+[docs/architecture/concepts/testing.md](../concepts/testing.md) instead. The
+exemption is accepted debt rather than a settled decision: it ends if the
+install design changes. An install method that needs no init system removes the
+obstacle, and the maintainer may revisit that design.
+
+This entry also records a governance deviation: the Complexity Tracking record
+for the wiring work was written after its implementation was committed, not
+before it. Every deviation that record covers — the two deferrals, the
+`android_studio` exemption, and the fact that no task of the three roles ran
+before commit — is recorded in full, here and in the pull request.
+
+### TD-012: Ideas for solution
+
+Write each deferred scenario per the `molecule-testing` skill, which is the
+authoritative source for the scenario file contract:
+
+- `flutter` — `converge.yml` sets `login_user_names` in its `vars:` block and
+  `prepare.yml` creates those users with home directories. The interesting case
+  is idempotence: the role decides what to re-extract by comparing
+  `~/flutter/.ansible_installed_version` against `flutter_version`. The role
+  also runs `ansible.builtin.systemd` with `daemon_reload: true`, and no
+  scenario in this repository runs an init system, so this task needs a
+  decision before the scenario can pass.
+- `cursor_ide` — the seed `argv.json` now lives in `roles/cursor_ide/files/`,
+  so it resolves from a scenario as it does from a playbook. Verify that the
+  seed is written only where a user has none.
+
+`android_studio` needs no scenario while it installs a classic snap. If that
+install design changes, re-evaluate the obligation under Principle II.
+
+### TD-012: Status
+
+Open — one scenario per deferred role, each tracked as its own issue. The
+`flutter` scenario needs an AMD64 runner. The `android_studio` exemption stands
+until the role's install design changes.

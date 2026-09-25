@@ -93,8 +93,7 @@ Applying the tag only at the entry level means:
 - The role file is clean and does not repeat tag logic on every task.
 - The skip behaviour is visible at a glance in `configure-profile-roles.yml`.
 - Adding `apply: tags:` to any future `ansible.builtin.include_role` caller
-  is the documented extension point (FR-008; the comment already exists in
-  `configure-profile-roles.yml` at the `android_studio` entry).
+  is the documented extension point (FR-008).
 
 ## `meta/main.yml` — Empty Dependencies
 
@@ -102,11 +101,15 @@ Applying the tag only at the entry level means:
 `java`, `android_studio`, and `google_chrome` as prerequisites in
 `README.md` only.
 
-**Rationale**: Meta-level dependencies are invisible to playbook readers,
-break tag filtering (the skip tag on `android_studio` would be bypassed if
-`flutter` declared it as a meta dependency), and are designed for
-redistributed Galaxy roles — not private single-playbook provisioners. This
-is consistent with all other roles in this project (Q5 clarification).
+**Rationale**: No task in this role consumes an artefact that `java`,
+`android_studio` or `google_chrome` provisions — the role downloads and
+unpacks the Flutter SDK and edits each user's `~/.bashrc`, and nothing in it
+would hard-fail on a host where those three never ran. By the decision test
+in
+[docs/architecture/concepts/role-dependency-declaration.md](../../docs/architecture/concepts/role-dependency-declaration.md),
+which is authoritative for this distinction, that makes them ordering
+preferences rather than dependencies. They are what a *working* Flutter
+installation needs at use time, which `README.md` says.
 
 ## PATH via `blockinfile`
 

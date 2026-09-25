@@ -8,6 +8,14 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- The desktop profile installs Android Studio and Flutter on AMD64 hosts, and
+  Cursor on every desktop host. ARM64 hosts must pass
+  `--skip-tags not-supported-on-arm64`.
+- The first desktop apply downloads several gigabytes for each login user,
+  and every later apply re-downloads the Cursor package.
+
 ### Changed
 
 - `configure-profile.yml` fails at preflight when `login_users` is undefined

@@ -6,7 +6,6 @@ and configure PATH for all desktop users on AMD64 Ubuntu Linux.
 ## Requirements
 
 - AMD64 Ubuntu Linux.
-- `login_user_names` variable defined (list of users to receive the SDK).
 - Internet access on the first provisioning run (SDK download).
 - The `java` role must have run before this role. It installs the Eclipse
   Temurin JDK via sdkman, required by the Android SDK tooling.
@@ -21,6 +20,7 @@ and configure PATH for all desktop users on AMD64 Ubuntu Linux.
 
 | Variable | Default | Description |
 | --- | --- | --- |
+| `login_user_names` | *(required)* | List of local usernames to install the Flutter SDK for. Must contain at least one name; the role fails loudly if it is undefined or empty. |
 | `flutter_version` | `3.41.6` | Pinned Flutter stable release to install. |
 | `flutter_sha256` | `503b3e6b7d352fca5d21b6474eca95ad544d8fc3b053782eab63a360c7fc7569` | SHA-256 checksum of the Flutter SDK archive for `flutter_version`. |
 
@@ -30,16 +30,22 @@ listed in the Flutter release manifest at:
 
 ## Dependencies
 
-This role has no Ansible meta-level dependencies (`meta/main.yml` keeps
-`dependencies: []`). The following roles are **prerequisite dependencies**
-that must be applied before this role in the provisioning playbook:
+This role has no apply-time dependencies: no task in it consumes an artefact
+another role provisions, and `meta/main.yml` keeps `dependencies: []`
+accordingly. It installs the Flutter SDK on any host on its own.
 
-- `java` — provides the Eclipse Temurin JDK via sdkman (required by Android
-  SDK tooling invoked through `android_studio`).
-- `android_studio` — provides the Android SDK required by Flutter.
-- `google_chrome` — provides the Chrome browser required for the web target.
+A *working* Flutter installation needs three more roles, at use time rather
+than at apply time:
 
-All three roles are listed before `flutter` in `configure-profile-roles.yml`.
+- `java` — the Eclipse Temurin JDK via sdkman, which the Android SDK tooling
+  needs.
+- `android_studio` — the Android SDK that `flutter doctor` and the Android
+  build targets look for.
+- `google_chrome` — the browser the web target runs in.
+
+`configure-profile-roles.yml` therefore orders `flutter` after
+`android_studio` and `google_chrome` in the desktop play, and `java` runs in
+the base play before either.
 
 ## Example Playbook
 

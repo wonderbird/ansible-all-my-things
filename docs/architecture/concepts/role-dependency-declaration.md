@@ -103,6 +103,15 @@ independent enforcement path:
   reviewers need to reconstruct exactly what runs, in what order, without
   spelunking through role metadata.
 
+**The dedup is per play, not per playbook run.** A playbook with several
+plays resolves each play's roles independently, so a role that already ran
+in an earlier play runs again in every later play that pulls it in as a meta
+dependency. `configure-profile-roles.yml` shows the cost: `java` runs in the
+base play, and `android_studio`'s declaration makes it run a second time in
+the desktop play — an apt cache update among the tasks repeated. The price
+is worth the self-defending role, but it is a price; "costs nothing at
+runtime" holds only within one play.
+
 These are not competing choices for a genuine hard dependency: keep both.
 The redundancy is intentional, not duplication to eliminate — it is the
 same "log the accepted tradeoff" posture the Complexity Tracking practice
@@ -230,10 +239,17 @@ dependency of its own.
 
 `win_ai_agent/meta/main.yml` declares `dependencies: [windows_foundation]`
 for the same kind of reason (Windows-specific, out of scope for this
-document's Linux worked examples). Every other role in this repository is
-authored with `dependencies: []`, relying solely on explicit ordering,
-since none of them have a hard, role-intrinsic dependency by the test
-above.
+document's Linux worked examples).
+
+`android_studio/meta/main.yml` declares `dependencies: [java]`: its
+`sdkmanager` invocations export a `JAVA_HOME` built from the `java` role's
+own default identifier, unconditionally, so the role hard-fails anywhere
+`java` has not run — a hard dependency by the test above, and the reason the
+desktop play re-runs `java` as described earlier in this document.
+
+Every other role relies on explicit ordering alone. Which roles declare a
+dependency at all is derived rather than copied here:
+`grep -L 'dependencies: \[\]' roles/*/meta/main.yml`.
 
 ## Caveats when declaring a dependency
 
