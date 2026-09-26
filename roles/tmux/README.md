@@ -28,15 +28,16 @@ configuration, and it does not start, attach or reload any tmux server.
 | Variable | Default | Description |
 | --- | --- | --- |
 | `login_user_names` | *(required)* | List of local usernames to configure tmux for. Must contain at least one name; the role fails loudly if it is undefined or empty. |
-| `tmux_gitmux_version` | `"v0.11.5"` | Pinned gitmux release tag (`v`-prefixed). |
+| `tmux_gitmux_version` | *(see defaults)* | Pinned gitmux release tag (`v`-prefixed). |
 | `tmux_gitmux_arch_map` | *(see defaults)* | Maps `ansible_facts['architecture']` to the gitmux release architecture suffix. |
 | `tmux_plugin_tpm_repo` | *(see defaults)* | Git URL of the tmux plugin manager. |
 | `tmux_plugin_catppuccin_repo` | *(see defaults)* | Git URL of the catppuccin theme plugin. |
 | `tmux_plugin_cpu_repo` | *(see defaults)* | Git URL of the tmux-cpu plugin. |
 
-The pinned gitmux version is updated by
-`playbooks/update-versions/perform-updates.yml`. The plugin repositories are
-cloned at `HEAD` and are not version-pinned.
+`defaults/main.yml` carries the pinned gitmux version, and the version-update
+playbooks refresh it — see
+[version-update-playbooks.md](../../docs/architecture/version-update-playbooks.md).
+The plugin repositories are cloned at `HEAD` and are not version-pinned.
 
 ## Dependencies
 

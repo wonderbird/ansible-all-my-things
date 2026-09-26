@@ -26,13 +26,14 @@ shell other than bash.
 | Variable | Default | Description |
 | --- | --- | --- |
 | `login_user_names` | *(required)* | List of local usernames to add the direnv bash hook for |
-| `direnv_version` | `"v2.37.1"` | Pinned direnv release tag (`v`-prefixed). |
+| `direnv_version` | *(see defaults)* | Pinned direnv release tag (`v`-prefixed). |
 | `direnv_sha256_amd64` | *(see defaults)* | SHA-256 of `direnv.linux-amd64` for `direnv_version`. |
 | `direnv_sha256_arm64` | *(see defaults)* | SHA-256 of `direnv.linux-arm64` for `direnv_version`. |
 | `direnv_install_path` | `/usr/local/bin/direnv` | Path where the binary is installed. |
 
-The three pinned values (version + both checksums) are updated together by
-`playbooks/update-versions/perform-updates.yml`.
+`defaults/main.yml` carries the pinned version and both checksums. All three
+must move together, and the version-update playbooks refresh them — see
+[version-update-playbooks.md](../../docs/architecture/version-update-playbooks.md).
 
 ## Dependencies
 

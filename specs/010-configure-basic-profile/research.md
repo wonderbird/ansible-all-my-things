@@ -13,7 +13,6 @@ at the repository root:
 ---
 - import_playbook: playbooks/setup-users.yml
 - import_playbook: playbooks/setup-basics.yml
-- import_playbook: playbooks/setup-nodejs.yml
 - import_playbook: configure-profile-roles.yml
 - import_playbook: playbooks/reboot-if-required.yml
 ```
@@ -31,8 +30,8 @@ explicitly excludes for a tart VM with no desktop environment.
   (playbooks MUST only orchestrate roles/playbooks, no implementation logic).
 - *New shared "basic" sub-playbook included by both `configure-linux.yml` and
   `configure-profile.yml`*: rejected as premature abstraction
-  (Principle IV, YAGNI) — the four reused playbooks (`setup-users.yml`,
-  `setup-basics.yml`, `setup-nodejs.yml`, `reboot-if-required.yml`) are
+  (Principle IV, YAGNI) — the reused playbooks (`setup-users.yml`,
+  `setup-basics.yml`, `reboot-if-required.yml`) are
   already independently reusable `import_playbook` targets; no new
   abstraction is needed to compose them differently.
 
