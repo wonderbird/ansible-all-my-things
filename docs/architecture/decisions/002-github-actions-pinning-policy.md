@@ -579,13 +579,41 @@ build job, is Tier A under the transitive-publish-chain criterion.
 ### Dependabot Interaction
 
 The existing `.github/dependabot.yml` configuration (monthly,
-ecosystem `github-actions`, grouped) is expected to handle both
+ecosystem `github-actions`, grouped) was expected to handle both
 tiers: rewriting the SHA and updating the trailing `# vX.Y.Z`
 comment for Tier A entries, and bumping the major version for Tier B
-when a new major is released. This behaviour is documented by
-Dependabot but has not been verified in this repository; the first
-Dependabot PR after merging this ADR serves as the verification (see
-Confirmation, below).
+when a new major is released.
+
+Commit `8427621` — the first grouped Dependabot bump after this ADR
+was accepted — verified that expectation. It holds for Tier A and for
+one of the two Tier B cases:
+
+- **Tier A: confirmed.** Every SHA-pinned entry had its SHA and its
+  trailing `# vX.Y.Z` comment rewritten together, never one without
+  the other.
+- **Tier B, new major: confirmed.** `actions/setup-python@v6` became
+  `@v7`, keeping the major-only form.
+- **Tier B, patch-level release: falsified.** `actions/checkout@v7`
+  became `@v7.0.1`. A floating major tag already covers every patch
+  in its major, so Dependabot can only express a patch-level update by
+  widening the ref to the exact version. The result is a pinned patch
+  tag, which satisfies neither tier: it carries none of Tier A's
+  immutability, since a tag can be retargeted, while giving up
+  Tier B's automatic patch updates.
+
+The third case is a property of how Dependabot represents an update,
+not a misconfiguration, so it recurs on every patch release of a
+Tier B action. It does not change the tiers. The remedy is already in
+this ADR: pin that individual action by SHA under **Tier B Tightening
+Governance** below, which is stable under Dependabot because it moves
+the entry into the confirmed Tier A rewrite behaviour. Grouping or
+ignoring patch updates repository-wide is not the remedy, because the
+`github-actions` group also carries the genuine Tier A pins.
+
+Note that `.github/workflows/pinning-lint.yml` does not catch a
+pinned patch tag: the `ref-pin` policy that `.github/zizmor.yml`
+applies to `actions/*` accepts any ref, patch tags included. Detection
+of this specific shape remains human review.
 
 ### Enforcement Reality
 
@@ -696,11 +724,11 @@ file without requiring a tracker reference.
 
 ### Neutral / known-unverified
 
-- The Dependabot SHA-plus-comment co-update behaviour is documented
-  by Dependabot but has not been observed in this repository. Verify
-  on the first Dependabot Tier A PR: it MUST update both the SHA and
-  the trailing `# vX.Y.Z` comment together; if it does not, this
-  assumption fails and the ADR must be revisited.
+- The Dependabot SHA-plus-comment co-update behaviour has been
+  observed in this repository and holds; see Dependabot Interaction
+  above. The same bump also showed that a Tier B floating tag is
+  rewritten to a pinned patch tag on a patch-level release, which is
+  why a Tier B action that must not drift is SHA-pinned instead.
 - The G allow-list guards against introduction of disallowed actions
   but does not enforce pin style (SHA vs tag) per entry; the
   Tier A vs Tier B distinction still relies on human review or the
@@ -712,8 +740,9 @@ This policy is not permanent by default. Revisit it on any of:
 
 - a publicly disclosed compromise of the `actions/` or `github/`
   organisations, or of any Tier A publisher in active use;
-- the first Dependabot Tier A PR that does not co-update SHA and
-  version comment (invalidates the assumption above);
+- any Dependabot Tier A PR that does not co-update SHA and version
+  comment (the behaviour is confirmed, so a regression invalidates
+  the assumption recorded above);
 - annual review (next: 2027-05-16) — confirm the trade-off still
   reflects project scope, especially if the repo grows beyond
   single-maintainer scale;
