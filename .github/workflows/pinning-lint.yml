@@ -2,13 +2,12 @@
 ---
 name: Pinning Lint
 
-# Enforce the two-tier GitHub Actions pinning policy defined in
-# docs/architecture/decisions/002-github-actions-pinning-policy.md
+# Enforce the single-tier GitHub Actions pinning policy defined in
+# docs/architecture/decisions/007-single-tier-action-pinning.md
 #
-# Tier A (hash-pin required): third-party actions and any action in a job
-# with elevated permissions (packages:write, id-token:write, signing, push).
-# Tier B (ref-pin permitted): actions/* and github/* org actions without
-# elevated permissions.
+# Every action reference must be a 40-character commit SHA carrying a full
+# `# vX.Y.Z` comment, whoever publishes it and whatever permissions its job
+# holds.
 #
 # Tool: zizmor (https://github.com/woodruffw/zizmor)
 # Policy config: .github/zizmor.yml
