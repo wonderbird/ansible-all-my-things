@@ -1,33 +1,39 @@
 <!--
-Sync Impact Report — 1.26.0 → 1.27.0 (MINOR)
-- Documentation Standards gains two sub-rules: "Document the Current State,
-  Not Its History" and "Document the Variables a Task File Requires". The
-  first was violated three times in a single pull-request review; the second
-  follows an audit that found incomplete header contracts in ten task files.
-- The sentence binding these rules to every agent that writes a durable
-  artefact moves from the end of "Write Against Intent, Not Against
-  Implementation Details" to the section preamble, so it covers all three
-  sub-rules rather than only the first. Its wording is unchanged.
-- Governance keeps its narrower ban on history in rules files unchanged. The
-  new rule cross-references it rather than absorbing it: that ban covers a
-  different artefact class, admits no exception, and carries this
-  constitution's own Sync Impact Report exemption.
-- No mechanical check accompanies the second rule. A missing header entry
-  fails loudly on the caller's first run and names the variable, which
-  Principle XII already guarantees; a guard comparing header comments to Jinja
-  expressions would need a suppression list to stay green.
-- MINOR: two sections of new guidance; no principle is added, removed or
-  redefined.
+Sync Impact Report — 1.27.0 → 1.28.0 (MINOR)
+- Development Workflow gains one subsection, "Tracker-Export Commit
+  Exception": a commit whose entire content is `.beads/issues.jsonl` MAY go
+  directly to `main` without a feature branch, a user review, or a merge
+  commit.
+- Placed as a subsection rather than a numbered step: the exemption lifts the
+  **Feature branch**, **User review** and **Merge to main** steps at once, so
+  it belongs beside the numbered list, not inside it. A numbered entry would
+  also imply a position in the sequence a contributor walks through, which an
+  exemption does not have.
+- Scoped by a mechanical, single-file test so an agent can check its own commit
+  without judgement. A commit mixing the export with any other change is an
+  ordinary change and every workflow step applies to it in full.
+- MINOR: a new section of guidance; no principle is added, removed or
+  redefined. Not MAJOR — nothing existing is redefined incompatibly: the
+  per-commit review requirement, the changelog obligation, the `--no-ff` merge
+  rule and the squash-merge prohibition are unchanged for every other commit.
+  Not PATCH — the amendment permits a commit path the workflow previously did
+  not, which is new guidance rather than clarified wording.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: no propagation required — it names no documentation rule
-  that these two would duplicate.
+  ✅ .specify/templates/checklist-template.md — no changes required
+  ✅ .specify/templates/constitution-template.md — no changes required
+  ✅ .specify/templates/agent-file-template.md — no changes required
+- AGENTS.md checked: no propagation required. Its beads section governs whether
+  an agent has authority to commit at all (Agent Context Profile), which is a
+  different question from which branch the commit may land on; it states no
+  rule this amendment contradicts.
 - CLAUDE.md checked: no propagation required — it points at this file.
-- .claude/skills/*/SKILL.md checked: `review-documentation-here` gains a
-  pointer to this section, so the review pass reaches the rules; it restates
-  neither of them (Principle XI). No other named skill is affected.
+- .claude/skills/*/SKILL.md checked: no propagation required. `commit` already
+  reserves `chore:` for exporting `.beads/issues.jsonl`; `changelog-entry`,
+  `format-markdown`, `fix-problem`, `molecule-testing` and
+  `review-documentation-here` name no branch or review workflow rule.
 -->
 # ansible-all-my-things Constitution
 
@@ -520,6 +526,25 @@ carry forward to the next agent session.
 9. **Cloud apply**: run the playbook against cloud targets only after local
    validation passes.
 
+### Tracker-Export Commit Exception
+
+A commit whose entire content is the beads tracker export MAY be committed
+directly to `main`, without the **Feature branch**, **User review**, and
+**Merge to main** steps above. The test is mechanical: the commit changes
+`.beads/issues.jsonl` and no other file. A commit that touches any other file,
+in addition or instead, is an ordinary change and every step above applies to
+it in full.
+
+**Rationale**: the file is generated state, not authored content. It is a
+passive export rewritten wholesale by `bd export --all` after every tracker
+mutation, and it is the primary durability path for issues and memories — see
+"Beads: Data Safety and Workflow Rules" in `AGENTS.md`. A reviewer therefore
+has nothing to review: its correctness is decided by the tracker state the
+export was taken from, not by the diff. Routing it through a branch and a pull
+request would spend one review cycle per tracker mutation while protecting
+nothing. The single-file test keeps the exemption checkable without judgement,
+so it cannot be stretched to cover a commit that also changes authored content.
+
 ## Governance
 
 This constitution supersedes all informal conventions. Any amendment requires:
@@ -557,4 +582,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.27.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-22
+**Version**: 1.28.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-26
