@@ -28,6 +28,10 @@
         why: a GitHub release fetch that says nothing about the assets it needs
         replace: "      required_asset_regexes: ['^fixture-linux-amd64\\.tar\\.gz$']\n"
         with: ""
+      - id: missing-github-tag-result-var
+        why: a GitHub release fetch that names no fact to write its tag to
+        replace: "        github_tag_result_var: fixture_github_tag\n"
+        with: ""
       - id: wrong-architecture-source
         why: an amd64 pin written from an arm64 checksum key
         replace: "    - key: amd64\n"
@@ -65,9 +69,9 @@
         replace: "      kind: checksum_file"
         with: "      kind: telepathy"
       - id: pin-value-reaching-outside-the-tool
-        why: a pin value reaching a playbook global instead of this tool's own results
+        why: a pin value reaching a raw fact instead of this tool's own results
         replace: "_checksums.amd64 "
-        with: "fetched_github_tag "
+        with: "fixture_github_tag "
 
   tasks:
     - name: Create the harness working directory

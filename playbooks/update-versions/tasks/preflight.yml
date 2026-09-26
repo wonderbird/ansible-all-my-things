@@ -196,6 +196,23 @@
       including one published from a second release line.
     quiet: true
 
+- name: Assert a GitHub release fetch names the fact it writes its tag to
+  vars:
+    _unnamed: >-
+      {{ _registry | dict2items
+         | selectattr('value.fetch.file', 'equalto', 'fetch-github-release.yml')
+         | rejectattr('value.fetch.args.github_tag_result_var', 'defined')
+         | map(attribute='key') | list }}
+  ansible.builtin.assert:
+    that: _unnamed | length == 0
+    fail_msg: >-
+      These tools fetch a GitHub release without naming the fact the tag lands
+      in: {{ _unnamed }}. Declare github_tag_result_var. Entries that name
+      nothing share one fact, and a fact set by an earlier tool survives into
+      this tool's iteration, so a fetch that never reaches its final set_fact
+      records the previous tool's tag instead of failing.
+    quiet: true
+
 - name: Find the roles that pin a version or a checksum
   vars:
     _pin_suffixes: >-
