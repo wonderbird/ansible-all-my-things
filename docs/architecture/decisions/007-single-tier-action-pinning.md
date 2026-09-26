@@ -364,7 +364,9 @@ per action.
 - One rule, checkable on one line, with no classification step. A reviewer or
   agent judges any `uses:` line without reading the surrounding job.
 - Enforcement becomes real rather than aspirational, using a tool already in
-  CI, by removing configuration rather than adding any.
+  CI. The policy itself is expressed by removing configuration from
+  `.github/zizmor.yml`; making the check fail on a violation additionally
+  needs the workflow change recorded under Negative below.
 - Immutability and auditability extend to every reference, including the
   checkout step of the credentialed publish job, which satisfies no tier today.
 - The drift class is closed. A SHA pin has no looser form to widen into, so the
@@ -388,6 +390,14 @@ per action.
 - Nine non-conformant references need migration before the repository satisfies
   its own policy; until that lands, tightening
   `.github/zizmor.yml` would fail CI.
+- `Pinning Lint` must invoke zizmor twice, so the audit runs twice per job. A
+  single invocation cannot both report and enforce: `advanced-security: true`
+  selects zizmor's SARIF format, which exits 0 even on a finding, and the
+  action propagates that exit code. Observed by experiment — one floating
+  `@vN` reference produced a SARIF finding at `error` level and a green check.
+  The reporting run keeps the code-scanning alerts; a second run with
+  `annotations: true` selects `--format=github`, exits 14 on a finding, and is
+  what turns the check red.
 
 ### Neutral
 
