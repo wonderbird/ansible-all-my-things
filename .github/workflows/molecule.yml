@@ -16,7 +16,11 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7.0.1
+        # SHA-pinned: Tier B tightening. A floating @v7 is permitted here, but
+        # Dependabot rewrites it to a patch tag (@v7.0.1) on a patch-level
+        # release, which satisfies neither tier. A SHA pin is stable under
+        # that rewrite because Dependabot co-updates SHA and comment instead.
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Python
         uses: actions/setup-python@v7
