@@ -29,6 +29,7 @@
       vars:
         _args: "{{ _tools[_name].fetch.args | default({}) }}"
         github_repo: "{{ _args.github_repo | default(omit) }}"
+        github_tag_result_var: "{{ _args.github_tag_result_var | default(omit) }}"
         git_ref: "{{ _args.git_ref | default(omit) }}"
         java_sdkman_major: "{{ _args.java_sdkman_major | default(omit) }}"
         required_asset_regexes: "{{ _args.required_asset_regexes | default(omit) }}"

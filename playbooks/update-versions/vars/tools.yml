@@ -41,13 +41,14 @@ _tools:
     fetch:
       file: fetch-github-release.yml
       args:
+        github_tag_result_var: tmux_github_tag
         github_repo: arl/gitmux
         required_asset_regexes:
           - '^gitmux_.*_linux_amd64\.tar\.gz$'
           - '^gitmux_.*_linux_arm64\.tar\.gz$'
           - '^checksums\.txt$'
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ tmux_github_tag }}"
     current_pin: tmux_gitmux_version
     pins:
       - {pin: tmux_gitmux_version, value: "{{ _fetched.version }}"}
@@ -57,10 +58,11 @@ _tools:
     fetch:
       file: fetch-github-release.yml
       args:
+        github_tag_result_var: nerd_font_github_tag
         github_repo: ryanoasis/nerd-fonts
         required_asset_regexes: ['^Hack\.zip$']
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ nerd_font_github_tag }}"
     current_pin: nerd_font_version
     pins:
       - {pin: nerd_font_version, value: "{{ _fetched.version }}"}
@@ -96,12 +98,13 @@ _tools:
     fetch:
       file: fetch-github-release.yml
       args:
+        github_tag_result_var: dolt_sql_server_github_tag
         github_repo: dolthub/dolt
         required_asset_regexes:
           - '^dolt-linux-amd64\.tar\.gz$'
           - '^dolt-linux-arm64\.tar\.gz$'
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ dolt_sql_server_github_tag }}"
     current_pin: dolt_version
     checksums:
       - key: amd64
@@ -120,12 +123,13 @@ _tools:
     fetch:
       file: fetch-github-release.yml
       args:
+        github_tag_result_var: opencode_github_tag
         github_repo: anomalyco/opencode
         required_asset_regexes:
           - '^opencode-linux-x64\.tar\.gz$'
           - '^opencode-linux-arm64\.tar\.gz$'
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ opencode_github_tag }}"
     current_pin: opencode_version
     checksums:
       - key: amd64
@@ -144,11 +148,12 @@ _tools:
     fetch:
       file: fetch-github-release.yml
       args:
+        github_tag_result_var: github_cli_github_tag
         github_repo: cli/cli
         release_carries_no_consumed_asset: >-
           installed from the cli.github.com apt repository, not from release assets
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ github_cli_github_tag }}"
     current_pin: github_cli_version
     pins:
       - {pin: github_cli_version, value: "{{ _fetched.version }}"}
@@ -175,13 +180,14 @@ _tools:
     fetch:
       file: fetch-github-release.yml
       args:
+        github_tag_result_var: rtk_github_tag
         github_repo: rtk-ai/rtk
         required_asset_regexes:
           - '^rtk-x86_64-unknown-linux-musl\.tar\.gz$'
           - '^rtk-aarch64-unknown-linux-gnu\.tar\.gz$'
           - '^checksums\.txt$'
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ rtk_github_tag }}"
     current_pin: rtk_version
     checksums:
       - key: x86_64_musl
@@ -202,13 +208,14 @@ _tools:
     fetch:
       file: fetch-github-release.yml
       args:
+        github_tag_result_var: beads_go_github_tag
         github_repo: gastownhall/beads
         required_asset_regexes:
           - '^beads_.*_linux_amd64\.tar\.gz$'
           - '^beads_.*_linux_arm64\.tar\.gz$'
           - '^checksums\.txt$'
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ beads_go_github_tag }}"
     current_pin: beads_go_version
     checksums:
       - key: amd64
@@ -230,13 +237,14 @@ _tools:
     fetch:
       file: fetch-github-release.yml
       args:
+        github_tag_result_var: beads_viewer_github_tag
         github_repo: Dicklesworthstone/beads_viewer
         required_asset_regexes:
           - '^bv_.*_linux_amd64\.tar\.gz$'
           - '^bv_.*_linux_arm64\.tar\.gz$'
           - '^checksums\.txt$'
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ beads_viewer_github_tag }}"
     current_pin: beads_viewer_version
     checksums:
       - key: amd64
@@ -257,6 +265,7 @@ _tools:
     fetch:
       file: fetch-github-release.yml
       args:
+        github_tag_result_var: beads_rust_github_tag
         github_repo: Dicklesworthstone/beads_rust
         required_asset_regexes:
           - '^br-.*-linux_amd64\.tar\.gz$'
@@ -264,7 +273,7 @@ _tools:
           - '^br-.*-linux_arm64\.tar\.gz$'
           - '^br-.*-linux_arm64\.tar\.gz\.sha256$'
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ beads_rust_github_tag }}"
     current_pin: beads_rust_version
     checksums:
       # The per-archive sidecar, not a combined file: upstream has renamed the
@@ -312,11 +321,12 @@ _tools:
     fetch:
       file: fetch-github-release.yml
       args:
+        github_tag_result_var: specify_cli_github_tag
         github_repo: github/spec-kit
         release_carries_no_consumed_asset: >-
           installed with pipx from the git tag, not from release assets
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ specify_cli_github_tag }}"
     current_pin: specify_cli_version
     pins:
       - {pin: specify_cli_version, value: "{{ _fetched.version }}"}
@@ -353,12 +363,13 @@ _tools:
     fetch:
       file: fetch-github-release.yml
       args:
+        github_tag_result_var: direnv_github_tag
         github_repo: direnv/direnv
         required_asset_regexes:
           - '^direnv\.linux-amd64$'
           - '^direnv\.linux-arm64$'
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ direnv_github_tag }}"
     current_pin: direnv_version
     checksums:
       - key: amd64

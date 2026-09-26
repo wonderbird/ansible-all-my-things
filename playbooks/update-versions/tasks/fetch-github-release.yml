@@ -1,7 +1,12 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Required vars: github_repo (e.g. "arl/gitmux")
-# Sets fact: fetched_github_tag
+# Required vars: github_repo (e.g. "arl/gitmux") and github_tag_result_var, the
+# name of the fact the caller wants the tag under.
+#
+# The caller names the result rather than reading one shared fact. A fact
+# survives from one loop iteration to the next, so a fetch that never reaches
+# the final set_fact would leave the previous tool's tag in place; a name only
+# this caller asked for is undefined instead, which its block rescues.
 #
 # Optional: required_asset_regexes, a list of patterns. Each must match the
 # name of at least one asset of the resolved release, or the include fails.
@@ -105,4 +110,4 @@
 
 - name: Set GitHub tag fact for {{ github_repo }}
   ansible.builtin.set_fact:
-    fetched_github_tag: "{{ _github_release_response.json.tag_name }}"
+    "{{ github_tag_result_var }}": "{{ _github_release_response.json.tag_name }}"

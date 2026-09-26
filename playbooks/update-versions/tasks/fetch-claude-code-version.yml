@@ -12,13 +12,14 @@
   ansible.builtin.include_tasks: fetch-github-release.yml
   vars:
     github_repo: "anthropics/claude-code"
+    github_tag_result_var: claude_code_github_tag
 
-# fetch-github-release.yml returns the RAW tag (e.g. "v2.1.204"); the
-# manifest URL and the pinned claude_code_version fact both use the STRIPPED
-# form (see roles/claude_code/tasks/install-claude-code.yml).
+# fetch-github-release.yml returns the RAW tag (e.g. "v2.1.204") under the name
+# asked for above; the manifest URL and the pinned claude_code_version fact both
+# use the STRIPPED form (see roles/claude_code/tasks/install-claude-code.yml).
 - name: Strip 'v' prefix from fetched Claude Code tag
   ansible.builtin.set_fact:
-    fetched_claude_code_version: "{{ fetched_github_tag | regex_replace('^v', '') }}"
+    fetched_claude_code_version: "{{ claude_code_github_tag | regex_replace('^v', '') }}"
 
 - name: Fetch Claude Code release manifest
   ansible.builtin.uri:

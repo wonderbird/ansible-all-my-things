@@ -10,9 +10,10 @@ _tools:
       file: fetch-github-release.yml
       args:
         github_repo: example/fixture
+        github_tag_result_var: fixture_github_tag
         required_asset_regexes: ['^fixture-linux-amd64\.tar\.gz$']
       results:
-        version: "{{ fetched_github_tag }}"
+        version: "{{ fixture_github_tag }}"
     current_pin: fixture_version
     checksums:
       - key: amd64
