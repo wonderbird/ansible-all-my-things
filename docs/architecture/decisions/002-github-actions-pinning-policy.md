@@ -1,8 +1,15 @@
 # ADR-002: GitHub Actions Pinning Policy (SHA vs Version Tags)
 
 Date: 2026-05-16
-Status: Accepted
+Status: Superseded by [ADR-007](007-single-tier-action-pinning.md)
 Deciders: Stefan (Product Owner)
+
+The two-tier rule below is no longer in force. ADR-007 collapses it into a
+single tier: every action reference is SHA-pinned with a full `# vX.Y.Z`
+comment, and Tier B — the floating `@vN` major tag permitted for `actions/` and
+`github/` org actions — is withdrawn. The threat model, blast-radius sizing, and
+options analysis below remain the reasoning ADR-007 builds on, and are kept
+unchanged as the record of the situation at decision time.
 
 ## Context and Problem Statement
 
