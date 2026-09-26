@@ -11,6 +11,9 @@ comment, and Tier B — the floating `@vN` major tag permitted for `actions/` an
 options analysis below remain the reasoning ADR-007 builds on, and are kept
 unchanged as the record of the situation at decision time.
 
+The Dependabot co-update behaviour left unverified below has since been
+verified; ADR-007 records the outcome.
+
 ## Context and Problem Statement
 
 The CI/CD workflows under `.github/workflows/` build, test, sign, and
