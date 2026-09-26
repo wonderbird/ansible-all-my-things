@@ -17,10 +17,13 @@ updates:
     schedule:
       interval: "monthly"
 
+  # Weekly, not monthly: a SHA pin no longer picks up a patch release on the
+  # next run, so this interval is the exposure window to an upstream fix that
+  # is already published (ADR-007 Condition B).
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
     groups:
       all-actions:
         patterns: [ "*" ]
