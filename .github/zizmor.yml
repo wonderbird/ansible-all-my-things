@@ -1,28 +1,17 @@
-# zizmor configuration — two-tier GitHub Actions pinning policy
+# zizmor configuration — single-tier GitHub Actions pinning policy
 #
 # Only the unpinned-uses audit is enabled. All other zizmor audits are
 # disabled to keep this job focused on pinning enforcement only.
 # (Principle IV — YAGNI)
 #
-# Tier A (hash-pin required): any action outside actions/ or github/ orgs,
-# and any action in a job with elevated permissions (packages:write,
-# id-token:write, contents:write, security-events:write, signing/push).
+# Every action reference must be a 40-character commit SHA carrying a full
+# `# vX.Y.Z` comment, whoever publishes it and whatever permissions its job
+# holds. The audit needs no policy of its own: zizmor's implicit
+# "*": hash-pin default applies to any `uses:` clause matching no rule.
 #
-# Tier B (ref-pin permitted): actions from the actions/ or github/ GitHub
-# orgs that do not hold elevated permissions.
-#
-# See docs/architecture/decisions/002-github-actions-pinning-policy.md
+# See docs/architecture/decisions/007-single-tier-action-pinning.md
 
 rules:
-  unpinned-uses:
-    config:
-      policies:
-        # Tier B: first-party GitHub orgs may use floating major tags (@vN)
-        "actions/*": ref-pin
-        "github/*": ref-pin
-        # Tier A: everything else must be SHA-pinned.
-        # The implicit "*": hash-pin default covers all remaining patterns.
-
   # Disable all other audits — this workflow enforces pinning only.
   # dependabot-cooldown: zizmor discovers dependabot.yml independent of the
   # `inputs` directory target; disable explicitly so this pinning-only audit

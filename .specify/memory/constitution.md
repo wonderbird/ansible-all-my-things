@@ -1,23 +1,26 @@
 <!--
-Sync Impact Report — 1.27.0 → 1.28.0 (MINOR)
-- Development Workflow gains one subsection, "Tracker-Export Commit
-  Exception": a commit whose entire content is `.beads/issues.jsonl` MAY go
-  directly to `main` without a feature branch, a user review, or a merge
-  commit.
-- Placed as a subsection rather than a numbered step: the exemption lifts the
-  **Feature branch**, **User review** and **Merge to main** steps at once, so
-  it belongs beside the numbered list, not inside it. A numbered entry would
-  also imply a position in the sequence a contributor walks through, which an
-  exemption does not have.
-- Scoped by a mechanical, single-file test so an agent can check its own commit
-  without judgement. A commit mixing the export with any other change is an
-  ordinary change and every workflow step applies to it in full.
-- MINOR: a new section of guidance; no principle is added, removed or
-  redefined. Not MAJOR — nothing existing is redefined incompatibly: the
-  per-commit review requirement, the changelog obligation, the `--no-ff` merge
-  rule and the squash-merge prohibition are unchanged for every other commit.
-  Not PATCH — the amendment permits a commit path the workflow previously did
-  not, which is new guidance rather than clarified wording.
+Sync Impact Report — 1.28.0 → 2.0.0 (MAJOR)
+- Principle IX.4 (GitHub Actions pinning) is redefined from a two-tier policy
+  to a single tier: every `uses:` reference MUST carry a 40-character commit
+  SHA and a full `# vX.Y.Z` comment, whatever the publisher's identity and
+  whatever permissions the surrounding job holds.
+- The incompatibility is the point, not an oversight. Tier B is withdrawn, so a
+  floating `@vN` reference that satisfied this principle under 1.28.0 violates
+  it under 2.0.0, as does a SHA pin whose comment names only a major version.
+  What stopped being allowed: `@vN` for `actions/*` and `github/*` actions, and
+  a `# vN` comment on any pin. Nothing new becomes allowed.
+- MAJOR: a backward-incompatible redefinition of a principle. Artefacts that
+  conformed before now fail, and the remedy is an edit to each one rather than
+  a reading of the new text. Not MINOR — no new principle or section is added
+  and the guidance is narrowed rather than expanded. Not PATCH — the permitted
+  pin forms change, which is a rule change and not a clarification.
+- Auto-merging Dependabot pull requests for the `github-actions` ecosystem is
+  stated as a prohibition inside the principle. It was previously implicit in
+  ADR-002's review story; a SHA pin whose hash changes land unread carries the
+  exposure of a floating tag plus the ceremony of a hash.
+- The superseding decision, with the evidence and the rejected options, is
+  ADR-007 (`docs/architecture/decisions/007-single-tier-action-pinning.md`).
+  ADR-002 is superseded and retained as the reasoning this decision builds on.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
@@ -25,15 +28,17 @@ Sync Impact Report — 1.27.0 → 1.28.0 (MINOR)
   ✅ .specify/templates/checklist-template.md — no changes required
   ✅ .specify/templates/constitution-template.md — no changes required
   ✅ .specify/templates/agent-file-template.md — no changes required
-- AGENTS.md checked: no propagation required. Its beads section governs whether
-  an agent has authority to commit at all (Agent Context Profile), which is a
-  different question from which branch the commit may land on; it states no
-  rule this amendment contradicts.
+  None of the templates names an action, a pin form, or a pinning tier.
+- AGENTS.md checked: no propagation required. It states no pinning rule; its
+  skill index binds skills to principles by number, and IX.4 keeps its number.
 - CLAUDE.md checked: no propagation required — it points at this file.
-- .claude/skills/*/SKILL.md checked: no propagation required. `commit` already
-  reserves `chore:` for exporting `.beads/issues.jsonl`; `changelog-entry`,
-  `format-markdown`, `fix-problem`, `molecule-testing` and
-  `review-documentation-here` name no branch or review workflow rule.
+- .claude/skills/*/SKILL.md checked: no propagation required. No skill named in
+  this constitution mentions action pinning, a pin form, or a tier.
+- Repository files brought into conformance alongside this amendment:
+  `.github/workflows/*.yml` (every reference SHA-pinned with a full version
+  comment), `.github/zizmor.yml` (the `unpinned-uses` policies removed so
+  zizmor's blanket `hash-pin` default applies), `.github/dependabot.yml` (the
+  `github-actions` interval shortened to weekly) and `CONTRIBUTING.md`.
 -->
 # ansible-all-my-things Constitution
 
@@ -246,32 +251,32 @@ binaries) MUST follow four rules:
    keyless signing mechanism (e.g. cosign OIDC via Sigstore Fulcio), images
    MUST be signed after the push step.
 
-4. **GitHub Actions pinning.** All CI workflows MUST pin third-party actions
-   following the two-tier policy:
-   - **Tier A — SHA pin required** (`uses: owner/action@<sha> # vX.Y.Z`):
-     any action in a job holding `packages: write`, `id-token: write`,
-     `contents: write`, `security-events: write`, or cloud credentials; any
-     action that signs, builds, pushes, or releases an artefact; container
-     actions (`docker://...`); any action in a transitive publish chain
-     (e.g. `upload-artifact` feeding a publish job). Default for anything
-     not clearly Tier B.
-   - **Tier B — floating major tag permitted** (`@vN`): only actions from
-     the `actions/` or `github/` GitHub org that do NOT hold elevated
-     permissions.
+4. **GitHub Actions pinning.** Every `uses:` reference in every CI workflow
+   MUST be pinned as `uses: owner/action@<40-char-sha> # vX.Y.Z`. There is one
+   tier: the publisher's identity does not matter and the permissions of the
+   surrounding job do not matter. The comment MUST name the full semantic
+   version, because it is what a reviewer reads to judge what an updated hash
+   moved; a major-only `# vN` comment does not satisfy the rule.
+
+   Dependabot pull requests for the `github-actions` ecosystem MUST NOT be
+   auto-merged. A human approving each hash change is the control the pin
+   buys, and without it a compromised upstream release lands unattended.
 
    Each repository instance MUST also enable the GitHub Actions allow-list;
    the canonical entry list and fork setup steps are in
    `CONTRIBUTING.md § Fork setup (one-time)`. When adding a new action to a
    workflow, the corresponding `owner/repo@*` entry MUST also be added to
    the list in `CONTRIBUTING.md` and to the allow-list in repository settings.
-   See ADR-002 for full criteria, examples, and Dependabot interaction.
+   See ADR-007 for the criteria, the Dependabot interaction, and the
+   conditions the decision rests on.
 
 **Rationale**: Overly broad job permissions expose write credentials to
 untrusted fork code and to steps that do not need them. Publishing before
 testing allows broken artefacts to reach consumers silently. Provenance labels
 and signatures make the build-to-publish chain auditable and enable consumers
-to verify what they pull. SHA-pinning credential-bearing and artefact-handling
-actions prevents supply-chain compromise via tag retargeting.
+to verify what they pull. SHA-pinning every action prevents supply-chain
+compromise via tag retargeting, and a single tier means any pin can be judged
+from its own line without classifying the action or its job first.
 
 ### X. Self-Contained Durable Artefacts
 
@@ -582,4 +587,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.28.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-26
+**Version**: 2.0.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-26
