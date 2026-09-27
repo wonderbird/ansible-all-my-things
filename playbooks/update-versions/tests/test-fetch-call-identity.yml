@@ -1,0 +1,122 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Test harness for the call-identity guarantee: a fetch output that belongs to an
+# EARLIER call must never be recorded as this call's result. Runs on localhost,
+# needs no vault and reaches no network.
+#
+# Run from the repository root:
+#   ANSIBLE_CONFIG=playbooks/update-versions/tests/ansible.cfg \
+#     ansible-playbook playbooks/update-versions/tests/test-fetch-call-identity.yml
+#
+# Three fetch task files write an output under a name every caller shares:
+# fetched_github_tag, fetched_checksum and fetched_github_sha. An Ansible fact
+# outlives the loop iteration that set it, so a fetch whose output is SKIPPED
+# rather than failed leaves the previous call's value in place for the next
+# caller to record. Both halves of that hazard are exercised here, because the
+# two callers need different identities:
+#
+#   a) tool granularity -- ../tasks/fetch-tool.yml, one call per tool;
+#   b) checksum-key granularity -- ../tasks/resolve-checksum.yml, called TWICE
+#      for a tool with two checksum_file keys, where a tool name alone cannot
+#      tell the second call's output from the first's.
+#
+# The fetch files here are offline stand-ins, so what is under test is the
+# CALLERS' detection. That the real producers carry the marker at all is a
+# separate guarantee, enforced by
+# ../../../scripts/fetch-call-identity/check-fetch-call-identity.py.
+
+- name: Detect a stale fetch output at tool granularity
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - fixtures/call-identity-registry.yml
+  vars:
+    _fetch_results: {}
+    _update_failures: []
+    _update_updated: []
+    _update_skipped: []
+  tasks:
+    - name: Fetch both fixture tools
+      block:
+        - name: Run the real per-tool fetch loop
+          ansible.builtin.include_tasks: ../tasks/fetch-tool.yml
+          loop: "{{ _tools.keys() | list }}"
+          loop_control:
+            loop_var: _name
+            label: "{{ _name }}"
+
+        - name: Record that the loop finished without detecting anything
+          ansible.builtin.set_fact:
+            _stale_detected: false
+      rescue:
+        - name: Record that the stale output was detected
+          ansible.builtin.set_fact:
+            _stale_detected: true
+
+    - name: Assert the stale tool was refused rather than recorded
+      ansible.builtin.assert:
+        that:
+          - _stale_detected
+          - "'stale_tool' not in _fetch_results"
+        fail_msg: >-
+          stale_tool's fetch skipped its own output, and the run recorded
+          '{{ _fetch_results.stale_tool.version | default('<nothing>') }}' for it
+          instead of refusing it -- fresh_tool resolved
+          '{{ _fetch_results.fresh_tool.version | default('<nothing>') }}'. A
+          value the previous tool fetched must never become this tool's result.
+        quiet: true
+
+    - name: Report the tool-granularity result
+      ansible.builtin.debug:
+        msg: >-
+          call-identity harness: a stale shared tag was refused at tool
+          granularity, and nothing was recorded for stale_tool
+
+- name: Detect a stale fetch output at checksum-key granularity
+  hosts: localhost
+  gather_facts: false
+  vars:
+    _name: two_key_tool
+    _artefact_path: /nonexistent-this-play-never-downloads
+    _wanted_checksums:
+      - {key: amd64, kind: checksum_file, url: "https://example.invalid/sums", filename: "tool-linux-amd64.tar.gz"}
+      - {key: arm64, kind: checksum_file, url: "https://example.invalid/sums", filename: "tool-linux-arm64.tar.gz"}
+    _checksums: {}
+  tasks:
+    - name: Resolve both checksum keys of one tool
+      block:
+        - name: Run the real checksum resolver for each key
+          ansible.builtin.include_tasks: ../tasks/resolve-checksum.yml
+          vars:
+            checksum_fetch_file: ../tests/fixtures/fetch-digest-second-call-skipped.yml
+          loop: "{{ _wanted_checksums }}"
+          loop_control:
+            loop_var: _checksum
+            label: "{{ _checksum.key }}"
+
+        - name: Record that the resolver finished without detecting anything
+          ansible.builtin.set_fact:
+            _stale_digest_detected: false
+      rescue:
+        - name: Record that the stale digest was detected
+          ansible.builtin.set_fact:
+            _stale_digest_detected: true
+
+    - name: Assert the second key's stale digest was refused rather than recorded
+      ansible.builtin.assert:
+        that:
+          - _stale_digest_detected
+          - "'arm64' not in _checksums"
+        fail_msg: >-
+          The arm64 fetch skipped its own output, and the resolver recorded
+          '{{ _checksums.arm64 | default('<nothing>') }}' for it -- amd64
+          resolved '{{ _checksums.amd64 | default('<nothing>') }}'. Both calls
+          belong to the same tool, so a tool name alone cannot tell them apart:
+          the identity has to carry the checksum key.
+        quiet: true
+
+    - name: Report the checksum-key-granularity result
+      ansible.builtin.debug:
+        msg: >-
+          call-identity harness: a stale digest was refused at checksum-key
+          granularity, and nothing was recorded for the arm64 key

@@ -1,0 +1,12 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Stands in for fetch-checksum-from-file.yml in the call-identity harness: it
+# writes the same shared output fact, and skips it on the arm64 key. Without an
+# identity that carries the checksum key, arm64 silently inherits the digest
+# resolved for amd64 of the SAME tool, which a tool-granularity check cannot see.
+
+- name: "Read the published digest of {{ checksum_target_filename }}"
+  ansible.builtin.set_fact:
+    fetched_checksum: "sha-{{ checksum_target_filename }}"
+    fetched_for: "{{ fetch_call_id }}"
+  when: "'arm64' not in checksum_target_filename"

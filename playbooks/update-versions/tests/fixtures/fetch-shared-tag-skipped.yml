@@ -1,0 +1,11 @@
+#SPDX-License-Identifier: MIT-0
+---
+# The same fetch after a future edit puts a condition on its output. Nothing
+# fails; the task is skipped, and without a call-identity marker the shared fact
+# still holds the PREVIOUS tool's tag.
+
+- name: "Resolve the shared tag of {{ github_repo }}"
+  ansible.builtin.set_fact:
+    fetched_github_tag: "v-{{ github_repo | regex_replace('^example/', '') }}"
+    fetched_for: "{{ fetch_call_id }}"
+  when: false
