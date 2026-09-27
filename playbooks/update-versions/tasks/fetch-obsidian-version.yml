@@ -1,6 +1,13 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Sets fact: fetched_obsidian_tag (v-prefixed GitHub tag, e.g. "v1.13.7")
+# Required vars: fetch_call_id
+# Sets facts: fetched_obsidian_tag (v-prefixed GitHub tag, e.g. "v1.13.7"),
+# fetched_for
+#
+# fetched_for stamps this output with the caller's fetch_call_id, in the same
+# set_fact so a skipped output cannot pass as this call's result. Contract:
+# ../../../docs/architecture/version-update-playbooks.md (section "Attributing a
+# fetch output to the call that produced it").
 #
 # Why this file exists instead of a fetch-github-release.yml call: Obsidian's
 # GitHub repository mixes two release lines, so "latest release" can resolve to

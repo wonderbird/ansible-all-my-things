@@ -9,13 +9,10 @@
 #   fetch_call_id
 # Sets facts: fetched_github_sha, fetched_for
 #
-# The output below is written under a name every caller of this file shares, and
-# an Ansible fact outlives the loop iteration that set it. So the same task also
-# stamps fetched_for with the caller's fetch_call_id: a skipped output leaves a
-# skipped stamp, and the caller refuses the value instead of inheriting the
-# previous call's. The stamp must stay in the SAME set_fact as the output -- in
-# its own task, a condition on the output alone would leave a fresh stamp over a
-# stale value. check-fetch-call-identity.py enforces that.
+# fetched_for stamps this output with the caller's fetch_call_id, in the same
+# set_fact so a skipped output cannot pass as this call's result. Contract:
+# ../../../docs/architecture/version-update-playbooks.md (section "Attributing a
+# fetch output to the call that produced it").
 
 - name: Fetch GitHub HEAD commit for {{ github_repo }}@{{ git_ref }}
   ansible.builtin.uri:

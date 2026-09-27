@@ -1,7 +1,12 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Required vars: java_sdkman_major (integer major version, e.g. 21)
-# Sets fact: fetched_java_identifier
+# Required vars: java_sdkman_major (integer major version, e.g. 21), fetch_call_id
+# Sets facts: fetched_java_identifier, fetched_for
+#
+# fetched_for stamps this output with the caller's fetch_call_id, in the same
+# set_fact so a skipped output cannot pass as this call's result. Contract:
+# ../../../docs/architecture/version-update-playbooks.md (section "Attributing a
+# fetch output to the call that produced it").
 
 - name: Fetch SDKMAN Java version list
   ansible.builtin.uri:
