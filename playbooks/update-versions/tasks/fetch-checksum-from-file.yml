@@ -1,6 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Required vars: checksum_file_url, checksum_target_filename
+# Required vars: checksum_file_url, checksum_target_filename, fetch_call_id
 #
 # Fetches an upstream-published sha256 checksums file (GNU sha256sum text
 # format: "<64-hex-sha256>  <filename>", one entry per line) and extracts the
@@ -11,6 +11,14 @@
 # The digest lands in fetched_checksum, and the caller -- resolve-checksum.yml --
 # stores it under the key it asked for, inside the tool's own block, so two
 # tools can never share a value.
+#
+# The output below is written under a name every caller of this file shares, and
+# an Ansible fact outlives the loop iteration that set it. So the same task also
+# stamps fetched_for with the caller's fetch_call_id: a skipped output leaves a
+# skipped stamp, and the caller refuses the value instead of inheriting the
+# previous call's. The stamp must stay in the SAME set_fact as the output -- in
+# its own task, a condition on the output alone would leave a fresh stamp over a
+# stale value. check-fetch-call-identity.py enforces that.
 
 - name: Fetch checksum file from {{ checksum_file_url }}
   ansible.builtin.uri:
@@ -39,3 +47,4 @@
 - name: Set the checksum fact for {{ checksum_target_filename }}
   ansible.builtin.set_fact:
     fetched_checksum: "{{ _checksum_match | first }}"
+    fetched_for: "{{ fetch_call_id }}"

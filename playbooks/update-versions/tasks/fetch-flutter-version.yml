@@ -43,3 +43,4 @@
   ansible.builtin.set_fact:
     fetched_flutter_version: "{{ _latest.version }}"
     fetched_flutter_sha256: "{{ _latest.sha256 }}"
+    fetched_for: "{{ fetch_call_id }}"

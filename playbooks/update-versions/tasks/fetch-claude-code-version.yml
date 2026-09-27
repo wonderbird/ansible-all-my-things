@@ -49,3 +49,4 @@
   ansible.builtin.set_fact:
     fetched_claude_code_sha256_linux_x64: "{{ _claude_code_manifest.json.platforms['linux-x64'].checksum }}"
     fetched_claude_code_sha256_linux_arm64: "{{ _claude_code_manifest.json.platforms['linux-arm64'].checksum }}"
+    fetched_for: "{{ fetch_call_id }}"

@@ -33,3 +33,4 @@
 - name: Set Java identifier fact to latest {{ java_sdkman_major }}.x.x-tem version
   ansible.builtin.set_fact:
     fetched_java_identifier: "{{ _java_filtered | community.general.version_sort | last }}"
+    fetched_for: "{{ fetch_call_id }}"

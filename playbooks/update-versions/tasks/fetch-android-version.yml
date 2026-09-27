@@ -54,3 +54,4 @@
 - name: Set Android SHA-1 fact
   ansible.builtin.set_fact:
     fetched_android_sha1: "{{ _android_sha1_match | first }}"
+    fetched_for: "{{ fetch_call_id }}"

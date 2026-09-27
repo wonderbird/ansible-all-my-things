@@ -73,3 +73,4 @@
 - name: Set Obsidian tag fact
   ansible.builtin.set_fact:
     fetched_obsidian_tag: "{{ _obsidian_tag_match | first }}"
+    fetched_for: "{{ fetch_call_id }}"

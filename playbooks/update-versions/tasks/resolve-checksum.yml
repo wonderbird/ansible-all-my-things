@@ -15,10 +15,17 @@
 # is the vendor's own statement about the file.
 
 - name: "Read the published digest of {{ _name }} {{ _checksum.key }}"
-  ansible.builtin.include_tasks: fetch-checksum-from-file.yml
+  # The file is named by a variable so the call-identity harness can substitute
+  # an offline stand-in: ansible.builtin.uri cannot read a file:// URL, so the
+  # real one cannot be driven without the network. Same reason pre-flight takes
+  # _registry_tasks_dir. Production never passes it.
+  ansible.builtin.include_tasks: "{{ checksum_fetch_file | default('fetch-checksum-from-file.yml') }}"
   vars:
     checksum_file_url: "{{ _checksum.url }}"
     checksum_target_filename: "{{ _checksum.filename }}"
+    # the key, not just the tool: a tool with two checksum_file keys calls this
+    # twice, and a tool name alone cannot tell the second output from the first
+    fetch_call_id: "{{ _name }}/{{ _checksum.key }}"
   when: _checksum.kind == 'checksum_file'
 
 - name: "Download {{ _name }} {{ _checksum.key }} to hash it"
@@ -36,6 +43,18 @@
     checksum_algorithm: sha256
   register: _artefact_stat
   when: _checksum.kind == 'download'
+
+- name: "Assert the digest of {{ _name }} {{ _checksum.key }} came from its own fetch"
+  vars:
+    failure_source: configuration
+  ansible.builtin.assert:
+    that: fetched_for == _name ~ '/' ~ _checksum.key
+    fail_msg: >-
+      The published digest read for {{ _name }} {{ _checksum.key }} is stamped
+      '{{ fetched_for | default("<nothing>") }}'. It belongs to an earlier call,
+      so this key's own digest was never read.
+    quiet: true
+  when: _checksum.kind == 'checksum_file'
 
 - name: "Record the digest of {{ _name }} {{ _checksum.key }}"
   vars:

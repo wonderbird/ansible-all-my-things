@@ -6,7 +6,16 @@
 # Required vars:
 #   github_repo (e.g. "omrikais/skill-manager")
 #   git_ref     (branch name, e.g. "master")
-# Sets fact: fetched_github_sha
+#   fetch_call_id
+# Sets facts: fetched_github_sha, fetched_for
+#
+# The output below is written under a name every caller of this file shares, and
+# an Ansible fact outlives the loop iteration that set it. So the same task also
+# stamps fetched_for with the caller's fetch_call_id: a skipped output leaves a
+# skipped stamp, and the caller refuses the value instead of inheriting the
+# previous call's. The stamp must stay in the SAME set_fact as the output -- in
+# its own task, a condition on the output alone would leave a fresh stamp over a
+# stale value. check-fetch-call-identity.py enforces that.
 
 - name: Fetch GitHub HEAD commit for {{ github_repo }}@{{ git_ref }}
   ansible.builtin.uri:
@@ -55,3 +64,4 @@
 - name: Set GitHub commit SHA fact for {{ github_repo }}
   ansible.builtin.set_fact:
     fetched_github_sha: "{{ _github_commit_response.json.sha }}"
+    fetched_for: "{{ fetch_call_id }}"

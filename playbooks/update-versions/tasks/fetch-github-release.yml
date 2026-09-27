@@ -1,7 +1,15 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Required vars: github_repo (e.g. "arl/gitmux")
-# Sets fact: fetched_github_tag
+# Required vars: github_repo (e.g. "arl/gitmux"), fetch_call_id
+# Sets facts: fetched_github_tag, fetched_for
+#
+# The output below is written under a name every caller of this file shares, and
+# an Ansible fact outlives the loop iteration that set it. So the same task also
+# stamps fetched_for with the caller's fetch_call_id: a skipped output leaves a
+# skipped stamp, and the caller refuses the value instead of inheriting the
+# previous call's. The stamp must stay in the SAME set_fact as the output -- in
+# its own task, a condition on the output alone would leave a fresh stamp over a
+# stale value. check-fetch-call-identity.py enforces that.
 #
 # Optional: required_asset_regexes, a list of patterns. Each must match the
 # name of at least one asset of the resolved release, or the include fails.
@@ -106,3 +114,4 @@
 - name: Set GitHub tag fact for {{ github_repo }}
   ansible.builtin.set_fact:
     fetched_github_tag: "{{ _github_release_response.json.tag_name }}"
+    fetched_for: "{{ fetch_call_id }}"

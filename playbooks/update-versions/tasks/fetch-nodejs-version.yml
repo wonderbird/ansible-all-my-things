@@ -31,3 +31,4 @@
 - name: Set Node.js LTS version fact
   ansible.builtin.set_fact:
     fetched_nodejs_version: "{{ _nodejs_lts_versions[0] }}"
+    fetched_for: "{{ fetch_call_id }}"
