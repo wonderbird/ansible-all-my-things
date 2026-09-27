@@ -38,6 +38,10 @@
   when: _checksum.kind == 'download'
 
 - name: "Hash the downloaded {{ _name }} {{ _checksum.key }}"
+  # No stamp guards this branch and none is needed: a skipped registered task
+  # registers a skipped result rather than the previous iteration's, so a skipped
+  # hash leaves the digest below undefined and fails loud. Making this pair
+  # conditional -- "skip if already downloaded", say -- would end that.
   ansible.builtin.stat:
     path: "{{ _artefact_path }}"
     checksum_algorithm: sha256

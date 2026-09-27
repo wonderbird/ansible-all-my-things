@@ -13,6 +13,21 @@
   vars:
     github_repo: "anthropics/claude-code"
 
+- name: Assert the Claude Code tag came from this tool's own fetch
+  # This file consumes a shared output of a NESTED fetch, so it asserts the stamp
+  # itself rather than leaving it to fetch-tool.yml: that caller only sees the
+  # LAST stamp, written by the manifest task below, which would be fresh even if
+  # the tag read next were not.
+  vars:
+    failure_source: configuration
+  ansible.builtin.assert:
+    that: fetched_for == fetch_call_id
+    fail_msg: >-
+      The GitHub release fetch for Claude Code left outputs stamped
+      '{{ fetched_for | default("<nothing>") }}', not '{{ fetch_call_id }}' --
+      the tag read next belongs to an earlier call.
+    quiet: true
+
 # fetch-github-release.yml returns the RAW tag (e.g. "v2.1.204"); the
 # manifest URL and the pinned claude_code_version fact both use the STRIPPED
 # form (see roles/claude_code/tasks/install-claude-code.yml).

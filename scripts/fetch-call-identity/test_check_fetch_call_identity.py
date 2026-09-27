@@ -112,6 +112,46 @@ class CallIdentityCheckerTest(unittest.TestCase):
         })
         self.assertEqual(len(findings), 2)
 
+    BORROWS_WITHOUT_ASSERTING = """
+        ---
+        - name: Fetch the tag from another producer
+          ansible.builtin.include_tasks: fetch-github-release.yml
+
+        - name: Strip the prefix
+          ansible.builtin.set_fact:
+            fetched_thing_version: "{{ fetched_github_tag | regex_replace('^v', '') }}"
+            fetched_for: "{{ fetch_call_id }}"
+        """
+
+    def test_rejects_borrowing_another_fetch_output_without_asserting(self):
+        findings = self.scan(**{"fetch-composed": self.BORROWS_WITHOUT_ASSERTING})
+        self.assertEqual(len(findings), 1)
+        self.assertIn("reads fetched_github_tag from another fetch", findings[0][1])
+
+    def test_accepts_borrowing_when_the_file_asserts_the_stamp(self):
+        asserted = self.BORROWS_WITHOUT_ASSERTING.replace(
+            "- name: Strip the prefix",
+            """- name: Assert the borrowed tag is this call's
+          ansible.builtin.assert:
+            that: fetched_for == fetch_call_id
+
+        - name: Strip the prefix""")
+        self.assertEqual(self.scan(**{"fetch-composed": asserted}), [])
+
+    def test_reading_a_fact_the_same_file_wrote_is_not_borrowing(self):
+        findings = self.scan(**{"fetch-two-stage": """
+            ---
+            - name: Resolve the build number
+              ansible.builtin.set_fact:
+                fetched_android_build: "12345"
+
+            - name: Resolve the digest from it
+              ansible.builtin.set_fact:
+                fetched_android_sha1: "sha-{{ fetched_android_build }}"
+                fetched_for: "{{ fetch_call_id }}"
+            """})
+        self.assertEqual(findings, [])
+
     def test_an_underscore_prefixed_fact_is_not_an_output(self):
         findings = self.scan(**{"fetch-intermediate-only": """
             ---
