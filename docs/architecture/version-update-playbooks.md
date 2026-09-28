@@ -418,6 +418,40 @@ itself and the test harnesses. **The ban MUST survive any simplification or
 removal of that script**; the minimum replacement is a CI step that fails when a
 file-editing module appears outside `write-pins.yml`.
 
+### Attributing a fetch output to the call that produced it
+
+Every fetch task file writes its outputs as Ansible facts, and a fact outlives
+the loop iteration that set it. Three output names are shared by every caller of
+the file that writes them: `fetched_github_tag`, `fetched_checksum` and
+`fetched_github_sha`. So a fetch whose output is *skipped* rather than failed
+leaves the previous call's value readable, and the caller records it as this
+call's result — a wrong version or digest written to a role's defaults, on a run
+that reports success.
+
+Each producer therefore stamps `fetched_for: "{{ fetch_call_id }}"` in the same
+`set_fact` as its output, and each caller passes an identity and asserts the
+stamp before consuming the output:
+
+| Caller | Identity it asks for | Why that granularity |
+| --- | --- | --- |
+| `tasks/fetch-tool.yml` | `{{ _name }}` | one call per tool |
+| `tasks/resolve-checksum.yml` | `{{ _name }}/{{ _checksum.key }}` | a tool with two `checksum_file` keys calls the same file twice, and a tool name alone cannot tell the second output from the first |
+
+The stamp MUST share its output's task. Given a task of its own, a condition on
+the output alone leaves a fresh stamp over a stale value and the caller's assert
+passes. That placement cannot be enforced at runtime, because a run where no
+output is ever skipped behaves identically, so it is checked statically by
+`scripts/fetch-call-identity/check-fetch-call-identity.py` in CI. **The contract
+MUST survive any simplification or removal of that script**; the minimum
+replacement is a CI step that fails when a producer stamps outside the task
+writing an output.
+
+The guard covers `set_fact` outputs only, and that is deliberate. A `register`
+does not leak across iterations: Ansible sets it to a skipped result rather than
+leaving the previous value, so `resolve-checksum.yml`'s `download` branch fails
+loud on an undefined digest without a stamp. Extending the stamp to registers
+would guard nothing.
+
 ### What guards what
 
 Each guarantee below is enforced at exactly one point. The table names that
@@ -433,6 +467,7 @@ lost.
 | A release fetch states what the release must carry | Pre-flight, over the registry |
 | A per-architecture pin is fed from its own architecture | Pre-flight, plus per-tool digest binding |
 | No file edit outside `write-pins.yml` | `check-write-pins-bypass.py` in CI |
+| A fetch output belongs to the call that recorded it | Per-call assert in each caller, plus `check-fetch-call-identity.py` in CI for the stamp's placement |
 
 A registered role whose entry names the *wrong* pin names still passes
 pre-flight and fails later as a configuration abort: loud, but late. Pin-by-pin

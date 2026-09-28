@@ -1,0 +1,14 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Stands in for fetch-github-release.yml in the call-identity harness: it writes
+# the same shared output fact, under the same name, as its last task. It reaches
+# no network, so the harness can drive the real callers offline.
+#
+# The harness proves the CALLERS detect a stale output. That the real producers
+# carry the marker is a separate guarantee, enforced by
+# scripts/fetch-call-identity/check-fetch-call-identity.py.
+
+- name: "Resolve the shared tag of {{ github_repo }}"
+  ansible.builtin.set_fact:
+    fetched_github_tag: "v-{{ github_repo | regex_replace('^example/', '') }}"
+    fetched_for: "{{ fetch_call_id }}"

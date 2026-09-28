@@ -41,5 +41,7 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   or duplicated.
 - `perform-updates.yml` fails, naming the repository and tag, when a tool's
   latest GitHub release lacks the asset that tool installs.
+- `perform-updates.yml` fails, naming the tool, when a tool's fetch leaves the
+  value an earlier tool fetched.
 
 [Unreleased]: https://github.com/wonderbird/ansible-all-my-things/commits/main

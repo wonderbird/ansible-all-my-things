@@ -1,0 +1,28 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Two tools for the call-identity harness. stale_tool's fetch skips its own
+# output, so whatever fresh_tool left behind is what stale_tool would record.
+_tools:
+  fresh_tool:
+    role: fresh_tool
+    fetch:
+      file: ../tests/fixtures/fetch-shared-tag-ok.yml
+      args:
+        github_repo: example/fresh
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: fresh_version
+    pins:
+      - {pin: fresh_version, value: "{{ _fetched.version }}"}
+
+  stale_tool:
+    role: stale_tool
+    fetch:
+      file: ../tests/fixtures/fetch-shared-tag-skipped.yml
+      args:
+        github_repo: example/stale
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: stale_version
+    pins:
+      - {pin: stale_version, value: "{{ _fetched.version }}"}

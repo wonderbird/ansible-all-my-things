@@ -6,10 +6,12 @@ name: Version Update Lint
 # docs/architecture/version-update-playbooks.md.
 #
 # Jobs:
-# - version-update-lint runs
-#   scripts/version-update-order/check-write-pins-bypass.py and its tests: no
-#   task outside tasks/write-pins.yml may edit a file, because a direct edit
-#   skips the check that the pin exists exactly once (no network, no pip).
+# - version-update-lint runs the static checks and their tests (no network):
+#   check-write-pins-bypass.py, because a task that edits a role defaults file
+#   directly skips the check that the pin exists exactly once; and
+#   check-fetch-call-identity.py, because a fetch file that stamps fetched_for
+#   outside the task writing its output lets a skipped output keep the previous
+#   tool's value while the caller's assert still passes.
 # - update-versions-harness installs ansible-core and runs the localhost test
 #   harnesses for the registry, the failure classifier, write-pins and the
 #   failure-source declarations of the task files, and syntax-checks the
@@ -59,6 +61,21 @@ jobs:
           python3 scripts/version-update-order/check-write-pins-bypass.py
           playbooks/update-versions
 
+      # the call-identity checker parses task files, which needs PyYAML; the
+      # write-pins check above is textual and needs nothing
+      - name: Install PyYAML
+        run: pip install "$(grep -E '^PyYAML' requirements.txt)"
+
+      - name: Test the fetch call-identity check
+        run: >-
+          python3
+          scripts/fetch-call-identity/test_check_fetch_call_identity.py
+
+      - name: Check that every fetch file stamps its outputs
+        run: >-
+          python3 scripts/fetch-call-identity/check-fetch-call-identity.py
+          playbooks/update-versions
+
   update-versions-harness:
     name: Test ${{ matrix.harness }} task file
     runs-on: ubuntu-24.04
@@ -75,6 +92,7 @@ jobs:
           - tool-registry
           - fixture-registry-smoke
           - failure-source
+          - fetch-call-identity
 
     steps:
       - name: Checkout repository
