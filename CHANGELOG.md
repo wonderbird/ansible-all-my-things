@@ -15,6 +15,7 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   `--skip-tags not-supported-on-arm64`.
 - The first desktop apply downloads several gigabytes for each login user,
   and every later apply re-downloads the Cursor package.
+- Every Linux host gets the Bun runtime, with `bun` and `bunx` on the PATH.
 
 ### Changed
 
