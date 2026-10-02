@@ -379,11 +379,12 @@ when no issue is marked `in_progress`.
 - **Language**: English throughout. Apply the caveman skill by audience —
   `caveman full` for user-facing content (chat, code, comments, documentation,
   beads issues); `caveman wenyan-ultra` for internal and inter-agent content
-  (thinking, subagents, MCP, tool calls, all files under `.omc/`). Code blocks,
-  commit messages, and security warnings stay in normal English regardless of
-  mode, and so do plan files under `.omc/plans/`: a plan is read and reviewed
-  by people, and a compressed one cannot be reviewed unambiguously. The skills
-  define each mode.
+  (thinking, subagents, MCP, tool calls, and every file an agent framework
+  keeps its own state in — `.omc/`, `.omo/`). Code blocks, commit messages,
+  and security warnings stay in normal English regardless of mode, and so do
+  plan files wherever a framework writes them (`.omc/plans/`, `.omo/plans/`):
+  a plan is read and reviewed by people, and a compressed one cannot be
+  reviewed unambiguously. The skills define each mode.
 - **One question at a time**: when asking the user a question, ask one
   question at a time so they can focus.
 - **Avoid ambiguity**: if instructions are unclear, contradictory, or
@@ -392,20 +393,28 @@ when no issue is marked `in_progress`.
 - **Hidden files**: the LS tool does not show hidden files; use
   `ls -la <path>` via Bash to check for hidden files or directories.
 
-## Skill index
+## Mandatory skill invocations
 
-Skills carrying a constitution-mandated invocation. The agent runtime injects
-the full skill catalog (names + descriptions) each session; only the mandatory
-skill→principle bindings are restated here.
+Skills whose invocation is mandatory, and the rule that makes it so. The agent
+runtime injects the full skill catalog (names + descriptions) each session;
+only the mandatory bindings are restated here. The rule named is a principle or
+section of the constitution unless the entry says otherwise.
 
-| Skill | Invoke when | Principle |
+| Skill | Invoke when | Mandated by |
 | --- | --- | --- |
+| `caveman` | always; mode depends on audience | Collaboration with the User, in this file |
 | `changelog-entry` | before requesting review on a pull request | Development Workflow |
 | `commit` | before creating any commit | V |
 | `format-markdown` | at task close, after all Markdown finalized | VI |
 | `fix-problem` | before fixing any unexpected obstacle | VII |
 | `ansible-molecule-testing` | when creating/modifying a role's Molecule scenario | II |
 | `ansible-review-documentation` | at task close, before `format-markdown` | Documentation Standards |
+
+Skills without the `ansible-` prefix live outside this repository and are not
+pinned by it, so the rules they carry can change without review here.
+`caveman` comes from a third party; the others are authored by the repository
+owner. Adopting a skill from outside that set changes the trust boundary and is
+a decision to take deliberately.
 
 ## Test environment host architecture
 

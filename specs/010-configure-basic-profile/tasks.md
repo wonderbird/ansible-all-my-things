@@ -188,8 +188,8 @@ Markdown quality gates passed.
   above).
 - T005 is marked `[P]` relative to T006 only in the sense that it is a
   read-only review step; T006 still depends on T005 completing first per the
-  skill-invocation order mandated by the constitution ("Skill index": review
-  documentation before format-markdown).
+  skill-invocation order mandated by the constitution ("Mandatory skill
+  invocations": review documentation before format-markdown).
 - No parallel execution opportunities exist across user stories — US2 reuses
   US1's artifacts entirely.
 
