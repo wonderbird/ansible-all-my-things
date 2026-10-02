@@ -15,6 +15,16 @@
 .omc/project-memory.json
 .omc/progress.txt
 
+# Oh My OpenAgent (OMO) — per-session agent state, e.g. run-continuation/.
+# Upstream ignores the contents of this directory and whitelists only durable
+# artefacts: https://github.com/code-yeongyu/oh-my-openagent/blob/dev/.gitignore
+#
+# Written as `.omo/*`, not `.omo/`: a directory-pattern ignore blocks every
+# later negation from every ignore file, so the contents form is what keeps a
+# future whitelist entry possible — the same reason `.beads/*` is written that
+# way above.
+.omo/*
+
 # Skip private keys
 *.pem
 
