@@ -403,7 +403,7 @@ section of the constitution unless the entry says otherwise.
 | Skill | Invoke when | Mandated by |
 | --- | --- | --- |
 | `caveman` | always; mode depends on audience | Collaboration with the User, in this file |
-| `changelog-entry` | before requesting review on a pull request | Development Workflow |
+| `ansible-changelog-entry` | before requesting review on a pull request | Development Workflow |
 | `commit` | before creating any commit | V |
 | `format-markdown` | at task close, after all Markdown finalized | VI |
 | `fix-problem` | before fixing any unexpected obstacle | VII |

@@ -1,22 +1,14 @@
 <!--
-Sync Impact Report — 2.0.0 → 2.1.0 (MINOR)
-- This repository's own skills are renamed with an `ansible-` prefix, so a
-  project skill is distinguishable from a generic one carrying the same idea.
-  Named in this file: `molecule-testing` → `ansible-molecule-testing`, and
-  `review-documentation-here` → `ansible-review-documentation`.
-- Documentation Standards no longer sources its strategy from the generic
-  `review-documentation` skill. `ansible-review-documentation` is now
-  self-contained: it absorbs the developer-onboarding tier and the arc42
-  `docs/architecture/` tier it previously inherited, and drops the
-  `memory-bank/` tier, which is gated on a directory this repository does not
-  have.
-- MINOR: the guidance a named skill carries is materially expanded, and no
-  principle or section is added. Not MAJOR — nothing is removed or redefined
-  incompatibly; an artefact conforming under 2.0.0 still conforms, and no
-  remedy is required anywhere. Not PATCH — the sourcing of the documentation
-  strategy changes, which is more than wording.
-- The mandate itself is unchanged: agents invoke `ansible-review-documentation`
-  once at the close of a task, before `format-markdown`.
+Sync Impact Report — 2.1.0 → 2.1.1 (PATCH)
+- Development Workflow now names the repository-owned
+  `ansible-changelog-entry` skill instead of the generic `changelog-entry`
+  name. This aligns the existing mandate with the repository skill namespace;
+  the required workflow and changelog policy are unchanged.
+- PATCH: this amendment corrects a skill reference without adding, removing,
+  or materially expanding any principle or section.
+- Modified principles: none.
+- Added sections: none.
+- Removed sections: none.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
@@ -24,14 +16,14 @@ Sync Impact Report — 2.0.0 → 2.1.0 (MINOR)
   ✅ .specify/templates/checklist-template.md — no changes required
   ✅ .specify/templates/constitution-template.md — no changes required
   ✅ .specify/templates/agent-file-template.md — no changes required
-  No template names a skill.
-- AGENTS.md checked: its mandatory-invocation table carries both renamed
-  skills, and names the trust boundary of the skills it lists.
-- CLAUDE.md checked: no propagation required — it names no skill and points at
+  No template names the changelog skill.
+- AGENTS.md updated: the mandatory-invocation table now names
+  `ansible-changelog-entry`.
+- CLAUDE.md checked: no propagation required; it names no skill and points at
   this file.
-- .claude/skills/*/SKILL.md checked: cross-references between project skills
-  follow the rename, and `ansible-review-documentation` no longer delegates to
-  the generic skill.
+- .claude/skills/ansible-changelog-entry/SKILL.md restored as the authoritative
+  repository-owned skill and aligned with the project skill namespace.
+- Follow-up TODOs: none.
 -->
 # ansible-all-my-things Constitution
 
@@ -496,7 +488,8 @@ carry forward to the next agent session.
 4. **Commit**: use conventional commit format (Principle V); keep commits small
    and coherent.
 5. **Changelog**: before requesting review, record every operator-visible
-   change of the branch in `CHANGELOG.md` using the `changelog-entry` skill,
+   change of the branch in `CHANGELOG.md` using the
+   `ansible-changelog-entry` skill,
    which is the authoritative source of truth for the format and for which
    changes qualify. A branch whose changes no operator can observe records
    nothing.
@@ -580,4 +573,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 2.1.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-10-02
+**Version**: 2.1.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-10-02
