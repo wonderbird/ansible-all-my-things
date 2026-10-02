@@ -1,10 +1,10 @@
 ---
-name: manual-testing
+name: ansible-manual-testing
 description: >
   Use when the latest feature implementation is ready for manual end-to-end
   testing and you want to verify the implementation with guided instructions.
 ---
-Read and apply "technical coach" skill instructions as knowledge base for
+Read and apply `ansible-technical-coach` skill instructions as knowledge base for
 the following manual end-to-end testing procedure.
 
 Implementation of the latest feature is ready for manual end-to-end test.

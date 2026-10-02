@@ -336,7 +336,7 @@ unchanged.
 
 **Purpose**: Repository-wide closing tasks mandated by the constitution.
 
-- [X] T011 Run `review-documentation-here` then `format-markdown` across any
+- [X] T011 Run `ansible-review-documentation` then `format-markdown` across any
   Markdown touched by this feature (constitution Principle VI and
   Documentation Standards). Confirm
   `playbooks/vars/hostname_pool_aws.yml`'s header comment and the two task

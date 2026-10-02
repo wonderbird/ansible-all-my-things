@@ -150,7 +150,7 @@ are validated on a Vagrant/cloud VM per Constitution Principle III, with the
 procedure documented in `quickstart.md`.
 
 **Rationale**: The canonical scaffold is shared and must not be degraded for
-one role (DRY, Principle XI; molecule-testing skill rule). Splitting validation
+one role (DRY, Principle XI; ansible-molecule-testing skill rule). Splitting validation
 — containerisable parts in Molecule, boot behaviour on a VM — is exactly the
 fallback Principle III authorises. The functional smoke test still proves the
 binary and loopback config genuinely work, so the container test is meaningful,

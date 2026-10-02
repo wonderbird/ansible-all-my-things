@@ -21,7 +21,7 @@ roles/setup-kiro-ide/
   defaults/main.yml   # kiro_version, kiro_install_path
   tasks/main.yml      # download → install → verify
   meta/main.yml       # platforms: Ubuntu
-  molecule/default/   # Molecule scenario (see molecule-testing skill)
+  molecule/default/   # Molecule scenario (see ansible-molecule-testing skill)
 ```
 
 ### Steps
@@ -36,7 +36,7 @@ roles/setup-kiro-ide/
 3. **Wire role into the configure playbook** — add `setup-kiro-ide` to the
    role list in `configure-profile.yml` (or the equivalent playbook targeting
    the `linux` group) for the `rivendell` and `hobbiton` hosts.
-4. **Add Molecule scenario** — invoke the `molecule-testing` skill to scaffold
+4. **Add Molecule scenario** — invoke the `ansible-molecule-testing` skill to scaffold
    the full `create → prepare → converge → idempotence → verify → destroy`
    lifecycle. Verify scenario runs cleanly in a container.
 5. **End-to-end validation** — run the playbook against `hobbiton` or

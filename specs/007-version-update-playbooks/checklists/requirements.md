@@ -31,7 +31,7 @@
 
 ## Notes
 
-- Spec informed by detailed technical-coach session. All decisions traced to explicit choices made in conversation.
+- Spec informed by detailed ansible-technical-coach session. All decisions traced to explicit choices made in conversation.
 - Android HTML scraping risk acknowledged in edge cases and FR-007; TD-009 referenced in assumptions.
 - First increment scope explicitly bounded in assumptions: no GitHub Actions, no per-role targeting, no auto-commit.
 - Java same-major patch strategy decision recorded in assumptions.

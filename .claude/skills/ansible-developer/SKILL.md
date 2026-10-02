@@ -1,5 +1,5 @@
 ---
-name: developer
+name: ansible-developer
 description: >
   Use when expert knowledge of Ansible is required to analyze, implement, or
   fix features. Project scope: setting up and maintaining virtual machines.
@@ -29,7 +29,7 @@ goal.
 
 Project-specific Ansible pitfalls discovered during implementation. This
 section grows over time — check it before re-diagnosing a problem that may
-already be solved here. `technical-coach` references this section directly
+already be solved here. `ansible-technical-coach` references this section directly
 rather than duplicating it (Constitution Principle XI), so keep it current
 for both personas.
 

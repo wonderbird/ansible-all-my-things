@@ -85,7 +85,7 @@
 
 ## Phase 6: Polish & Cross-Cutting Concerns
 
-- [ ] T010 Run `review-documentation-here` skill on `docs/architecture/version-update-playbooks.md` per constitution Documentation Standards — complete before format-markdown
+- [ ] T010 Run `ansible-review-documentation` skill on `docs/architecture/version-update-playbooks.md` per constitution Documentation Standards — complete before format-markdown
 - [ ] T011 [P] Run `format-markdown` skill on `docs/architecture/version-update-playbooks.md` per Principle VI
 - [ ] T012 [P] Close beads task `9kv` (original tracking issue: "Establish update mechanism for pinned version numbers in role defaults")
 - [ ] T013 Verify quickstart.md workflow end-to-end: run `query-versions.yml`, confirm output, run `perform-updates.yml`, confirm `git diff` shows only version/checksum lines changed, run `perform-updates.yml` again, confirm no changes

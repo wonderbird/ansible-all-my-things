@@ -63,11 +63,11 @@ addressed in the first batch.
 ## Acceptance Criteria
 
 1. Multi-provider comparison guide exists at a stable path under
-   `docs/user-manual/` or `docs/architecture/`; passes `review-documentation-here`
+   `docs/user-manual/` or `docs/architecture/`; passes `ansible-review-documentation`
    skill; cross-links from `docs/techContext.md`.
 
 2. Cost-analysis doc exists; contains per-VM cost entries for hobbiton,
-   rivendell, and moria; passes `review-documentation-here` skill.
+   rivendell, and moria; passes `ansible-review-documentation` skill.
 
 3. Inventory-system doc exists (or its content is verifiably present in
    `docs/techContext.md`); covers dual-keyed groups, `platform:` tag,

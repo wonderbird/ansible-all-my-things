@@ -530,8 +530,8 @@ before commit — is recorded in full, here and in the pull request.
 
 ### TD-012: Ideas for solution
 
-Write each deferred scenario per the `molecule-testing` skill, which is the
-authoritative source for the scenario file contract:
+Write each deferred scenario per the `ansible-molecule-testing` skill, which
+is the authoritative source for the scenario file contract:
 
 - `flutter` — `converge.yml` sets `login_user_names` in its `vars:` block and
   `prepare.yml` creates those users with home directories. The interesting case

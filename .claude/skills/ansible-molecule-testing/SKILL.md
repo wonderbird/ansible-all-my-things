@@ -1,5 +1,5 @@
 ---
-name: molecule-testing
+name: ansible-molecule-testing
 description: >
   Pull in information about the molecule testing setup for Ansible roles.
   Use when implementing or modifying an Ansible role to set up or maintain

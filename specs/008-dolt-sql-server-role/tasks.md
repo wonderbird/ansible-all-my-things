@@ -24,7 +24,7 @@ implementation and testing of each story.
 **Purpose**: Scaffold the role skeleton using the canonical helper
 script. `molecule/default/molecule.yml` and
 `molecule/default/prepare.yml` are generated here and MUST NOT be
-edited afterwards (canonical per molecule-testing skill).
+edited afterwards (canonical per ansible-molecule-testing skill).
 
 - [x] T001 Scaffold role: run `bash scripts/new-role.sh dolt_sql_server`
   to create `roles/dolt_sql_server/` skeleton including canonical

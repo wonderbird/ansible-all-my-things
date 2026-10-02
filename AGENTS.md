@@ -404,8 +404,8 @@ skill→principle bindings are restated here.
 | `commit` | before creating any commit | V |
 | `format-markdown` | at task close, after all Markdown finalized | VI |
 | `fix-problem` | before fixing any unexpected obstacle | VII |
-| `molecule-testing` | when creating/modifying a role's Molecule scenario | II |
-| `review-documentation-here` | at task close, before `format-markdown` | Documentation Standards |
+| `ansible-molecule-testing` | when creating/modifying a role's Molecule scenario | II |
+| `ansible-review-documentation` | at task close, before `format-markdown` | Documentation Standards |
 
 ## Test environment host architecture
 

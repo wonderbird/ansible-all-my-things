@@ -1,26 +1,22 @@
 <!--
-Sync Impact Report — 1.28.0 → 2.0.0 (MAJOR)
-- Principle IX.4 (GitHub Actions pinning) is redefined from a two-tier policy
-  to a single tier: every `uses:` reference MUST carry a 40-character commit
-  SHA and a full `# vX.Y.Z` comment, whatever the publisher's identity and
-  whatever permissions the surrounding job holds.
-- The incompatibility is the point, not an oversight. Tier B is withdrawn, so a
-  floating `@vN` reference that satisfied this principle under 1.28.0 violates
-  it under 2.0.0, as does a SHA pin whose comment names only a major version.
-  What stopped being allowed: `@vN` for `actions/*` and `github/*` actions, and
-  a `# vN` comment on any pin. Nothing new becomes allowed.
-- MAJOR: a backward-incompatible redefinition of a principle. Artefacts that
-  conformed before now fail, and the remedy is an edit to each one rather than
-  a reading of the new text. Not MINOR — no new principle or section is added
-  and the guidance is narrowed rather than expanded. Not PATCH — the permitted
-  pin forms change, which is a rule change and not a clarification.
-- Auto-merging Dependabot pull requests for the `github-actions` ecosystem is
-  stated as a prohibition inside the principle. It was previously implicit in
-  ADR-002's review story; a SHA pin whose hash changes land unread carries the
-  exposure of a floating tag plus the ceremony of a hash.
-- The superseding decision, with the evidence and the rejected options, is
-  ADR-007 (`docs/architecture/decisions/007-single-tier-action-pinning.md`).
-  ADR-002 is superseded and retained as the reasoning this decision builds on.
+Sync Impact Report — 2.0.0 → 2.1.0 (MINOR)
+- This repository's own skills are renamed with an `ansible-` prefix, so a
+  project skill is distinguishable from a generic one carrying the same idea.
+  Named in this file: `molecule-testing` → `ansible-molecule-testing`, and
+  `review-documentation-here` → `ansible-review-documentation`.
+- Documentation Standards no longer sources its strategy from the generic
+  `review-documentation` skill. `ansible-review-documentation` is now
+  self-contained: it absorbs the developer-onboarding tier and the arc42
+  `docs/architecture/` tier it previously inherited, and drops the
+  `memory-bank/` tier, which is gated on a directory this repository does not
+  have.
+- MINOR: the guidance a named skill carries is materially expanded, and no
+  principle or section is added. Not MAJOR — nothing is removed or redefined
+  incompatibly; an artefact conforming under 2.0.0 still conforms, and no
+  remedy is required anywhere. Not PATCH — the sourcing of the documentation
+  strategy changes, which is more than wording.
+- The mandate itself is unchanged: agents invoke `ansible-review-documentation`
+  once at the close of a task, before `format-markdown`.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
@@ -28,17 +24,14 @@ Sync Impact Report — 1.28.0 → 2.0.0 (MAJOR)
   ✅ .specify/templates/checklist-template.md — no changes required
   ✅ .specify/templates/constitution-template.md — no changes required
   ✅ .specify/templates/agent-file-template.md — no changes required
-  None of the templates names an action, a pin form, or a pinning tier.
-- AGENTS.md checked: no propagation required. It states no pinning rule; its
-  skill index binds skills to principles by number, and IX.4 keeps its number.
-- CLAUDE.md checked: no propagation required — it points at this file.
-- .claude/skills/*/SKILL.md checked: no propagation required. No skill named in
-  this constitution mentions action pinning, a pin form, or a tier.
-- Repository files brought into conformance alongside this amendment:
-  `.github/workflows/*.yml` (every reference SHA-pinned with a full version
-  comment), `.github/zizmor.yml` (the `unpinned-uses` policies removed so
-  zizmor's blanket `hash-pin` default applies), `.github/dependabot.yml` (the
-  `github-actions` interval shortened to weekly) and `CONTRIBUTING.md`.
+  No template names a skill.
+- AGENTS.md checked: its mandatory-invocation table carries both renamed
+  skills, and names the trust boundary of the skills it lists.
+- CLAUDE.md checked: no propagation required — it names no skill and points at
+  this file.
+- .claude/skills/*/SKILL.md checked: cross-references between project skills
+  follow the rename, and `ansible-review-documentation` no longer delegates to
+  the generic skill.
 -->
 # ansible-all-my-things Constitution
 
@@ -78,7 +71,7 @@ create → prepare → converge → idempotence → verify → destroy lifecycle
 
 **The scenario file contract, required content of `prepare.yml`,
 `converge.yml`, `verify.yml`, and `molecule.yml` are defined in the
-`molecule-testing` skill, which is the authoritative source of truth. All
+`ansible-molecule-testing` skill, which is the authoritative source of truth. All
 agents MUST invoke it when creating or modifying a role's Molecule scenario.**
 
 Roles that cannot be exercised in a container (e.g., desktop environment
@@ -410,9 +403,9 @@ any committed file. Vault passwords are provided at runtime via the
 
 **The documentation strategy, folder structure, project-specific tiers
 (working-context specs, co-located role documentation), and migration policy
-are defined in the `review-documentation` skill and its project-specific
-extension `review-documentation-here`. All agents MUST invoke
-`review-documentation-here` once at the close of a task, before invoking
+are defined in the `ansible-review-documentation` skill, which is
+self-contained and authoritative for this repository. All agents MUST invoke
+`ansible-review-documentation` once at the close of a task, before invoking
 `format-markdown`, so documentation is stable before formatting runs.**
 
 All documentation MUST comply with Principle VI (Markdown Quality Standards).
@@ -587,4 +580,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 2.0.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-26
+**Version**: 2.1.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-10-02

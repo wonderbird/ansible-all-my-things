@@ -136,7 +136,7 @@ architecture" — check `uname -m` if running on an unfamiliar host).
   no extra-vars (User Story 2) — verify the run reports `changed=0` across all
   plays (FR-020/SC-006). Depends on: T001, T002, T003.
 
-- [x] T005 [P] Invoke the `review-documentation-here` skill to confirm no
+- [x] T005 [P] Invoke the `ansible-review-documentation` skill to confirm no
   documentation updates (e.g. `README.md`, `docs/architecture/`) are required
   for the new `configure-profile.yml` /
   `configure-profile-roles.yml` playbooks and

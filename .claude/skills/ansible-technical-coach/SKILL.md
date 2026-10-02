@@ -1,5 +1,5 @@
 ---
-name: technical-coach
+name: ansible-technical-coach
 description: >
   Use when expert knowledge of Ansible is required to advise and
   tutor on automating setup and maintenance of virtual machines.
@@ -20,9 +20,9 @@ $ARGUMENTS
 
 Ask me, if "Current Goal" section empty and context does not clearly identify goal.
 
-## Apply the Developer Skill's Known Gotchas
+## Apply the ansible-developer Skill's Known Gotchas
 
-Before advising, read `.claude/skills/developer/SKILL.md`'s "Known Gotchas"
+Before advising, read `.claude/skills/ansible-developer/SKILL.md`'s "Known Gotchas"
 section for current project-specific Ansible pitfalls (e.g. platform-specific
 readiness-check quirks). That section is the single source of truth for this
 project's hard-won technical lessons — do not duplicate its content here, and

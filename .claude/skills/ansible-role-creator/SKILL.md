@@ -1,5 +1,5 @@
 ---
-name: role-creator
+name: ansible-role-creator
 description: Create a new Ansible role in this repo end-to-end — scaffold, choose the right install pattern, wire version tracking, register it in a profile, and test it with Molecule. Use when adding a role for a new tool or capability.
 when_to_use: Triggers include "create a role", "add a role", "new role", "install <tool> via Ansible", "add <tool> to the base profile". Use before scaffolding so the role follows this repo's conventions the first time.
 ---
@@ -16,9 +16,10 @@ those and the exemplar roles rather than restating them.
   Molecule + version-update, IV YAGNI, XI DRY, XII fail-loud, XIII no empty
   artefacts).
 - `AGENTS.md` — repo workflow, remotes/PR, one-question-at-a-time.
-- Skills to invoke at the right steps: `molecule-testing`, `fix-problem`,
-  `review-documentation-here`, `format-markdown`, `commit`. If any is not in the
-  session's skill list, it is a skill-manager skill — load it before use.
+- Skills to invoke at the right steps: `ansible-molecule-testing`, `fix-problem`,
+  `ansible-review-documentation`, `format-markdown`, `commit`. If any is not
+  in the session's skill list, it is a skill-manager skill — load it before
+  use.
 
 ## When to use / not
 
@@ -158,7 +159,7 @@ the fetch-task reuse matrix in
 
 ## Step 5 — Molecule scenario
 
-Invoke the **`molecule-testing`** skill — it is authoritative for the scenario
+Invoke the **`ansible-molecule-testing`** skill — it is authoritative for the scenario
 files. Role-creation intersections only:
 
 - Dockerfile: add `ca-certificates` if the role uses `get_url` over HTTPS; add
@@ -211,8 +212,8 @@ cd roles/<role_name>
 
 1. Track findings discovered while implementing as beads, same priority,
    blocking the source task (Principle VIII).
-2. Invoke `review-documentation-here`, then `format-markdown` (markdown must be
-   lint-clean under `.markdownlint.json`, Principle VI).
+2. Invoke `ansible-review-documentation`, then `format-markdown` (markdown
+   must be lint-clean under `.markdownlint.json`, Principle VI).
 3. Commit via the `commit` skill (Principle V). Conservative git policy: do not
    push or open a PR without explicit authority.
 

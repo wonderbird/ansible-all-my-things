@@ -3,7 +3,7 @@
 ## Approach
 
 Complete the remaining documentation work one document at a time, validating
-each with the `review-documentation-here` skill before moving to the next.
+each with the `ansible-review-documentation` skill before moving to the next.
 Prefer updating existing files over creating new ones where the content fits
 naturally.
 
@@ -34,7 +34,7 @@ package manager, instance type, storage, cost, authentication, provisioning
 time, and inventory groups.
 
 **Acceptance:** File exists; table is accurate against current infrastructure;
-`review-documentation-here` skill passes; `docs/techContext.md` cross-links
+`ansible-review-documentation` skill passes; `docs/techContext.md` cross-links
 to it.
 
 ### Step 2: Cost-analysis doc
@@ -48,7 +48,7 @@ per-VM monthly cost, always-on vs. on-demand billing models (Hetzner vs.
 AWS), and guidance on stopping/terminating VMs to control cost.
 
 **Acceptance:** File exists; per-VM entries present; billing-model trade-off
-explained; `review-documentation-here` skill passes.
+explained; `ansible-review-documentation` skill passes.
 
 ### Step 3: Inventory system doc
 
@@ -80,7 +80,7 @@ infrastructure. Add or update sections for:
 - Dynamic public-IP detection via ipinfo.io
 - Vault-encrypted credential storage (`ANSIBLE_VAULT_PASSWORD_FILE`)
 
-**Acceptance:** File updated; no outdated instructions; `review-documentation-here`
+**Acceptance:** File updated; no outdated instructions; `ansible-review-documentation`
 skill passes.
 
 ### Step 5: Update `docs/user-manual/important-concepts.md`
@@ -94,7 +94,7 @@ skill passes.
 - Where to find the 4-tier precedence rule (cross-link to techContext or
   inventory-system doc)
 
-**Acceptance:** File updated; `review-documentation-here` skill passes.
+**Acceptance:** File updated; `ansible-review-documentation` skill passes.
 
 ### Step 6: Update `docs/user-manual/work-with-vm.md`
 
@@ -107,7 +107,7 @@ update sections for:
 - Confirm hobbiton and rivendell workflows are current (SSH user `galadriel`)
 
 **Acceptance:** File covers all three production VMs; Windows workflow present;
-`review-documentation-here` skill passes.
+`ansible-review-documentation` skill passes.
 
 ## Risks
 

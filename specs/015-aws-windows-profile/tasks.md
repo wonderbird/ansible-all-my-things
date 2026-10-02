@@ -193,7 +193,7 @@ Verify immediate failure naming both values, with no VM/container created.
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
-- [ ] T018 [P] Invoke the `review-documentation-here` skill (Documentation
+- [ ] T018 [P] Invoke the `ansible-review-documentation` skill (Documentation
       Standards close-out) — expected: no new doc tier needed, this feature
       touches only playbooks/task files
 - [ ] T019 [P] Invoke the `format-markdown` skill once on all touched
