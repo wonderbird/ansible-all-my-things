@@ -12,6 +12,7 @@
     - podman
     - tmux
     - nodejs
+    - bun
     - ruby
     - python
     - java

@@ -1,0 +1,63 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Load role defaults for version reference
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../../defaults/main.yml"
+
+    - name: Stat installed Bun binary
+      ansible.builtin.stat:
+        path: /usr/local/bin/bun
+      register: _verify_bun_stat
+
+    - name: Assert Bun binary exists and is executable
+      ansible.builtin.assert:
+        that:
+          - _verify_bun_stat.stat.exists
+          - _verify_bun_stat.stat.executable
+        fail_msg: "/usr/local/bin/bun missing or not executable"
+        success_msg: "/usr/local/bin/bun present and executable"
+
+    - name: Stat bunx link
+      ansible.builtin.stat:
+        path: /usr/local/bin/bunx
+        follow: false
+      register: _verify_bunx_stat
+
+    - name: Assert bunx links to the Bun binary
+      ansible.builtin.assert:
+        that:
+          - _verify_bunx_stat.stat.exists
+          - _verify_bunx_stat.stat.islnk
+          - _verify_bunx_stat.stat.lnk_target == '/usr/local/bin/bun'
+        fail_msg: "/usr/local/bin/bunx is not a symlink to /usr/local/bin/bun"
+        success_msg: "/usr/local/bin/bunx links to /usr/local/bin/bun"
+
+    - name: Get Bun version as an unprivileged user
+      ansible.builtin.command:
+        cmd: /usr/local/bin/bun --version
+      become_user: testuser
+      register: _verify_bun_version
+      changed_when: false
+
+    - name: Get bunx version as an unprivileged user
+      ansible.builtin.command:
+        cmd: /usr/local/bin/bunx --version
+      become_user: testuser
+      register: _verify_bunx_version
+      changed_when: false
+
+    - name: Assert both entry points report the pinned version
+      ansible.builtin.assert:
+        that:
+          - (bun_version | regex_replace('^bun-v', '')) in _verify_bun_version.stdout
+          - (bun_version | regex_replace('^bun-v', '')) in _verify_bunx_version.stdout
+        fail_msg: >-
+          Expected Bun version {{ bun_version | regex_replace('^bun-v', '') }}
+          but got bun: {{ _verify_bun_version.stdout }},
+          bunx: {{ _verify_bunx_version.stdout }}
+        success_msg: >-
+          bun and bunx both report {{ _verify_bun_version.stdout }}, matching the pin

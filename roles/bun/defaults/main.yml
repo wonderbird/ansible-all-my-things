@@ -1,0 +1,19 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Pinned Bun release tag. Upstream tags carry a `bun-v` prefix, not a bare
+# `v`. See https://github.com/oven-sh/bun/releases for available versions.
+bun_version: "bun-v1.4.2"
+
+# SHA-256 checksums of the linux release archives (x64 and aarch64), as
+# published by upstream in the release's SHASUMS256.txt.
+# All three values (version + both checksums) must be updated together.
+#
+# Updated automatically by playbooks/update-versions/perform-updates.yml.
+bun_sha256_x64: "36368faef7527875d5ffa52e53cd48021741f2a83eb6208a8dd64068d422a913"
+bun_sha256_aarch64: "54328bbc2d9c8e0c9f892c544d66c57a83b84139e34909e5ee81758f1ac8fda7"
+
+# Bun is a single binary shared by all users, so it is installed system-wide.
+# `bunx` is the package runner; upstream ships it as a name the same binary
+# dispatches on, so it is a symlink rather than a second artefact.
+bun_install_path: /usr/local/bin/bun
+bun_bunx_path: /usr/local/bin/bunx

@@ -1,0 +1,14 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Prepare container
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Create an unprivileged login user
+      # Bun is installed system-wide; the scenario asserts a non-root user can
+      # run both entry points, which needs such a user to exist.
+      ansible.builtin.user:
+        name: testuser
+        state: present
+        create_home: true
