@@ -3,7 +3,7 @@
 # Pinned br (Dicklesworthstone/beads_rust) release tag (v-prefixed). See
 # https://github.com/Dicklesworthstone/beads_rust/releases for available versions.
 # Updated automatically by playbooks/update-versions/perform-updates.yml.
-beads_rust_version: "v0.7.0"
+beads_rust_version: "v0.7.4"
 
 # Maps Ansible architecture facts to the Rust release filename fragment used by
 # br (Dicklesworthstone/beads_rust), which follows the
@@ -20,5 +20,5 @@ beads_rust_platform_map:
 # Cross-check against the release's per-archive "<filename>.sha256" sidecar
 # file (not a combined checksums file -- upstream has renamed that across
 # releases: checksums.sha256, then SHA256SUMS/SHA256SUMS.txt).
-beads_rust_sha256_amd64: "6ce4b81f3a88055fa3562d52582965045fb130692189c43b051e9a7b15fe3e55"
-beads_rust_sha256_arm64: "d6ef2a5d0d45131e5b1465929b4d31b0343e0d20a39243a83cf8b38ee1fc09da"
+beads_rust_sha256_amd64: "ba9e493175a1859b4d0427ad32e8636b26a128416041ed7bc7d41ab81ddc3333"
+beads_rust_sha256_arm64: "7e9dd1da447ae663534fe46f1fd778a6bce1f0e36b4e3e9844770e3579dc7bd5"
