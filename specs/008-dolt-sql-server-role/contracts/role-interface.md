@@ -29,7 +29,7 @@ caller. Commonly overridden:
 
 | Variable | Default | When to override |
 | --- | --- | --- |
-| `dolt_version` | `v2.0.8` | Pin a different Dolt release (`v`-prefixed upstream tag). |
+| `dolt_version`, `dolt_sha256_amd64`, `dolt_sha256_arm64` | *(see defaults)* | Pin a different Dolt release; the three move together. |
 | `dolt_data_dir` | `/var/lib/dolt` | Relocate server data. |
 | `dolt_listen_port` | `3306` | Avoid a port clash (rare). |
 
@@ -54,8 +54,9 @@ On success against a systemd host:
 ## Version maintenance
 
 `dolt_version` is tracked by `playbooks/update-versions/` as a GitHub-release
-tool (`dolthub/dolt`). `perform-updates.yml` rewrites the pin in
-`defaults/main.yml` when a newer release exists, and reports what it moved.
+tool (`dolthub/dolt`). The version-update mechanism rewrites the version pin
+and both SHA-256 pins in `defaults/main.yml` when a newer release exists, and
+reports what it moved.
 The maintainer reviews `git diff roles/` and commits manually. See
 `docs/architecture/version-update-playbooks.md`.
 

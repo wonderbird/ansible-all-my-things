@@ -22,8 +22,8 @@
       The registry says {{ _pin_tool }} pins {{ _missing }}, but
       roles/{{ _tools[_pin_tool].role }}/defaults/main.yml does not carry
       {{ 'them' if (_missing | length) > 1 else 'it' }}. The registry and the
-      role disagree, so every comparison and every write for this tool would be
-      meaningless.
+      role disagree, so every later read of the pin and every write for this
+      tool would be meaningless.
     quiet: true
 
 - name: "Record the current pins of {{ _pin_tool }}"

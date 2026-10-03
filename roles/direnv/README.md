@@ -32,7 +32,7 @@ shell other than bash.
 | `direnv_install_path` | `/usr/local/bin/direnv` | Path where the binary is installed. |
 
 `defaults/main.yml` carries the pinned version and both checksums. All three
-must move together, and the version-update playbooks refresh them — see
+must move together, and the version-update mechanism refreshes them — see
 [version-update-playbooks.md](../../docs/architecture/version-update-playbooks.md).
 
 ## Dependencies

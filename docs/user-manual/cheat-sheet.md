@@ -1,6 +1,6 @@
 # Cheat Sheet and Recommendations
 
-Prerequisite: You have run through [First Steps: Docker VM with Basic Profile](./docs/user-manual/first-steps.md).
+Prerequisite: You have run through [First Steps: Docker VM with Basic Profile](./first-steps.md).
 
 ## Periodically check for updates
 
@@ -14,7 +14,7 @@ git push
 The run reports which tools it updated, which it skipped and which failed,
 and `git diff` shows exactly what moved.
 
-More information can be found in [Version Update Playbooks](./docs/architecture/version-update-playbooks.md).
+More information can be found in [Version Update Playbooks](../architecture/version-update-playbooks.md).
 
 ## Shortcut to create and configure the first docker container
 

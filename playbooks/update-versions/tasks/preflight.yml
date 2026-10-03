@@ -1,6 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# The first task file of both version-update plays. Everything here must hold
+# The first task file of the version-update play. Everything here must hold
 # before any upstream is queried or any pin is written, so a malformed input is
 # a loud abort at play start rather than a surprise half way through a run.
 #
@@ -8,10 +8,10 @@
 # checked inside the per-tool loop would never run for a tool whose fetch
 # failed, which is exactly when a malformed entry matters.
 #
-# Required vars: _registry_file (path of the registry both plays load),
+# Required vars: _registry_file (path of the registry the play loads),
 # _registry_roles_dir (the roles tree the registration check reads) and _tools
 # (the registry as the play loaded it, compared here against the same file read
-# as text). All are set by the plays and overridden by the harness to point at
+# as text). All are set by the play and overridden by the harness to point at
 # fixtures. Optional var: _registry_tasks_dir, where fetch task files are
 # looked for; it defaults to the tasks directory beside the registry file.
 #
@@ -26,7 +26,7 @@
   ansible.builtin.assert:
     that: not ansible_check_mode
     fail_msg: >-
-      The version-update playbooks do not support --check: ansible.builtin.uri
+      This playbook does not support --check: ansible.builtin.uri
       skips under check mode while ansible.builtin.get_url still downloads, so a
       check run mixes real downloads with skipped fetches, and every fetched
       value is undefined.

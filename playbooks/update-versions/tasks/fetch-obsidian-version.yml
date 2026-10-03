@@ -21,7 +21,7 @@
 # The regex_search is scoped to the downloadUrl field rather than the response
 # body, so a future beta.downloadUrl on a GitHub releases path cannot match.
 #
-# The get_url in perform-updates.yml carries no failed_when guard on purpose.
+# The download get_url in resolve-checksum.yml carries no failed_when guard on purpose.
 # On an Ansible module, failed_when REPLACES the module's own failure test, so
 # a guard meant to improve the message converts a 404 into ok. The module's own
 # error already prints HTTP Error 404, the status code and the full URL.
