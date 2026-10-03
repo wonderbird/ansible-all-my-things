@@ -1,33 +1,32 @@
 <!--
-Sync Impact Report — 2.1.1 → 2.2.0 (MINOR)
-- Added Principle XV (Guards Proven by Failure): a test, CI check, linter,
-  detector, or assertion harness counts as proven only once it has been seen
-  failing on a known-bad input; a new or changed guard is proven in both
-  directions before merge, and an existing guard with no such record is
-  reported as unproven.
-- MINOR: this amendment adds a new principle.
-- Modified principles: none.
-- Added sections: XV. Guards Proven by Failure.
+Sync Impact Report — 2.2.0 → 2.2.1 (PATCH)
+- Principle II (Role-First Organisation): the version-update registration
+  bullet stops counting the mechanism's playbooks. It now reads "The
+  version-update mechanism reads that entry; no playbook is edited per tool.",
+  which holds however many playbooks the mechanism has.
+- PATCH: wording correction; no principle added, removed or redefined.
+- Modified principles: II (wording only).
+- Added sections: none.
 - Removed sections: none.
 - Templates checked for propagation:
-  ✅ .specify/templates/plan-template.md — no changes required; its
-     Constitution Check derives gates from this file
-  ✅ .specify/templates/tasks-template.md — no changes required; its
-     "write tests first and see them fail" guidance is consistent with XV
+  ✅ .specify/templates/plan-template.md — no changes required
+  ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
   ✅ .specify/templates/checklist-template.md — no changes required
   ✅ .specify/templates/constitution-template.md — no changes required
   ✅ .specify/templates/agent-file-template.md — no changes required
-  No template enumerates the principles.
-- AGENTS.md updated: Collaboration with the User gains a bullet on labelling
-  report claims as VERIFIED or INFERRED, which points to XV.
+  No template mentions the version-update mechanism.
+- AGENTS.md checked: no propagation required; it does not describe the
+  version-update mechanism.
 - CLAUDE.md checked: no propagation required; it names no principle and
   points at this file.
-- Skills checked: .claude/skills/ansible-developer/SKILL.md now points to XV
-  from its duplicate-key gotcha. ansible-molecule-testing,
-  ansible-review-documentation, and ansible-changelog-entry cite individual
-  principles only and need no change. commit, format-markdown, and
-  fix-problem are not stored in this repository and were not checked.
+- Skills checked: .claude/skills/ansible-role-creator/ (SKILL.md and
+  reference/version-update-wiring.md) restated the playbook count and is
+  corrected in the same change. ansible-developer, ansible-changelog-entry
+  and the role-creator install-patterns reference mention the mechanism
+  without a count and need no change. ansible-molecule-testing and
+  ansible-review-documentation do not mention it. commit, format-markdown,
+  and fix-problem are not stored in this repository and were not checked.
 - Follow-up TODOs: none.
 -->
 # ansible-all-my-things Constitution
@@ -81,7 +80,8 @@ the tool in the version-update mechanism:
 
 - An entry in `playbooks/update-versions/vars/tools.yml` naming the role, the
   pins it writes, the upstream source and the values each pin is written from.
-  Both version-update playbooks read that entry; neither is edited per tool.
+  The version-update mechanism reads that entry; no playbook is edited per
+  tool.
 - A fetch task file under `playbooks/update-versions/tasks/` implementing the
   upstream version query, unless an existing one already serves that source. A
   registry entry alone cannot query a source nothing implements.
@@ -601,4 +601,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 2.2.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-10-03
+**Version**: 2.2.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-10-03
