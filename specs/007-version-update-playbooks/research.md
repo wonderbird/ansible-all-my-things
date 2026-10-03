@@ -4,7 +4,8 @@
 
 **Decision**: Use `GET
 https://api.sdkman.io/2/candidates/java/linuxx64/versions/all`, split the
-response on commas, filter with regex `^21\.\d+\.\d+-tem$`, sort with
+response on commas, filter with regex `^<major>\.\d+\.\d+-tem$`, where
+`<major>` is the major version of the currently pinned identifier, sort with
 `community.general.version_sort`, take `last`.
 
 **Rationale**: The endpoint is public, unauthenticated, and returns all
@@ -30,7 +31,7 @@ Example excerpt:
 
 **Version string format**: `{major}.{minor}.{patch}-tem` for stable releases.
 Edge case: major-only EA releases appear as `26-tem` (no minor/patch). The
-filter regex `^21\.\d+\.\d+-tem$` correctly excludes these.
+filter regex correctly excludes these.
 
 **Collection dependency**: `community.general.version_sort` — already present in
 `requirements.yml` (no new dependency).
@@ -56,30 +57,31 @@ API; the manifest JSON is the canonical source.
 
 **Decision**: Use `GET
 https://api.github.com/repos/{owner}/{repo}/releases/latest`. Extract `tag_name`
-for version. No checksum provided — gitmux and nerd-fonts do not require
-checksum verification in current role tasks.
+for version. The release endpoint carries no digest; a tool that pins one
+declares a checksum source in its registry entry.
 
 **Rationale**: Standard GitHub REST API. No authentication required for public
 repos at 60 req/hr. `tag_name` contains the version string including the `v`
 prefix (e.g. `v0.11.5`). This matches the existing pin format in
 `defaults/main.yml`.
 
-**Reuse**: A single parametrized task file (`fetch-github-release.yml`) handles
-both `arl/gitmux` and `ryanoasis/nerd-fonts` — same API shape.
+**Reuse**: A single parametrized task file (`fetch-github-release.yml`) serves
+every tool published as a GitHub release — same API shape.
 
 ---
 
 ## Android SDK Command-Line Tools
 
 **Decision**: Scrape `https://developer.android.com/studio`. Isolate in
-`fetch-android-version.yml` (separate file, imported by both playbooks) per
-FR-007.
+`fetch-android-version.yml` (separate file, named by the android registry
+entry) per FR-007.
 
-**Rationale**: No structured API exists. HTML scraping is the only available
-method. Isolation limits blast radius if Google restructures the page.
+**Rationale**: HTML scraping of the download page was chosen; isolation limits
+blast radius if Google restructures the page.
 
-**Alternatives considered**: None — Google does not publish a machine-readable
-manifest for cmdline-tools.
+**Alternatives**: Google's XML repository manifest lists the same archives and
+digests; it is recorded as an open point in
+`docs/architecture/version-update-playbooks.md`.
 
 **Known risk**: SHA-1 checksum only (SHA-256 not published). Accepted risk per
 TD-009.

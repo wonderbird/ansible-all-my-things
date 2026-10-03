@@ -75,8 +75,8 @@ preserved.
 ### User Story 3 - Understand the Update Mechanism (Priority: P3)
 
 The maintainer reads concept documentation that explains the purpose of the
-update playbooks, which tools are tracked, where their upstream versions come
-from, known constraints, and how to run the playbooks.
+update playbook, which tools are tracked, where their upstream versions come
+from, known constraints, and how to run it.
 
 **Why this priority**: Documentation prevents future maintainers from needing to
 reverse-engineer the mechanism and ensures known limitations (such as HTML
@@ -165,9 +165,7 @@ is worth more to anyone citing one than a gapless sequence.
 - **Tracked Tool**: A tool whose version pin is managed by the update playbook.
   Declared as one entry of the tool registry, which names the role, the upstream
   source, the digests the tool needs and the pins it writes. The registry is the
-  authoritative enumeration; the first increment covered Flutter SDK, gitmux,
-  Nerd Fonts (Hack), Android SDK command-line tools and Java (Temurin via
-  SDKMAN).
+  authoritative enumeration of tracked tools.
 
 ## Success Criteria *(mandatory)*
 
@@ -192,9 +190,10 @@ is worth more to anyone citing one than a gapless sequence.
 - GitHub API is accessed without authentication. The 60-requests-per-hour
   unauthenticated rate limit is sufficient for manual maintenance runs.
 - Java tracking follows same-major patch strategy: latest patch release of the
-  currently pinned major version (Java 21). Major version upgrades remain a
-  manual decision.
+  currently pinned major version. Major version upgrades remain a manual
+  decision.
 - Android SDK command-line tools version and checksum are sourced from the
-  Android developer HTML page. This is an accepted risk documented in TD-009.
+  Android developer HTML page; the scraping is isolated per FR-007. The
+  SHA-1-only checksum is an accepted risk documented in TD-009.
 - The SDKMAN REST API is used for Java version discovery — the `sdk` CLI is not
   required on the control node.
