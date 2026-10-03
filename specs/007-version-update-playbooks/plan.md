@@ -83,7 +83,8 @@ section Chosen Solution.
 satisfying FR-006 (no duplication). The tools are declared in
 `playbooks/update-versions/vars/tools.yml`, which the playbook loops over, so it
 contains no per-tool tasks. `fetch-github-release.yml` is parametrized for reuse
-by every tool published as a GitHub release. Android fetching is isolated in its
+by every GitHub-release tool whose latest release carries the consumed asset.
+Android fetching is isolated in its
 own task file (FR-007). Concept documentation lives at
 `docs/architecture/<feature>.md` as a top-level technical-concept file (sibling
 to `solution-strategy.md`), per the feature-level decision recorded in beads

@@ -88,8 +88,8 @@ declaration; a network module failing is recognised as third-party already.
 
 ## Touchpoint 3 — documentation, only for a new kind of source or a new rule
 
-`docs/architecture/version-update-playbooks.md` describes kinds of source and
-the rules that bind them; it does not list tools or fetch files.
+Update `docs/architecture/version-update-playbooks.md` only when adding a new
+kind of upstream source or a new rule; it does not enumerate the tracked tools.
 
 ## Checking the wiring
 

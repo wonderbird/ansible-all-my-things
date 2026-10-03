@@ -2,12 +2,12 @@
 
 # Checksum-verification pattern for web-hosted installer scripts
 
-Several roles install a binary tool distributed as a GitHub release or
-an equivalent versioned upstream rather than a distro package;
-`playbooks/update-versions/vars/tools.yml` records which. This document
-is the authoritative source of
-truth for the shared verification pattern they follow, so a future tool
-doesn't have to rediscover it from scratch.
+Roles that pin a tool's version together with a digest literal in their
+`defaults/main.yml` follow one shared verification pattern. This document
+is the authoritative source of truth for that pattern, so a future tool
+doesn't have to rediscover it from scratch. The `tmux` role's gitmux
+download is the exception: it pins only the version and verifies the
+archive against the release's live checksums file.
 
 See [`version-update-playbooks.md`](../version-update-playbooks.md) for
 the centralized mechanism (`playbooks/update-versions/`) that keeps each
@@ -23,7 +23,8 @@ This pattern spans two phases, run by two different playbooks:
   [`version-update-playbooks.md`](../version-update-playbooks.md)):
   determines the current upstream version and its checksum, then writes
   both as static, literal values into the role's `defaults/main.yml`.
-  This is the only place a live upstream query happens.
+  For a role following this pattern, this is the only place a live
+  upstream query happens.
 - **Consume** (the role itself, at converge time): reads the
   already-pinned version and checksum literals — never queries upstream
   — and verifies-before-placement.
@@ -62,10 +63,11 @@ For the manifest-JSON shape, see
 `playbooks/update-versions/tasks/fetch-claude-code-version.yml` for the
 expression that selects the platform's digest.
 
-Regardless of which shape resolved it, every role consumes the result
-identically at converge time: the pinned digest, with its algorithm
-prefix, as a literal `checksum:` passed to `get_url`. No role passes a live
-checksums-file URL to `get_url`'s own URL-lookup form.
+Regardless of which shape resolved it, every role following this pattern
+consumes the result identically at converge time: the pinned digest, with
+its algorithm prefix, as a literal `checksum:` passed to `get_url`. Only
+the gitmux exception passes a live checksums-file URL to `get_url`'s own
+URL-lookup form.
 
 ## Idempotency semantics: static pin is the rule, not a live-resolve freeze
 
@@ -80,8 +82,7 @@ time. `flutter` and `obsidian`, the reference tools of the
 version-update mechanism, follow the same static-pin shape.
 
 A `stat` check on the resulting binary path still gates the whole
-download block in every role (`/usr/local/bin/rtk`, `/usr/local/bin/bd`,
-`/usr/local/bin/bv`, `/usr/local/bin/node`, or the per-user
+download block in every role (e.g. `/usr/local/bin/rtk`, or the per-user
 `~/.local/bin/claude`). This gate is load-bearing for one narrow
 reason: because the pin is already static, the gate carries no
 version-drift risk either way — its only job is avoiding a

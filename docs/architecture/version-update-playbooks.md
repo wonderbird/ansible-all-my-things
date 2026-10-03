@@ -184,12 +184,12 @@ The guard is what turns "the latest release happens to carry what we
 install" from an assumption into a checked claim. Without it a release
 published from a second release line — the Obsidian shape — is accepted,
 and the failure surfaces later as a 404 on a download, after that tool's
-section has begun. Patterns therefore describe what the consumer actually
+apply has begun. Patterns therefore describe what the consumer actually
 downloads, including downloads performed by the role rather than by the
 playbook: for those tools a rename upstream fails at fetch time instead of
 at install time on a real machine.
 
-In `perform-updates.yml` the declaration is mandatory. A tool that installs
+In the registry the declaration is mandatory. A tool that installs
 from somewhere other than the release assets says so in
 `release_carries_no_consumed_asset`, whose value is the reason, so the
 exemption is visible at the call site rather than implied by silence.

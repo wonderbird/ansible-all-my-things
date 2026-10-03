@@ -66,7 +66,8 @@ prefix (e.g. `v0.11.5`). This matches the existing pin format in
 `defaults/main.yml`.
 
 **Reuse**: A single parametrized task file (`fetch-github-release.yml`) serves
-every tool published as a GitHub release — same API shape.
+every GitHub-release tool whose latest release carries the consumed asset —
+same API shape.
 
 ---
 

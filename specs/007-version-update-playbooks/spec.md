@@ -75,8 +75,9 @@ preserved.
 ### User Story 3 - Understand the Update Mechanism (Priority: P3)
 
 The maintainer reads concept documentation that explains the purpose of the
-update playbook, which tools are tracked, where their upstream versions come
-from, known constraints, and how to run it.
+update playbook, points at the registry for which tools are tracked and at the
+fetch task directory for where their upstream versions come from, and states
+the known constraints and how to run it.
 
 **Why this priority**: Documentation prevents future maintainers from needing to
 reverse-engineer the mechanism and ensures known limitations (such as HTML
@@ -132,8 +133,9 @@ guidance.
 - **FR-008**: The update playbook MUST run on the control node (localhost)
   without requiring a connection to any managed host.
 - **FR-009**: Concept documentation MUST be created in `docs/architecture/`
-  covering: purpose, directory structure, per-tool upstream sources, known
-  constraints, and usage instructions.
+  covering: purpose, directory structure, known constraints, and usage
+  instructions. For the tracked tools and their upstream sources it MUST point
+  at the registry and the fetch task directory rather than list them.
 - **FR-010**: The update playbook MUST preserve all comments and unrelated
   content in defaults files when writing updated values.
 - **FR-011**: When the GitHub API rate limit is reached (HTTP 403 with
