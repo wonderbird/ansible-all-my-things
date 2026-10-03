@@ -45,7 +45,7 @@ role defaults files. The playbook fetches the latest version and paired checksum
 for each tool and writes both values into the correct defaults file. The
 maintainer then reviews the changes and commits manually.
 
-**Why this priority**: Closing the loop from detection to remediation.
+**Why this priority**: Applying updates is what keeps the pins current.
 Eliminates error-prone manual lookup of version strings and checksums across
 multiple upstream sources.
 
@@ -75,8 +75,9 @@ preserved.
 ### User Story 3 - Understand the Update Mechanism (Priority: P3)
 
 The maintainer reads concept documentation that explains the purpose of the
-update playbooks, which tools are tracked, where their upstream versions come
-from, known constraints, and how to run the playbooks.
+update playbook, points at the registry for which tools are tracked and at the
+fetch task directory for where their upstream versions come from, and states
+the known constraints and how to run it.
 
 **Why this priority**: Documentation prevents future maintainers from needing to
 reverse-engineer the mechanism and ensures known limitations (such as HTML
@@ -132,8 +133,9 @@ guidance.
 - **FR-008**: The update playbook MUST run on the control node (localhost)
   without requiring a connection to any managed host.
 - **FR-009**: Concept documentation MUST be created in `docs/architecture/`
-  covering: purpose, directory structure, per-tool upstream sources, known
-  constraints, and usage instructions.
+  covering: purpose, directory structure, known constraints, and usage
+  instructions. For the tracked tools and their upstream sources it MUST point
+  at the registry and the fetch task directory rather than list them.
 - **FR-010**: The update playbook MUST preserve all comments and unrelated
   content in defaults files when writing updated values.
 - **FR-011**: When the GitHub API rate limit is reached (HTTP 403 with
@@ -165,9 +167,7 @@ is worth more to anyone citing one than a gapless sequence.
 - **Tracked Tool**: A tool whose version pin is managed by the update playbook.
   Declared as one entry of the tool registry, which names the role, the upstream
   source, the digests the tool needs and the pins it writes. The registry is the
-  authoritative enumeration; the first increment covered Flutter SDK, gitmux,
-  Nerd Fonts (Hack), Android SDK command-line tools and Java (Temurin via
-  SDKMAN).
+  authoritative enumeration of tracked tools.
 
 ## Success Criteria *(mandatory)*
 
@@ -192,9 +192,10 @@ is worth more to anyone citing one than a gapless sequence.
 - GitHub API is accessed without authentication. The 60-requests-per-hour
   unauthenticated rate limit is sufficient for manual maintenance runs.
 - Java tracking follows same-major patch strategy: latest patch release of the
-  currently pinned major version (Java 21). Major version upgrades remain a
-  manual decision.
+  currently pinned major version. Major version upgrades remain a manual
+  decision.
 - Android SDK command-line tools version and checksum are sourced from the
-  Android developer HTML page. This is an accepted risk documented in TD-009.
+  Android developer HTML page; the scraping is isolated per FR-007. The
+  SHA-1-only checksum is an accepted risk documented in TD-009.
 - The SDKMAN REST API is used for Java version discovery — the `sdk` CLI is not
   required on the control node.

@@ -2,18 +2,18 @@
 ---
 name: Version Update Lint
 
-# Guard the version-update playbooks. Why each rule exists is documented in
+# Guard the version-update mechanism. Why each rule exists is documented in
 # docs/architecture/version-update-playbooks.md.
 #
 # Jobs:
-# - version-update-lint runs
-#   scripts/version-update-order/check-write-pins-bypass.py and its tests: no
-#   task outside tasks/write-pins.yml may edit a file, because a direct edit
-#   skips the check that the pin exists exactly once (no network, no pip).
-# - update-versions-harness installs ansible-core and runs the localhost test
-#   harnesses for the registry, the failure classifier, write-pins and the
-#   failure-source declarations of the task files, and syntax-checks the
-#   playbook itself. It
+# - version-update-lint runs the static checks and their tests (no network):
+#   check-write-pins-bypass.py, because a task that edits a role defaults file
+#   directly skips the check that the pin exists exactly once; and
+#   check-fetch-call-identity.py, because a fetch file that stamps fetched_for
+#   outside the task writing its output lets a skipped output keep the previous
+#   tool's value while the caller's assert still passes.
+# - update-versions-harness installs ansible-core and runs each localhost test
+#   harness named in the matrix below, and syntax-checks the playbook itself. It
 #   selects playbooks/update-versions/tests/ansible.cfg instead of the
 #   repository root ansible.cfg, whose vault password script exits non-zero
 #   without a vault secret, and fork pull requests receive no secrets.
@@ -42,10 +42,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.14"
 
@@ -57,6 +57,21 @@ jobs:
       - name: Check that no task edits a file outside write-pins
         run: >-
           python3 scripts/version-update-order/check-write-pins-bypass.py
+          playbooks/update-versions
+
+      # the call-identity checker parses task files, which needs PyYAML; the
+      # write-pins check above is textual and needs nothing
+      - name: Install PyYAML
+        run: pip install "$(grep -E '^PyYAML' requirements.txt)"
+
+      - name: Test the fetch call-identity check
+        run: >-
+          python3
+          scripts/fetch-call-identity/test_check_fetch_call_identity.py
+
+      - name: Check that every fetch file stamps its outputs
+        run: >-
+          python3 scripts/fetch-call-identity/check-fetch-call-identity.py
           playbooks/update-versions
 
   update-versions-harness:
@@ -75,13 +90,14 @@ jobs:
           - tool-registry
           - fixture-registry-smoke
           - failure-source
+          - fetch-call-identity
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Python
-        uses: actions/setup-python@v7
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.14"
 

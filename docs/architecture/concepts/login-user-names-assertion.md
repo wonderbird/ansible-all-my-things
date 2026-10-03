@@ -72,8 +72,9 @@ scenario for a six-line task.
 
 ## Adding a new role
 
-The `role-creator` skill carries this block verbatim, at the point where a new
-role's `tasks/main.yml` is authored. That is the surface a role author reads.
+The `ansible-role-creator` skill carries this block verbatim, at the point
+where a new role's `tasks/main.yml` is authored. That is the surface a role
+author reads.
 
 `role-template/` deliberately carries nothing for this convention. It ships no
 `tasks/` directory at all (Principle XIII: no empty or stub files), and most new

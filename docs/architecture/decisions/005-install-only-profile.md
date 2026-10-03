@@ -126,5 +126,5 @@ Adopt Option 1, the cross-cutting `claude_opinionated` group.
   explicitly and in order, so it cannot detect an accidentally broken
   `meta/main.yml` `dependencies:` list — the scenario would still pass. This is
   an inherent Molecule convention, not a defect of this change; it is mitigated
-  by a documented manual meta-dependency review step in the `molecule-testing`
+  by a documented manual meta-dependency review step in the `ansible-molecule-testing`
   skill. (Tracked in `ansible-all-my-things-vjib`.)

@@ -24,7 +24,7 @@ implementation and testing of each story.
 **Purpose**: Scaffold the role skeleton using the canonical helper
 script. `molecule/default/molecule.yml` and
 `molecule/default/prepare.yml` are generated here and MUST NOT be
-edited afterwards (canonical per molecule-testing skill).
+edited afterwards (canonical per ansible-molecule-testing skill).
 
 - [x] T001 Scaffold role: run `bash scripts/new-role.sh dolt_sql_server`
   to create `roles/dolt_sql_server/` skeleton including canonical
@@ -43,13 +43,7 @@ before Phase 3.
 complete.
 
 - [x] T002 Create `roles/dolt_sql_server/defaults/main.yml` with
-  ten variables: `dolt_version: "v2.0.8"`,
-  `dolt_install_path: /usr/local/bin/dolt`,
-  `dolt_listen_host: 127.0.0.1`, `dolt_listen_port: 3306`,
-  `dolt_data_dir: /var/lib/dolt`, `dolt_config_dir: /etc/dolt`,
-  `dolt_config_path: "{{ dolt_config_dir }}/config.yaml"`,
-  `dolt_service_user: dolt`, `dolt_service_name: dolt-sql-server`,
-  `dolt_readiness_timeout: 30`
+  the variables listed in `data-model.md`, Role variables
 - [x] T003 Create `roles/dolt_sql_server/meta/main.yml` with
   `galaxy_info` (namespace: wonderbird, role_name: dolt_sql_server)
   and platforms: Ubuntu 22.04 (jammy) and 24.04 (noble)
@@ -63,7 +57,8 @@ complete.
 **Goal**: Dolt binary installed, loopback-only config rendered,
 systemd unit deployed and enabled; server starts on every boot;
 idempotent re-provisioning does not disrupt running service;
-version pin registered with update-version playbooks.
+version pin and its SHA-256 pins registered with the version-update
+mechanism.
 
 **Independent Test**: `cd roles/dolt_sql_server && molecule test`
 — all assertions in verify.yml pass; idempotence step reports
@@ -93,7 +88,8 @@ zero changes.
   (3) create `dolt_data_dir` and `dolt_config_dir` owned by
   service user;
   (4) `get_url` arch-specific tarball (`x86_64`→amd64,
-  `aarch64`→arm64) guarded by `stat`+version check, then
+  `aarch64`→arm64), verified against `dolt_sha256_<arch>`,
+  guarded by `stat`+version check, then
   `unarchive` and place binary at `dolt_install_path` mode 0755;
   (5) `template` `config.yaml.j2` → `dolt_config_path`, notify
   restart handler;
@@ -123,27 +119,22 @@ zero changes.
 - [x] T010 [US1] Add `- role: dolt_sql_server` to the mandatory
   `roles:` block in `configure-linux-roles.yml` after `tmux`
   (no tag needed — containerisable parts work without systemd)
-- [x] T011 [P] [US1] Extend query-versions.yml:
-  `playbooks/update-versions/query-versions.yml` — slurp
-  `roles/dolt_sql_server/defaults/main.yml`, extract
-  `current_dolt_version`, include `tasks/fetch-github-release.yml`
-  with `github_repo: dolthub/dolt`, save `fetched_dolt_tag`,
-  add report line, extend fail-if-stale condition (reuses
-  `fetch-github-release.yml` — no new fetch logic per DRY)
-- [x] T012 [P] [US1] Extend perform-updates.yml:
-  `playbooks/update-versions/perform-updates.yml` — include
-  `tasks/fetch-github-release.yml` with
-  `github_repo: dolthub/dolt`, then `ansible.builtin.replace`
-  the `dolt_version` line in
-  `roles/dolt_sql_server/defaults/main.yml` (reuses existing
-  pattern per D8)
-- [x] T013 [P] [US1] Add Dolt row to
-  `docs/architecture/version-update-playbooks.md` tracked-tools
-  table: Role `dolt_sql_server`, version_key `dolt_version`,
-  checksum_key `—`, source `GitHub Releases API dolthub/dolt`
+- [x] T011 [P] [US1] Register Dolt with the version-update
+  mechanism: add a `dolt_sql_server` entry to
+  `playbooks/update-versions/vars/tools.yml` naming
+  `fetch-github-release.yml` with `github_repo: dolthub/dolt` and
+  both Linux tarballs in `required_asset_regexes`, two
+  `kind: download` checksums, and the pins `dolt_version`,
+  `dolt_sha256_amd64` and `dolt_sha256_arm64` (reuses the shared
+  fetch file; no new fetch logic per DRY)
+- [x] T012 [US1] Validate the registry:
+  `ANSIBLE_CONFIG=playbooks/update-versions/tests/ansible.cfg ansible-playbook playbooks/update-versions/tests/test-tool-registry.yml`
+- [x] T013 [US1] Run
+  `ansible-playbook playbooks/update-versions/perform-updates.yml`
+  and confirm the report lists `dolt_sql_server`
 
 **Checkpoint**: `molecule test` passes all assertions; idempotence
-reports zero changes. Version-update playbooks gain Dolt support.
+reports zero changes. The version-update registry tracks Dolt.
 Role wired into provisioning.
 
 ---
@@ -200,7 +191,8 @@ role boundary is clear.
   - T006 after T004/T005 are conceptualized
   - T007 after T004, T005, T006
   - T009 after T007
-  - T010, T011, T012, T013 can start in parallel after T002/T003
+  - T010 and T011 can start in parallel after T002/T003; T012 and
+    T013 follow T011
 - **US2 (Phase 4)**: Depends on Phase 3 — server must exist before
   README documents it
 - **Polish (Phase 5)**: Depends on all Markdown files being
@@ -221,8 +213,7 @@ role boundary is clear.
 - T008: parallel with T007 (converge just applies role; trivial)
 - T009: after T007 (verify assertions derived from task output)
 - T010: independent of T007 (different file)
-- T011, T012, T013: parallel with each other and with
-  T008/T009/T010 (all different files)
+- T011: parallel with role work; T012 and T013 follow it
 
 ---
 
@@ -232,11 +223,6 @@ role boundary is clear.
 # Parallel group A (templates + handler):
 Task T004 — Create templates/config.yaml.j2
 Task T005 — Create templates/dolt-sql-server.service.j2
-
-# Parallel group B (version-update integration):
-Task T011 — query-versions.yml Dolt entry
-Task T012 — perform-updates.yml Dolt entry
-Task T013 — version-update-playbooks.md row
 ```
 
 ---
@@ -250,7 +236,7 @@ Task T013 — version-update-playbooks.md row
 3. Complete Phase 3: Full role + Molecule + provisioning wire-up +
    version tracking
 4. **STOP and VALIDATE**: `molecule test` passes; idempotence clean;
-   version playbooks detect/apply Dolt updates
+   the version-update run lists `dolt_sql_server`
 5. US1 is independently deployable — server runs on provisioned VMs
 
 ### Incremental Delivery

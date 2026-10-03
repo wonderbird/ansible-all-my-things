@@ -7,3 +7,4 @@
   ansible.builtin.set_fact:
     fixture_version: "v-{{ github_repo | regex_replace('^example/', '') }}"
     fixture_extra: "extra-{{ github_repo | regex_replace('^example/', '') }}"
+    fetched_for: "{{ fetch_call_id }}"

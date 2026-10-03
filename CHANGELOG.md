@@ -8,6 +8,15 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 
 ## [Unreleased]
 
+### Added
+
+- The desktop profile installs Android Studio and Flutter on AMD64 hosts, and
+  Cursor on every desktop host. ARM64 hosts must pass
+  `--skip-tags not-supported-on-arm64`.
+- The first desktop apply downloads several gigabytes for each login user,
+  and every later apply re-downloads the Cursor package.
+- Every Linux host gets the Bun runtime, with `bun` and `bunx` on the PATH.
+
 ### Changed
 
 - `configure-profile.yml` fails at preflight when `login_users` is undefined
@@ -33,5 +42,7 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   or duplicated.
 - `perform-updates.yml` fails, naming the repository and tag, when a tool's
   latest GitHub release lacks the asset that tool installs.
+- `perform-updates.yml` fails, naming the tool, when a tool's fetch leaves the
+  value an earlier tool fetched.
 
 [Unreleased]: https://github.com/wonderbird/ansible-all-my-things/commits/main

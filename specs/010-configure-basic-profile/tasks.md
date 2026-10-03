@@ -77,7 +77,7 @@ ruby, python, the Dolt SQL server, and the Claude Code CLI are all available.
 - [x] T003 [US1] Create `playbooks/configure-profile.yml`: a flat
   `import_playbook` chain, in order —
   `playbooks/setup-users.yml`, `playbooks/setup-basics.yml`,
-  `playbooks/setup-nodejs.yml`, `configure-profile-roles.yml`,
+  `configure-profile-roles.yml` (whose base play applies the `nodejs` role),
   `playbooks/reboot-if-required.yml` — mirroring `configure-linux.yml`'s
   pattern minus the desktop-only steps excluded by FR-018
   (research.md "Orchestrator playbook structure"). Depends on: T002 (the
@@ -136,7 +136,7 @@ architecture" — check `uname -m` if running on an unfamiliar host).
   no extra-vars (User Story 2) — verify the run reports `changed=0` across all
   plays (FR-020/SC-006). Depends on: T001, T002, T003.
 
-- [x] T005 [P] Invoke the `review-documentation-here` skill to confirm no
+- [x] T005 [P] Invoke the `ansible-review-documentation` skill to confirm no
   documentation updates (e.g. `README.md`, `docs/architecture/`) are required
   for the new `configure-profile.yml` /
   `configure-profile-roles.yml` playbooks and
@@ -188,8 +188,8 @@ Markdown quality gates passed.
   above).
 - T005 is marked `[P]` relative to T006 only in the sense that it is a
   read-only review step; T006 still depends on T005 completing first per the
-  skill-invocation order mandated by the constitution ("Skill index": review
-  documentation before format-markdown).
+  skill-invocation order mandated by the constitution ("Mandatory skill
+  invocations": review documentation before format-markdown).
 - No parallel execution opportunities exist across user stories — US2 reuses
   US1's artifacts entirely.
 

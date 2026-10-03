@@ -1,7 +1,14 @@
 #SPDX-License-Identifier: MIT-0
 ---
+# Required vars: fetch_call_id
 # Sets facts: fetched_claude_code_version (STRIPPED, no "v" prefix),
-# fetched_claude_code_sha256_linux_x64, fetched_claude_code_sha256_linux_arm64
+# fetched_claude_code_sha256_linux_x64, fetched_claude_code_sha256_linux_arm64,
+# fetched_for
+#
+# fetched_for stamps this output with the caller's fetch_call_id, in the same
+# set_fact so a skipped output cannot pass as this call's result. Contract:
+# ../../../docs/architecture/version-update-playbooks.md (section "Attributing a
+# fetch output to the call that produced it").
 #
 # The checksum source is a per-version manifest.json lookup, not a raw
 # computed tarball hash or a GitHub-Releases tag_name alone, so this composes
@@ -12,6 +19,21 @@
   ansible.builtin.include_tasks: fetch-github-release.yml
   vars:
     github_repo: "anthropics/claude-code"
+
+- name: Assert the Claude Code tag came from this tool's own fetch
+  # This file consumes a shared output of a NESTED fetch, so it asserts the stamp
+  # itself rather than leaving it to fetch-tool.yml: that caller only sees the
+  # LAST stamp, written by the manifest task below, which would be fresh even if
+  # the tag read next were not.
+  vars:
+    failure_source: configuration
+  ansible.builtin.assert:
+    that: fetched_for == fetch_call_id
+    fail_msg: >-
+      The GitHub release fetch for Claude Code left outputs stamped
+      '{{ fetched_for | default("<nothing>") }}', not '{{ fetch_call_id }}' --
+      the tag read next belongs to an earlier call.
+    quiet: true
 
 # fetch-github-release.yml returns the RAW tag (e.g. "v2.1.204"); the
 # manifest URL and the pinned claude_code_version fact both use the STRIPPED
@@ -49,3 +71,4 @@
   ansible.builtin.set_fact:
     fetched_claude_code_sha256_linux_x64: "{{ _claude_code_manifest.json.platforms['linux-x64'].checksum }}"
     fetched_claude_code_sha256_linux_arm64: "{{ _claude_code_manifest.json.platforms['linux-arm64'].checksum }}"
+    fetched_for: "{{ fetch_call_id }}"

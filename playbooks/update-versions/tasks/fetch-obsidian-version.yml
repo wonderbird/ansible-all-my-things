@@ -1,6 +1,13 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Sets fact: fetched_obsidian_tag (v-prefixed GitHub tag, e.g. "v1.13.7")
+# Required vars: fetch_call_id
+# Sets facts: fetched_obsidian_tag (v-prefixed GitHub tag, e.g. "v1.13.7"),
+# fetched_for
+#
+# fetched_for stamps this output with the caller's fetch_call_id, in the same
+# set_fact so a skipped output cannot pass as this call's result. Contract:
+# ../../../docs/architecture/version-update-playbooks.md (section "Attributing a
+# fetch output to the call that produced it").
 #
 # Why this file exists instead of a fetch-github-release.yml call: Obsidian's
 # GitHub repository mixes two release lines, so "latest release" can resolve to
@@ -14,7 +21,7 @@
 # The regex_search is scoped to the downloadUrl field rather than the response
 # body, so a future beta.downloadUrl on a GitHub releases path cannot match.
 #
-# The get_url in perform-updates.yml carries no failed_when guard on purpose.
+# The download get_url in resolve-checksum.yml carries no failed_when guard on purpose.
 # On an Ansible module, failed_when REPLACES the module's own failure test, so
 # a guard meant to improve the message converts a 404 into ok. The module's own
 # error already prints HTTP Error 404, the status code and the full URL.
@@ -73,3 +80,4 @@
 - name: Set Obsidian tag fact
   ansible.builtin.set_fact:
     fetched_obsidian_tag: "{{ _obsidian_tag_match | first }}"
+    fetched_for: "{{ fetch_call_id }}"

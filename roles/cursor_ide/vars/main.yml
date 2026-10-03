@@ -1,0 +1,8 @@
+#SPDX-License-Identifier: MIT-0
+---
+# The URLs below redirect to the latest Cursor build for their architecture
+# (tested on 2026-01-14). They are role-internal constants, not tunables: a
+# host either matches one of these architectures or the role fails.
+cursor_urls:
+  x86_64: 'https://api2.cursor.sh/updates/download/golden/linux-x64-deb/cursor/'
+  aarch64: 'https://api2.cursor.sh/updates/download/golden/linux-arm64-deb/cursor/'

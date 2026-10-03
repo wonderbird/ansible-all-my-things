@@ -8,4 +8,9 @@ galaxy_info:
   min_ansible_version: 2.19
   galaxy_tags: []
 
-dependencies: []
+dependencies:
+  # sdkmanager is invoked unconditionally with
+  # JAVA_HOME=~/.sdkman/candidates/java/{{ java_sdkman_identifier }}, and
+  # java_sdkman_identifier is the java role's own default. Without the java
+  # role this hard-fails for every consumer.
+  - java

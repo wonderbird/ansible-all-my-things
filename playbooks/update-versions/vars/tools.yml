@@ -371,3 +371,32 @@ _tools:
       - {pin: direnv_version, value: "{{ _fetched.version }}"}
       - {pin: direnv_sha256_amd64, value: "{{ _checksums.amd64 }}"}
       - {pin: direnv_sha256_arm64, value: "{{ _checksums.arm64 }}"}
+
+  bun:
+    role: bun
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: oven-sh/bun
+        required_asset_regexes:
+          - '^bun-linux-x64\.zip$'
+          - '^bun-linux-aarch64\.zip$'
+          - '^SHASUMS256\.txt$'
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: bun_version
+    checksums:
+      # Upstream publishes one combined checksums file per release and no
+      # per-archive sidecar, so the combined file is the only source.
+      - key: x64
+        kind: checksum_file
+        url: "https://github.com/oven-sh/bun/releases/download/{{ _fetched.version }}/SHASUMS256.txt"
+        filename: bun-linux-x64.zip
+      - key: aarch64
+        kind: checksum_file
+        url: "https://github.com/oven-sh/bun/releases/download/{{ _fetched.version }}/SHASUMS256.txt"
+        filename: bun-linux-aarch64.zip
+    pins:
+      - {pin: bun_version, value: "{{ _fetched.version }}"}
+      - {pin: bun_sha256_x64, value: "{{ _checksums.x64 }}"}
+      - {pin: bun_sha256_aarch64, value: "{{ _checksums.aarch64 }}"}

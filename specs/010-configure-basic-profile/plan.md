@@ -21,10 +21,10 @@ new Galaxy collections.
 
 **Language/Version**: Ansible (YAML), ansible-core (project default; see
 `requirements.txt`: `ansible-core>=2.19.0`)
-**Primary Dependencies**: existing roles (`podman`, `ruby`, `python`,
-`dolt_sql_server`, `claude_code`) and existing playbooks
+**Primary Dependencies**: existing roles (`nodejs`, `podman`, `ruby`,
+`python`, `dolt_sql_server`, `claude_code`) and existing playbooks
 (`playbooks/setup-users.yml`, `playbooks/setup-basics.yml`,
-`playbooks/setup-nodejs.yml`, `playbooks/reboot-if-required.yml`) — all
+`playbooks/reboot-if-required.yml`) — all
 already present; zero new Galaxy collections
 **Storage**: N/A (no new persistent state beyond the new static
 `inventories/group_vars/tart/vars.yml`)
@@ -101,8 +101,8 @@ inventories/
 # Reused, unmodified:
 playbooks/setup-users.yml
 playbooks/setup-basics.yml
-playbooks/setup-nodejs.yml
 playbooks/reboot-if-required.yml
+roles/nodejs/
 roles/podman/
 roles/ruby/
 roles/python/

@@ -1,33 +1,33 @@
 <!--
-Sync Impact Report — 1.26.0 → 1.27.0 (MINOR)
-- Documentation Standards gains two sub-rules: "Document the Current State,
-  Not Its History" and "Document the Variables a Task File Requires". The
-  first was violated three times in a single pull-request review; the second
-  follows an audit that found incomplete header contracts in ten task files.
-- The sentence binding these rules to every agent that writes a durable
-  artefact moves from the end of "Write Against Intent, Not Against
-  Implementation Details" to the section preamble, so it covers all three
-  sub-rules rather than only the first. Its wording is unchanged.
-- Governance keeps its narrower ban on history in rules files unchanged. The
-  new rule cross-references it rather than absorbing it: that ban covers a
-  different artefact class, admits no exception, and carries this
-  constitution's own Sync Impact Report exemption.
-- No mechanical check accompanies the second rule. A missing header entry
-  fails loudly on the caller's first run and names the variable, which
-  Principle XII already guarantees; a guard comparing header comments to Jinja
-  expressions would need a suppression list to stay green.
-- MINOR: two sections of new guidance; no principle is added, removed or
-  redefined.
+Sync Impact Report — 2.2.0 → 2.2.1 (PATCH)
+- Principle II (Role-First Organisation): the version-update registration
+  bullet stops counting the mechanism's playbooks. It now reads "The
+  version-update mechanism reads that entry; no playbook is edited per tool.",
+  which holds however many playbooks the mechanism has.
+- PATCH: wording correction; no principle added, removed or redefined.
+- Modified principles: II (wording only).
+- Added sections: none.
+- Removed sections: none.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
   ✅ .specify/templates/spec-template.md — no changes required
-- AGENTS.md checked: no propagation required — it names no documentation rule
-  that these two would duplicate.
-- CLAUDE.md checked: no propagation required — it points at this file.
-- .claude/skills/*/SKILL.md checked: `review-documentation-here` gains a
-  pointer to this section, so the review pass reaches the rules; it restates
-  neither of them (Principle XI). No other named skill is affected.
+  ✅ .specify/templates/checklist-template.md — no changes required
+  ✅ .specify/templates/constitution-template.md — no changes required
+  ✅ .specify/templates/agent-file-template.md — no changes required
+  No template mentions the version-update mechanism.
+- AGENTS.md checked: no propagation required; it does not describe the
+  version-update mechanism.
+- CLAUDE.md checked: no propagation required; it names no principle and
+  points at this file.
+- Skills checked: .claude/skills/ansible-role-creator/ (SKILL.md and
+  reference/version-update-wiring.md) restated the playbook count and is
+  corrected in the same change. ansible-developer, ansible-changelog-entry
+  and the role-creator install-patterns reference mention the mechanism
+  without a count and need no change. ansible-molecule-testing and
+  ansible-review-documentation do not mention it. commit, format-markdown,
+  and fix-problem are not stored in this repository and were not checked.
+- Follow-up TODOs: none.
 -->
 # ansible-all-my-things Constitution
 
@@ -67,7 +67,7 @@ create → prepare → converge → idempotence → verify → destroy lifecycle
 
 **The scenario file contract, required content of `prepare.yml`,
 `converge.yml`, `verify.yml`, and `molecule.yml` are defined in the
-`molecule-testing` skill, which is the authoritative source of truth. All
+`ansible-molecule-testing` skill, which is the authoritative source of truth. All
 agents MUST invoke it when creating or modifying a role's Molecule scenario.**
 
 Roles that cannot be exercised in a container (e.g., desktop environment
@@ -80,7 +80,8 @@ the tool in the version-update mechanism:
 
 - An entry in `playbooks/update-versions/vars/tools.yml` naming the role, the
   pins it writes, the upstream source and the values each pin is written from.
-  Both version-update playbooks read that entry; neither is edited per tool.
+  The version-update mechanism reads that entry; no playbook is edited per
+  tool.
 - A fetch task file under `playbooks/update-versions/tasks/` implementing the
   upstream version query, unless an existing one already serves that source. A
   registry entry alone cannot query a source nothing implements.
@@ -240,32 +241,32 @@ binaries) MUST follow four rules:
    keyless signing mechanism (e.g. cosign OIDC via Sigstore Fulcio), images
    MUST be signed after the push step.
 
-4. **GitHub Actions pinning.** All CI workflows MUST pin third-party actions
-   following the two-tier policy:
-   - **Tier A — SHA pin required** (`uses: owner/action@<sha> # vX.Y.Z`):
-     any action in a job holding `packages: write`, `id-token: write`,
-     `contents: write`, `security-events: write`, or cloud credentials; any
-     action that signs, builds, pushes, or releases an artefact; container
-     actions (`docker://...`); any action in a transitive publish chain
-     (e.g. `upload-artifact` feeding a publish job). Default for anything
-     not clearly Tier B.
-   - **Tier B — floating major tag permitted** (`@vN`): only actions from
-     the `actions/` or `github/` GitHub org that do NOT hold elevated
-     permissions.
+4. **GitHub Actions pinning.** Every `uses:` reference in every CI workflow
+   MUST be pinned as `uses: owner/action@<40-char-sha> # vX.Y.Z`. There is one
+   tier: the publisher's identity does not matter and the permissions of the
+   surrounding job do not matter. The comment MUST name the full semantic
+   version, because it is what a reviewer reads to judge what an updated hash
+   moved; a major-only `# vN` comment does not satisfy the rule.
+
+   Dependabot pull requests for the `github-actions` ecosystem MUST NOT be
+   auto-merged. A human approving each hash change is the control the pin
+   buys, and without it a compromised upstream release lands unattended.
 
    Each repository instance MUST also enable the GitHub Actions allow-list;
    the canonical entry list and fork setup steps are in
    `CONTRIBUTING.md § Fork setup (one-time)`. When adding a new action to a
    workflow, the corresponding `owner/repo@*` entry MUST also be added to
    the list in `CONTRIBUTING.md` and to the allow-list in repository settings.
-   See ADR-002 for full criteria, examples, and Dependabot interaction.
+   See ADR-007 for the criteria, the Dependabot interaction, and the
+   conditions the decision rests on.
 
 **Rationale**: Overly broad job permissions expose write credentials to
 untrusted fork code and to steps that do not need them. Publishing before
 testing allows broken artefacts to reach consumers silently. Provenance labels
 and signatures make the build-to-publish chain auditable and enable consumers
-to verify what they pull. SHA-pinning credential-bearing and artefact-handling
-actions prevents supply-chain compromise via tag retargeting.
+to verify what they pull. SHA-pinning every action prevents supply-chain
+compromise via tag retargeting, and a single tier means any pin can be judged
+from its own line without classifying the action or its job first.
 
 ### X. Self-Contained Durable Artefacts
 
@@ -365,6 +366,29 @@ automation runs — which may push secrets — to undetected man-in-the-middle
 attacks. Matching verification to exposure protects the untrusted path without
 adding host-key churn on local targets where the threat is negligible.
 
+### XV. Guards Proven by Failure
+
+A guard is anything whose result is taken as evidence that something is
+correct: a test, a CI check, a linter, a detector, an assertion harness. A
+guard counts as proven once it has been seen failing on a known-bad input,
+either by the agent relying on it or in a recorded run (commit, pull request,
+CI log). This includes a detector: zero findings count only after it has
+caught a planted instance of what it looks for.
+
+- A new or changed guard MUST be proven in both directions before it is
+  merged: break its input and see the guard fail; restore the input and see
+  it pass.
+- An existing guard with no such record MUST be reported as unproven, not as
+  passing.
+
+**Rationale**: A guard that cannot fail looks exactly like a guard that finds
+nothing wrong, so a green result alone does not show that the guard checks
+anything. For example, a linter that writes SARIF output can exit 0 even when
+it reports errors; a CI job built on it never goes red, whatever the code
+contains (the guard's own Fail Loud, Principle XII). Seeing the guard fail
+once on a known-bad input is the cheapest proof that its green result means
+something.
+
 ## Technology Stack
 
 - **Automation**: Ansible (playbooks, roles, inventory)
@@ -399,9 +423,9 @@ any committed file. Vault passwords are provided at runtime via the
 
 **The documentation strategy, folder structure, project-specific tiers
 (working-context specs, co-located role documentation), and migration policy
-are defined in the `review-documentation` skill and its project-specific
-extension `review-documentation-here`. All agents MUST invoke
-`review-documentation-here` once at the close of a task, before invoking
+are defined in the `ansible-review-documentation` skill, which is
+self-contained and authoritative for this repository. All agents MUST invoke
+`ansible-review-documentation` once at the close of a task, before invoking
 `format-markdown`, so documentation is stable before formatting runs.**
 
 All documentation MUST comply with Principle VI (Markdown Quality Standards).
@@ -492,7 +516,8 @@ carry forward to the next agent session.
 4. **Commit**: use conventional commit format (Principle V); keep commits small
    and coherent.
 5. **Changelog**: before requesting review, record every operator-visible
-   change of the branch in `CHANGELOG.md` using the `changelog-entry` skill,
+   change of the branch in `CHANGELOG.md` using the
+   `ansible-changelog-entry` skill,
    which is the authoritative source of truth for the format and for which
    changes qualify. A branch whose changes no operator can observe records
    nothing.
@@ -519,6 +544,25 @@ carry forward to the next agent session.
    are prohibited.
 9. **Cloud apply**: run the playbook against cloud targets only after local
    validation passes.
+
+### Tracker-Export Commit Exception
+
+A commit whose entire content is the beads tracker export MAY be committed
+directly to `main`, without the **Feature branch**, **User review**, and
+**Merge to main** steps above. The test is mechanical: the commit changes
+`.beads/issues.jsonl` and no other file. A commit that touches any other file,
+in addition or instead, is an ordinary change and every step above applies to
+it in full.
+
+**Rationale**: the file is generated state, not authored content. It is a
+passive export rewritten wholesale by `bd export --all` after every tracker
+mutation, and it is the primary durability path for issues and memories — see
+"Beads: Data Safety and Workflow Rules" in `AGENTS.md`. A reviewer therefore
+has nothing to review: its correctness is decided by the tracker state the
+export was taken from, not by the diff. Routing it through a branch and a pull
+request would spend one review cycle per tracker mutation while protecting
+nothing. The single-file test keeps the exemption checkable without judgement,
+so it cannot be stretched to cover a commit that also changes authored content.
 
 ## Governance
 
@@ -557,4 +601,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 1.27.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-09-22
+**Version**: 2.2.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-10-03

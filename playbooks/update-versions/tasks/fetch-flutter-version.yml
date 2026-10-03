@@ -1,5 +1,13 @@
 #SPDX-License-Identifier: MIT-0
 ---
+# Required vars: fetch_call_id
+# Sets facts: fetched_flutter_version, fetched_flutter_sha256, fetched_for
+#
+# fetched_for stamps this output with the caller's fetch_call_id, in the same
+# set_fact so a skipped output cannot pass as this call's result. Contract:
+# ../../../docs/architecture/version-update-playbooks.md (section "Attributing a
+# fetch output to the call that produced it").
+
 - name: Fetch Flutter release manifest
   ansible.builtin.uri:
     url: "https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json"
@@ -43,3 +51,4 @@
   ansible.builtin.set_fact:
     fetched_flutter_version: "{{ _latest.version }}"
     fetched_flutter_sha256: "{{ _latest.sha256 }}"
+    fetched_for: "{{ fetch_call_id }}"

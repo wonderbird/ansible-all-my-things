@@ -28,10 +28,26 @@
       # pre-flight inspects is never passed down.
       vars:
         _args: "{{ _tools[_name].fetch.args | default({}) }}"
+        fetch_call_id: "{{ _name }}"
         github_repo: "{{ _args.github_repo | default(omit) }}"
         git_ref: "{{ _args.git_ref | default(omit) }}"
         java_sdkman_major: "{{ _args.java_sdkman_major | default(omit) }}"
         required_asset_regexes: "{{ _args.required_asset_regexes | default(omit) }}"
+
+    - name: "Assert the fetch outputs of {{ _name }} came from its own fetch"
+      # The fetch files write their outputs under names their callers share, so a
+      # skipped output would leave the previous tool's value readable here. The
+      # stamp is set in the same task as the output, so a skipped output means a
+      # skipped stamp, and this refuses it rather than recording it.
+      vars:
+        failure_source: configuration
+      ansible.builtin.assert:
+        that: fetched_for == _name
+        fail_msg: >-
+          The fetch of {{ _name }} left outputs stamped
+          '{{ fetched_for | default("<nothing>") }}'. Its own fetch did not write
+          them, so they belong to an earlier call.
+        quiet: true
 
     - name: "Record what the fetch of {{ _name }} returned"
       # Bound inside the block: an output the fetch file did not set is

@@ -16,34 +16,18 @@ upstream source, each with its own API shape and its own failure modes.
 
 ### Functional Requirements
 
-- **FR-001**: Detect stale version pins for all tracked tools by
-  comparing role defaults against upstream sources.
-- **FR-002**: Exit non-zero when any pin is stale; exit zero when
-  all are current.
-- **FR-003**: Apply version and checksum updates to role defaults
-  files in-place.
-- **FR-004**: Update version and paired checksum together (Flutter
-  sha256, Android sha1).
-- **FR-005**: Create no git commits — the maintainer retains full
-  control over committing.
-- **FR-006**: Share upstream-fetch logic between both playbooks (no
-  duplication).
-- **FR-007**: Isolate Android scraping logic in a separate task file
-  to contain HTML-scraping fragility.
-- **FR-008**: Run entirely on the control node (localhost) — no
-  managed hosts required.
-- **FR-011**: Fail fast on GitHub API rate limit (HTTP 403) with an
-  explicit error naming the reset window.
-- **FR-012**: Fail with an explicit error naming the upstream source
-  if any API response cannot be parsed.
+The requirements this mechanism satisfies are defined in
+[`specs/007-version-update-playbooks/spec.md`](../../specs/007-version-update-playbooks/spec.md),
+section Requirements.
 
 ### Architecture Goals
 
 - Maintenance playbooks run on localhost — they do not configure
   managed hosts and do not require a managed-host connection.
-- Upstream-fetch logic lives in shared task files imported by both
-  playbooks, following the same `playbooks/<operation>/tasks/`
-  convention as `playbooks/backup/` and `playbooks/restore/`.
+- Upstream-fetch logic lives in shared task files under
+  `playbooks/update-versions/tasks/`, following the same
+  `playbooks/<operation>/tasks/` convention as `playbooks/backup/` and
+  `playbooks/restore/`.
 - The operator reviews `git diff` after the update playbook runs and
   commits manually.
 
@@ -67,11 +51,12 @@ upstream source, each with its own API shape and its own failure modes.
 - GitHub API access is unauthenticated — the 60 requests/hour rate
   limit is sufficient for manual maintenance runs but must be handled
   explicitly.
-- Google does not publish a machine-readable manifest for Android
-  cmdline-tools; HTML scraping is the only available method.
+- Android cmdline-tools are read by HTML scraping of the developer
+  download page; see Open Points for the fragility this carries and a
+  structured alternative.
 - Java tracking follows a same-major patch strategy: the latest patch
-  release of the currently pinned major version (Java 21). Major
-  version upgrades remain a manual decision.
+  release of the currently pinned major version. Major version upgrades
+  remain a manual decision.
 - Android SHA-1 is the only checksum published by Google for
   cmdline-tools. This is an accepted risk documented in
   `docs/architecture/technical-debt/technical-debt.md` as TD-009.
@@ -83,8 +68,8 @@ upstream source, each with its own API shape and its own failure modes.
 | Option | Assessment |
 | ------ | ---------- |
 | Shell scripts per tool | No idempotency guarantees; duplicates logic; no Ansible integration |
-| Single monolithic playbook | All fetch logic inline; cannot isolate the HTML-scraping fragility in its own task file |
-| Shared task files imported by two playbooks | Both playbooks share one copy of the fetch logic, and the scraping stays isolated; follows project convention; chosen |
+| Single playbook with per-tool tasks inline | All fetch logic inline; cannot isolate the HTML-scraping fragility in its own task file |
+| One playbook driven by a tool registry, with shared task files | One copy of the fetch logic and one enumeration of the tools; the scraping stays isolated; follows project convention; chosen |
 | Role wrapping fetch logic | Adds indirection with no reuse benefit; violates Principle IV (YAGNI) |
 
 ### Chosen Solution
@@ -119,18 +104,20 @@ playbooks/update-versions/
 
 `tests/` holds the harnesses for the shared task files, with its own minimal
 Ansible configuration, so they run without the vault secret the repository root
-configuration expects. CI runs them, and `scripts/ci-local.sh` runs the same set
-plus a syntax check of both playbooks and a network-free run of the real task
-files over a fixture registry — the gate a change to this mechanism must pass
-before it is committed, because CI never runs either playbook for real.
+configuration expects. CI runs them, together with a syntax check of the
+playbook and a network-free run of the real task files over a fixture registry;
+`.github/workflows/version-update-lint.yml` is the authoritative list of gates.
+`scripts/ci-local.sh` runs a local subset of them before a commit. Neither runs
+the playbook against real upstreams, so a change can pass every gate and still
+fail against one.
 
 The authoritative enumeration of **tracked tools** is `vars/tools.yml`. Each
 entry names the role whose defaults carry the pins, the task file that queries
 the upstream source and its arguments, every output the tool consumes, the
-digests it needs and the pins it writes. Neither playbook contains per-tool
-tasks: both loop over the registry's keys and include the same shared task
-files, so the two cannot disagree about which tools exist, and adding a tool is
-one entry rather than an edit in each playbook.
+digests it needs and the pins it writes. The playbook contains no per-tool
+tasks: it loops over the registry's keys and includes the same shared task
+files for every tool, so adding a tool is one registry entry rather than a new
+section of the playbook.
 
 The loop iterates tool **names**, never whole entries. A loop over entries
 templates every expression of every entry before the first task runs, which
@@ -140,7 +127,7 @@ Each `fetch-*.yml` file implements one kind of upstream query and is
 parametrized wherever more than one tool can use it. The directory listing is
 the authoritative catalogue; it is not restated here.
 
-`tasks/preflight.yml` runs first in both plays and validates the whole registry
+`tasks/preflight.yml` runs first in the play and validates the whole registry
 before anything is queried: entry shape, unique pin names, per-architecture
 agreement between a pin and the digest it is written from, an asset claim for
 every GitHub release fetch, and that every role carrying a version or checksum
@@ -197,12 +184,12 @@ The guard is what turns "the latest release happens to carry what we
 install" from an assumption into a checked claim. Without it a release
 published from a second release line — the Obsidian shape — is accepted,
 and the failure surfaces later as a 404 on a download, after that tool's
-section has begun. Patterns therefore describe what the consumer actually
+apply has begun. Patterns therefore describe what the consumer actually
 downloads, including downloads performed by the role rather than by the
 playbook: for those tools a rename upstream fails at fetch time instead of
 at install time on a real machine.
 
-In `perform-updates.yml` the declaration is mandatory. A tool that installs
+In the registry the declaration is mandatory. A tool that installs
 from somewhere other than the release assets says so in
 `release_carries_no_consumed_asset`, whose value is the reason, so the
 exemption is visible at the call site rather than implied by silence.
@@ -218,8 +205,8 @@ of pins and their new values. A second run when all pins are already
 current makes no modifications.
 
 The task file exists because `ansible.builtin.replace` reports `ok` when
-its regexp matches nothing. A role that renamed a pin variable used to
-leave the matching write silently doing nothing: the pin stopped
+its regexp matches nothing. Without it, a role that renames a pin variable
+would leave the matching write silently doing nothing: the pin would stop
 following upstream while the run still reported `failed=0`.
 `write-pins.yml` therefore validates before it writes. It rejects
 malformed input, including values containing a quote, a backslash or a
@@ -278,6 +265,7 @@ that ran before.
 - Obsidian desktop release feed: <https://raw.githubusercontent.com/obsidianmd/obsidian-releases/master/desktop-releases.json>
 - SDKMAN REST API: <https://api.sdkman.io/2/candidates/java/linuxx64/versions/all>
 - Android developer page: <https://developer.android.com/studio#command-line-tools-only>
+- Android SDK repository manifest: <https://dl.google.com/android/repository/repository2-3.xml>
 - Technical debt entry (TD-009):
   `docs/architecture/technical-debt/technical-debt.md`
 
@@ -319,8 +307,8 @@ current produces no changes (idempotent).
 
 `perform-updates.yml` isolates the tools from one another: each runs inside a
 fetch block and an apply block, and a failure of either is recorded against
-that tool instead of ending the play. A third-party failure therefore no longer
-hides the tools after it, and the run reports every failure it collected.
+that tool instead of ending the play. A third-party failure therefore does not
+hide the tools after it, and the run reports every failure it collected.
 
 When a pin looks stuck, run
 `ansible-playbook playbooks/update-versions/perform-updates.yml` and read the
@@ -390,7 +378,7 @@ which are all this repository's own errors. The alternative — treating them as
 configuration errors — would stop the run every time a download is added
 without a declaration, which is the cascade this isolation exists to remove.
 
-One rule therefore binds anyone adding to these playbooks. **A task that can
+One rule therefore binds anyone adding to this mechanism. **A task that can
 fail because of a third party declares `failure_source: upstream` in its own
 `vars:`**, unless it is a `uri` or `get_url` task, which rule 3 already covers.
 An input assert declares nothing, because a bad argument is this repository's
@@ -418,6 +406,40 @@ itself and the test harnesses. **The ban MUST survive any simplification or
 removal of that script**; the minimum replacement is a CI step that fails when a
 file-editing module appears outside `write-pins.yml`.
 
+### Attributing a fetch output to the call that produced it
+
+Every fetch task file writes its outputs as Ansible facts, and a fact outlives
+the loop iteration that set it. Three output names are shared by every caller of
+the file that writes them: `fetched_github_tag`, `fetched_checksum` and
+`fetched_github_sha`. So a fetch whose output is *skipped* rather than failed
+leaves the previous call's value readable, and the caller records it as this
+call's result — a wrong version or digest written to a role's defaults, on a run
+that reports success.
+
+Each producer therefore stamps `fetched_for: "{{ fetch_call_id }}"` in the same
+`set_fact` as its output, and each caller passes an identity and asserts the
+stamp before consuming the output:
+
+| Caller | Identity it asks for | Why that granularity |
+| --- | --- | --- |
+| `tasks/fetch-tool.yml` | `{{ _name }}` | one call per tool |
+| `tasks/resolve-checksum.yml` | `{{ _name }}/{{ _checksum.key }}` | a tool with two `checksum_file` keys calls the same file twice, and a tool name alone cannot tell the second output from the first |
+
+The stamp MUST share its output's task. Given a task of its own, a condition on
+the output alone leaves a fresh stamp over a stale value and the caller's assert
+passes. That placement cannot be enforced at runtime, because a run where no
+output is ever skipped behaves identically, so it is checked statically by
+`scripts/fetch-call-identity/check-fetch-call-identity.py` in CI. **The contract
+MUST survive any simplification or removal of that script**; the minimum
+replacement is a CI step that fails when a producer stamps outside the task
+writing an output.
+
+The guard covers `set_fact` outputs only, and that is deliberate. A `register`
+does not leak across iterations: Ansible sets it to a skipped result rather than
+leaving the previous value, so `resolve-checksum.yml`'s `download` branch fails
+loud on an undefined digest without a stamp. Extending the stamp to registers
+would guard nothing.
+
 ### What guards what
 
 Each guarantee below is enforced at exactly one point. The table names that
@@ -428,11 +450,12 @@ lost.
 | --- | --- |
 | No network task after a tool's first pin write | Structural: one apply path resolves every digest before the single `write-pins.yml` include |
 | A fetch must be attributable to a tool | Structural: the loop variable is the tool |
-| The two playbooks track the same tools | Structural: one registry serves both |
+| The tracked tools are declared in one place | Structural: the playbook loops over the registry and contains no per-tool tasks |
 | A tool cannot be dropped unnoticed | Pre-flight: every role carrying a pin must be registered |
 | A release fetch states what the release must carry | Pre-flight, over the registry |
 | A per-architecture pin is fed from its own architecture | Pre-flight, plus per-tool digest binding |
 | No file edit outside `write-pins.yml` | `check-write-pins-bypass.py` in CI |
+| A fetch output belongs to the call that recorded it | Per-call assert in each caller, plus `check-fetch-call-identity.py` in CI for the stamp's placement |
 
 A registered role whose entry names the *wrong* pin names still passes
 pre-flight and fails later as a configuration abort: loud, but late. Pin-by-pin
@@ -440,12 +463,11 @@ reconciliation between the registry and the role defaults is not done here.
 
 ### Check mode is not supported
 
-Both playbooks refuse `--check`, in the first task of the shared pre-flight.
+`perform-updates.yml` refuses `--check`, in the first task of pre-flight.
 Under check mode `ansible.builtin.uri` skips while `ansible.builtin.get_url`
-still performs its request, so a check run of `perform-updates.yml` mixes real
-downloads with skipped fetches: `ansible.builtin.uri` skips under check mode
-while `ansible.builtin.get_url` still performs its request. The refusal is code
-rather than a comment, so the rule cannot be read and ignored.
+still performs its request, so a check run would mix real downloads with
+skipped fetches. The refusal is code rather than a comment, so the rule cannot
+be read and ignored.
 
 ---
 
@@ -453,30 +475,34 @@ rather than a comment, so the rule cannot be read and ignored.
 
 ### Open Points
 
-- **Android HTML scraping fragility** (TD-009):
-  `fetch-android-version.yml` parses `developer.android.com/studio`
-  via regex. If Google restructures the page, the regex will break.
-  No structured API alternative exists at this time. The scraping lives
-  in its own task file to contain the blast radius.
+- **Android HTML scraping fragility**: `fetch-android-version.yml`
+  parses the developer download page via regex. If Google restructures
+  the page, the regex will break. Google also serves an XML repository
+  manifest that lists the cmdline-tools archives with build numbers and
+  SHA-1 digests (see Sources); it is a candidate replacement for the
+  scraping. The scraping lives in its own task file to contain the blast
+  radius.
 - **Unauthenticated GitHub API**: The 60 requests/hour limit is
   sufficient for manual runs. If CI integration is added, a GitHub
   token should be introduced to raise the limit to
   5,000 requests/hour.
-- **Java major version strategy**: The playbooks derive the major
-  version from the currently pinned `java_sdkman_identifier` and
-  track only same-major patches. A major version upgrade (e.g.,
-  Java 21 → Java 25) requires a manual update to the defaults file.
+- **Java major version strategy**: The java registry entry derives the
+  major version from the currently pinned `java_sdkman_identifier`, so
+  only same-major patches are tracked. Moving to a new major version
+  requires a manual update to the defaults file.
 
 ### Next Steps
 
 - **GitHub Actions integration**: Run `perform-updates.yml` on a
   schedule (e.g., weekly) and open a pull request automatically with the
   pins it moved. This is the primary planned next step, and it would need
-  an authenticated GitHub token: the run costs twelve requests against the
-  sixty an hour an unauthenticated caller is allowed.
+  an authenticated GitHub token: each tool fetched through the GitHub API
+  spends at least one of the sixty requests an hour an unauthenticated
+  caller is allowed.
 - **Per-role targeting**: Add optional role-filtering to update only
   a subset of tools in a single run.
-- **Checksum algorithm expansion**: Flutter and Android currently use
-  sha256 and sha1 respectively. If additional tools with sha512 or
-  other algorithms are added, the pin-write pattern in
-  `perform-updates.yml` can be extended without structural changes.
+- **Checksum algorithm expansion**: `resolve-checksum.yml` produces
+  SHA-256 digests; a tool whose upstream publishes only another
+  algorithm takes the digest from its own fetch results, as Android
+  does with SHA-1. A tool needing a further algorithm would add a
+  checksum kind there.

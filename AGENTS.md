@@ -1,145 +1,6 @@
 # Agent Instructions
 
 <!-- markdownlint-disable MD013 MD022 MD025 MD031 MD032 MD034 -->
-<!-- rtk-instructions v2 -->
-# RTK (Rust Token Killer) - Token-Optimized Commands
-
-## Golden Rule
-
-**Always prefix commands with `rtk`**. If RTK has a dedicated filter, it uses it. If not, it passes through unchanged. This means RTK is always safe to use.
-
-**Important**: Even in command chains with `&&`, use `rtk`:
-```bash
-# ❌ Wrong
-git add . && git commit -m "msg" && git push
-
-# ✅ Correct
-rtk git add . && rtk git commit -m "msg" && rtk git push
-```
-
-## RTK Commands by Workflow
-
-### Build & Compile (80-90% savings)
-```bash
-rtk cargo build         # Cargo build output
-rtk cargo check         # Cargo check output
-rtk cargo clippy        # Clippy warnings grouped by file (80%)
-rtk tsc                 # TypeScript errors grouped by file/code (83%)
-rtk lint                # ESLint/Biome violations grouped (84%)
-rtk prettier --check    # Files needing format only (70%)
-rtk next build          # Next.js build with route metrics (87%)
-```
-
-### Test (60-99% savings)
-```bash
-rtk cargo test          # Cargo test failures only (90%)
-rtk go test             # Go test failures only (90%)
-rtk jest                # Jest failures only (99.5%)
-rtk vitest              # Vitest failures only (99.5%)
-rtk playwright test     # Playwright failures only (94%)
-rtk pytest              # Python test failures only (90%)
-rtk rake test           # Ruby test failures only (90%)
-rtk rspec               # RSpec test failures only (60%)
-rtk test <cmd>          # Generic test wrapper - failures only
-```
-
-### Git (59-80% savings)
-```bash
-rtk git status          # Compact status
-rtk git log             # Compact log (works with all git flags)
-rtk git diff            # Compact diff (80%)
-rtk git show            # Compact show (80%)
-rtk git add             # Ultra-compact confirmations (59%)
-rtk git commit          # Ultra-compact confirmations (59%)
-rtk git push            # Ultra-compact confirmations
-rtk git pull            # Ultra-compact confirmations
-rtk git branch          # Compact branch list
-rtk git fetch           # Compact fetch
-rtk git stash           # Compact stash
-rtk git worktree        # Compact worktree
-```
-
-Note: Git passthrough works for ALL subcommands, even those not explicitly listed.
-
-### GitHub (26-87% savings)
-```bash
-rtk gh pr view <num>    # Compact PR view (87%)
-rtk gh pr checks        # Compact PR checks (79%)
-rtk gh run list         # Compact workflow runs (82%)
-rtk gh issue list       # Compact issue list (80%)
-rtk gh api              # Compact API responses (26%)
-```
-
-### JavaScript/TypeScript Tooling (70-90% savings)
-```bash
-rtk pnpm list           # Compact dependency tree (70%)
-rtk pnpm outdated       # Compact outdated packages (80%)
-rtk pnpm install        # Compact install output (90%)
-rtk npm run <script>    # Compact npm script output
-rtk npx <cmd>           # Compact npx command output
-rtk prisma              # Prisma without ASCII art (88%)
-```
-
-### Files & Search (60-75% savings)
-```bash
-rtk ls <path>           # Tree format, compact (65%)
-rtk read <file>         # Code reading with filtering (60%)
-rtk grep <pattern>      # Search grouped by file (75%). Format flags (-c, -l, -L, -o, -Z) run raw.
-rtk find <pattern>      # Find grouped by directory (70%)
-```
-
-### Analysis & Debug (70-90% savings)
-```bash
-rtk err <cmd>           # Filter errors only from any command
-rtk log <file>          # Deduplicated logs with counts
-rtk json <file>         # JSON structure without values
-rtk deps                # Dependency overview
-rtk env                 # Environment variables compact
-rtk summary <cmd>       # Smart summary of command output
-rtk diff                # Ultra-compact diffs
-```
-
-### Infrastructure (85% savings)
-```bash
-rtk docker ps           # Compact container list
-rtk docker images       # Compact image list
-rtk docker logs <c>     # Deduplicated logs
-rtk kubectl get         # Compact resource list
-rtk kubectl logs        # Deduplicated pod logs
-```
-
-### Network (65-70% savings)
-```bash
-rtk curl <url>          # Compact HTTP responses (70%)
-rtk wget <url>          # Compact download output (65%)
-```
-
-### Meta Commands
-```bash
-rtk gain                # View token savings statistics
-rtk gain --history      # View command history with savings
-rtk discover            # Analyze Claude Code sessions for missed RTK usage
-rtk proxy <cmd>         # Run command without filtering (for debugging)
-rtk init                # Add RTK instructions to CLAUDE.md
-rtk init --global       # Add RTK to ~/.claude/CLAUDE.md
-```
-
-## Token Savings Overview
-
-| Category | Commands | Typical Savings |
-|----------|----------|-----------------|
-| Tests | vitest, playwright, cargo test | 90-99% |
-| Build | next, tsc, lint, prettier | 70-87% |
-| Git | status, log, diff, add, commit | 59-80% |
-| GitHub | gh pr, gh run, gh issue | 26-87% |
-| Package Managers | pnpm, npm, npx | 70-90% |
-| Files | ls, read, grep, find | 60-75% |
-| Infrastructure | docker, kubectl | 85% |
-| Network | curl, wget | 65-70% |
-
-Overall average: **60-90% token reduction** on common development operations.
-<!-- /rtk-instructions -->
-
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:970c3bf2 -->
 ## Beads Issue Tracker
 
@@ -209,14 +70,13 @@ any later negation from any ignore file (including a clone-local
 live in the tracked `.gitignore`. This makes the file survive across clones
 even without a Dolt remote sync.
 
-`.beads/config.yaml` sets `export: auto: false` — auto-export is off.
-bd's auto-export hardcodes memories, infra, templates, and gates out of
-every write (`includeMemories=false`, unconditionally — GH#3650: memories
-may hold private agent context that must not land in git history via the
-automatic path), and there is no config key to change that scope
-(`export.auto`, `export.path`, `export.interval`, `export.git-add` are the
-only auto-export keys). Since we want memories captured too, auto-export is
-disabled entirely in favor of a manual, full export:
+`.beads/config.yaml` keeps beads out of git's way: `no-git-ops: true`, so bd
+runs no git operation of its own, and no auto-export is configured. bd's
+auto-export hardcodes memories, infra, templates, and gates out of every
+write (`includeMemories=false`, unconditionally — GH#3650: memories may hold
+private agent context that must not land in git history via the automatic
+path), and no config key widens that scope. Since memories must be captured
+too, the export is manual and full:
 
 ```bash
 bd export --all -o .beads/issues.jsonl   # run after EACH bd mutation
@@ -241,6 +101,18 @@ bd's Dolt-backed sync (`refs/dolt/data`) remains available as a secondary
 mechanism, but the tracked, `--all`-exported JSONL is the primary durability
 path here: issues and memories are both recoverable from a plain git clone
 without ever needing `bd dolt pull`.
+
+### bd's git hooks stay uninstalled
+
+bd offers git hooks that would drive this synchronisation automatically. They
+are deliberately not installed, so `bd info` reports its git hooks as missing
+and advises `bd hooks install`. That warning is expected here and is not a
+task.
+
+Installing them restores the automatic export path, whose scope is the defect
+the manual `--all` export exists to avoid, and adds a `prepare-commit-msg`
+hook that writes trailers of its own into every commit message — the `commit`
+skill is this repository's only authority on commit format.
 
 ### Never run `bd list --all`
 
@@ -379,33 +251,56 @@ when no issue is marked `in_progress`.
 - **Language**: English throughout. Apply the caveman skill by audience —
   `caveman full` for user-facing content (chat, code, comments, documentation,
   beads issues); `caveman wenyan-ultra` for internal and inter-agent content
-  (thinking, subagents, MCP, tool calls, all files under `.omc/`). Code blocks,
-  commit messages, and security warnings stay in normal English regardless of
-  mode, and so do plan files under `.omc/plans/`: a plan is read and reviewed
-  by people, and a compressed one cannot be reviewed unambiguously. The skills
-  define each mode.
+  (thinking, subagents, MCP, tool calls, and every file an agent framework
+  keeps its own state in — `.omc/`, `.omo/`). Code blocks, commit messages,
+  and security warnings stay in normal English regardless of mode, and so do
+  plan files wherever a framework writes them (`.omc/plans/`, `.omo/plans/`):
+  a plan is read and reviewed by people, and a compressed one cannot be
+  reviewed unambiguously. The skills define each mode.
 - **One question at a time**: when asking the user a question, ask one
   question at a time so they can focus.
 - **Avoid ambiguity**: if instructions are unclear, contradictory, or
   conflict with rules or earlier instructions, describe the situation and
   ask clarifying questions before proceeding.
+- **Issue IDs carry their goal**: never mention a beads issue ID without its
+  goal. If the surrounding text does not already make the goal clear, add it
+  in a few words in parentheses right after the ID, e.g.
+  `<id> (retry on rate-limited download)`. This
+  applies to chat, summaries, status reports, and every list of issues. A bare
+  ID forces the reader to look it up before they can follow the text.
+- **Label evidence in reports**: in a status report, review, or handoff, mark
+  every factual claim about code, tool behaviour, or system state as VERIFIED
+  (you ran it and read the output) or INFERRED (reasoned, predicted, or
+  reported by another agent). Never present another agent's assurance as
+  evidence. Re-verify a claim on the exact branch or state where it will be
+  used. An unlabelled claim makes the reader trust a guess as much as a test
+  result; for when a guard's result counts as evidence at all, see Principle
+  XV.
 - **Hidden files**: the LS tool does not show hidden files; use
   `ls -la <path>` via Bash to check for hidden files or directories.
 
-## Skill index
+## Mandatory skill invocations
 
-Skills carrying a constitution-mandated invocation. The agent runtime injects
-the full skill catalog (names + descriptions) each session; only the mandatory
-skill→principle bindings are restated here.
+Skills whose invocation is mandatory, and the rule that makes it so. The agent
+runtime injects the full skill catalog (names + descriptions) each session;
+only the mandatory bindings are restated here. The rule named is a principle or
+section of the constitution unless the entry says otherwise.
 
-| Skill | Invoke when | Principle |
+| Skill | Invoke when | Mandated by |
 | --- | --- | --- |
-| `changelog-entry` | before requesting review on a pull request | Development Workflow |
+| `caveman` | always; mode depends on audience | Collaboration with the User, in this file |
+| `ansible-changelog-entry` | before requesting review on a pull request | Development Workflow |
 | `commit` | before creating any commit | V |
 | `format-markdown` | at task close, after all Markdown finalized | VI |
 | `fix-problem` | before fixing any unexpected obstacle | VII |
-| `molecule-testing` | when creating/modifying a role's Molecule scenario | II |
-| `review-documentation-here` | at task close, before `format-markdown` | Documentation Standards |
+| `ansible-molecule-testing` | when creating/modifying a role's Molecule scenario | II |
+| `ansible-review-documentation` | at task close, before `format-markdown` | Documentation Standards |
+
+Skills without the `ansible-` prefix live outside this repository and are not
+pinned by it, so the rules they carry can change without review here.
+`caveman` comes from a third party; the others are authored by the repository
+owner. Adopting a skill from outside that set changes the trust boundary and is
+a decision to take deliberately.
 
 ## Test environment host architecture
 

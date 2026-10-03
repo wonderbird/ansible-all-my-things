@@ -6,31 +6,34 @@ for all desktop users.
 ## Requirements
 
 - AMD64 Ubuntu Linux with snapd pre-installed.
-- `login_user_names` variable defined (list of users to receive the SDK).
 - Internet access on the first provisioning run (snap and SDK downloads).
 - `community.general` collection (already in `requirements.yml`).
-- The `java` role MUST run before this role. It installs the Eclipse Temurin
-  JDK via sdkman, which provides the Java 17+ runtime required by sdkmanager.
+- The `java` role applied first — see Dependencies below.
 
 ## Role Variables
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `android_cmdlinetools_build` | `14742923` | Build number of the cmdline-tools ZIP. |
-| `android_cmdlinetools_sha1` | `48833c34b761c10cb20bcd16582129395d121b27` | SHA-1 checksum of the cmdline-tools ZIP. |
+| `login_user_names` | *(required)* | List of local usernames to install Android Studio and the SDK for. Must contain at least one name; the role fails loudly if it is undefined or empty. |
+| `android_cmdlinetools_build` | *(see defaults)* | Build number of the cmdline-tools ZIP. |
+| `android_cmdlinetools_sha1` | *(see defaults)* | SHA-1 checksum of the cmdline-tools ZIP. |
 
-Update both values when Google publishes a new cmdline-tools release.
-The current values are listed at the Android Studio download page under
-"Command line tools only".
+`defaults/main.yml` carries both pins together with the upstream page they
+are read from. Both must move together, and the version-update mechanism
+refreshes them from that page — see
+[version-update-playbooks.md](../../docs/architecture/version-update-playbooks.md).
 
 Note: Google publishes SHA-1 (not SHA-256) for cmdline-tools downloads.
 See TD-009 in the technical debt register for the accepted risk.
 
 ## Dependencies
 
-The `java` role must be applied before this role (provides Temurin JDK via
-sdkman for `sdkmanager`). This dependency is documented here only;
-`meta/main.yml` keeps `dependencies: []` following project convention.
+The `java` role, declared in `meta/main.yml`: `sdkmanager` is invoked with
+`JAVA_HOME` pointing into the sdkman JDK that `java` installs, and the
+identifier it reads is that role's own default, so this role hard-fails
+without it. `java` runs in the base play of `configure-profile-roles.yml`,
+and because this role declares it, Ansible resolves it again inside the
+desktop play and re-runs its tasks there.
 
 ## Example Playbook
 

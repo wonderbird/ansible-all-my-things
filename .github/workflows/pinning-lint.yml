@@ -2,16 +2,19 @@
 ---
 name: Pinning Lint
 
-# Enforce the two-tier GitHub Actions pinning policy defined in
-# docs/architecture/decisions/002-github-actions-pinning-policy.md
+# Enforce the single-tier GitHub Actions pinning policy defined in
+# docs/architecture/decisions/007-single-tier-action-pinning.md
 #
-# Tier A (hash-pin required): third-party actions and any action in a job
-# with elevated permissions (packages:write, id-token:write, signing, push).
-# Tier B (ref-pin permitted): actions/* and github/* org actions without
-# elevated permissions.
+# Every action reference must be a 40-character commit SHA carrying a full
+# `# vX.Y.Z` comment, whoever publishes it and whatever permissions its job
+# holds.
 #
 # Tool: zizmor (https://github.com/woodruffw/zizmor)
 # Policy config: .github/zizmor.yml
+#
+# zizmor reports findings and fails the build in two separate runs, because
+# its SARIF output format exits 0 even when it reports a finding. The
+# reporting run feeds code scanning; the enforcing run decides the check.
 
 on:
   push:
@@ -42,15 +45,32 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Run zizmor
-        uses: zizmorcore/zizmor-action@70fb788f84895a7701f5643d103d587e460b5c99 # v0.6.3
+      # Reports findings to code scanning. This run cannot decide the check:
+      # `advanced-security: true` selects zizmor's SARIF format, which exits 0
+      # whether or not it found anything. It runs first so its alerts are
+      # uploaded before the enforcing step can fail the job.
+      #
+      # Runs on the canonical upstream repo only. Forks lack GHAS (GitHub
+      # Advanced Security) and their GITHUB_TOKEN cannot write to the
+      # security-events API — the upload would fail. Fork PRs run in the
+      # upstream context but the token is still restricted, so exclude
+      # pull_request events from forks.
+      - name: Report zizmor findings to code scanning
+        if: ${{ github.repository == 'wonderbird/ansible-all-my-things' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
         with:
           config: .github/zizmor.yml
           inputs: .github/workflows/
-          # Upload SARIF to the canonical upstream repo only.
-          # Forks lack GHAS (GitHub Advanced Security) and their GITHUB_TOKEN
-          # cannot write to the security-events API — the upload would fail.
-          # Fork PRs run in the upstream context but the token is still
-          # restricted, so exclude pull_request events from forks.
-          # Fork CI still gets the audit result via zizmor's exit code.
-          advanced-security: ${{ github.repository == 'wonderbird/ansible-all-my-things' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+          advanced-security: true
+
+      # Decides the check, on every repo and every event. `annotations: true`
+      # selects zizmor's `--format=github`, which exits 14 on a finding and
+      # annotates the offending line. The action propagates that exit code, so
+      # a non-conformant reference fails this step and the whole job.
+      - name: Enforce the pinning policy
+        uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+        with:
+          config: .github/zizmor.yml
+          inputs: .github/workflows/
+          advanced-security: false
+          annotations: true

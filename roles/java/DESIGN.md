@@ -70,8 +70,15 @@ established in the `android_studio` and `flutter` reference roles.
 
 ## ARM64 Compatibility
 
-**Decision**: No architecture-specific branching in task files; the role
-carries no `not-supported-on-arm64` tag in `configure-profile-roles.yml`.
+**Decision**: No architecture-specific branching in task files; no entry for
+this role in `configure-profile-roles.yml` carries a
+`not-supported-on-arm64` tag.
+
+The desktop play still skips this role on ARM64 hosts, because
+`android_studio` pulls it in as a meta dependency and a meta dependency
+inherits the tags of the entry that pulls it in. That is a property of the
+`android_studio` entry, not a statement about Java on ARM64; the base play
+applies this role on every host regardless of architecture.
 
 **Rationale**: Both sdkman and Eclipse Temurin publish ARM64 (`aarch64`)
 artifacts. The sdkman installer detects the host architecture at runtime and

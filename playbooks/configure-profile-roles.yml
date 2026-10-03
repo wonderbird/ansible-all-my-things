@@ -12,6 +12,7 @@
     - podman
     - tmux
     - nodejs
+    - bun
     - ruby
     - python
     - java
@@ -59,3 +60,8 @@
       tags: not-supported-on-arm64
     - role: obsidian
       tags: not-supported-on-arm64
+    - role: android_studio
+      tags: not-supported-on-arm64
+    - role: flutter
+      tags: not-supported-on-arm64
+    - cursor_ide

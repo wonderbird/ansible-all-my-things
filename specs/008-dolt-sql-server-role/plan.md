@@ -14,9 +14,10 @@ not initialise databases, restore, or back up data (those belong to
 role `roles/dolt_sql_server` wired into `configure-linux-roles.yml`, with a
 Molecule scenario covering the containerisable surface and a Vagrant/cloud-VM
 procedure for the systemd-on-boot behaviour that a plain container cannot
-exercise. The pinned `dolt_version` is registered with the existing
-version-update playbooks (`playbooks/update-versions/`) as a GitHub-release
-tool so the pin does not silently drift behind upstream security releases.
+exercise. The pinned `dolt_version` and its per-architecture SHA-256 pins are
+registered with the version-update mechanism (`playbooks/update-versions/`) as
+a GitHub-release tool so the pin does not silently drift behind upstream
+security releases.
 
 ## Technical Context
 
@@ -41,10 +42,10 @@ role provides (FR-004); install + service only — no DB init/restore/backup
 (FR-006)
 **Scale/Scope**: One server per VM, single OS user, single localhost port
 (3306). Not a remote/shared server.
-**Version maintenance**: `dolt_version` pinned in `defaults/main.yml` and
-tracked by `playbooks/update-versions/` — GitHub-release source
-(`dolthub/dolt`), reusing `tasks/fetch-github-release.yml`; version-only (no
-checksum), matching the gitmux / Nerd Fonts precedent in
+**Version maintenance**: `dolt_version`, `dolt_sha256_amd64` and
+`dolt_sha256_arm64` are pinned in `defaults/main.yml` and tracked by
+`playbooks/update-versions/` — GitHub-release source (`dolthub/dolt`) through
+the shared `tasks/fetch-github-release.yml`, digests computed by download. See
 `docs/architecture/version-update-playbooks.md`.
 
 ## Constitution Check
@@ -94,7 +95,7 @@ specs/008-dolt-sql-server-role/
 ```text
 roles/dolt_sql_server/
 ├── README.md                     # role usage + boundary
-├── defaults/main.yml             # dolt_version, port, host, data_dir, user, paths
+├── defaults/main.yml             # dolt_version and its SHA-256 pins, port, host, data_dir, user, paths
 ├── meta/main.yml                 # galaxy_info (namespace: wonderbird), platforms
 ├── handlers/main.yml             # restart dolt-sql-server (daemon_reload + restart)
 ├── tasks/main.yml                # install binary → config → unit → enable/start
@@ -109,11 +110,8 @@ roles/dolt_sql_server/
 
 configure-linux-roles.yml         # add `dolt_sql_server` to roles list
 
-playbooks/update-versions/
-└── perform-updates.yml           # add Dolt: fetch + replace dolt_version
-# tasks/fetch-github-release.yml reused as-is (github_repo: dolthub/dolt)
-
-docs/architecture/version-update-playbooks.md  # add Dolt row to tracked-tools table
+playbooks/update-versions/vars/tools.yml   # add a dolt_sql_server entry
+# tasks/fetch-github-release.yml reused as-is
 ```
 
 **Structure Decision**: Standard Ansible role layout produced by
@@ -122,10 +120,9 @@ added to the mandatory roles block in `configure-linux-roles.yml` (alongside
 `podman`, `claude_code`, `tmux`) so it runs during base VM provisioning
 (FR-001). `templates/` holds the two rendered artefacts (server config and
 systemd unit); `handlers/` performs `daemon_reload` + restart on config
-change without disrupting an unchanged service (FR-005). Separately, the two
-existing version-update playbooks gain a Dolt entry (detect + apply) and the
-version-update architecture doc gains a tracked-tools row; the GitHub-release
-fetch task file is reused unchanged.
+change without disrupting an unchanged service (FR-005). Separately, the
+version-update registry gains a Dolt entry; the GitHub-release fetch task file
+is reused unchanged.
 
 ## Complexity Tracking
 

@@ -22,8 +22,8 @@ Agent-specific runtime guidance lives in [AGENTS.md](AGENTS.md).
 ## CI/CD Pipeline Security
 
 Workflow changes (adding, updating, or removing GitHub Actions) must follow
-the two-tier pinning policy and allow-list requirements documented in
-[ADR-002](docs/architecture/decisions/002-github-actions-pinning-policy.md).
+the single-tier pinning policy and allow-list requirements documented in
+[ADR-007](docs/architecture/decisions/007-single-tier-action-pinning.md).
 
 The pinning policy is enforced by
 [`.github/workflows/pinning-lint.yml`](./.github/workflows/pinning-lint.yml)
@@ -55,8 +55,8 @@ on fork. After forking, re-enable it in your fork:
 
 The list above is the canonical source. When adding a new action, add its
 `owner/repo@*` entry here and to the allow-list in repository settings. For
-the two-tier pinning policy and rationale, see
-[ADR-002](docs/architecture/decisions/002-github-actions-pinning-policy.md).
+the pinning policy and rationale, see
+[ADR-007](docs/architecture/decisions/007-single-tier-action-pinning.md).
 
 ## Development Concepts
 
