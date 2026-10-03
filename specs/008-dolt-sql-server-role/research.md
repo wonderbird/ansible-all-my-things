@@ -173,20 +173,14 @@ needs no `not-supported-on-vagrant-arm64` tag.
 
 ## D8 — Version-pin maintenance (no silent drift)
 
-**Decision**: Register `dolt_version` with the existing version-update
-playbooks (`playbooks/update-versions/`). Dolt is a GitHub-release tool
-(`dolthub/dolt`), so reuse the parametrized `tasks/fetch-github-release.yml`
-with `github_repo: dolthub/dolt`. Version-only pin (no checksum), matching the
-gitmux / Nerd Fonts precedent. Concrete changes (implemented in the tasks
-phase, not this plan):
-
-- `vars/tools.yml`: one entry naming the role, `fetch-github-release.yml`
-  with `github_repo: dolthub/dolt`, the version it consumes, the digests it
-  needs and the pins it writes. Both the fetch and the pin write run from
-  that entry.
-- `docs/architecture/version-update-playbooks.md`: add a Dolt row to the
-  tracked-tools table (Role `dolt_sql_server`, version_key `dolt_version`,
-  checksum_key —, source GitHub Releases API `dolthub/dolt`).
+**Decision**: Register `dolt_version` and the per-architecture pins
+`dolt_sha256_amd64` and `dolt_sha256_arm64` with the version-update mechanism
+(`playbooks/update-versions/`). Dolt is a GitHub-release tool (`dolthub/dolt`),
+so its registry entry reuses the parametrized `tasks/fetch-github-release.yml`
+with `github_repo: dolthub/dolt` and requires both Linux tarballs as release
+assets; both digests are computed with `kind: download`. Concrete change: one
+entry in `vars/tools.yml` naming the role, the fetch file and its arguments,
+the version it consumes, the two digests and the three pins.
 
 **Pin format**: store the upstream tag verbatim, `dolt_version: "v2.0.8"`
 (the `tag_name` returned by the GitHub API, `v`-prefixed like
@@ -195,7 +189,8 @@ so the `v` is required for the install URL. `dolt --version` prints the
 number without the `v`, so Molecule's version assertion compares against
 `dolt_version | regex_replace('^v', '')`.
 
-**Rationale**: The version-update design (FR-001/FR-002) exists precisely so
+**Rationale**: The version-update design
+(`specs/007-version-update-playbooks/spec.md`) exists precisely so
 pins do not drift behind upstream security releases. A new pinned tool that is
 not registered would be invisible to the update run and silently rot —
 the exact failure the design prevents. Reusing `fetch-github-release.yml`
@@ -203,12 +198,6 @@ satisfies FR-006 (no duplicated fetch logic) and Principle XI (DRY).
 
 **Alternatives considered**:
 
-- Add a checksum (sha256) pin + verified `get_url` — rejected for now: no
-  GitHub-release tool in the repo carries a checksum_key, and the update
-  tooling has no GitHub-asset checksum fetch path. Adding one would extend the
-  shared fetch task for a single tool (YAGNI, Principle IV). Loopback-only
-  exposure and HTTPS download keep risk acceptable; revisit if a checksum
-  fetch path is added for the GitHub-release class generally.
 - Leave `dolt_version` untracked — rejected: reintroduces silent drift,
   contradicting the version-update design's reason for existing.
 

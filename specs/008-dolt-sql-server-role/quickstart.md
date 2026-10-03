@@ -91,18 +91,13 @@ Add `dolt_sql_server` to the mandatory `roles:` block of
 
 ## Keep the version pin current
 
-`dolt_version` is tracked by the version-update playbooks (GitHub-release
-source `dolthub/dolt`). Detect drift and apply updates:
+`dolt_version` and its two SHA-256 pins are tracked by the version-update
+mechanism (GitHub-release source `dolthub/dolt`):
 
 ```bash
-# Report stale pins (exits non-zero if any tool, incl. Dolt, is stale)
-ansible-playbook playbooks/update-versions/perform-updates.yml
-
-# Rewrite pins in role defaults (no commit created)
 ansible-playbook playbooks/update-versions/perform-updates.yml
 git diff roles/dolt_sql_server/defaults/main.yml   # review, then commit
 ```
 
-Wiring this in requires adding a Dolt entry to both playbooks and a row to
-`docs/architecture/version-update-playbooks.md`; the GitHub-release fetch task
-is reused unchanged.
+Wiring is one entry in `playbooks/update-versions/vars/tools.yml`; the
+GitHub-release fetch task is reused unchanged.

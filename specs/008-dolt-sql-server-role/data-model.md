@@ -8,7 +8,9 @@ manages. Spec Key Entities map to the managed artefacts below.
 
 | Variable | Type | Default | Validation | Purpose |
 | --- | --- | --- | --- | --- |
-| `dolt_version` | string | `v2.0.8` | non-empty; `v`-prefixed upstream tag | Pinned Dolt release to install (D2). `v`-prefixed (GitHub `tag_name`) — embeds in download URL; version assert strips `^v`. Tracked by `playbooks/update-versions/` (D8). |
+| `dolt_version` | string | *(see defaults)* | non-empty; `v`-prefixed upstream tag | Pinned Dolt release to install (D2). `v`-prefixed (GitHub `tag_name`) — embeds in download URL; version assert strips `^v`. Tracked by `playbooks/update-versions/` (D8). |
+| `dolt_sha256_amd64` | string | *(see defaults)* | 64 hex characters | SHA-256 of the amd64 release tarball for `dolt_version`; verified by `get_url`. Tracked by `playbooks/update-versions/` (D8). |
+| `dolt_sha256_arm64` | string | *(see defaults)* | 64 hex characters | SHA-256 of the arm64 release tarball for `dolt_version`; verified by `get_url`. Tracked by `playbooks/update-versions/` (D8). |
 | `dolt_install_path` | path | `/usr/local/bin/dolt` | absolute path | Installed binary location. |
 | `dolt_listen_host` | string | `127.0.0.1` | MUST be a loopback address | Listener bind address (FR-007). Asserted loopback. |
 | `dolt_listen_port` | int | `3306` | 1–65535 | Listener port; default matches `bd init --server`. |
