@@ -6,8 +6,8 @@ behind upstream. Mechanism overview and the rules that govern it:
 `docs/architecture/version-update-playbooks.md`.
 
 Registering a tool is one registry entry, plus a fetch task file when no
-existing one already queries that kind of source. Neither playbook is edited
-per tool: both loop over the registry.
+existing one already queries that kind of source. No playbook is edited per
+tool: the mechanism loops over the registry.
 
 ## Touchpoint 1 — the registry entry
 
@@ -23,7 +23,7 @@ Add the tool to `playbooks/update-versions/vars/tools.yml`:
         required_asset_regexes: ['^tool-linux-amd64\.tar\.gz$']
       results:                       # every output this tool consumes, named
         version: "{{ fetched_github_tag }}"
-    current_pin: <tool>_version      # the pin drift is measured against
+    current_pin: <tool>_version      # the pin carrying the version, not a digest
     checksums:                       # omit when the role pins no digest
       - key: amd64
         kind: checksum_file          # checksum_file | download
@@ -66,7 +66,7 @@ source type.
 | GitHub tagged release | `fetch-github-release.yml` | `github_repo`, plus `required_asset_regexes` or `release_carries_no_consumed_asset` → `fetched_github_tag` |
 | Digest from a published checksums file | `fetch-checksum-from-file.yml` | wired by `kind: checksum_file`, not called directly |
 | GitHub branch HEAD commit (no releases) | `fetch-github-commit-sha.yml` | `github_repo`, `git_ref` → `fetched_github_sha` |
-| Structured JSON / SDKMAN / HTML | `fetch-flutter-version.yml` / `fetch-java-version.yml` / `fetch-android-version.yml` | see each file |
+| Any other source | the `fetch-*.yml` files in `playbooks/update-versions/tasks/`, one per kind | see each file |
 
 A new fetch task must fail loud (Principle XII): explicit failures on API
 rate-limit, unexpected status and missing field. Mirror
@@ -86,10 +86,10 @@ nothing: a bad argument is this repository's fault, and anything unclassified
 is treated as ours and stops the run. `uri` and `get_url` tasks need no
 declaration; a network module failing is recognised as third-party already.
 
-## Touchpoint 3 — documentation
+## Touchpoint 3 — documentation, only for a new kind of source or a new rule
 
-Update `docs/architecture/version-update-playbooks.md` where it lists source
-types and tracked tools.
+`docs/architecture/version-update-playbooks.md` describes kinds of source and
+the rules that bind them; it does not list tools or fetch files.
 
 ## Checking the wiring
 
