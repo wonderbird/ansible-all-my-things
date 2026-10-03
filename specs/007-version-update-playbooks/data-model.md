@@ -35,7 +35,8 @@ registry rather than carrying per-tool tasks.
 
 ### Version Pin
 
-A key-value entry in a role `defaults/main.yml` file that specifies the exact version of a tool to install.
+A key-value entry in a role `defaults/main.yml` file that specifies the exact
+version of a tool to install.
 
 | Field | Description |
 |-------|-------------|
@@ -57,13 +58,15 @@ A hash value paired with a Version Pin, used to verify download integrity.
 | `current_value` | Hash currently in the defaults file |
 | `latest_value` | Hash fetched from upstream at update time |
 
-**Invariant**: Checksum and its paired Version Pin MUST always be updated together.
+**Invariant**: Checksum and its paired Version Pin MUST always be updated
+together.
 
 ---
 
 ### Upstream Source
 
-The authoritative external location from which the latest version of a tool is fetched.
+The authoritative external location from which the latest version of a tool is
+fetched.
 
 | Field | Description |
 |-------|-------------|
@@ -89,7 +92,7 @@ The authoritative external location from which the latest version of a tool is f
 
 ### perform-updates.yml
 
-```
+```text
 defaults file (current_value)
     ↓ fetch upstream
 Upstream Source → latest_value + latest_checksum
