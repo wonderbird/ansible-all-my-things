@@ -28,7 +28,7 @@ editor or desktop setting to use the font.
 | `nerd_font_version` | *(see defaults)* | Pinned nerd-fonts release tag (`v`-prefixed). One universal `Hack.zip` serves every architecture. |
 
 `defaults/main.yml` carries the pinned version, and the version-update
-playbooks refresh it — see
+mechanism refreshes it — see
 [version-update-playbooks.md](../../docs/architecture/version-update-playbooks.md).
 
 ## Dependencies

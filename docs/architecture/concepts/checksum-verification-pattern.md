@@ -2,11 +2,10 @@
 
 # Checksum-verification pattern for web-hosted installer scripts
 
-Several roles in this repo install a binary tool distributed as a
-GitHub release (or an equivalent versioned upstream) rather than a
-distro package: `claude_code` (the Claude Code binary), `rtk`,
-`beads_go` (`bd`), `beads_viewer` (`bv`), and `nodejs`. This document is
-the authoritative source of
+Several roles install a binary tool distributed as a GitHub release or
+an equivalent versioned upstream rather than a distro package;
+`playbooks/update-versions/vars/tools.yml` records which. This document
+is the authoritative source of
 truth for the shared verification pattern they follow, so a future tool
 doesn't have to rediscover it from scratch.
 
@@ -47,36 +46,31 @@ This pattern spans two phases, run by two different playbooks:
 
 ## Checksum-source shapes seen in this repo
 
-Different upstreams publish release checksums differently, which
-affects how `perform-updates.yml` resolves the pinned literal (see
-`ansible-all-my-things-9hzb.6` for an open question on whether
-`perform-updates.yml` should fetch+parse a published checksums file
-instead of downloading the full archive to self-compute the hash):
+Upstreams publish release checksums in different shapes, which decides
+how the version-update mechanism resolves the pinned literal.
 
-| Shape | Example | How `perform-updates.yml` resolves it |
-| --- | --- | --- |
-| Aggregate `checksums.txt` (sha256sum format, `<hash>  <filename>`) | `rtk-ai/rtk`, `gastownhall/beads`, `Dicklesworthstone/beads_viewer` | Downloads the release archive and self-computes its sha256 via `ansible.builtin.stat`, rather than fetching and parsing the published `checksums.txt` (open question tracked in `ansible-all-my-things-9hzb.6`). |
-| `SHASUMS256.txt` | `nodejs.org` | Same self-compute-via-`stat` approach as above. |
-| Release manifest JSON (`artifacts[].name`/`.sha256` or `.platforms[].checksum`) | `claude_code`'s own `manifest.json` | Fetched via `uri`, the matching platform's hash extracted with a Jinja expression, asserted present (Constitution Principle XII), and written as a literal into `defaults/main.yml`. |
+| Shape | How it is resolved |
+| --- | --- |
+| Published checksums file, aggregate or per-archive | read via `kind: checksum_file` |
+| No published digest | `kind: download`: the artefact is downloaded and hashed with `ansible.builtin.stat` |
+| Release manifest JSON | the tool's own fetch task extracts the digest and asserts it is present (Principle XII) |
 
-For the manifest-JSON shape, the Jinja expression
-`playbooks/update-versions/tasks/fetch-claude-code-version.yml` uses to
-extract the matching platform's hash is:
+Which tool uses which shape is recorded in
+`playbooks/update-versions/vars/tools.yml`.
 
-```jinja
-{{ _claude_code_manifest.json.platforms['linux-x64'].checksum }}
-```
+For the manifest-JSON shape, see
+`playbooks/update-versions/tasks/fetch-claude-code-version.yml` for the
+expression that selects the platform's digest.
 
 Regardless of which shape resolved it, every role consumes the result
-identically at converge time: a literal `checksum: "sha256:{{
-pinned_var }}"` passed to `get_url`. No role passes a live
+identically at converge time: the pinned digest, with its algorithm
+prefix, as a literal `checksum:` passed to `get_url`. No role passes a live
 checksums-file URL to `get_url`'s own URL-lookup form.
 
 ## Idempotency semantics: static pin is the rule, not a live-resolve freeze
 
 **The static-pin model is the rule for every tool following this
-pattern** (`rtk`, `beads_go` `bd`, `beads_viewer` `bv`, `nodejs`,
-`claude_code`): the version *and* its checksum are both explicit literals
+pattern**: the version *and* its checksum are both explicit literals
 in the role's
 `defaults/main.yml`, refreshed only by
 `playbooks/update-versions/perform-updates.yml` (Constitution
