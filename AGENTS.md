@@ -209,14 +209,13 @@ any later negation from any ignore file (including a clone-local
 live in the tracked `.gitignore`. This makes the file survive across clones
 even without a Dolt remote sync.
 
-`.beads/config.yaml` sets `export: auto: false` — auto-export is off.
-bd's auto-export hardcodes memories, infra, templates, and gates out of
-every write (`includeMemories=false`, unconditionally — GH#3650: memories
-may hold private agent context that must not land in git history via the
-automatic path), and there is no config key to change that scope
-(`export.auto`, `export.path`, `export.interval`, `export.git-add` are the
-only auto-export keys). Since we want memories captured too, auto-export is
-disabled entirely in favor of a manual, full export:
+`.beads/config.yaml` keeps beads out of git's way: `no-git-ops: true`, so bd
+runs no git operation of its own, and no auto-export is configured. bd's
+auto-export hardcodes memories, infra, templates, and gates out of every
+write (`includeMemories=false`, unconditionally — GH#3650: memories may hold
+private agent context that must not land in git history via the automatic
+path), and no config key widens that scope. Since memories must be captured
+too, the export is manual and full:
 
 ```bash
 bd export --all -o .beads/issues.jsonl   # run after EACH bd mutation
@@ -241,6 +240,18 @@ bd's Dolt-backed sync (`refs/dolt/data`) remains available as a secondary
 mechanism, but the tracked, `--all`-exported JSONL is the primary durability
 path here: issues and memories are both recoverable from a plain git clone
 without ever needing `bd dolt pull`.
+
+### bd's git hooks stay uninstalled
+
+bd offers git hooks that would drive this synchronisation automatically. They
+are deliberately not installed, so `bd info` reports its git hooks as missing
+and advises `bd hooks install`. That warning is expected here and is not a
+task.
+
+Installing them restores the automatic export path, whose scope is the defect
+the manual `--all` export exists to avoid, and adds a `prepare-commit-msg`
+hook that writes trailers of its own into every commit message — the `commit`
+skill is this repository's only authority on commit format.
 
 ### Never run `bd list --all`
 
