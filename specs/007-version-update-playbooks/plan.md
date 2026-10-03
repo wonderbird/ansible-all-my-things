@@ -65,14 +65,14 @@ playbooks/update-versions/
 ├── perform-updates.yml          # Apply updates to role defaults files; no commits
 ├── vars/
 │   └── tools.yml                     # The tracked-tool registry the playbook reads
-├── tasks/                       # shared task files; one fetch-*.yml per kind of upstream source
+├── tasks/                       # shared task files, including the fetch-*.yml files under tasks/
 └── tests/                       # localhost harnesses for the shared task files
 
 docs/architecture/
 └── version-update-playbooks.md  # Concept documentation (section structure per agreed template)
 ```
 
-The role of each shared task file is described in
+The shared task files are described in
 [`docs/architecture/version-update-playbooks.md`](../../docs/architecture/version-update-playbooks.md),
 section Chosen Solution.
 

@@ -496,9 +496,8 @@ be read and ignored.
 - **GitHub Actions integration**: Run `perform-updates.yml` on a
   schedule (e.g., weekly) and open a pull request automatically with the
   pins it moved. This is the primary planned next step, and it would need
-  an authenticated GitHub token: every tool fetched through the GitHub API
-  costs at least one request per run, and the registry decides how many
-  such tools there are, against the sixty an hour an unauthenticated
+  an authenticated GitHub token: each tool fetched through the GitHub API
+  spends at least one of the sixty requests an hour an unauthenticated
   caller is allowed.
 - **Per-role targeting**: Add optional role-filtering to update only
   a subset of tools in a single run.

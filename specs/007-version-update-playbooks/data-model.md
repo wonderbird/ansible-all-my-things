@@ -50,7 +50,7 @@ fetched.
 
 | Field | Description |
 |-------|-------------|
-| `type` | The kind of upstream source; each kind has one `fetch-*.yml` under `playbooks/update-versions/tasks/` |
+| `type` | The kind of upstream source, queried by the `fetch-*.yml` files under `playbooks/update-versions/tasks/` |
 | `url` | Endpoint or page URL |
 | `version_field` | Path to version value in response |
 | `checksum_field` | Path to checksum value in response (null if not provided by source) |

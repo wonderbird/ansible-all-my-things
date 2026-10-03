@@ -45,7 +45,7 @@ role defaults files. The playbook fetches the latest version and paired checksum
 for each tool and writes both values into the correct defaults file. The
 maintainer then reviews the changes and commits manually.
 
-**Why this priority**: Closing the loop from detection to remediation.
+**Why this priority**: Applying updates is what keeps the pins current.
 Eliminates error-prone manual lookup of version strings and checksums across
 multiple upstream sources.
 

@@ -66,7 +66,7 @@ source type.
 | GitHub tagged release | `fetch-github-release.yml` | `github_repo`, plus `required_asset_regexes` or `release_carries_no_consumed_asset` → `fetched_github_tag` |
 | Digest from a published checksums file | `fetch-checksum-from-file.yml` | wired by `kind: checksum_file`, not called directly |
 | GitHub branch HEAD commit (no releases) | `fetch-github-commit-sha.yml` | `github_repo`, `git_ref` → `fetched_github_sha` |
-| Any other source | the `fetch-*.yml` files in `playbooks/update-versions/tasks/`, one per kind | see each file |
+| Any other source | the `fetch-*.yml` files under `playbooks/update-versions/tasks/` | see each file |
 
 A new fetch task must fail loud (Principle XII): explicit failures on API
 rate-limit, unexpected status and missing field. Mirror
