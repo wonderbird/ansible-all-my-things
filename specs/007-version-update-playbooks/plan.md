@@ -65,7 +65,7 @@ playbooks/update-versions/
 ├── perform-updates.yml          # Apply updates to role defaults files; no commits
 ├── vars/
 │   └── tools.yml                     # The tracked-tool registry the playbook reads
-├── tasks/                       # shared task files, including the fetch-*.yml files under tasks/
+├── tasks/                       # shared task files, including the fetch-*.yml files
 └── tests/                       # localhost harnesses for the shared task files
 
 docs/architecture/
