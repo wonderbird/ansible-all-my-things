@@ -57,7 +57,8 @@ complete.
 **Goal**: Dolt binary installed, loopback-only config rendered,
 systemd unit deployed and enabled; server starts on every boot;
 idempotent re-provisioning does not disrupt running service;
-version pin registered with update-version playbooks.
+version pin and its SHA-256 pins registered with the version-update
+mechanism.
 
 **Independent Test**: `cd roles/dolt_sql_server && molecule test`
 — all assertions in verify.yml pass; idempotence step reports
@@ -235,7 +236,7 @@ Task T005 — Create templates/dolt-sql-server.service.j2
 3. Complete Phase 3: Full role + Molecule + provisioning wire-up +
    version tracking
 4. **STOP and VALIDATE**: `molecule test` passes; idempotence clean;
-   version playbooks detect/apply Dolt updates
+   the version-update run lists `dolt_sql_server`
 5. US1 is independently deployable — server runs on provisioned VMs
 
 ### Incremental Delivery
