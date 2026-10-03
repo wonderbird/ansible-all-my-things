@@ -401,6 +401,20 @@ when no issue is marked `in_progress`.
 - **Avoid ambiguity**: if instructions are unclear, contradictory, or
   conflict with rules or earlier instructions, describe the situation and
   ask clarifying questions before proceeding.
+- **Issue IDs carry their goal**: never mention a beads issue ID without its
+  goal. If the surrounding text does not already make the goal clear, add it
+  in a few words in parentheses right after the ID, e.g.
+  `<id> (retry on rate-limited download)`. This
+  applies to chat, summaries, status reports, and every list of issues. A bare
+  ID forces the reader to look it up before they can follow the text.
+- **Label evidence in reports**: in a status report, review, or handoff, mark
+  every factual claim about code, tool behaviour, or system state as VERIFIED
+  (you ran it and read the output) or INFERRED (reasoned, predicted, or
+  reported by another agent). Never present another agent's assurance as
+  evidence. Re-verify a claim on the exact branch or state where it will be
+  used. An unlabelled claim makes the reader trust a guess as much as a test
+  result; for when a guard's result counts as evidence at all, see Principle
+  XV.
 - **Hidden files**: the LS tool does not show hidden files; use
   `ls -la <path>` via Bash to check for hidden files or directories.
 
