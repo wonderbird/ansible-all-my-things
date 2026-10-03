@@ -19,8 +19,8 @@ for all desktop users.
 | `android_cmdlinetools_sha1` | *(see defaults)* | SHA-1 checksum of the cmdline-tools ZIP. |
 
 `defaults/main.yml` carries both pins together with the upstream page they
-are read from. Both must move together, and the version-update playbooks
-refresh them from that page — see
+are read from. Both must move together, and the version-update mechanism
+refreshes them from that page — see
 [version-update-playbooks.md](../../docs/architecture/version-update-playbooks.md).
 
 Note: Google publishes SHA-1 (not SHA-256) for cmdline-tools downloads.

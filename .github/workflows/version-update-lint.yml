@@ -2,7 +2,7 @@
 ---
 name: Version Update Lint
 
-# Guard the version-update playbooks. Why each rule exists is documented in
+# Guard the version-update mechanism. Why each rule exists is documented in
 # docs/architecture/version-update-playbooks.md.
 #
 # Jobs:
@@ -12,10 +12,8 @@ name: Version Update Lint
 #   check-fetch-call-identity.py, because a fetch file that stamps fetched_for
 #   outside the task writing its output lets a skipped output keep the previous
 #   tool's value while the caller's assert still passes.
-# - update-versions-harness installs ansible-core and runs the localhost test
-#   harnesses for the registry, the failure classifier, write-pins and the
-#   failure-source declarations of the task files, and syntax-checks the
-#   playbook itself. It
+# - update-versions-harness installs ansible-core and runs each localhost test
+#   harness named in the matrix below, and syntax-checks the playbook itself. It
 #   selects playbooks/update-versions/tests/ansible.cfg instead of the
 #   repository root ansible.cfg, whose vault password script exits non-zero
 #   without a vault secret, and fork pull requests receive no secrets.

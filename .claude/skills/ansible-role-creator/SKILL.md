@@ -145,17 +145,15 @@ Rules that bite:
 ## Step 4 — Version-update wiring (mandatory when a version/SHA is pinned)
 
 A pinned tool with no wiring silently escapes drift tracking (Principle II).
-Both playbooks loop over one registry, so registering a tool is an entry rather
-than an edit per playbook — details, the entry shape, the validation rules and
-the fetch-task reuse matrix in
+The version-update mechanism loops over one registry, so registering a tool is
+an entry; no playbook is edited per tool — details, the entry shape, the
+validation rules and the fetch-task reuse matrix in
 [reference/version-update-wiring.md](reference/version-update-wiring.md):
 
 1. An entry in `playbooks/update-versions/vars/tools.yml`: the role, the
    upstream source, the outputs the tool consumes, its digests and its pins.
 2. A fetch task under `playbooks/update-versions/tasks/` — only when no existing
    one already queries that kind of source; **reuse** where possible.
-3. `docs/architecture/version-update-playbooks.md` — source-type list and
-   Tracked-tools table.
 
 ## Step 5 — Molecule scenario
 
@@ -225,7 +223,9 @@ cd roles/<role_name>
       task, byte-identical to the other consuming roles, and no role default
       for `login_user_names` exists.
 - [ ] `meta` dependencies correct (hard dep → three places).
-- [ ] Version-update wired in all four touchpoints (if pinned).
+- [ ] Version-update wired per
+      [reference/version-update-wiring.md](reference/version-update-wiring.md)
+      (if pinned).
 - [ ] Molecule full lifecycle passes (`converge`, `idempotence` changed=0,
       `verify`).
 - [ ] Registered in the correct profile play, ordered after deps.

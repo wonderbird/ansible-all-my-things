@@ -35,7 +35,7 @@ configuration, and it does not start, attach or reload any tmux server.
 | `tmux_plugin_cpu_repo` | *(see defaults)* | Git URL of the tmux-cpu plugin. |
 
 `defaults/main.yml` carries the pinned gitmux version, and the version-update
-playbooks refresh it — see
+mechanism refreshes it — see
 [version-update-playbooks.md](../../docs/architecture/version-update-playbooks.md).
 The plugin repositories are cloned at `HEAD` and are not version-pinned.
 
