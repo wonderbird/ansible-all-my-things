@@ -1,28 +1,33 @@
 <!--
-Sync Impact Report — 2.1.0 → 2.1.1 (PATCH)
-- Development Workflow now names the repository-owned
-  `ansible-changelog-entry` skill instead of the generic `changelog-entry`
-  name. This aligns the existing mandate with the repository skill namespace;
-  the required workflow and changelog policy are unchanged.
-- PATCH: this amendment corrects a skill reference without adding, removing,
-  or materially expanding any principle or section.
+Sync Impact Report — 2.1.1 → 2.2.0 (MINOR)
+- Added Principle XV (Guards Proven by Failure): a test, CI check, linter,
+  detector, or assertion harness counts as proven only once it has been seen
+  failing on a known-bad input; a new or changed guard is proven in both
+  directions before merge, and an existing guard with no such record is
+  reported as unproven.
+- MINOR: this amendment adds a new principle.
 - Modified principles: none.
-- Added sections: none.
+- Added sections: XV. Guards Proven by Failure.
 - Removed sections: none.
 - Templates checked for propagation:
-  ✅ .specify/templates/plan-template.md — no changes required
-  ✅ .specify/templates/tasks-template.md — no changes required
+  ✅ .specify/templates/plan-template.md — no changes required; its
+     Constitution Check derives gates from this file
+  ✅ .specify/templates/tasks-template.md — no changes required; its
+     "write tests first and see them fail" guidance is consistent with XV
   ✅ .specify/templates/spec-template.md — no changes required
   ✅ .specify/templates/checklist-template.md — no changes required
   ✅ .specify/templates/constitution-template.md — no changes required
   ✅ .specify/templates/agent-file-template.md — no changes required
-  No template names the changelog skill.
-- AGENTS.md updated: the mandatory-invocation table now names
-  `ansible-changelog-entry`.
-- CLAUDE.md checked: no propagation required; it names no skill and points at
-  this file.
-- .claude/skills/ansible-changelog-entry/SKILL.md restored as the authoritative
-  repository-owned skill and aligned with the project skill namespace.
+  No template enumerates the principles.
+- AGENTS.md updated: Collaboration with the User gains a bullet on labelling
+  report claims as VERIFIED or INFERRED, which points to XV.
+- CLAUDE.md checked: no propagation required; it names no principle and
+  points at this file.
+- Skills checked: .claude/skills/ansible-developer/SKILL.md now points to XV
+  from its duplicate-key gotcha. ansible-molecule-testing,
+  ansible-review-documentation, and ansible-changelog-entry cite individual
+  principles only and need no change. commit, format-markdown, and
+  fix-problem are not stored in this repository and were not checked.
 - Follow-up TODOs: none.
 -->
 # ansible-all-my-things Constitution
@@ -361,6 +366,29 @@ automation runs — which may push secrets — to undetected man-in-the-middle
 attacks. Matching verification to exposure protects the untrusted path without
 adding host-key churn on local targets where the threat is negligible.
 
+### XV. Guards Proven by Failure
+
+A guard is anything whose result is taken as evidence that something is
+correct: a test, a CI check, a linter, a detector, an assertion harness. A
+guard counts as proven once it has been seen failing on a known-bad input,
+either by the agent relying on it or in a recorded run (commit, pull request,
+CI log). This includes a detector: zero findings count only after it has
+caught a planted instance of what it looks for.
+
+- A new or changed guard MUST be proven in both directions before it is
+  merged: break its input and see the guard fail; restore the input and see
+  it pass.
+- An existing guard with no such record MUST be reported as unproven, not as
+  passing.
+
+**Rationale**: A guard that cannot fail looks exactly like a guard that finds
+nothing wrong, so a green result alone does not show that the guard checks
+anything. For example, a linter that writes SARIF output can exit 0 even when
+it reports errors; a CI job built on it never goes red, whatever the code
+contains (the guard's own Fail Loud, Principle XII). Seeing the guard fail
+once on a known-bad input is the cheapest proof that its green result means
+something.
+
 ## Technology Stack
 
 - **Automation**: Ansible (playbooks, roles, inventory)
@@ -573,4 +601,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 2.1.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-10-02
+**Version**: 2.2.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-10-03
