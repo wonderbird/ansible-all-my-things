@@ -12,9 +12,10 @@ Roles in this repository install tools by downloading a specific versioned
 artefact from upstream. Each such role pins that choice in its
 `defaults/main.yml` as literal values: a version string, and — for most
 tools — one SHA-256 checksum per supported CPU architecture. A role never
-resolves its own version at converge time; it reads the pin and verifies
-the download against the pinned digest before placing the artefact. The
-consumption side of that contract is described in the
+resolves its own version at converge time; where it pins a digest, it
+verifies the download against that digest before placing the artefact. The
+consumption side of that contract, and the role that verifies against a live
+checksums file instead, are described in the
 [checksum-verification pattern][pattern].
 
 Keeping those pins current is the job of a separate mechanism,
@@ -37,10 +38,11 @@ The tracked tools do not share one upstream shape. The registry is the
 authoritative enumeration; it covers nineteen tools resolved through eight
 distinct upstream kinds: GitHub releases, a GitHub commit SHA, a vendor
 release manifest in JSON, a language-SDK REST API restricted to same-major
-patches, a distribution index, a vendor desktop-release feed, an
-object-storage release manifest, and an HTML page scraped with a regular
-expression, although the vendor also serves a machine-readable XML repository
-manifest that the mechanism does not read.
+patches, a distribution index, a vendor desktop-release feed, a GitHub
+release paired with a per-version digest manifest in object storage, and an
+HTML page scraped with a regular expression, although the vendor also
+serves a machine-readable XML repository manifest that the mechanism does
+not read.
 
 Checksums add a second axis. Some upstreams publish the digest in the same
 manifest as the version. Others publish an aggregate checksums file per
@@ -256,12 +258,12 @@ discriminate — each one separates at least two surviving options.
   hyperlinks and would retire the Android HTML scraping recorded as an open
   point in `version-update-playbooks.md`; `format: json` with JSONata
   `transformTemplates`, which covers the vendor manifest, distribution
-  index, desktop-feed and object-storage shapes (the SDK API answers in
-  comma-separated plain text, not JSON); and a release object may carry a
+  index and desktop-feed shapes (the SDK API answers in comma-separated
+  plain text, not JSON); and a release object may carry a
   `digest` field beside its `version`.
-- Good, because for the two tools whose upstream publishes the checksum in
-  the same manifest as the version, that `digest` support makes the
-  checksum update fully declarative — no script at all.
+- Good, because for a tool whose upstream publishes the checksum in the
+  same manifest as the version, that `digest` support makes the checksum
+  update fully declarative — no script at all.
 - Bad, and central: it does not satisfy driver 1. Renovate's maturity
   covers the plumbing, which is not where this repository breaks. Under
   this option the resolve layer remains bespoke local configuration —
@@ -320,7 +322,7 @@ compute checksums, does not write files and does not open pull requests.
   upstream kind tracked here maps onto a stock source plugin: `github`
   with `use_latest_release`; `git` with `use_commit` for the commit-SHA
   pin; `jq` against a JSON endpoint for the vendor manifest, distribution
-  index, desktop feed and object-storage manifest; `regex` against the SDK
+  index and desktop feed; `regex` against the SDK
   API's comma-separated plain-text list; and `android_sdk`, which reads
   Google's own `repository2-1.xml` package index and therefore **retires
   the Android HTML scraping** rather than containing it. TD-009, the
@@ -449,8 +451,8 @@ The resulting shape:
   `playbooks/update-versions/vars/tools.yml`, plus a fetch task file when
   no existing one serves the upstream. Under this
   decision, registering a tool is one nvchecker stanza and one registry
-  entry for the pin writer. The requirement that an unregistered tool
-  silently escapes version tracking is unchanged; only the mechanism it
+  entry for the pin writer. The registration rule, and the escape from
+  version tracking it guards against, are unchanged; only the mechanism it
   names moves.
 - `version-update-playbooks.md` is replaced. The checksum-verification
   pattern stands unchanged: the consumption contract it describes is
@@ -458,7 +460,8 @@ The resulting shape:
   resolver need retargeting.
 - The Android HTML-scraping open point is closed rather than carried.
   TD-009, the SHA-1-only digest, stays open.
-- `requirements.txt` gains nvchecker; CI gains a scheduled workflow whose
+- `requirements.txt` gains nvchecker with its `jq` extra
+  (`nvchecker[jq]`); CI gains a scheduled workflow whose
   actions, including a create-pull-request action, are SHA-pinned under
   ADR-007 and need allow-list entries in `CONTRIBUTING.md`.
 - The failure-classification model — whether a failure is `upstream` or
