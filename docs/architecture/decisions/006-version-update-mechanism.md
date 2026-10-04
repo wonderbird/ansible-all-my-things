@@ -137,8 +137,8 @@ discriminate — each one separates at least two surviving options.
    constraint sets the bar; this driver ranks how it is held. A mechanism
    in which a version cannot be written without its digests — because one
    function produces both and writes them in one transaction — is better
-   than one in which a separate checker forbids the ordering that would
-   break the pairing. A guarantee that depends on a rule being enforced
+   than one in which a separate checker forbids a violation of the
+   pairing. A guarantee that depends on a rule being enforced
    can be lost by removing the enforcement; one that depends on a shape
    cannot.
 4. **Fit with the existing Ansible and CI architecture.** The control node
