@@ -420,10 +420,10 @@ without its digests. Those rules were earned by real incidents and should
 not be delegated.
 
 Option C is the honest fallback. If the new dependency proves unwelcome,
-C delivers drivers 2 and 3 in full and only forfeits driver 1 — and
-because H's pin writer is C's pin writer (C as defined here, in Python;
-today's Ansible pin writer is not that writer), choosing H first costs
-nothing if the resolve layer is later brought back in-house.
+C delivers drivers 2 and 3 as far as a Python form can, and only forfeits
+driver 1 — and because H's pin writer is C's pin writer (C as defined here,
+in Python; today's Ansible pin writer is not that writer), choosing H first
+costs nothing if the resolve layer is later brought back in-house.
 
 The resulting shape:
 
