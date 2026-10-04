@@ -3,7 +3,7 @@
 # ADR-006: Version Update Mechanism for Role Version Pins
 
 Date: 2026-10-04
-Status: Proposed
+Status: Accepted
 Deciders: Stefan (Product Owner)
 
 ## Context and Problem Statement
