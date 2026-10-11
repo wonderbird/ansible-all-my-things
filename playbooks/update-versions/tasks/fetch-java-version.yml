@@ -14,9 +14,9 @@
     return_content: true
   register: _sdkman_response
 
-- name: Filter and sort Java {{ java_sdkman_major }}.x.x-tem versions
+- name: Filter and sort Java {{ java_sdkman_major }}.x.x[.x+x]-tem versions
   vars:
-    _java_regex: "^{{ java_sdkman_major }}\\.\\d+\\.\\d+-tem$"
+    _java_regex: "^{{ java_sdkman_major }}\\.\\d+\\.\\d+(\\.\\d+\\+\\d+)?-tem$"
   ansible.builtin.set_fact:
     _java_filtered: >-
       {{ _sdkman_response.content.split(',')
@@ -24,7 +24,7 @@
          | select('match', _java_regex)
          | list }}
 
-- name: Fail if no Java {{ java_sdkman_major }}.x.x-tem version found via SDKMAN
+- name: Fail if no Java {{ java_sdkman_major }}.x.x[.x+x]-tem version found via SDKMAN
 
   vars:
 
@@ -32,10 +32,10 @@
   ansible.builtin.fail:
     msg: >-
       SDKMAN API (https://api.sdkman.io/2/candidates/java/linuxx64/versions/all)
-      returned no Java {{ java_sdkman_major }}.x.x-tem versions
+      returned no Java {{ java_sdkman_major }}.x.x[.x+x]-tem versions
   when: _java_filtered | length == 0
 
-- name: Set Java identifier fact to latest {{ java_sdkman_major }}.x.x-tem version
+- name: Set Java identifier fact to latest {{ java_sdkman_major }}.x.x[.x+x]-tem version
   ansible.builtin.set_fact:
     fetched_java_identifier: "{{ _java_filtered | community.general.version_sort | last }}"
     fetched_for: "{{ fetch_call_id }}"
