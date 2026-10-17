@@ -14,10 +14,10 @@ You are the **conductor**. You drive a *second* Claude Code session running in a
 
 ## Step 0 — Primitives
 
-**The pane id must be hardcoded into every block.** Your Bash tool calls do *not* share shell state — an env var set in one call is empty in the next. So you cannot rely on `$PANE` persisting. Step 1 prints the pane id once (a stable token like `%3`); from then on **substitute that literal id** wherever a block shows `PANE=%3` or `-t "$PANE"`. Do not guess `session:win.pane`; use the `%N` id. Also derive a per-pane scratch filename by stripping the leading `%` (e.g. pane `%3` → `/tmp/omc-presnap-3.txt`) and substitute that literally too — shell state doesn't persist between calls, so this file (not a variable) is how a "before" snapshot survives from one Bash call to the next.
+**The pane id must be hardcoded into every block.** Your Bash tool calls do *not* share shell state — an env var set in one call is empty in the next. So you cannot rely on `$PANE` persisting. Step 1 prints the pane id once (a stable token like `%3`); from then on **substitute that literal id** wherever a block shows `PANE=%3` or `-t "$PANE"`. Do not guess `session:win.pane`; use the `%N` id. Step 1 records the run start in a per-pane file named by stripping the leading `%` (pane `%3` → `/tmp/omc-runstart-3.txt`); substitute that filename literally too. Shell state doesn't persist between calls, so files (not variables) carry state from one Bash call to the next. The helper scripts below derive their own per-pane filenames from the id.
 
 **State signals (wording-independent):**
-- **Busy** (a turn is running): footer line contains `esc to interrupt` **or** a spinner status line matching `· ↓ .*tokens` (e.g. `✶ Levitating… (1m 21s · ↓ 5.2k tokens · thinking)`). **Claude Code v2.1.207 never displayed `esc to interrupt` at all during a full observed run** — the spinner line was the only busy chrome. Treat the two as alternates; require neither one specifically.
+- **Busy** (a turn is running): footer line contains `esc to interrupt` **or** a spinner status line matching `· ↓ .*tokens` (e.g. `✶ Levitating… (1m 21s · ↓ 5.2k tokens · thinking)`). **Claude Code v2.1.207 never displayed `esc to interrupt` at all during a full observed run** — the spinner line was the only busy chrome. Treat the two as alternates; require neither one specifically. Look for busy chrome only in the bottom 20 non-blank lines of the visible pane, never in the scrollback: transcript text that quotes either string would otherwise read as busy until `TIMEOUT`. A long todo list can push the spinner above that window; the content-stability check below still catches that turn, because the spinner's timer changes the pane every second.
 - **Idle** (turn ended, input box ready): **no** busy signal (neither `esc to interrupt` nor a `· ↓ .*tokens` spinner line) **and** the captured pane content is byte-identical across **2–3 consecutive polls** (see `wait_idle` below). Content stability is the version-proof condition — make it required, not a fallback: in the observed run, absence-of-`esc to interrupt` alone produced a false `IDLE` while the inner agent was still mid-work.
 - **Shell returned** (Claude exited): no `❯` box and no `bypass permissions` footer; a shell prompt like `…$ ` is present.
 - **Abort conditions** (anywhere in output): `usage limit exceeded`, `limit reached`, `invalid api key`, `please...authenticat`, `rate limit exceeded`, `Press any key`, or an unexpected `(y/n)` you cannot safely answer. Use full phrases, not bare words like `authentication`/`rate limit` — those match ordinary scrollback (e.g. a plugin-update notice) and produce false `ABORT`s, observed in practice. **Extra reason once setup succeeds**: the newly installed HUD statusline renders *inside the monitored pane's footer* — usage-percent bars, a `[CAVEMAN]` badge line, and similar text — so any grep over the pane must tolerate that footer noise; full-phrase matching is what keeps it from tripping abort or badge checks.
@@ -26,57 +26,78 @@ You are the **conductor**. You drive a *second* Claude Code session running in a
 
 ### Reliable TUI text entry
 
-Clearing and typing raced in practice (first character dropped). Don't just delay-and-hope — delay *and* verify the pane actually shows what you typed before you trust it enough to submit. Replace `%3` with the real pane id and `TEXT` with the literal prompt:
+Clearing and typing raced in practice (first character dropped). Don't just delay-and-hope — delay *and* verify the pane actually shows what you typed before you trust it enough to submit. All TUI input in this prompt goes through two helper scripts, so the guards cannot drift apart between steps. Install them once, before Step 2 (files persist between Bash calls, shell state does not):
 
 ```bash
-PANE=%3
-TEXT='run omc setup, install globally, configure suggested defaults. The caveman plugin is also installed and active, but do not configure its statusline badge. Ignore any caveman STATUSLINE SETUP NEEDED or STATUSLINE REPAIR NEEDED message and do not offer to act on it: the statusline is composed separately after setup finishes. Leave statusLine exactly as the OMC HUD setup writes it.'
+cat > /tmp/omc-type.sh <<'EOF'
+# Usage: bash /tmp/omc-type.sh <pane-id> '<text>'
+# Clears the input box, types <text> literally, and checks that it landed. Never submits.
+PANE=${1:?usage: omc-type.sh <pane-id> <text>}
+TEXT=${2:?usage: omc-type.sh <pane-id> <text>}
+# Without the Claude footer the keys would land in a shell, where Escape eats the next character.
+if ! tmux capture-pane -t "$PANE" -p | grep -q "bypass permissions"; then
+  echo "NO_TUI — Claude is not running in the pane; nothing was sent"; exit 3
+fi
+# Escape interrupts a busy turn, so send nothing while busy chrome shows in the footer.
+if tmux capture-pane -t "$PANE" -p | grep -v '^\s*$' | tail -20 | grep -qE 'esc to interrupt|· ↓ .*tokens'; then
+  echo "BUSY — run wait_idle first; nothing was sent"; exit 2
+fi
 clear_input() {
   tmux send-keys -t "$PANE" Escape; sleep 0.4
+  # A second Escape on an empty box can open the Rewind menu: cancel it, never Enter it.
   tmux capture-pane -t "$PANE" -p -S -5 | grep -qi "rewind\|restore" && { tmux send-keys -t "$PANE" Escape; sleep 0.4; }
 }
-clear_input
-tmux send-keys -t "$PANE" -l "$TEXT"
-sleep 0.4
-attempt=0
-while ! tmux capture-pane -t "$PANE" -p | tr '\n' ' ' | grep -qF "${TEXT:0:24}"; do
-  attempt=$((attempt+1))
-  if [ "$attempt" -ge 3 ]; then echo "TYPE_VERIFY_FAILED — capture pane and inspect manually"; break; fi
+for attempt in 1 2 3; do
   clear_input
   tmux send-keys -t "$PANE" -l "$TEXT"
   sleep 0.4
+  # 24 characters catch a dropped first character without tripping over line-wrap in the box.
+  if tmux capture-pane -t "$PANE" -p | tr '\n' ' ' | grep -qF "${TEXT:0:24}"; then
+    echo "TYPED_OK (attempt $attempt)"; exit 0
+  fi
 done
-echo "typed ok (attempt $attempt)"
+echo "TYPE_VERIFY_FAILED — capture the pane and inspect it; do not submit"; exit 1
+EOF
+cat > /tmp/omc-submit.sh <<'EOF'
+# Usage: bash /tmp/omc-submit.sh <pane-id> [--slash]
+# Snapshots the pane for wait_idle's NOSTART guard, then presses Enter.
+# --slash presses Enter a second time: a slash command's autocomplete dropdown can take the first Enter as a selection.
+PANE=${1:?usage: omc-submit.sh <pane-id> [--slash]}
+tmux capture-pane -t "$PANE" -p -S -50 > /tmp/omc-presnap-${PANE#%}.txt
+tmux send-keys -t "$PANE" '' Enter
+if [ "$2" = "--slash" ]; then sleep 0.5; tmux send-keys -t "$PANE" '' Enter; fi
+EOF
+echo "type/submit helpers installed"
 ```
 
-`-l` sends the text literally (no tmux key-name interpretation). Checking the first 24 characters is enough to catch a dropped leading character without being thrown off by line-wrap inside the input box. If `TYPE_VERIFY_FAILED` prints, stop and inspect — don't submit unverified text.
-
-Then, in a **separate** call (two-call rule), snapshot the pane and submit:
+Type with `omc-type.sh`. Replace `%3` with the real pane id, and wrap the text in single quotes (it must not contain one):
 
 ```bash
-PANE=%3
-tmux capture-pane -t "$PANE" -p -S -50 > /tmp/omc-presnap-3.txt
-tmux send-keys -t "$PANE" '' Enter
+bash /tmp/omc-type.sh %3 'run omc doctor'
 ```
 
-The snapshot feeds the `NOSTART` aliasing guard in `wait_idle` below.
+It refuses to send anything while the turn is busy, because its first key is `Escape`, which interrupts a busy turn. It clears the box with the Rewind-guarded `Escape`, types with `-l` (literal, no tmux key-name interpretation), and checks that the first 24 characters show in the pane, retrying up to 3 times.
 
-**For slash commands specifically** (text starting with `/`, e.g. `/exit`): send `Enter` twice, with a settle gap, proactively — the autocomplete dropdown that a slash command opens can consume the first `Enter` as a selection rather than a submit, and waiting for `wait_idle` to time out and tell you that wastes a full detection cycle:
+- `TYPED_OK` → submit.
+- `BUSY` → run `wait_idle`, then type again.
+- `NO_TUI` → Claude has exited and the pane shows a shell. Capture it to see why, and report; relaunch only where a step says to.
+- `TYPE_VERIFY_FAILED` → stop and inspect; don't submit unverified text.
+
+Then, in a **separate** call (two-call rule), submit:
 
 ```bash
-PANE=%3
-tmux capture-pane -t "$PANE" -p -S -50 > /tmp/omc-presnap-3.txt
-tmux send-keys -t "$PANE" '' Enter
-sleep 0.5
-tmux send-keys -t "$PANE" '' Enter
+bash /tmp/omc-submit.sh %3
 ```
+
+The snapshot it takes feeds the `NOSTART` aliasing guard in `wait_idle` below. **For slash commands** (text starting with `/`, e.g. `/exit`), add `--slash`. The autocomplete dropdown a slash command opens can consume the first `Enter` as a selection rather than a submit, and waiting for `wait_idle` to time out and tell you that wastes a full detection cycle.
 
 ### `wait_idle` — submit happened, now block until the turn ends
 
-Two-phase (busy must appear, then clear) and bounded, with three hardening fixes over a naive version:
+Two-phase (busy must appear, then clear) and bounded, with these hardening fixes over a naive version:
 - **Version-proof busy detection**: busy = `esc to interrupt` **or** a `· ↓ .*tokens` spinner line, and idle additionally requires the captured pane to be byte-identical across consecutive polls. v2.1.207 shipped without `esc to interrupt` entirely; a loop keyed on that string alone declares `IDLE` while the agent is still working.
+- **Footer-only busy detection**: busy chrome is matched in the bottom 20 non-blank visible lines only (State signals above), so transcript text that quotes it cannot hold the loop busy until `TIMEOUT`.
 - **Debounce**: idle is only declared after 2–3 consecutive clean *and content-stable* polls — a single-poll miss of busy chrome between chained tool calls inside one long agent turn is normal and must not be read as "done."
-- **Aliasing guard on `NOSTART`**: if busy chrome is never seen within the start budget, don't assume the `Enter` failed — it's also possible the whole turn ran and finished faster than the poll cadence caught it (this happened with a short `omc doctor` run). Diff the current pane against the presubmit snapshot; if content moved, treat it as `IDLE`, not `NOSTART`.
+- **Aliasing guard on `NOSTART`**: if busy chrome is never seen within the start budget, don't assume the `Enter` failed — it's also possible the whole turn ran and finished faster than the poll cadence caught it (this happened with a short `omc doctor` run). Diff the current pane against the presubmit snapshot; if content moved, report `IDLE_BY_DIFF`, not `NOSTART`. It gets its own result, distinct from `IDLE`, so the Step 7 report can say when the guard decided.
 - **Deadline margin**: keep the internal `idle_deadline` at 540s (9 min) — comfortably under the Bash tool's hard 600000ms ceiling — and request a Bash-tool `timeout` of ~595000ms for the call. Never set the two equal; a prior run set both to exactly 600s/600000ms and the harness's own kill won the race, silently discarding the script's own `TIMEOUT`/result line.
 
 Write the loop to a script file **once**, before Step 2. The file persists between Bash calls, although shell state does not. The script takes the pane id and an optional idle budget in seconds, and derives the snapshot filename from the pane id. It prints the result on its first line, then the last 40 non-blank lines of the pane, so the next decision needs no extra capture:
@@ -94,8 +115,10 @@ idle_deadline=$(( $(date +%s) + idle_budget ))
 saw_busy=0; idle_streak=0; required_streak=3; result=PENDING; prev=""
 while :; do
   pane=$(tmux capture-pane -t "$PANE" -p -S -200)
+  # Busy chrome is matched in the footer only: transcript text that quotes it must not read as busy.
+  footer=$(tmux capture-pane -t "$PANE" -p | grep -v '^\s*$' | tail -20)
   if echo "$pane" | grep -qiE "usage limit exceeded|limit reached|invalid api key|please.*authenticat|rate limit exceeded"; then result=ABORT; break; fi
-  if echo "$pane" | grep -q "esc to interrupt" || echo "$pane" | grep -qE '· ↓ .*tokens'; then
+  if echo "$footer" | grep -qE 'esc to interrupt|· ↓ .*tokens'; then
     saw_busy=1; idle_streak=0
   elif [ "$saw_busy" = 1 ] && [ "$pane" = "$prev" ]; then
     idle_streak=$((idle_streak+1))
@@ -107,7 +130,7 @@ while :; do
   now=$(date +%s)
   if [ "$saw_busy" = 0 ] && [ "$now" -ge "$start_deadline" ]; then
     if [ -f "$PRESNAP" ] && ! diff -q <(tmux capture-pane -t "$PANE" -p -S -50) "$PRESNAP" >/dev/null 2>&1; then
-      result=IDLE   # pane content moved even though "esc to interrupt" was never caught — trust the diff over the miss
+      result=IDLE_BY_DIFF   # pane content moved although busy chrome was never caught — trust the diff over the miss
     else
       result=NOSTART
     fi
@@ -129,8 +152,9 @@ bash /tmp/omc-wait-idle.sh %3
 ```
 
 - `IDLE` → turn finished cleanly; inspect output and proceed.
-- `NOSTART` → the aliasing guard already ruled out "it actually ran," so the `Enter` really didn't land. Send one more bare `Enter`, then re-run `wait_idle` **once** (refresh `PRESNAP` first). If it returns `NOSTART` again, treat as stuck and report — don't keep sending blind `Enter`s, since if a menu is open for an unrelated reason a stray `Enter` can select something unintended.
-- `TIMEOUT` → busy started but didn't clear within 9 min. Capture the pane: if `esc to interrupt` is still present, this may be a genuinely long step (cold plugin/npm install) rather than a hang — re-run `wait_idle` again, up to **3 chained calls total** (~27 min combined) before giving up. If pane content is byte-identical to a capture taken a poll or two earlier while chrome still claims busy, that's a frozen render, not slow progress — stop chaining and report immediately.
+- `IDLE_BY_DIFF` → busy chrome was never caught, but the pane moved since the submit snapshot: the turn most likely ran and finished between polls. Treat it as `IDLE`, and mention it in the Step 7 report.
+- `NOSTART` → the aliasing guard already ruled out "it actually ran," so the `Enter` really didn't land. Send one more bare `Enter` with `bash /tmp/omc-submit.sh %3` (it refreshes the snapshot), then re-run `wait_idle` **once**. If it returns `NOSTART` again, treat as stuck and report — don't keep sending blind `Enter`s, since if a menu is open for an unrelated reason a stray `Enter` can select something unintended.
+- `TIMEOUT` → busy started but didn't clear within 9 min. Capture the pane: if busy chrome is still present, this may be a genuinely long step (cold plugin/npm install) rather than a hang — re-run `wait_idle` again, up to **3 chained calls total** (~27 min combined) before giving up. If pane content is byte-identical to a capture taken a poll or two earlier while chrome still claims busy, that's a frozen render, not slow progress — stop chaining and report immediately.
 - `ABORT` → capture the offending line, report to the user, stop.
 
 ## Step 1 — Launch
@@ -168,19 +192,29 @@ tmux capture-pane -t "$PANE" -p | grep -q "bypass permissions" && echo "BANNER_O
 
 The success line matters: without it, a loop that succeeds prints nothing, which looks the same as a failed call.
 
-Install the `wait_idle` script from Step 0 now, if it is not already in place.
+Install the three helper scripts from Step 0 (`omc-type.sh`, `omc-submit.sh`, `omc-wait-idle.sh`) now. Reinstall them on every run, so a stale copy from an earlier version of this prompt is never used.
 
 ## Step 2 — Send setup prompt
 
-Use the **Reliable TUI text entry** pattern from Step 0: clear with the guarded `clear_input` (Escape, then cancel `Rewind` if it appears), type with `-l` and verify the first 24 characters actually landed, then in a separate call snapshot the pane and submit with `Enter`.
+Type the prompt with `omc-type.sh` (Step 0):
+
+```bash
+bash /tmp/omc-type.sh %3 'run omc setup, install globally, configure suggested defaults. The caveman plugin is also installed and active, but do not configure its statusline badge. Ignore any caveman STATUSLINE SETUP NEEDED or STATUSLINE REPAIR NEEDED message and do not offer to act on it: the statusline is composed separately after setup finishes. Leave statusLine exactly as the OMC HUD setup writes it.'
+```
+
+On `TYPED_OK`, submit in a separate call:
+
+```bash
+bash /tmp/omc-submit.sh %3
+```
 
 Then run `bash /tmp/omc-wait-idle.sh %3` (Step 0) with Bash-tool `timeout: 595000`.
 
 ## Step 3 — Monitor through to completion
 
-The setup runs several turns. After each `wait_idle` returns, decide:
+The setup runs several turns. After each `wait_idle` returns, decide (`IDLE_BY_DIFF` counts as `IDLE` here):
 
-- **`IDLE` + interactive menu present** (`Select`/`Choose`/`Which`/`[1]`/`(y/n)` and the input box is *not* a plain empty `❯`): inspect the options. Prefer the pre-highlighted/default choice — usually just a bare `Enter` — over guessing a number. For a yes/no that matches the requested defaults (e.g. overwrite CLAUDE.md, which the script backs up), send `y`. If a menu is genuinely ambiguous or could misconfigure, **stop and ask the human** rather than guess. After answering, run `wait_idle` again (refresh `PRESNAP` first). The setup agent may also auto-answer a menu from the prompt text, or batch several questions into one multi-question form; answer each question, then confirm the form's submit step. Don't wait for a menu that never appears. Known menus, in the order setup asks them (OMC 5.6.1):
+- **`IDLE` + interactive menu present** (`Select`/`Choose`/`Which`/`[1]`/`(y/n)` and the input box is *not* a plain empty `❯`): inspect the options. Prefer the pre-highlighted/default choice — usually just a bare `Enter` — over guessing a number. For a yes/no that matches the requested defaults (e.g. overwrite CLAUDE.md, which the script backs up), send `y`. If a menu is genuinely ambiguous or could misconfigure, **stop and ask the human** rather than guess. After answering, refresh the snapshot (`omc-submit.sh` does this for a bare `Enter`), then run `wait_idle` again. The setup agent may also auto-answer a menu from the prompt text, or batch several questions into one multi-question form; answer each question, then confirm the form's submit step. Don't wait for a menu that never appears: in an OMC 5.7.4 run the setup agent took every answer from the prompt and showed no menu at all. Known menus, in the order setup asks them (observed through OMC 5.7.4):
 
   | Menu (question text) | When it appears | Answer |
   |---|---|---|
@@ -197,7 +231,7 @@ The setup runs several turns. After each `wait_idle` returns, decide:
 
   **tmux note on teammate display.** Inside tmux, `Auto` resolves to split panes, the same as choosing `tmux`. This machine also sets `CLAUDE_CODE_SPAWN_BACKEND=tmux` in `settings.json`. Setup itself spawns no teammates, and every block here targets the literal `%N` pane id, so the run is not affected. A later `/team` run inside the driven pane, however, splits the conductor's own tmux window and shrinks the monitored pane. Do not start teams in the driven pane while a conductor is monitoring it.
 - **`IDLE` + `Setup complete` (or equivalent success summary) visible** in `capture-pane -S -200`: run the gate below, then proceed to Step 3b.
-- **`IDLE`, neither of the above**: the agent may be between turns or waiting on you. Re-capture; if it asked a question, answer it; otherwise nudge with a bare `Enter` and `wait_idle` once more.
+- **`IDLE`, neither of the above**: the agent may be between turns or waiting on you. Re-capture; if it asked a question, answer it; otherwise nudge with a bare `Enter` (`bash /tmp/omc-submit.sh %3`) and `wait_idle` once more.
 - **`TIMEOUT`**: follow the chaining rule from Step 0 — keep waiting (up to 3 chained calls) only while pane content is still visibly moving; stop and report if it's static.
 - **`NOSTART`**: follow Step 0's guard — this already accounted for "it actually finished fast," so a real `NOSTART` here means the prompt genuinely didn't submit. Retry once as described, then report if it recurs.
 
@@ -226,22 +260,14 @@ PLUGIN_V=$(jq -r '.plugins["oh-my-claudecode@omc"][0].version // empty' ~/.claud
 [ -n "$CFG_V" ] && [ "$CFG_V" = "$PLUGIN_V" ] && echo "setupVersion: $CFG_V ok" || echo "setupVersion: CHECK — config ${CFG_V:-(none)} vs plugin ${PLUGIN_V:-(none)}"
 ```
 
-If `omc-config` is MISSING, PARTIAL **or STALE**, the setup did not reach its final phase in this run. Nudge the inner agent using the same clear/type/verify pattern from Step 0:
+If `omc-config` is MISSING, PARTIAL **or STALE**, the setup did not reach its final phase in this run. Nudge the inner agent with the helpers from Step 0:
 
 ```bash
-PANE=%3
-TEXT='finalize omc setup — complete the final phase so .omc-config.json gets its setupCompleted marker, if the setup is otherwise complete'
-tmux send-keys -t "$PANE" Escape; sleep 0.4
-tmux capture-pane -t "$PANE" -p -S -5 | grep -qi "rewind\|restore" && { tmux send-keys -t "$PANE" Escape; sleep 0.4; }
-tmux send-keys -t "$PANE" -l "$TEXT"
-sleep 0.4
-tmux capture-pane -t "$PANE" -p | tr '\n' ' ' | grep -qF "${TEXT:0:24}" && echo "typed ok" || echo "TYPE_VERIFY_FAILED"
+bash /tmp/omc-type.sh %3 'finalize omc setup — complete the final phase so .omc-config.json gets its setupCompleted marker, if the setup is otherwise complete'
 ```
 
 ```bash
-PANE=%3
-tmux capture-pane -t "$PANE" -p -S -50 > /tmp/omc-presnap-3.txt
-tmux send-keys -t "$PANE" '' Enter
+bash /tmp/omc-submit.sh %3
 ```
 
 Run `wait_idle`, re-run the check, then proceed to Step 3b once CLAUDE.md shows `ok` and omc-config shows `complete`. **Safety valve:** if after one nudge + `wait_idle` the `setupCompleted` marker still does not appear, but the pane shows a completion summary and the other Step 6 artifacts (HUD, `statusLine`, CLAUDE.md marker) are all present, treat setup as complete and proceed — note it in the Step 7 report rather than looping indefinitely (guards against a future config-schema change that renames the marker).
@@ -383,35 +409,16 @@ If `~/.claude/hud/verify-statusline.mjs` is already present from an earlier run,
 
 The HUD statusline, including the combiner wired in Step 3b, only takes effect on a fresh start. Exit cleanly.
 
-**First, confirm the inner agent is *still* idle.** The setup skill chains its phases across separate turns and can go briefly idle *between* them, so an earlier `wait_idle=IDLE` does not guarantee it is idle now. This matters because the first keystroke below is an `Escape`, and **`Escape` sent into a busy turn is an interrupt, not an input-clear** — that is exactly how a prior run aborted the setup's final phase mid-write. Gate the exit on a fresh idle check:
+**First, confirm the inner agent is *still* idle.** The setup skill chains its phases across separate turns and can go briefly idle *between* them, so an earlier `wait_idle=IDLE` does not guarantee it is idle now. This matters because the first keystroke below is an `Escape`, and **`Escape` sent into a busy turn is an interrupt, not an input-clear** — that is exactly how a prior run aborted the setup's final phase mid-write. `omc-type.sh` does this fresh idle check itself: when the footer shows busy chrome, it prints `BUSY` and sends nothing. If it prints `BUSY`, run `wait_idle` (Step 0) and type again. (With the `setupCompleted` gate from Step 3 already passed, the agent has no remaining setup work to chain into, so this should succeed on the first try — the guard is defense-in-depth.)
+
+`/exit` is a slash command, so submit it with `--slash` (Step 0; the autocomplete dropdown otherwise eats the first `Enter`):
 
 ```bash
-PANE=%3
-if tmux capture-pane -t "$PANE" -p | grep -qE "esc to interrupt|· ↓ .*tokens"; then
-  echo "BUSY — run wait_idle first, do NOT send Escape yet"
-else
-  echo "idle — safe to send the exit sequence"
-fi
-```
-
-If it prints `BUSY`, run `wait_idle` (Step 0) and re-check; only run the `/exit` block below once it prints `idle`. (With the `setupCompleted` gate from Step 3 already passed, the agent has no remaining setup work to chain into, so this should read `idle` on the first try — the guard is defense-in-depth.)
-
-`/exit` is a slash command, so use the proactive double-`Enter` pattern from Step 0 (dropdown autocomplete otherwise eats the first `Enter`):
-
-```bash
-PANE=%3
-tmux send-keys -t "$PANE" Escape; sleep 0.4
-tmux capture-pane -t "$PANE" -p -S -5 | grep -qi "rewind\|restore" && { tmux send-keys -t "$PANE" Escape; sleep 0.4; }
-tmux send-keys -t "$PANE" -l '/exit'
-sleep 0.4
+bash /tmp/omc-type.sh %3 '/exit'
 ```
 
 ```bash
-PANE=%3
-tmux capture-pane -t "$PANE" -p -S -50 > /tmp/omc-presnap-3.txt
-tmux send-keys -t "$PANE" '' Enter
-sleep 0.5
-tmux send-keys -t "$PANE" '' Enter
+bash /tmp/omc-submit.sh %3 --slash
 ```
 
 Wait for the shell to return (Claude UI gone), bounded:
@@ -442,20 +449,14 @@ Wait for the banner again (reuse the Step 1 wait).
 
 ## Step 5 — Run doctor (mandatory, do not skip even if Step 6 already looks green)
 
-Plain text, not a slash command — no dropdown risk, but still use the verified-entry pattern since it's cheap and closes off the dropped-character failure mode entirely:
+Plain text, not a slash command, so no `--slash`:
 
 ```bash
-PANE=%3
-TEXT='run omc doctor'
-tmux send-keys -t "$PANE" -l "$TEXT"
-sleep 0.4
-tmux capture-pane -t "$PANE" -p | tr '\n' ' ' | grep -qF "${TEXT:0:12}" && echo "typed ok" || echo "TYPE_VERIFY_FAILED"
+bash /tmp/omc-type.sh %3 'run omc doctor'
 ```
 
 ```bash
-PANE=%3
-tmux capture-pane -t "$PANE" -p -S -50 > /tmp/omc-presnap-3.txt
-tmux send-keys -t "$PANE" '' Enter
+bash /tmp/omc-submit.sh %3
 ```
 
 Run `wait_idle` with a shorter budget, which is plenty for doctor: `bash /tmp/omc-wait-idle.sh %3 300` with Bash-tool `timeout: 340000`. Then capture the full report. Its table is often longer than the 40 lines that `wait_idle` prints:
@@ -463,9 +464,10 @@ Run `wait_idle` with a shorter budget, which is plenty for doctor: `bash /tmp/om
 ```bash
 PANE=%3
 tmux capture-pane -t "$PANE" -p -S -200 | grep -v '^\s*$'
+tmux capture-pane -t "$PANE" -p -S -200 | grep -E '│ *(WARN|CRITICAL) *│' || echo "rows: no WARN or CRITICAL"
 ```
 
-Note whether its summary reports `HEALTHY` or `ISSUES FOUND`, and record each check row marked `WARN` or `CRITICAL`. A `caveman-statusline.sh` listed under `~/.claude/hooks/` is the caveman plugin's stable copy, not a legacy OMC script.
+Take the verdict from the check rows, not from the summary wording, which varies: OMC 5.7.4 printed `Everything is fine. Nothing needs fixing.` and neither `HEALTHY` nor `ISSUES FOUND`. Healthy means every row is `OK`. Record each row marked `WARN` or `CRITICAL`. The row grep assumes the box-drawn table; if the layout changes, it finds nothing even when a row warns, so read the full capture as well. A `caveman-statusline.sh` listed under `~/.claude/hooks/` is the caveman plugin's stable copy, not a legacy OMC script.
 
 ## Step 6 — Independent verification (do not skip)
 
@@ -529,28 +531,20 @@ tmux capture-pane -t "$PANE" -p -S -200 | grep -E "STATUSLINE (SETUP|REPAIR) NEE
 
 ## Step 7 — Report
 
-Summarize to the user: doctor verdict **plus** your independent Step 6 results. If a combiner script owns `statusLine`, say so and note that two things rewrite `statusLine.command` back to the plain `omc-hud.mjs` and silently drop the badge: any later `/oh-my-claudecode:hud <preset>` run, and every `omc-setup` re-run, because setup's Phase 2 always runs `hud setup`. That includes refreshing OMC after an upgrade. After either, the command must be re-pointed and re-verified (Step 3b). If any check failed or any wait returned `TIMEOUT`/`ABORT`, say so explicitly with the captured evidence — do not soften a partial result into "done". If any `wait_idle` resolved via the aliasing guard (pane diff instead of catching `esc to interrupt` directly) or any `TYPE_VERIFY_FAILED`/retry occurred, mention it — it's a signal the pane is behaving oddly even if the end state looks fine.
+Summarize to the user: doctor verdict **plus** your independent Step 6 results. If a combiner script owns `statusLine`, say so and note that two things rewrite `statusLine.command` back to the plain `omc-hud.mjs` and silently drop the badge: any later `/oh-my-claudecode:hud <preset>` run, and every `omc-setup` re-run, because setup's Phase 2 always runs `hud setup`. That includes refreshing OMC after an upgrade. After either, the command must be re-pointed and re-verified (Step 3b). If any check failed or any wait returned `TIMEOUT`/`ABORT`, say so explicitly with the captured evidence — do not soften a partial result into "done". If any `wait_idle` returned `IDLE_BY_DIFF` (the aliasing guard decided, not caught busy chrome), any `omc-type.sh` call printed `BUSY`, `NO_TUI` or `TYPE_VERIFY_FAILED`, or any typing needed more than one attempt, mention it — it's a signal the pane is behaving oddly even if the end state looks fine.
 
 ## Constraints
 
-- **Two-call rule for ALL Claude Code TUI input** (prompts, commands, confirmations): text call, then bare `Enter` call. Shell commands outside the TUI may use the combined form. Issue TUI calls as sequential messages, never as parallel tool calls in one message.
-- **Settle delay after every discrete TUI keystroke action** (`sleep 0.4` after Escape, after typing, before the next action) — sending the next key before the Ink UI's render pass settles is how characters and `Enter` presses get silently dropped.
-- **Verify typed text before submitting** (Step 0's clear/type/verify loop) instead of trusting a blind `send-keys` — this catches a dropped leading character before it becomes a mistyped command, rather than discovering it after the fact.
-- **Slash commands get a proactive double-`Enter`** (Step 0) — the autocomplete dropdown can consume the first one as a selection, not a submit.
-- **`wait_idle` requires 3 consecutive clean, content-stable polls before declaring `IDLE`**, and falls back to a presubmit-snapshot diff before declaring `NOSTART` — a single missed poll of `esc to interrupt` between chained tool calls, or a turn that finished faster than the poll caught it, must not be misread.
-- **Never poll with `sleep N && cmd` chained in one Bash call** — the harness blocks it. Use a single Bash call containing a `while`/`until` loop with an internal `sleep` (as in Step 0).
-- **A single Bash call cannot be timed out past 600000ms (10 min).** Keep `wait_idle`'s internal `idle_deadline` at 540s and request Bash-tool `timeout: 595000` — never set the internal deadline equal to (or above) the Bash-tool timeout; a prior run set both to 600s/600000ms and the harness's own kill silently discarded the script's result. If a step is legitimately slow, chain additional bounded `wait_idle` calls (cap ~3) rather than requesting one longer call.
-- **Shell state does not persist between your Bash calls.** Hardcode the literal pane id (`%N` from Step 1) into every block, and use a file (e.g. `/tmp/omc-presnap-3.txt`), not a shell variable, to carry a snapshot from one call to the next.
-- **Detect state from chrome** (`esc to interrupt`, the `· ↓ .*tokens` spinner line, `bypass permissions`), not from spinner *verbs* or specific summary wording — and require pane-content stability across polls before declaring idle. `esc to interrupt` alone is not reliable: v2.1.207 never rendered it, and a loop keyed on it declared idle mid-turn.
-- **Clear the input buffer with `Escape`, then check for `Rewind`/`Restore` chrome before doing anything else** — a second blind `Escape` (or an `Escape` on an already-empty box) can open a checkpoint-restore menu instead of clearing; if seen, cancel with one more `Escape` and never `Enter` it (use the `clear_input` guard from Step 0).
-- **Never send `Escape` (or any key) into a *busy* turn** — while a turn is running (`esc to interrupt` in the footer) `Escape` is an **interrupt**, not an input-clear, and aborts the inner agent mid-work; a prior run interrupted the setup's final phase this way. Before any input step whose first keystroke is `Escape` (notably Step 4's exit), capture the pane and confirm `esc to interrupt` is absent; if present, `wait_idle` first. The setup skill chains phases across turns, so one earlier `IDLE` does not prove it is still idle.
-- **Gate the exit/restart on `setupCompleted` in `.omc-config.json`, not mere file existence** — earlier phases write `taskTool` and `team`; only the final phase adds `setupCompleted` and `setupVersion`. A bare `test -f` can pass while the final phase is still running, which is what let a prior run proceed to Step 4 and interrupt it. On a re-run, also require `setupCompleted` to be newer than the run start, and `setupVersion` to match the plugin version in `installed_plugins.json` (Step 3). Keep the Step 3 nudge + safety-valve so a renamed marker in a future version cannot deadlock the flow.
-- **Text sitting in the input box may be an inert placeholder, not real buffer content** — it can survive `Escape` and `Ctrl-U` untouched. Don't trust "text is visible" as "text will submit"; if clearing does nothing, it's cosmetic — type your own command directly.
-- **Trust the filesystem over the inner agent.** Its claims and warnings (especially "you lost X") can be wrong; verify in Step 6.
-- **Resolve plugin file paths from `~/.claude/plugins/installed_plugins.json`** (`<plugin>@<marketplace>` → `installPath`), never by scanning hashed cache dirs by `mtime` and never from `plugins/marketplaces/*`, which is the update source rather than the loaded copy. `installPath` contains the plugin version, so resolve it at run time and never hard-code it. For caveman, prefer the stable copy at `$CLAUDE_CONFIG_DIR/hooks/caveman-statusline.sh`, which the caveman plugin keeps current. Run it with `bash`, and name it by its quoted absolute path in `statusLine.command` (Step 3b).
-- **Verify a composed statusline by executing it with a synthetic payload before wiring it into `settings.json`** — a dropped segment renders a plausible-looking line rather than an error, so file-existence checks prove nothing (Step 3b). Back up `settings.json` before writing `statusLine`.
-- **Compose the statusline yourself, after the Step 3 gate and before the Step 4 restart.** Setup's Phase 2.1 always resets `statusLine` to the plain HUD, so a combiner wired during setup is overwritten. Install the tested combiner from Step 3b verbatim instead of letting the inner agent write one, and tell the inner agent to ignore caveman's statusline nudge (Step 2).
-- Do not use `/omc` slash commands to start setup; plain text triggers the hook chain that loads the skills.
-- The HUD statusline activates only after a full restart, not mid-session.
-- **Clear the pane's screen and scrollback before the Step 4 restart.** Otherwise later `-S -200` captures still contain the Step 2 prompt, whose text matches the Step 6 nudge check.
-- Capture with `-S -200` so output that scrolled off the visible region is still inspected.
+Each rule is explained where it is used; this list is the checklist.
+
+- **TUI input goes through the helpers only**: `omc-type.sh`, then `omc-submit.sh` in a separate, sequential call, never as parallel calls; slash commands get `--slash` (Step 0, principles 4–5).
+- **Never send any key into a busy turn**: there `Escape` is an interrupt, not an input-clear. `omc-type.sh` refuses while busy; one earlier `IDLE` does not prove the agent is still idle (Step 4).
+- **Waits use `wait_idle` only**: internal deadline 540s, Bash `timeout: 595000`, at most 3 chained calls; never `sleep N && cmd` (Step 0).
+- **Detect state from footer chrome and content stability**, not from spinner verbs or summary wording (Step 0).
+- **Hardcode the literal `%N` pane id** in every block: shell state does not persist between Bash calls (Step 0).
+- **Gate the exit on a fresh `setupCompleted` with a matching `setupVersion`**, not on the file existing; keep the nudge and the safety valve (Step 3).
+- **Compose the statusline yourself**, between the Step 3 gate and the Step 4 restart, with the combiner verbatim; resolve plugin paths from `installed_plugins.json`, never by `mtime` or from `plugins/marketplaces/*` (Step 3b).
+- **Verify a statusline by executing it with a staged session**, never by checking files, and back up `settings.json` before writing it (Step 3b).
+- **Start setup with plain text, not an `/omc` slash command**: plain text triggers the hook chain that loads the skills.
+- **Clear the pane's screen and scrollback before the restart**; the HUD activates only after it (Step 4).
+- **Trust the filesystem over the inner agent** (Step 6).
