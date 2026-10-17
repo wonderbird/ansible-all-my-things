@@ -26,3 +26,94 @@
         _sm_help.rc != 0
         or 'import' not in _sm_help.stdout
         or 'sync' not in _sm_help.stdout
+
+    - name: Stat testuser's sm home directory
+      ansible.builtin.stat:
+        path: /home/testuser/.skill-manager
+      register: _sm_home
+
+    - name: Stat testuser's sm config file
+      ansible.builtin.stat:
+        path: /home/testuser/.skill-manager/config.toml
+      register: _sm_config_stat
+
+    - name: Assert the sm home directory and config file are owned by testuser
+      ansible.builtin.assert:
+        that:
+          - _sm_home.stat.isdir | default(false)
+          - _sm_home.stat.pw_name == 'testuser'
+          - _sm_home.stat.gr_name == 'testuser'
+          - _sm_config_stat.stat.isreg | default(false)
+          - _sm_config_stat.stat.pw_name == 'testuser'
+          - _sm_config_stat.stat.gr_name == 'testuser'
+        fail_msg: >-
+          /home/testuser/.skill-manager or its config.toml is missing or not
+          owned by testuser:testuser.
+
+    - name: Read testuser's sm config file
+      ansible.builtin.slurp:
+        src: /home/testuser/.skill-manager/config.toml
+      register: _sm_config
+
+    - name: Assert the sm config disables auto-adopt
+      ansible.builtin.assert:
+        that:
+          - (_sm_config.content | b64decode) is search('(?m)^autoAdopt = false$')
+        fail_msg: >-
+          /home/testuser/.skill-manager/config.toml does not contain the line
+          `autoAdopt = false`.
+
+    - name: Create a probe project directory as testuser
+      ansible.builtin.tempfile:
+        state: directory
+        path: /home/testuser
+        prefix: sm-adopt-probe-
+      become_user: testuser
+      register: _sm_probe
+
+    - name: Create an unmanaged skill directory in the probe project
+      ansible.builtin.file:
+        path: "{{ _sm_probe.path }}/.claude/skills/probe-skill"
+        state: directory
+        mode: '0755'
+      become_user: testuser
+
+    - name: Write the unmanaged skill file in the probe project
+      ansible.builtin.copy:
+        dest: "{{ _sm_probe.path }}/.claude/skills/probe-skill/SKILL.md"
+        content: |
+          ---
+          name: probe-skill
+          description: Probe skill that sm must not adopt
+          ---
+          Probe.
+        mode: '0644'
+      become_user: testuser
+
+    - name: Run sm as testuser inside the probe project
+      ansible.builtin.command:
+        cmd: sm list
+        chdir: "{{ _sm_probe.path }}"
+      become_user: testuser
+      changed_when: false
+
+    - name: Stat the probe skill directory after running sm
+      ansible.builtin.stat:
+        path: "{{ _sm_probe.path }}/.claude/skills/probe-skill"
+      register: _sm_probe_skill
+
+    - name: Read the probe skill file after running sm
+      ansible.builtin.slurp:
+        src: "{{ _sm_probe.path }}/.claude/skills/probe-skill/SKILL.md"
+      register: _sm_probe_content
+
+    - name: Assert sm left the unmanaged skill untouched
+      ansible.builtin.assert:
+        that:
+          - not _sm_probe_skill.stat.islnk
+          - _sm_probe_skill.stat.isdir
+          - (_sm_probe_content.content | b64decode) is search('Probe skill that sm must not adopt')
+        fail_msg: >-
+          sm adopted {{ _sm_probe.path }}/.claude/skills/probe-skill
+          (replaced it with a symlink or changed it); autoAdopt = false is
+          not in effect.

@@ -3,6 +3,9 @@
 - name: Converge
   hosts: all
   become: true
+  vars:
+    login_user_names:
+      - testuser
   roles:
     # nodejs provisions node/npm, a hard build dependency of skill_manager.
     # Listed explicitly for auditable ordering; also declared in

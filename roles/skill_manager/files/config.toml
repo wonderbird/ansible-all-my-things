@@ -1,0 +1,6 @@
+# Managed by Ansible (skill_manager role). Local edits are overwritten.
+#
+# Never adopt unmanaged skills: sm otherwise moves every unmanaged skill it
+# finds in the user's tool directories and in the current directory into its
+# own store and replaces the originals with symlinks.
+autoAdopt = false

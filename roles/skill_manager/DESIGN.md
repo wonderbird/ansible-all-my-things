@@ -49,6 +49,26 @@ hard runtime dependency, so it is declared in `meta/main.yml` `dependencies:`
 — in addition to explicit ordering in the base playbook and the Molecule
 `converge.yml`.
 
+## Auto-Adopt Is Disabled Per User
+
+By default `sm` runs an auto-adopt scan before almost every command: it moves
+each unmanaged skill it finds under the user's tool directories and under the
+current directory's `.claude/` or `.agents/` into its own store, then replaces
+the original with a symlink. Running `sm` inside a checkout that holds skills
+would therefore rewrite that checkout. The role deploys
+`~/.skill-manager/config.toml` with `autoAdopt = false` for every login user so
+`sm` only touches skills it is told to manage.
+
+`sm` reads the config from the invoking user's home, so the setting is a
+per-user file rather than a system-wide one, owned by that user because `sm`
+writes its store and state into the same directory.
+
+The role owns the whole file (`ansible.builtin.copy`) instead of only the
+`autoAdopt` key (`community.general.ini_file`). No other key is set by hand on
+provisioned hosts, and owning the file keeps the result fully determined by the
+role. Some `sm` entry points treat a config they cannot parse as auto-adopt
+enabled, so a deterministic file is also the safer one.
+
 ## Version-Update Integration
 
 The role registers with the project-wide version-update mechanism, but unlike
