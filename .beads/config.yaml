@@ -1,2 +1,3 @@
 no-git-ops: true
-sync.remote: git+https://github.com/wonderbird/ansible-all-my-things.git
+sync:
+    remote: git+https://github.com/wonderbird/ansible-all-my-things.git
