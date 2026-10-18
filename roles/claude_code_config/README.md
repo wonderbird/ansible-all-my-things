@@ -6,27 +6,24 @@ CLI configuration for sophisticated development, on top of the general,
 safe-for-any-project baseline `claude_code` creates: installs the
 [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) and
 [caveman](https://github.com/JuliusBrussee/caveman) Claude Code plugins,
-symlinks skills from an [ai-agent-workspace](https://github.com/wonderbird/ai-agent-workspace)
-clone (provisioned by the `ai_agent_workspace` role) into `~/.claude/skills`,
+clones the [ai-agent-workspace](https://github.com/wonderbird/ai-agent-workspace)
+skill library and symlinks its skills into `~/.claude/skills`,
 configures the [Exa](https://exa.ai) MCP server for web search, installs the
 `omc` CLI, and merges its own opinionated keys into `settings.json`.
 
-`beads`, `specify_cli`, and the ai-agent-workspace clone are cross-harness
-CLI tools installed by their own single-purpose roles, not by this role.
-Those roles must run before this one (`ai_agent_workspace` specifically,
-since the skills symlink task depends on its clone already existing). The
-`claude_code` role installs only the Claude Code binary; this role depends
-on it — see `DESIGN.md` for why the `omc` CLI install and `rtk init -g`
-live here rather than in `rtk`/their own roles.
+`beads` and `specify_cli` are cross-harness CLI tools installed by their own
+single-purpose roles, not by this role. The `claude_code` role installs only
+the Claude Code binary; this role depends on it — see `DESIGN.md` for why the
+ai-agent-workspace clone, the `omc` CLI install and `rtk init -g` live here
+rather than in their own roles.
 
 ## Requirements
 
 - Ansible 2.19+
-- `git` present on target hosts (used for Claude Code plugin marketplace and
-  oh-my-claudecode source clones)
+- The `git` role applied first, providing the `git` binary for the
+  ai-agent-workspace and oh-my-claudecode source clones and the Claude Code
+  plugin marketplaces
 - The `claude_code` role applied first, providing the `claude` binary
-- The `ai_agent_workspace` role applied first, providing
-  `~/Documents/Cline/ai-agent-workspace`
 - The `rtk` role applied first, providing `/usr/local/bin/rtk`
 - The `nodejs` role applied first, providing a system-wide Node.js LTS
   install (`/usr/local/bin/node`/`npm`)
@@ -41,7 +38,7 @@ live here rather than in `rtk`/their own roles.
 
 ## Dependencies
 
-`rtk`, `nodejs`, `ai_agent_workspace`, `claude_code`. See `meta/main.yml`.
+`rtk`, `nodejs`, `git`, `claude_code`. See `meta/main.yml`.
 
 ## Example Playbook
 
@@ -64,7 +61,8 @@ live here rather than in `rtk`/their own roles.
 
 ## What This Role Does
 
-1. Symlinks skills from the `ai_agent_workspace` role's clone into
+1. Clones ai-agent-workspace to `~/Documents/Cline/ai-agent-workspace`
+   (re-provision pulls updates) and symlinks its skills into
    `~/.claude/skills/` (idempotent; re-provision re-links)
 2. Registers and installs the oh-my-claudecode Claude Code plugin
 3. Registers and installs the caveman Claude Code plugin

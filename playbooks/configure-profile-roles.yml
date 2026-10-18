@@ -23,7 +23,6 @@
     - beads_viewer
     - beads_rust
     - specify_cli
-    - ai_agent_workspace
     - claude_code
     - opencode
     - github_cli
