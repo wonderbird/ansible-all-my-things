@@ -46,7 +46,7 @@ Pick the archetype first; it drives every later step.
 - **System-wide vs per-user install?** A single binary all users share →
   `/usr/local/bin` (see `opencode`). A tool that installs into each user's home
   or runs per-user → loop over `login_user_names` with `become_user` (see
-  `specify_cli`, `ai_agent_workspace`). A role that loops over
+  `specify_cli`, `beads_go`). A role that loops over
   `login_user_names` MUST also assert it — see step 1 below.
 - **Linux vs Windows.** Windows roles (`win_*`, `windows_*`) diverge: no
   Molecule, different validation. Out of scope here — mirror an existing
@@ -125,7 +125,7 @@ Rules that bite:
   task.
 - Roles that clone repos, or otherwise unconditionally shell out to `git`,
   depend on the dedicated `git` role (`meta/main.yml` `dependencies: [git]`;
-  see `ai_agent_workspace`); do not assume it is present, and do not
+  see `beads_go`); do not assume it is present, and do not
   reinstall it in-role.
 - Never use `blockinfile` `append_newline`/`prepend_newline` (Principle I).
 
