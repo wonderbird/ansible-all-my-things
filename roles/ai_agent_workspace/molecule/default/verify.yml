@@ -1,0 +1,17 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Check ai-agent-workspace repository exists
+      ansible.builtin.stat:
+        path: /home/testuser/Documents/Cline/ai-agent-workspace/.git
+      register: workspace_repo_stat
+
+    - name: Assert ai-agent-workspace repository is cloned
+      ansible.builtin.assert:
+        that:
+          - workspace_repo_stat.stat.exists
+        fail_msg: "ai-agent-workspace not found at /home/testuser/Documents/Cline/ai-agent-workspace/.git"
+        success_msg: "ai-agent-workspace repository cloned"

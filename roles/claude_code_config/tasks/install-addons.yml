@@ -1,19 +1,11 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # -----
-# Clone ai-agent-workspace and symlink its skills for each desktop user
+# Symlink ai-agent-workspace skills for each desktop user
+#
+# The ai-agent-workspace clone itself is provisioned by the ai_agent_workspace
+# role, which must run before this role (see playbooks/configure-profile-roles.yml).
 # -----
-
-- name: Clone ai-agent-workspace source repository
-  ansible.builtin.git:
-    repo: https://github.com/wonderbird/ai-agent-workspace
-    dest: /home/{{ item }}/Documents/Cline/ai-agent-workspace
-    version: main
-    update: yes
-    force: no
-  become: true
-  become_user: "{{ item }}"
-  loop: "{{ login_user_names }}"
 
 - name: Ensure ~/.claude/skills exists
   ansible.builtin.file:

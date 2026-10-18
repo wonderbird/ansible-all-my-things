@@ -30,7 +30,8 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   adding a tool is one entry, and a malformed one fails at play start.
 - **Breaking:** The `skill_manager` role disables `sm` skill auto-adopt and
   replaces each login user's `sm` config. Run `sm import` to adopt skills.
-- The `claude_code_config` role clones ai-agent-workspace for each login user.
+- **Breaking:** Only hosts in `claude_opinionated` get the ai-agent-workspace
+  clone. Add a host to `claude_opinionated` to keep it.
 
 ### Removed
 
@@ -38,8 +39,6 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   one user name.
 - `query-versions.yml`. Run `perform-updates.yml` and read `git diff`: it
   reports the same drift, having already applied it.
-- **Breaking:** The `ai_agent_workspace` role. Add a host to
-  `claude_opinionated` to keep its ai-agent-workspace clone.
 
 ### Fixed
 

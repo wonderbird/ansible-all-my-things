@@ -20,15 +20,6 @@ stdout.
 The `find` result is checked with `assert matched > 0` per user to fail loudly
 if the clone is empty or the `skills` directory is absent (Principle XII).
 
-## Why the ai-agent-workspace clone lives here, not in its own role
-
-The clone is part of the owner's Claude Code way of working: it exists to
-supply the skills this role sets up, and no other harness provisioned by this
-repository consumes it. It therefore belongs to the opinionated configuration
-that only hosts opting into it receive, not to a generic role that every host
-gets. Keeping the clone and the tasks that read it in one role also keeps the
-clone path in one place (Principle XI).
-
 ## Plugin idempotency: explicit existence checks before `claude plugin` calls
 
 `ansible.builtin.shell` tasks for marketplace registration and plugin installation
@@ -115,8 +106,7 @@ runs.
 that protect its own version-pin contract (general and safe for any
 project); this role owns every task that is a specific, opinionated choice
 for sophisticated development (settings.json's agent-team/hook keys,
-plugins, the ai-agent-workspace clone and its skills symlinks, MCP servers,
-the `omc` CLI, `rtk init -g`). The
+plugins, skills symlinks, MCP servers, the `omc` CLI, `rtk init -g`). The
 split lets a host install the Claude Code binary with only the minimal
 version-pin protection, leaving every actual usage decision open — the
 prerequisite for an install-only profile (see

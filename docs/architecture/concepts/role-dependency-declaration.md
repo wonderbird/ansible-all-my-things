@@ -51,11 +51,17 @@ playbook that lists `claude_code_config` without having first applied `rtk`
 will break at apply time — this is exactly the "hard-fails for any
 consumer" signal.
 
+**`claude_code_config` → `ai_agent_workspace` (hard dependency).** The
+skills symlink task in `claude_code_config/tasks/install-addons.yml`
+asserts `matched > 0` after searching the `ai_agent_workspace` clone's
+`skills` directory — a deliberate, fail-loud (Constitution
+Principle XII) guard for the same kind of cross-role artefact dependency.
+
 **`claude_code_config` → `git` (hard dependency).**
-`claude_code_config/tasks/install-addons.yml` and `install-omc-cli.yml`
-clone source repositories with `ansible.builtin.git`, which shells out to
-the `git` binary the `git` role installs. No presence check precedes the
-clones; if the binary is absent, they fail outright.
+`claude_code_config/tasks/install-omc-cli.yml` clones the oh-my-claudecode
+source repository with `ansible.builtin.git`, which shells out to the `git`
+binary the `git` role installs. No presence check precedes the clone; if the
+binary is absent, it fails outright.
 
 **`claude_code_config` → `claude_code` (hard dependency).**
 `claude_code_config/tasks/install-addons.yml` and `configure.yml` run
@@ -69,7 +75,7 @@ creates `~/.claude` and writes that baseline first. `claude_code_config`
 therefore declares `claude_code` as a hard `meta/main.yml` dependency, in
 addition to explicit play ordering.
 
-All three qualify under the decision test above, and all three are
+All four qualify under the decision test above, and all four are
 declared — see "Current state" below.
 
 **Counter-example: role co-location in a playbook.** Two roles that happen
@@ -147,10 +153,9 @@ conditions."* Walk the branches:
     bare `command` with no fallback), an explicit presence-check-then-fail
     is redundant with the failure that already happens; it buys a
     friendlier diagnostic string, nothing else.
-  - If the task would otherwise **silently no-op** — the skills symlink
-    task in `claude_code_config/tasks/install-addons.yml` is exactly this:
-    without its `assert matched > 0` guard, a clone without a `skills`
-    directory makes the `find` return zero matches (not an error), and the
+  - If the task would otherwise **silently no-op** — the `ai_agent_workspace`
+    case is exactly this: without its `assert matched > 0` guard, a missing
+    clone makes the `find` return zero matches (not an error), and the
     downstream symlink loop iterates zero times — no failure, no symlinks,
     a green run. Here the presence-check-then-fail **is** the Fail-Loud
     mechanism (Constitution Principle XII), not diagnostic sugar; removing
@@ -215,14 +220,14 @@ runtime assumption unaddressed either way.
 ## Current state
 
 `claude_code_config/meta/main.yml` declares `dependencies: [rtk, nodejs,
-git, claude_code]` — all four are hard, role-intrinsic dependencies per the
-decision test above (`rtk` and `git` for the reasons in the worked examples
-above; `nodejs` because
-`install-omc-cli.yml` unconditionally invokes `npm`; `claude_code` because
-this role's `claude plugin`/`claude mcp` shell calls unconditionally
+git, ai_agent_workspace, claude_code]` — all five are hard, role-intrinsic
+dependencies per the decision test above (`rtk`, `git` and
+`ai_agent_workspace` for the reasons in the worked examples above; `nodejs`
+because `install-omc-cli.yml` unconditionally invokes `npm`; `claude_code`
+because this role's `claude plugin`/`claude mcp` shell calls unconditionally
 require the binary it installs).
 
-`beads_go`, `beads_rust`, `specify_cli`, `tmux`, and
+`beads_go`, `beads_rust`, `ai_agent_workspace`, `specify_cli`, `tmux`, and
 `skill_manager` (which also needs `nodejs`) declare `dependencies: [git]` —
 each unconditionally invokes the `git` binary via `ansible.builtin.git` or,
 for `specify_cli`, `pipx install git+...`.
