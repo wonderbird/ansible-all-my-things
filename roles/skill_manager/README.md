@@ -9,11 +9,16 @@ skill management for Claude Code and Codex CLI — as a system-wide command at
 Upstream ships no release artefacts, so the role builds from source at a pinned
 commit SHA (clone → `npm ci` → `npm run build` → prune dev dependencies).
 
+For every login user the role deploys `~/.skill-manager/config.toml` with
+`autoAdopt = false`, so running `sm` inside a directory that holds skills never
+moves or rewrites them.
+
 See [DESIGN.md](DESIGN.md) for non-obvious decisions.
 
 ## Boundary
 
-The role installs the `sm` binary only. It does not import, deploy, or sync any
+The role installs the `sm` binary and owns each login user's `sm` config file,
+replacing it whole on every run. It does not import, deploy, or sync any
 skills, nor configure Claude Code / Codex directories — those are runtime `sm`
 operations outside this role's scope.
 
@@ -23,13 +28,14 @@ operations outside this role's scope.
 - Linux (x86_64 or aarch64)
 - Node.js 20+ and npm, provisioned by the `nodejs` role (a declared dependency)
 - Internet access to `github.com` and the npm registry from the target host
+- Each name in `login_user_names` already exists as a local user with a home
+  directory under `/home`
 
 ## Role Variables
 
-All variables have safe defaults. None are required from the caller.
-
 | Variable | Default | Description |
 | --- | --- | --- |
+| `login_user_names` | *(required)* | List of local usernames to deploy the `sm` config for. Must contain at least one name; the role fails loudly if it is undefined or empty. |
 | `skill_manager_repo` | `https://github.com/omrikais/skill-manager.git` | Upstream source repository. |
 | `skill_manager_version` | *(see defaults)* | Pinned full 40-character git commit SHA. |
 | `skill_manager_install_dir` | `/usr/local/lib/skill-manager` | Built project location (dist + runtime node_modules). |
@@ -48,6 +54,9 @@ All variables have safe defaults. None are required from the caller.
 
 ```yaml
 - hosts: developers
+  vars:
+    login_user_names:
+      - alice
   roles:
     - role: nodejs
     - role: skill_manager

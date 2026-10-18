@@ -28,6 +28,8 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 - `perform-updates.yml` refuses to run with `--check`, naming the reason.
 - Tracked tools are declared in `playbooks/update-versions/vars/tools.yml`;
   adding a tool is one entry, and a malformed one fails at play start.
+- **Breaking:** The `skill_manager` role disables `sm` skill auto-adopt and
+  replaces each login user's `sm` config. Run `sm import` to adopt skills.
 
 ### Removed
 

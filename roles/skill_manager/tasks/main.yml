@@ -10,6 +10,17 @@
       repository URL; skill_manager_version must be a full 40-character
       lowercase-hex git commit SHA.
 
+- name: Assert login_user_names is provided
+  ansible.builtin.assert:
+    that:
+      - login_user_names is defined
+      - login_user_names | length > 0
+    fail_msg: >-
+      Variable validation failed: login_user_names must be defined and
+      contain at least one username. It is derived from login_users as
+      `login_users | map(attribute='name') | list`; a Molecule converge
+      play sets it directly in its `vars:` block.
+
 - name: Read the recorded installed commit SHA
   ansible.builtin.slurp:
     src: "{{ skill_manager_install_dir }}/.git_sha"
@@ -74,3 +85,23 @@
     dest: "{{ skill_manager_bin_path }}"
     state: link
   become: true
+
+- name: Create the sm home directory for each login user
+  ansible.builtin.file:
+    path: "/home/{{ item }}/.skill-manager"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0755'
+  become: true
+  loop: "{{ login_user_names }}"
+
+- name: Deploy the sm config disabling auto-adopt for each login user
+  ansible.builtin.copy:
+    src: config.toml
+    dest: "/home/{{ item }}/.skill-manager/config.toml"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: '0644'
+  become: true
+  loop: "{{ login_user_names }}"

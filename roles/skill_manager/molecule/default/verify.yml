@@ -26,3 +26,16 @@
         _sm_help.rc != 0
         or 'import' not in _sm_help.stdout
         or 'sync' not in _sm_help.stdout
+
+    - name: Read testuser's sm config file
+      ansible.builtin.slurp:
+        src: /home/testuser/.skill-manager/config.toml
+      register: _sm_config
+
+    - name: Assert the sm config disables auto-adopt
+      ansible.builtin.assert:
+        that:
+          - (_sm_config.content | b64decode) is search('(?m)^autoAdopt = false$')
+        fail_msg: >-
+          /home/testuser/.skill-manager/config.toml does not contain the line
+          `autoAdopt = false`.
