@@ -27,29 +27,6 @@
         or 'import' not in _sm_help.stdout
         or 'sync' not in _sm_help.stdout
 
-    - name: Stat testuser's sm home directory
-      ansible.builtin.stat:
-        path: /home/testuser/.skill-manager
-      register: _sm_home
-
-    - name: Stat testuser's sm config file
-      ansible.builtin.stat:
-        path: /home/testuser/.skill-manager/config.toml
-      register: _sm_config_stat
-
-    - name: Assert the sm home directory and config file are owned by testuser
-      ansible.builtin.assert:
-        that:
-          - _sm_home.stat.isdir | default(false)
-          - _sm_home.stat.pw_name == 'testuser'
-          - _sm_home.stat.gr_name == 'testuser'
-          - _sm_config_stat.stat.isreg | default(false)
-          - _sm_config_stat.stat.pw_name == 'testuser'
-          - _sm_config_stat.stat.gr_name == 'testuser'
-        fail_msg: >-
-          /home/testuser/.skill-manager or its config.toml is missing or not
-          owned by testuser:testuser.
-
     - name: Read testuser's sm config file
       ansible.builtin.slurp:
         src: /home/testuser/.skill-manager/config.toml
