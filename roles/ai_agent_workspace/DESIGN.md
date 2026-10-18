@@ -21,3 +21,11 @@ verification needs a real clone to link against. The clone destination path
 role and in `claude_code_config`'s symlink task — a logged Constitution
 Principle XI (DRY) exception, accepted because a shared variable would
 re-couple the two roles this split is separating.
+
+## Applied only where the opinionated Claude Code setup is
+
+The base play does not list this role. `claude_code_config` is the only
+consumer of the clone, so the role runs in the play for hosts that opt into
+that configuration, listed before `claude_code_config`, which also declares
+it as a hard `meta/main.yml` dependency. Hosts without that opt-in get no
+clone.

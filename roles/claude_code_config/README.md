@@ -22,8 +22,8 @@ live here rather than in `rtk`/their own roles.
 ## Requirements
 
 - Ansible 2.19+
-- `git` present on target hosts (used for Claude Code plugin marketplace and
-  oh-my-claudecode source clones)
+- The `git` role applied first, providing the `git` binary for the
+  oh-my-claudecode source clone and the Claude Code plugin marketplaces
 - The `claude_code` role applied first, providing the `claude` binary
 - The `ai_agent_workspace` role applied first, providing
   `~/Documents/Cline/ai-agent-workspace`
@@ -41,7 +41,8 @@ live here rather than in `rtk`/their own roles.
 
 ## Dependencies
 
-`rtk`, `nodejs`, `ai_agent_workspace`, `claude_code`. See `meta/main.yml`.
+`rtk`, `nodejs`, `git`, `ai_agent_workspace`, `claude_code`. See
+`meta/main.yml`.
 
 ## Example Playbook
 

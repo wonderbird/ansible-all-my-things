@@ -54,8 +54,14 @@ consumer" signal.
 **`claude_code_config` → `ai_agent_workspace` (hard dependency).** The
 skills symlink task in `claude_code_config/tasks/install-addons.yml`
 asserts `matched > 0` after searching the `ai_agent_workspace` clone's
-`.claude/skills` directory — a deliberate, fail-loud (Constitution
+`skills` directory — a deliberate, fail-loud (Constitution
 Principle XII) guard for the same kind of cross-role artefact dependency.
+
+**`claude_code_config` → `git` (hard dependency).**
+`claude_code_config/tasks/install-omc-cli.yml` clones the oh-my-claudecode
+source repository with `ansible.builtin.git`, which shells out to the `git`
+binary the `git` role installs. No presence check precedes the clone; if the
+binary is absent, it fails outright.
 
 **`claude_code_config` → `claude_code` (hard dependency).**
 `claude_code_config/tasks/install-addons.yml` and `configure.yml` run
@@ -69,7 +75,7 @@ creates `~/.claude` and writes that baseline first. `claude_code_config`
 therefore declares `claude_code` as a hard `meta/main.yml` dependency, in
 addition to explicit play ordering.
 
-All three qualify under the decision test above, and all three are
+All four qualify under the decision test above, and all four are
 declared — see "Current state" below.
 
 **Counter-example: role co-location in a playbook.** Two roles that happen
@@ -214,11 +220,11 @@ runtime assumption unaddressed either way.
 ## Current state
 
 `claude_code_config/meta/main.yml` declares `dependencies: [rtk, nodejs,
-ai_agent_workspace, claude_code]` — all four are hard, role-intrinsic
-dependencies per the decision test above (`rtk` and `ai_agent_workspace`
-for the reasons in the worked examples above; `nodejs` because
-`install-omc-cli.yml` unconditionally invokes `npm`; `claude_code` because
-this role's `claude plugin`/`claude mcp` shell calls unconditionally
+git, ai_agent_workspace, claude_code]` — all five are hard, role-intrinsic
+dependencies per the decision test above (`rtk`, `git` and
+`ai_agent_workspace` for the reasons in the worked examples above; `nodejs`
+because `install-omc-cli.yml` unconditionally invokes `npm`; `claude_code`
+because this role's `claude plugin`/`claude mcp` shell calls unconditionally
 require the binary it installs).
 
 `beads_go`, `beads_rust`, `ai_agent_workspace`, `specify_cli`, `tmux`, and

@@ -17,10 +17,8 @@ version, so YAGNI (Principle IV) favors the unpinned apt-latest install.
 ## Why a dedicated role instead of per-role installs
 
 Before this role existed, `git` was installed ad hoc inside every role
-that needed it (`ai_agent_workspace`, `beads_go`, `beads_rust`,
-`claude_code`, `skill_manager`, `specify_cli`, `tmux`), each repeating the
-same one-line apt task — a Principle XI (DRY) violation flagged during the
-PR #108 review (tracked as beads issue `ansible-all-my-things-ojz6`).
+that needed it, each repeating the same one-line apt task — a Principle XI
+(DRY) violation flagged during the PR #108 review (tracked as beads issue `ansible-all-my-things-ojz6`).
 
 Extracting a dedicated `git` role and having each consumer declare it as a
 `meta/main.yml` dependency (the same pattern `skill_manager` uses for
