@@ -16,4 +16,5 @@
     - role: nodejs
     - role: ai_agent_workspace
     - role: claude_code
+    - role: skill_manager
     - role: claude_code_config
