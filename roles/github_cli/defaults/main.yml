@@ -1,6 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
-github_cli_version: "v2.102.0"
+github_cli_version: "v2.103.2"
 github_cli_arch_map:
   x86_64: amd64
   aarch64: arm64

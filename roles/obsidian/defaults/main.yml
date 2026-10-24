@@ -4,11 +4,11 @@
 # https://github.com/obsidianmd/obsidian-releases/releases for available versions.
 # Upstream ships an amd64 .deb only — no arm64 .deb (see the not-supported-on-arm64
 # tag on the role's entry in configure-profile-roles.yml).
-obsidian_version: "v1.14.4"
+obsidian_version: "v1.14.5"
 
 # SHA-256 checksum for the amd64 .deb release asset.
 # Compute (download to file first — pipe-only sha256sum can truncate and give wrong hash):
 #   curl -sL https://github.com/obsidianmd/obsidian-releases/releases/download/<version>/obsidian_<version-without-v>_amd64.deb -o /tmp/obsidian.deb
 #   sha256sum /tmp/obsidian.deb
 # Updated automatically by playbooks/update-versions/perform-updates.yml
-obsidian_sha256_amd64: "85b10dcba6edfc1c0460a6d18260cf31c30447a444bd858a6440b9c9c8806d25"
+obsidian_sha256_amd64: "c37fb46a966f604823337fb36ab23bd1baf8ce912ec35af59d62358a93357bee"

@@ -2,15 +2,15 @@
 ---
 # Pinned Bun release tag. Upstream tags carry a `bun-v` prefix, not a bare
 # `v`. See https://github.com/oven-sh/bun/releases for available versions.
-bun_version: "bun-v1.4.3"
+bun_version: "bun-v1.4.4"
 
 # SHA-256 checksums of the linux release archives (x64 and aarch64), as
 # published by upstream in the release's SHASUMS256.txt.
 # All three values (version + both checksums) must be updated together.
 #
 # Updated automatically by playbooks/update-versions/perform-updates.yml.
-bun_sha256_x64: "3e730528d89775f03f87f05c06787c4df4099d0a37f3f252e7b829cb23816e18"
-bun_sha256_aarch64: "efa9813da5ed72423bf847f916e8d2c47c0d776add972354026a75e10da9aa21"
+bun_sha256_x64: "bf8ccbfb2b0b80159e0f9a6d15c55317add8077534dbc6130a3edb52fccb395c"
+bun_sha256_aarch64: "baa6bb36f51d6e58561e02bbea825038a9df454f673d6d776e8bbf86f8c7850e"
 
 # Bun is a single binary shared by all users, so it is installed system-wide.
 # `bunx` is the package runner; upstream ships it as a name the same binary
