@@ -12,9 +12,9 @@ skills into [Skill Manager](https://github.com/omrikais/skill-manager)
 server for web search, installs the `omc` CLI, and merges its own
 opinionated keys into `settings.json`.
 
-`beads`, `specify_cli`, and the ai-agent-workspace clone are cross-harness
-CLI tools installed by their own single-purpose roles, not by this role.
-Those roles must run before this one. The
+`beads` and `specify_cli` are cross-harness CLI tools installed by their
+own single-purpose roles, not by this role. Those roles must run before this
+one. The
 `claude_code` role installs only the Claude Code binary; this role depends
 on it — see `DESIGN.md` for why the `omc` CLI install and `rtk init -g`
 live here rather than in `rtk`/their own roles.
@@ -25,8 +25,6 @@ live here rather than in `rtk`/their own roles.
 - The `git` role applied first, providing the `git` binary for the
   oh-my-claudecode source clone and the Claude Code plugin marketplaces
 - The `claude_code` role applied first, providing the `claude` binary
-- The `ai_agent_workspace` role applied first, providing
-  `~/Documents/Cline/ai-agent-workspace`
 - The `rtk` role applied first, providing `/usr/local/bin/rtk`
 - The `nodejs` role applied first, providing a system-wide Node.js LTS
   install (`/usr/local/bin/node`/`npm`)
@@ -44,7 +42,7 @@ live here rather than in `rtk`/their own roles.
 
 ## Dependencies
 
-`rtk`, `nodejs`, `git`, `ai_agent_workspace`, `claude_code`, `skill_manager`.
+`rtk`, `nodejs`, `git`, `claude_code`, `skill_manager`.
 See `meta/main.yml`.
 
 ## Example Playbook

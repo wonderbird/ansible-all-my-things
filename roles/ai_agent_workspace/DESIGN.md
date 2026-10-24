@@ -15,14 +15,14 @@ activation step genuinely belong in different roles under this extraction's
 single-responsibility goal (Constitution Principle II). Other harnesses may
 want the clone without any tool's activation step.
 
-Consequence: `claude_code_config`'s own Molecule `converge.yml` composes this
-role together with `claude_code_config`, since `claude_code_config` declares
-it as a `meta/main.yml` dependency.
+Consequence: `claude_code_config` does not depend on this role. Its Molecule
+`converge.yml` does not compose it, and it reads nothing from the clone.
 
 ## Applied only where the opinionated Claude Code setup is
 
-The base play does not list this role. `claude_code_config` is the only
-consumer of the clone, so the role runs in the play for hosts that opt into
-that configuration, listed before `claude_code_config`, which also declares
-it as a hard `meta/main.yml` dependency. Hosts without that opt-in get no
-clone.
+The base play does not list this role. The clone belongs to the owner's Claude
+Code way of working, so the role runs in the play for hosts that opt into the
+opinionated Claude Code configuration, listed before `claude_code_config`.
+Hosts without that opt-in get no clone. The order is orchestration only:
+`claude_code_config` has no hard runtime need for the clone, so it declares no
+`meta/main.yml` dependency (Constitution Principle II).
