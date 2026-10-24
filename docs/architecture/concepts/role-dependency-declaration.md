@@ -220,12 +220,13 @@ runtime assumption unaddressed either way.
 ## Current state
 
 `claude_code_config/meta/main.yml` declares `dependencies: [rtk, nodejs,
-git, ai_agent_workspace, claude_code]` — all five are hard, role-intrinsic
-dependencies per the decision test above (`rtk`, `git` and
+git, ai_agent_workspace, claude_code, skill_manager]` — all are hard,
+role-intrinsic dependencies per the decision test above (`rtk`, `git` and
 `ai_agent_workspace` for the reasons in the worked examples above; `nodejs`
 because `install-omc-cli.yml` unconditionally invokes `npm`; `claude_code`
 because this role's `claude plugin`/`claude mcp` shell calls unconditionally
-require the binary it installs).
+require the binary it installs; `skill_manager` because the ai-agent-workspace
+skill import unconditionally runs the `sm` binary it installs).
 
 `beads_go`, `beads_rust`, `ai_agent_workspace`, `specify_cli`, `tmux`, and
 `skill_manager` (which also needs `nodejs`) declare `dependencies: [git]` —

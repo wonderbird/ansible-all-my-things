@@ -50,6 +50,44 @@
     label: "{{ item.0.item }}:{{ item.1.path | basename }}"
 
 # -----
+# Import ai-agent-workspace skills into the sm store for each desktop user
+#
+# The import deploys no skill to any tool; the user activates one with sm add.
+# --force refreshes skills changed upstream.
+# -----
+
+- name: Import ai-agent-workspace skills into the sm store
+  ansible.builtin.command:
+    cmd: sm install https://github.com/wonderbird/ai-agent-workspace --force
+    chdir: /home/{{ item }}
+  become: true
+  become_user: "{{ item }}"
+  # sm.js and node are symlinked into /usr/local/bin by skill_manager and nodejs.
+  environment:
+    PATH: "/usr/local/bin:/usr/bin:/bin"
+  loop: "{{ login_user_names }}"
+  register: workspace_skill_import
+  # The summary line carries a count only when a skill was installed or updated.
+  changed_when: >-
+    workspace_skill_import.stdout is search(
+    '^✓ Added source "ai-agent-workspace" with [0-9]+ skills \(.*(installed|updated)\)$',
+    multiline=True)
+
+# sm reports a failed skill on stdout and still exits 0.
+- name: Assert the sm import found skills and imported each one
+  ansible.builtin.assert:
+    that:
+      - item.stdout is search('^✓ Added source "ai-agent-workspace" with [1-9][0-9]* skills', multiline=True)
+      - "'Failed to install' not in item.stdout"
+    fail_msg: >-
+      `{{ item.cmd | join(' ') }}` as {{ item.item }} reported no skills or a
+      failed skill: {{ item.stdout }}
+    quiet: true
+  loop: "{{ workspace_skill_import.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+
+# -----
 # Install Claude Code plugins for each desktop user
 # -----
 

@@ -164,6 +164,45 @@
         fail_msg: "commit skill symlink is dangling"
         success_msg: "commit skill symlink resolves to real directory"
 
+    - name: List testuser's sm skills
+      ansible.builtin.command: sm ls
+      become: true
+      become_user: testuser
+      changed_when: false
+      register: sm_ls_result
+
+    - name: List testuser's sm skills deployed to Claude Code
+      ansible.builtin.command: sm ls --cc
+      become: true
+      become_user: testuser
+      changed_when: false
+      register: sm_ls_cc_result
+
+    - name: List testuser's sm skills deployed to Codex
+      ansible.builtin.command: sm ls --codex
+      become: true
+      become_user: testuser
+      changed_when: false
+      register: sm_ls_codex_result
+
+    - name: Assert sm holds the ai-agent-workspace skills
+      ansible.builtin.assert:
+        that:
+          - sm_ls_result.stdout is search('^commit\s', multiline=True)
+          - sm_ls_result.stdout is search('^Skills \([1-9][0-9]*\)$', multiline=True)
+        fail_msg: "sm ls does not list the ai-agent-workspace commit skill: {{ sm_ls_result.stdout }}"
+        success_msg: "sm holds the ai-agent-workspace skills"
+
+    - name: Assert no sm skill is deployed to Claude Code or Codex
+      ansible.builtin.assert:
+        that:
+          - sm_ls_cc_result.stdout is search('^Skills \(0\)$', multiline=True)
+          - sm_ls_codex_result.stdout is search('^Skills \(0\)$', multiline=True)
+        fail_msg: >-
+          sm deployed skills: sm ls --cc: {{ sm_ls_cc_result.stdout }}
+          sm ls --codex: {{ sm_ls_codex_result.stdout }}
+        success_msg: "no sm skill is deployed to Claude Code or Codex"
+
     - name: Check oh-my-claudecode source repository exists
       ansible.builtin.stat:
         path: /home/testuser/Documents/Cline/oh-my-claudecode/.git

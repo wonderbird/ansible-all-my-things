@@ -20,6 +20,43 @@ stdout.
 The `find` result is checked with `assert matched > 0` per user to fail loudly
 if the clone is empty or the `skills` directory is absent (Principle XII).
 
+## Skills in sm: imported, not deployed
+
+The ai-agent-workspace skills are made available in Skill Manager (`sm`) for
+every login user, but none is deployed to any tool. The owner activates a
+skill deliberately with `sm add`, per project or globally.
+
+The import runs `sm install https://github.com/wonderbird/ai-agent-workspace
+--force`. It clones the repository as an `sm` source and imports each skill
+into the `sm` store; it creates no deployment link for Claude Code or Codex.
+
+- **Why `--force`**: upstream ai-agent-workspace is the single source of
+  truth for these skills. Without `--force`, `sm` prompts before replacing a
+  skill whose content changed and, with no terminal, skips it; with it, every
+  run refreshes changed skills and overwrites edits made only in the `sm`
+  store. `sm source add --install` runs the same import but has no `--force`
+  option.
+- **Rejected: `sm install` inside a clone**: it applies the repository's
+  `.skills.json` manifest, whose entries deploy every skill globally to
+  Claude Code and Codex.
+- **Rejected: `sm import <dir>`**: it deploys each imported skill to Claude
+  Code and Codex.
+
+`sm` prints one line per skill and a summary line naming the source and its
+skill count. The count is followed by a parenthesised `installed` or
+`updated` tally only when a skill was written, so `changed_when` keys on that
+tally; a re-run with no upstream change prints the summary without it.
+
+`sm` reports a skill that failed to import on stdout and still exits 0. A
+separate `assert` therefore fails the run when the summary line is missing,
+reports zero skills, or any skill failed (Principle XII). It is an `assert`
+rather than `failed_when` so the command's own failure test stays intact.
+
+The import depends on the `sm` config the `skill_manager` role deploys: with
+auto-adopt left on, every `sm` command would move unmanaged skills from the
+working directory and the user's tool directories into the store. The task
+also runs from the user's home directory, not from a project checkout.
+
 ## Plugin idempotency: explicit existence checks before `claude plugin` calls
 
 `ansible.builtin.shell` tasks for marketplace registration and plugin installation
