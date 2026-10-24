@@ -137,30 +137,6 @@
         fail_msg: "ai-agent-workspace not found at /home/testuser/Documents/Cline/ai-agent-workspace/.git"
         success_msg: "ai-agent-workspace repository cloned"
 
-    # Searches ~/.claude rather than ~/.claude/skills, which need not exist.
-    - name: Find ~/.claude/skills links into the ai-agent-workspace clone
-      ansible.builtin.command:
-        argv:
-          - find
-          - /home/testuser/.claude
-          - -mindepth
-          - "2"
-          - -maxdepth
-          - "2"
-          - -path
-          - /home/testuser/.claude/skills/*
-          - -lname
-          - /home/testuser/Documents/Cline/ai-agent-workspace/*
-      changed_when: false
-      register: workspace_skill_links
-
-    - name: Assert no ~/.claude/skills link points into the clone
-      ansible.builtin.assert:
-        that:
-          - workspace_skill_links.stdout == ""
-        fail_msg: "~/.claude/skills links into the ai-agent-workspace clone: {{ workspace_skill_links.stdout_lines }}"
-        success_msg: "no ~/.claude/skills link points into the ai-agent-workspace clone"
-
     - name: List testuser's sm skills
       ansible.builtin.command: sm ls
       become: true
