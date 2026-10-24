@@ -8,7 +8,7 @@ per-platform sha256 checksum.
 This role touches `~/.claude` only to protect its own version-pin contract
 (two auto-update-disable settings.json keys) — everything else stays open.
 Opinionated `~/.claude` configuration for sophisticated development
-(plugins, skills symlinks, MCP servers, the `omc` CLI, and every other
+(plugins, the `sm` skill import, MCP servers, the `omc` CLI, and every other
 settings.json key) is provisioned by the separate `claude_code_config` role,
 which depends on this one — see its `README.md`/`DESIGN.md` for that scope,
 and this role's `DESIGN.md` for the general-vs-opinionated boundary test.

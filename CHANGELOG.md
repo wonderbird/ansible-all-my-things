@@ -41,6 +41,9 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   one user name.
 - `query-versions.yml`. Run `perform-updates.yml` and read `git diff`: it
   reports the same drift, having already applied it.
+- **Breaking:** `claude_code_config` links no ai-agent-workspace skill into
+  `~/.claude/skills`. Unlink existing ones: `find ~/.claude/skills -maxdepth 1
+  -lname '*/ai-agent-workspace/skills/*' -delete`.
 
 ### Fixed
 

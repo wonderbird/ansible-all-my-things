@@ -1,55 +1,6 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # -----
-# Symlink ai-agent-workspace skills for each desktop user
-#
-# The ai-agent-workspace clone itself is provisioned by the ai_agent_workspace
-# role, which must run before this role (see playbooks/configure-profile-roles.yml).
-# -----
-
-- name: Ensure ~/.claude/skills exists
-  ansible.builtin.file:
-    path: /home/{{ item }}/.claude/skills
-    state: directory
-    owner: "{{ item }}"
-    group: "{{ item }}"
-    mode: "0755"
-  become: true
-  loop: "{{ login_user_names }}"
-
-- name: Discover ai-agent-workspace skill directories
-  ansible.builtin.find:
-    paths: /home/{{ item }}/Documents/Cline/ai-agent-workspace/skills
-    file_type: directory
-    recurse: false
-  become: true
-  become_user: "{{ item }}"
-  loop: "{{ login_user_names }}"
-  register: workspace_skill_dirs
-
-- name: Assert ai-agent-workspace has skill directories
-  ansible.builtin.assert:
-    that:
-      - item.matched > 0
-    fail_msg: "No skill directories found in ai-agent-workspace clone for {{ item.item }}"
-    quiet: true
-  loop: "{{ workspace_skill_dirs.results }}"
-  loop_control:
-    label: "{{ item.item }}"
-
-- name: Symlink ai-agent-workspace skills into ~/.claude/skills
-  ansible.builtin.file:
-    src: "{{ item.1.path }}"
-    path: /home/{{ item.0.item }}/.claude/skills/{{ item.1.path | basename }}
-    state: link
-    force: no
-  become: true
-  become_user: "{{ item.0.item }}"
-  loop: "{{ workspace_skill_dirs.results | subelements('files') }}"
-  loop_control:
-    label: "{{ item.0.item }}:{{ item.1.path | basename }}"
-
-# -----
 # Import ai-agent-workspace skills into the sm store for each desktop user
 #
 # The import deploys no skill to any tool; the user activates one with sm add.

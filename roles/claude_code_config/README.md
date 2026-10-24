@@ -6,17 +6,15 @@ CLI configuration for sophisticated development, on top of the general,
 safe-for-any-project baseline `claude_code` creates: installs the
 [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) and
 [caveman](https://github.com/JuliusBrussee/caveman) Claude Code plugins,
-symlinks skills from an [ai-agent-workspace](https://github.com/wonderbird/ai-agent-workspace)
-clone (provisioned by the `ai_agent_workspace` role) into `~/.claude/skills`,
-imports the ai-agent-workspace skills into [Skill Manager](https://github.com/omrikais/skill-manager)
+imports the [ai-agent-workspace](https://github.com/wonderbird/ai-agent-workspace)
+skills into [Skill Manager](https://github.com/omrikais/skill-manager)
 (`sm`) without deploying them, configures the [Exa](https://exa.ai) MCP
 server for web search, installs the `omc` CLI, and merges its own
 opinionated keys into `settings.json`.
 
 `beads`, `specify_cli`, and the ai-agent-workspace clone are cross-harness
 CLI tools installed by their own single-purpose roles, not by this role.
-Those roles must run before this one (`ai_agent_workspace` specifically,
-since the skills symlink task depends on its clone already existing). The
+Those roles must run before this one. The
 `claude_code` role installs only the Claude Code binary; this role depends
 on it — see `DESIGN.md` for why the `omc` CLI install and `rtk init -g`
 live here rather than in `rtk`/their own roles.
@@ -70,25 +68,23 @@ See `meta/main.yml`.
 
 ## What This Role Does
 
-1. Symlinks skills from the `ai_agent_workspace` role's clone into
-   `~/.claude/skills/` (idempotent; re-provision re-links)
-2. Imports the ai-agent-workspace skills into each user's `sm` store,
+1. Imports the ai-agent-workspace skills into each user's `sm` store,
    refreshing skills changed upstream; deploys none of them to any tool —
    activate one with `sm add` (see `DESIGN.md`)
-3. Registers and installs the oh-my-claudecode Claude Code plugin
-4. Registers and installs the caveman Claude Code plugin
-5. Registers the claude-plugins-official marketplace and installs the
+2. Registers and installs the oh-my-claudecode Claude Code plugin
+3. Registers and installs the caveman Claude Code plugin
+4. Registers the claude-plugins-official marketplace and installs the
    context7 plugin
-6. Configures the [Exa](https://exa.ai) MCP server (`exa`) with the user's API
+5. Configures the [Exa](https://exa.ai) MCP server (`exa`) with the user's API
    key (skipped if already registered)
-7. Clones the oh-my-claudecode source repo and installs the `omc` CLI
+6. Clones the oh-my-claudecode source repo and installs the `omc` CLI
    (`oh-my-claude-sisyphus`, skipped if already installed)
-8. Initializes rtk globally (`rtk init -g`) for each desktop user
-9. Merges its own opinionated keys (agent-team env vars, `teammateMode`,
+7. Initializes rtk globally (`rtk init -g`) for each desktop user
+8. Merges its own opinionated keys (agent-team env vars, `teammateMode`,
    rtk/bd-guard hooks) into `settings.json`, on top of the baseline
    `claude_code` already wrote — see `DESIGN.md`
-10. Sets `CLAUDE_PLUGIN_ROOT` in `.bashrc`
-11. Copies the OMC setup prompt to `~/Documents/Cline/setup-omc-prompt.md`
+9. Sets `CLAUDE_PLUGIN_ROOT` in `.bashrc`
+10. Copies the OMC setup prompt to `~/Documents/Cline/setup-omc-prompt.md`
 
 ## Post-install Manual Steps
 

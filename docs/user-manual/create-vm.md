@@ -257,9 +257,9 @@ The `provider` parameter can be one of
 - `windows`
 
 Every profile gets the full developer stack and AI CLIs (`claude`, `opencode`,
-`specify`, `rtk`) with the skill library cloned. The opinionated global
-per-user agent configuration (`~/.claude` opinions, plugins, MCP, skill
-symlinks, `.bashrc` agent block) is a separate, orthogonal opt-in: pass
+`specify`, `rtk`). The opinionated global per-user agent configuration
+(`~/.claude` opinions, plugins, MCP, the skill library clone and its `sm`
+skill import, `.bashrc` agent block) is a separate, orthogonal opt-in: pass
 `--extra-vars claude_opinionated=true` to also apply it, regardless of
 `profile`. It defaults to `false`. See
 [ADR-005](../architecture/decisions/005-install-only-profile.md).

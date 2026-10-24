@@ -204,6 +204,14 @@ Use `ansible_facts['env']` — NOT `ansible_env` (deprecated, removed in 2.24).
           - "'expected' in result.stdout"
 ```
 
+**Assert what the role does, not that a removed feature stays absent.** When
+a change removes something the role used to create (a file, a link, a
+package), check once during development that the removal is complete, and do
+not add a permanent `verify.yml` assertion for it. Nothing in the repository
+creates the removed artefact any more, so such an assertion can never fail
+through any code path, and keeping one per removal makes the suite grow with
+every removal.
+
 **Do not verify `.bashrc` exports via `ansible_facts['env']` or `ansible_env`.**
 Ubuntu's default `.bashrc` contains `case $- in *i*) ;; *) return;; esac` —
 it exits immediately in non-interactive shells. All Ansible connections are

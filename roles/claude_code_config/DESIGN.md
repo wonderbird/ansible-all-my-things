@@ -2,29 +2,16 @@
 
 # claude_code_config role — Design Notes
 
-## Skills symlinks: pure Ansible over the repo's shell script
-
-`wonderbird/ai-agent-workspace` ships `scripts/create-skills-links-in-home.sh`,
-which creates `~/.claude/skills/<name>` symlinks into the repo clone. The role
-uses `ansible.builtin.find` + `ansible.builtin.file state: link` instead of
-calling that script via `ansible.builtin.command`.
-
-Reason: Constitution Principle I prefers built-in modules over shell tasks.
-`file state: link` reports `changed` only when a symlink is actually created;
-a `command` task requires a `changed_when` guard keyed on the script's stdout
-format, coupling correctness to the upstream script's output — a silent
-regression risk if upstream ever changes the log line. The pure-Ansible
-approach is self-contained and idempotent without coupling to external
-stdout.
-
-The `find` result is checked with `assert matched > 0` per user to fail loudly
-if the clone is empty or the `skills` directory is absent (Principle XII).
-
 ## Skills in sm: imported, not deployed
 
 The ai-agent-workspace skills are made available in Skill Manager (`sm`) for
 every login user, but none is deployed to any tool. The owner activates a
 skill deliberately with `sm add`, per project or globally.
+
+The role therefore creates no `~/.claude/skills/<name>` links. Linking every
+skill directory of an ai-agent-workspace clone there, as the upstream
+`scripts/create-skills-links-in-home.sh` does, loads all of them in every
+Claude Code session and leaves them unknown to `sm`.
 
 The import runs `sm install https://github.com/wonderbird/ai-agent-workspace
 --force`. It clones the repository as an `sm` source and imports each skill
@@ -143,7 +130,7 @@ runs.
 that protect its own version-pin contract (general and safe for any
 project); this role owns every task that is a specific, opinionated choice
 for sophisticated development (settings.json's agent-team/hook keys,
-plugins, skills symlinks, MCP servers, the `omc` CLI, `rtk init -g`). The
+plugins, the `sm` skill import, MCP servers, the `omc` CLI, `rtk init -g`). The
 split lets a host install the Claude Code binary with only the minimal
 version-pin protection, leaving every actual usage decision open — the
 prerequisite for an install-only profile (see
