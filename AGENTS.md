@@ -65,10 +65,22 @@ This protocol applies when ending a Beads implementation workflow. It is subordi
 `.beads/issues.jsonl` is intentionally force-added and tracked in git — the
 root `.gitignore` uses `.beads/*` with `!.beads/issues.jsonl` and
 `!.beads/config.yaml` negations, because a directory-pattern ignore blocks
-any later negation from any ignore file (including a clone-local
-`.git/info/exclude` written by a future `bd init`), so the whitelist must
-live in the tracked `.gitignore`. This makes the file survive across clones
-even without a Dolt remote sync.
+any later negation from any ignore file, so the whitelist must live in the
+tracked `.gitignore`. This makes the file survive across clones even without
+a Dolt remote sync.
+
+The same rule cuts the other way: `bd init --stealth` writes the directory
+pattern `.beads/` into the clone-local `.git/info/exclude`, and git then
+never reads the `.gitignore` negations — `git add .beads/issues.jsonl`
+refuses the file. After every `bd init --stealth`, remove that one line:
+
+```bash
+sed -i '/^\.beads\/$/d' .git/info/exclude
+git check-ignore -v --no-index .beads/issues.jsonl   # must name .gitignore:2:!.beads/issues.jsonl
+```
+
+Never stage the file with `git add -f` to work around this: the next agent
+hits the same refusal, and the clone stays misconfigured.
 
 `.beads/config.yaml` keeps beads out of git's way: `no-git-ops: true`, so bd
 runs no git operation of its own, and no auto-export is configured. bd's
