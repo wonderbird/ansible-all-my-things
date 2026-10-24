@@ -5,9 +5,8 @@ Ansible role that clones the
 [ai-agent-workspace](https://github.com/wonderbird/ai-agent-workspace) skill
 library source repository for each desktop user.
 
-This is a generic, cross-harness clone with no Claude-Code-specific logic —
-see `DESIGN.md` for why the `~/.claude/skills` symlink step stays in the
-`claude_code_config` role instead of here.
+This is a generic, cross-harness clone with no Claude-Code-specific logic:
+it activates no skill in any tool — see `DESIGN.md`.
 
 ## Requirements
 

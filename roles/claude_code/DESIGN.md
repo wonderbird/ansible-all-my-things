@@ -29,7 +29,7 @@ setting protect a guarantee `claude_code` itself makes (the version pin), or
 is it a choice about *how* to use Claude Code (which plugins, which agent
 workflow, which companion tools)? Only the former belongs here. Every
 opinionated setting.json key (agent-team env vars, `teammateMode`, the
-rtk/bd-guard hooks), plugin install, skills symlink, and MCP server
+rtk/bd-guard hooks), plugin install, `sm` skill import, and MCP server
 configuration is a specific tool choice for sophisticated development and
 lives in the separate `claude_code_config` role instead, which layers its
 own `configure.yml` merge onto the same `settings.json` file after this
