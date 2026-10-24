@@ -51,12 +51,6 @@ playbook that lists `claude_code_config` without having first applied `rtk`
 will break at apply time — this is exactly the "hard-fails for any
 consumer" signal.
 
-**`claude_code_config` → `ai_agent_workspace` (hard dependency).** The
-skills symlink task in `claude_code_config/tasks/install-addons.yml`
-asserts `matched > 0` after searching the `ai_agent_workspace` clone's
-`skills` directory — a deliberate, fail-loud (Constitution
-Principle XII) guard for the same kind of cross-role artefact dependency.
-
 **`claude_code_config` → `git` (hard dependency).**
 `claude_code_config/tasks/install-omc-cli.yml` clones the oh-my-claudecode
 source repository with `ansible.builtin.git`, which shells out to the `git`
@@ -153,11 +147,11 @@ conditions."* Walk the branches:
     bare `command` with no fallback), an explicit presence-check-then-fail
     is redundant with the failure that already happens; it buys a
     friendlier diagnostic string, nothing else.
-  - If the task would otherwise **silently no-op** — the `ai_agent_workspace`
-    case is exactly this: without its `assert matched > 0` guard, a missing
-    clone makes the `find` return zero matches (not an error), and the
-    downstream symlink loop iterates zero times — no failure, no symlinks,
-    a green run. Here the presence-check-then-fail **is** the Fail-Loud
+  - If the task would otherwise **silently no-op** — for example a `find`
+    over a directory another role fills: without an `assert matched > 0`
+    guard, a missing directory makes the `find` return zero matches (not an
+    error), and the downstream loop iterates zero times — no failure, no
+    effect, a green run. Here the presence-check-then-fail **is** the Fail-Loud
     mechanism (Constitution Principle XII), not diagnostic sugar; removing
     it would silently break the role's contract.
   - Either way, presence-check-then-fail does not by itself establish
@@ -220,9 +214,9 @@ runtime assumption unaddressed either way.
 ## Current state
 
 `claude_code_config/meta/main.yml` declares `dependencies: [rtk, nodejs,
-git, ai_agent_workspace, claude_code, skill_manager]` — all are hard,
-role-intrinsic dependencies per the decision test above (`rtk`, `git` and
-`ai_agent_workspace` for the reasons in the worked examples above; `nodejs`
+git, claude_code, skill_manager]` — all are hard,
+role-intrinsic dependencies per the decision test above (`rtk` and `git` for
+the reasons in the worked examples above; `nodejs`
 because `install-omc-cli.yml` unconditionally invokes `npm`; `claude_code`
 because this role's `claude plugin`/`claude mcp` shell calls unconditionally
 require the binary it installs; `skill_manager` because the ai-agent-workspace

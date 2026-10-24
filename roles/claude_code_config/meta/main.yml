@@ -22,6 +22,5 @@ dependencies:
   - rtk
   - nodejs
   - git
-  - ai_agent_workspace
   - claude_code
   - skill_manager
