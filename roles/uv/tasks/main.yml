@@ -1,0 +1,119 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Validate required variables
+  ansible.builtin.assert:
+    that:
+      - uv_version is match('^[0-9]+\.[0-9]+\.[0-9]+$')
+      - uv_sha256_x86_64_gnu is match('^[0-9a-f]{64}$')
+      - uv_sha256_aarch64_gnu is match('^[0-9a-f]{64}$')
+    fail_msg: >-
+      Variable validation failed: uv_version must be a bare semver release tag
+      without a `v` prefix (e.g. 0.13.5), got '{{ uv_version }}';
+      uv_sha256_x86_64_gnu and uv_sha256_aarch64_gnu must each be a
+      64-character lowercase SHA-256 hex digest.
+
+- name: Verify supported processor architecture
+  ansible.builtin.assert:
+    that:
+      - ansible_facts['architecture'] in uv_platform_map
+    fail_msg: >-
+      Unsupported processor architecture: {{ ansible_facts['architecture'] }}.
+      Supported architectures are: {{ uv_platform_map.keys() | list }}.
+
+- name: Set uv release archive facts
+  ansible.builtin.set_fact:
+    _uv_triple: "{{ uv_platform_map[ansible_facts['architecture']] }}"
+    _uv_sha256: >-
+      {{ {'x86_64': uv_sha256_x86_64_gnu,
+          'aarch64': uv_sha256_aarch64_gnu}[ansible_facts['architecture']] }}
+    # Both paths carry the version, so a leftover from an interrupted run of
+    # another version is never mistaken for this one.
+    _uv_archive: "/tmp/uv-{{ uv_version }}-{{ uv_platform_map[ansible_facts['architecture']] }}.tar.gz"
+    _uv_staging: "/tmp/uv-{{ uv_version }}-{{ uv_platform_map[ansible_facts['architecture']] }}"
+
+- name: Check whether uv and uvx are installed
+  ansible.builtin.stat:
+    path: "/usr/local/bin/{{ item }}"
+  loop: [uv, uvx]
+  register: _uv_binary_stat
+
+- name: Get installed uv and uvx versions
+  ansible.builtin.command:
+    cmd: "{{ item.stat.path }} --version"
+  loop: "{{ _uv_binary_stat.results }}"
+  loop_control:
+    label: "{{ item.item }}"
+  when: item.stat.exists
+  register: _uv_installed_versions
+  changed_when: false
+
+# An unreadable version would make the gate below reinstall on every run,
+# so it stops the play instead (Constitution Principle XII).
+- name: Assert installed uv and uvx report a parseable version
+  ansible.builtin.assert:
+    that:
+      - item.stdout is match('^uvx? [0-9]+\.[0-9]+\.[0-9]+( |$)')
+    fail_msg: >-
+      {{ item.cmd | join(' ') }} printed '{{ item.stdout }}', which does not
+      start with "uv <semver>" or "uvx <semver>"; cannot tell whether the
+      installed version matches uv_version {{ uv_version }}.
+    quiet: true
+  loop: "{{ _uv_installed_versions.results | selectattr('stdout', 'defined') | list }}"
+  loop_control:
+    label: "{{ item.item.item }}"
+
+# Install when either binary is missing or either reports another version,
+# so a pin bump upgrades an existing host and a lost uvx is repaired.
+- name: Determine if uv installation is required
+  ansible.builtin.set_fact:
+    _uv_needs_install: >-
+      {{ (_uv_binary_stat.results | selectattr('stat.exists') | list | length) < 2
+         or (_uv_installed_versions.results
+             | selectattr('stdout', 'defined')
+             | map(attribute='stdout')
+             | map('regex_replace', '^uvx? (\S+).*$', '\1')
+             | reject('equalto', uv_version)
+             | list | length) > 0 }}
+
+- name: Install uv and uvx from the checksum-verified release archive
+  when: _uv_needs_install | bool
+  block:
+    - name: Download the uv release archive
+      ansible.builtin.get_url:
+        url: "https://github.com/astral-sh/uv/releases/download/{{ uv_version }}/uv-{{ _uv_triple }}.tar.gz"
+        dest: "{{ _uv_archive }}"
+        checksum: "sha256:{{ _uv_sha256 }}"
+        mode: '0644'
+
+    - name: Create staging directory for uv extraction
+      ansible.builtin.file:
+        path: "{{ _uv_staging }}"
+        state: directory
+        mode: '0755'
+
+    - name: Extract the uv release archive
+      ansible.builtin.unarchive:
+        src: "{{ _uv_archive }}"
+        dest: "{{ _uv_staging }}"
+        remote_src: true
+
+    # Copied rather than extracted in place: the archive records a non-root
+    # owner, and system binaries must be owned by root.
+    - name: Install uv and uvx to /usr/local/bin
+      ansible.builtin.copy:
+        src: "{{ _uv_staging }}/uv-{{ _uv_triple }}/{{ item }}"
+        dest: "/usr/local/bin/{{ item }}"
+        remote_src: true
+        owner: root
+        group: root
+        mode: '0755'
+      loop: [uv, uvx]
+
+  always:
+    - name: Remove the uv release archive and staging directory
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - "{{ _uv_archive }}"
+        - "{{ _uv_staging }}"
