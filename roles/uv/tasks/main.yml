@@ -26,10 +26,6 @@
     _uv_sha256: >-
       {{ {'x86_64': uv_sha256_x86_64_gnu,
           'aarch64': uv_sha256_aarch64_gnu}[ansible_facts['architecture']] }}
-    # Both paths carry the version, so a leftover from an interrupted run of
-    # another version is never mistaken for this one.
-    _uv_archive: "/tmp/uv-{{ uv_version }}-{{ uv_platform_map[ansible_facts['architecture']] }}.tar.gz"
-    _uv_staging: "/tmp/uv-{{ uv_version }}-{{ uv_platform_map[ansible_facts['architecture']] }}"
 
 - name: Check whether uv and uvx are installed
   ansible.builtin.stat:
@@ -77,30 +73,33 @@
 - name: Install uv and uvx from the checksum-verified release archive
   when: _uv_needs_install | bool
   block:
+    # A fresh root-owned 0700 directory with a random name: a fixed path in
+    # world-writable /tmp could be pre-created by another user, who could then
+    # swap the binaries before they are copied into /usr/local/bin.
+    - name: Create a private staging directory for the uv archive
+      ansible.builtin.tempfile:
+        state: directory
+        prefix: uv-
+      register: _uv_staging
+
     - name: Download the uv release archive
       ansible.builtin.get_url:
         url: "https://github.com/astral-sh/uv/releases/download/{{ uv_version }}/uv-{{ _uv_triple }}.tar.gz"
-        dest: "{{ _uv_archive }}"
+        dest: "{{ _uv_staging.path }}/uv-{{ _uv_triple }}.tar.gz"
         checksum: "sha256:{{ _uv_sha256 }}"
         mode: '0644'
 
-    - name: Create staging directory for uv extraction
-      ansible.builtin.file:
-        path: "{{ _uv_staging }}"
-        state: directory
-        mode: '0755'
-
     - name: Extract the uv release archive
       ansible.builtin.unarchive:
-        src: "{{ _uv_archive }}"
-        dest: "{{ _uv_staging }}"
+        src: "{{ _uv_staging.path }}/uv-{{ _uv_triple }}.tar.gz"
+        dest: "{{ _uv_staging.path }}"
         remote_src: true
 
     # Copied rather than extracted in place: the archive records a non-root
     # owner, and system binaries must be owned by root.
     - name: Install uv and uvx to /usr/local/bin
       ansible.builtin.copy:
-        src: "{{ _uv_staging }}/uv-{{ _uv_triple }}/{{ item }}"
+        src: "{{ _uv_staging.path }}/uv-{{ _uv_triple }}/{{ item }}"
         dest: "/usr/local/bin/{{ item }}"
         remote_src: true
         owner: root
@@ -109,10 +108,10 @@
       loop: [uv, uvx]
 
   always:
-    - name: Remove the uv release archive and staging directory
+    # Skipped only when the staging directory itself could not be created;
+    # that failure has already stopped the play.
+    - name: Remove the uv staging directory
       ansible.builtin.file:
-        path: "{{ item }}"
+        path: "{{ _uv_staging.path }}"
         state: absent
-      loop:
-        - "{{ _uv_archive }}"
-        - "{{ _uv_staging }}"
+      when: _uv_staging.path is defined

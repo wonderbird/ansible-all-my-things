@@ -48,15 +48,19 @@ not root. Extracting straight into `/usr/local/bin` would carry that owner onto
 system binaries on hosts where the numeric ID maps to a real account, which
 could then replace them.
 
-The role therefore extracts into a staging directory under `/tmp` and copies
+The role therefore downloads and extracts into a staging directory and copies
 the two binaries into `/usr/local/bin` with an explicit `root:root` owner and
 mode `0755`. The copy also replaces each binary by rename, so a running `uv`
 is never overwritten in place.
 
-The archive and the staging directory are removed after every install attempt,
-successful or not, so nothing accumulates in `/tmp` across runs or version
-bumps. Both paths carry the version, so a leftover from an interrupted run of
-another version is never mistaken for the current one.
+The staging directory is created fresh for each install by
+`ansible.builtin.tempfile`: root-owned, mode `0700`, with a random name. A
+fixed path in world-writable `/tmp` could be created first by another local
+user, who would then own it and could swap the binaries between extraction and
+the copy into `/usr/local/bin`.
+
+The staging directory is removed after every install attempt, successful or
+not, so nothing accumulates in `/tmp` across runs or version bumps.
 
 The install gate looks at presence and version, not ownership: a binary whose
 owner was changed after installation is not repaired by a re-run.
