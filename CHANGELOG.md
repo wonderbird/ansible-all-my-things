@@ -18,6 +18,7 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 - Every Linux host gets the Bun runtime, with `bun` and `bunx` on the PATH.
 - `claude_code_config` imports the ai-agent-workspace skills into each login
   user's `sm` store, deploying none.
+- Every Linux host gets the uv Python manager, with `uv` and `uvx` on the PATH.
 
 ### Changed
 
