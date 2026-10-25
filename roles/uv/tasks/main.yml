@@ -27,48 +27,47 @@
       {{ {'x86_64': uv_sha256_x86_64_gnu,
           'aarch64': uv_sha256_aarch64_gnu}[ansible_facts['architecture']] }}
 
-- name: Check whether uv and uvx are installed
+- name: Check whether uv is installed
   ansible.builtin.stat:
-    path: "/usr/local/bin/{{ item }}"
-  loop: [uv, uvx]
-  register: _uv_binary_stat
+    path: /usr/local/bin/uv
+  register: _uv_stat
 
-- name: Get installed uv and uvx versions
+# uvx is a launcher that execs its sibling uv, so its --version reports uv's
+# version and says nothing about uvx itself: only its presence is checked.
+- name: Check whether uvx is installed
+  ansible.builtin.stat:
+    path: /usr/local/bin/uvx
+  register: _uvx_stat
+
+- name: Get installed uv version
   ansible.builtin.command:
-    cmd: "{{ item.stat.path }} --version"
-  loop: "{{ _uv_binary_stat.results }}"
-  loop_control:
-    label: "{{ item.item }}"
-  when: item.stat.exists
-  register: _uv_installed_versions
+    cmd: /usr/local/bin/uv --version
+  when: _uv_stat.stat.exists
+  register: _uv_installed_version
   changed_when: false
 
 # An unreadable version would make the gate below reinstall on every run,
 # so it stops the play instead (Constitution Principle XII).
-- name: Assert installed uv and uvx report a parseable version
+- name: Assert installed uv reports a parseable version
   ansible.builtin.assert:
     that:
-      - item.stdout is match('^uvx? [0-9]+\.[0-9]+\.[0-9]+( |$)')
+      - _uv_installed_version.stdout is match('^uv [0-9]+\.[0-9]+\.[0-9]+( |$)')
     fail_msg: >-
-      {{ item.cmd | join(' ') }} printed '{{ item.stdout }}', which does not
-      start with "uv <semver>" or "uvx <semver>"; cannot tell whether the
-      installed version matches uv_version {{ uv_version }}.
+      /usr/local/bin/uv --version printed '{{ _uv_installed_version.stdout }}',
+      which does not start with "uv <semver>"; cannot tell whether the
+      installed version matches uv_version {{ uv_version }}. Remove
+      /usr/local/bin/uv and /usr/local/bin/uvx to let the role reinstall.
     quiet: true
-  loop: "{{ _uv_installed_versions.results | selectattr('stdout', 'defined') | list }}"
-  loop_control:
-    label: "{{ item.item.item }}"
+  when: _uv_stat.stat.exists
 
-# Install unless both binaries exist and both report exactly the pinned
+# Install unless both binaries exist and uv reports exactly the pinned
 # version, so a pin bump upgrades an existing host and a lost uvx is repaired.
-# A missing binary has no version output, so it is never counted as current.
 - name: Determine if uv installation is required
   ansible.builtin.set_fact:
     _uv_needs_install: >-
-      {{ _uv_installed_versions.results
-         | selectattr('stdout', 'defined')
-         | map(attribute='stdout')
-         | select('match', '^uvx? ' ~ (uv_version | regex_escape) ~ '( |$)')
-         | list | length < 2 }}
+      {{ not (_uv_stat.stat.exists and _uvx_stat.stat.exists
+              and _uv_installed_version.stdout
+                  is match('^uv ' ~ (uv_version | regex_escape) ~ '( |$)')) }}
 
 - name: Install uv and uvx from the checksum-verified release archive
   when: _uv_needs_install | bool
