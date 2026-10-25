@@ -9,11 +9,12 @@
 # playbooks/update-versions/perform-updates.yml -- there is no live
 # checksums.sha256 fetch left; get_url's checksum: param verifies against the
 # pinned literal and fails atomically (no partial file left) on mismatch.
-# System-wide install (single scalar stat gate, matching beads_go) rather than
-# per-user: br is a static per-architecture binary with no per-user state
-# (issue/config data lives in ~/.beads or project dirs regardless of binary
-# location). The stat gate avoids redundant re-download/re-extract of the
-# same pinned archive on every converge, same rationale as beads_go.
+# System-wide install rather than per-user: br is a static per-architecture
+# binary with no per-user state (issue/config data lives in ~/.beads or
+# project dirs regardless of binary location). The install is gated on
+# `br --version` matching the pin, not on the file existing: a pin bump then
+# upgrades an existing host, and a re-run at the pinned version skips the
+# redundant re-download/re-extract of the same archive.
 # -----
 
 - name: Assert login_user_names is provided
@@ -32,8 +33,39 @@
     path: /usr/local/bin/br
   register: br_stat
 
+- name: Get installed br version
+  ansible.builtin.command:
+    cmd: /usr/local/bin/br --version
+  when: br_stat.stat.exists
+  register: _br_installed_version
+  changed_when: false
+
+# An unreadable version would make the gate below reinstall on every run,
+# so it stops the play instead (Constitution Principle XII).
+- name: Assert installed br reports a parseable version
+  ansible.builtin.assert:
+    that:
+      - _br_installed_version.stdout is match('^br [0-9]+\.[0-9]+\.[0-9]+( |$)')
+    fail_msg: >-
+      /usr/local/bin/br --version printed '{{ _br_installed_version.stdout }}',
+      which does not start with "br <semver>"; cannot tell whether the
+      installed version matches beads_rust_version {{ beads_rust_version }}. Remove
+      /usr/local/bin/br to let the role reinstall.
+    quiet: true
+  when: br_stat.stat.exists
+
+# Install unless br exists and reports exactly the pinned version, so a
+# pin bump upgrades an existing host. The version is compared as a whole
+# token, so a pin never matches a longer version that merely starts with it.
+- name: Determine if br installation is required
+  ansible.builtin.set_fact:
+    _br_needs_install: >-
+      {{ not (br_stat.stat.exists
+              and _br_installed_version.stdout
+                  is match('^br ' ~ (beads_rust_version | regex_replace('^v', '') | regex_escape) ~ '( |$)')) }}
+
 - name: Install br from a checksum-verified release archive
-  when: not br_stat.stat.exists
+  when: _br_needs_install | bool
   become: true
   block:
     - name: Verify supported processor architecture for br

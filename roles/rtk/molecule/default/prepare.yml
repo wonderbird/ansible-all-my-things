@@ -1,0 +1,18 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Prepare container
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    # A stale rtk at /usr/local/bin/rtk makes converge exercise the upgrade
+    # path: the role must replace it, not skip the install because the file exists.
+    - name: Plant a stale rtk that reports an older version
+      ansible.builtin.copy:
+        content: |
+          #!/bin/sh
+          echo "rtk 0.0.1"
+        dest: /usr/local/bin/rtk
+        owner: root
+        group: root
+        mode: '0755'

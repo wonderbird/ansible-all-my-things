@@ -11,7 +11,9 @@
 # pinned literal. Archive filenames embed the version (e.g.
 # bv_0.24.1_linux_amd64.tar.gz), so the stripped variant is derived in-role
 # from the single pinned raw tag. Same static-pin, no-partial-file,
-# system-wide semantics as bd (roles/beads_go).
+# system-wide semantics as bd (roles/beads_go). The install is gated on
+# `bv --version` matching the pin, not on the file existing, so a pin bump
+# upgrades an existing host.
 # -----
 
 - name: Check if bv binary already exists
@@ -19,8 +21,39 @@
     path: /usr/local/bin/bv
   register: bv_stat
 
+- name: Get installed bv version
+  ansible.builtin.command:
+    cmd: /usr/local/bin/bv --version
+  when: bv_stat.stat.exists
+  register: _bv_installed_version
+  changed_when: false
+
+# An unreadable version would make the gate below reinstall on every run,
+# so it stops the play instead (Constitution Principle XII).
+- name: Assert installed bv reports a parseable version
+  ansible.builtin.assert:
+    that:
+      - _bv_installed_version.stdout is match('^bv v[0-9]+\.[0-9]+\.[0-9]+( |$)')
+    fail_msg: >-
+      /usr/local/bin/bv --version printed '{{ _bv_installed_version.stdout }}',
+      which does not start with "bv v<semver>"; cannot tell whether the
+      installed version matches beads_viewer_version {{ beads_viewer_version }}. Remove
+      /usr/local/bin/bv to let the role reinstall.
+    quiet: true
+  when: bv_stat.stat.exists
+
+# Install unless bv exists and reports exactly the pinned version, so a
+# pin bump upgrades an existing host. The version is compared as a whole
+# token, so a pin never matches a longer version that merely starts with it.
+- name: Determine if bv installation is required
+  ansible.builtin.set_fact:
+    _bv_needs_install: >-
+      {{ not (bv_stat.stat.exists
+              and _bv_installed_version.stdout
+                  is match('^bv v' ~ (beads_viewer_version | regex_replace('^v', '') | regex_escape) ~ '( |$)')) }}
+
 - name: Install bv from a checksum-verified release archive
-  when: not bv_stat.stat.exists
+  when: _bv_needs_install | bool
   become: true
   block:
     - name: Verify supported processor architecture for bv

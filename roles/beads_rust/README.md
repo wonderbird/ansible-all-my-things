@@ -24,9 +24,9 @@ roles.
 
 The binary's version and checksum are pinned in `defaults/main.yml`
 (`beads_rust_version`/`beads_rust_sha256_amd64`/`beads_rust_sha256_arm64`), refreshed
-only by `playbooks/update-versions/perform-updates.yml`. The role does not
-auto-upgrade an already-installed `br` when the pin changes; remove the binary
-and re-run the role to pick up a new pin.
+only by `playbooks/update-versions/perform-updates.yml`. The role installs
+`br` when it is missing or `br --version` does not report the pinned
+version, so a pin bump upgrades an existing host on the next run.
 
 ## Dependencies
 
@@ -51,7 +51,7 @@ and re-run the role to pick up a new pin.
    system-wide, by downloading the pinned `beads_rust_version` release archive
    from [Dicklesworthstone/beads_rust](https://github.com/Dicklesworthstone/beads_rust)
    and verifying it against the pinned per-arch sha256 checksum before
-   extraction. Skipped if `br` is already installed.
+   extraction. Skipped if `br` already reports the pinned version.
 2. Clones the beads_rust source repository to `~/Documents/Cline/beads_rust`
    for each desktop user
 

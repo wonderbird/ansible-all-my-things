@@ -23,9 +23,9 @@ The beads viewer (`bv`) is installed by the separate `beads_viewer` role.
 
 The binary's version and checksum are pinned in `defaults/main.yml`
 (`beads_go_version`/`beads_go_sha256_amd64`/`beads_go_sha256_arm64`), refreshed
-only by `playbooks/update-versions/perform-updates.yml`. The role does not
-auto-upgrade an already-installed `bd` when the pin changes; remove the binary
-and re-run the role to pick up a new pin.
+only by `playbooks/update-versions/perform-updates.yml`. The role installs
+`bd` when it is missing or `bd --version` does not report the pinned
+version, so a pin bump upgrades an existing host on the next run.
 
 ## Dependencies
 
@@ -50,7 +50,7 @@ and re-run the role to pick up a new pin.
    system-wide, by downloading the pinned `beads_go_version` release archive
    from [gastownhall/beads](https://github.com/gastownhall/beads) and
    verifying it against the pinned per-arch sha256 checksum before
-   extraction. Skipped if `bd` is already installed.
+   extraction. Skipped if `bd` already reports the pinned version.
 2. Clones the beads source repository to `~/Documents/Cline/beads` for each
    desktop user
 

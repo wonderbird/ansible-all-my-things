@@ -17,11 +17,11 @@ other agent harnesses — so it is a standalone role rather than bundled into
 
 The version and checksum are pinned in `defaults/main.yml` (`rtk_version`,
 `rtk_sha256_x86_64_musl`, `rtk_sha256_aarch64_gnu`), refreshed only by
-`playbooks/update-versions/perform-updates.yml`. A `stat` gate short-circuits
-the whole download-and-verify block once `/usr/local/bin/rtk` exists, so
-re-running the role never re-downloads an already-installed binary. To
-upgrade, bump the pin (or run `perform-updates.yml`), remove the binary, and
-re-run the role.
+`playbooks/update-versions/perform-updates.yml`. The download-and-verify block
+runs only when `/usr/local/bin/rtk` is missing or `rtk --version` does not
+report the pinned version, so re-running the role at the pinned version never
+re-downloads the binary. To upgrade, bump the pin (or run
+`perform-updates.yml`) and re-run the role.
 
 ## Dependencies
 
@@ -37,7 +37,8 @@ None. See `meta/main.yml` for details.
 
 ## What This Role Does
 
-Skipped entirely once `/usr/local/bin/rtk` exists. On first install it:
+Skipped entirely once `/usr/local/bin/rtk` reports the pinned version. When
+`rtk` is missing or at another version it:
 
 1. Downloads the architecture-specific release archive for the pinned
    `rtk_version` and verifies it against the pinned per-triple sha256

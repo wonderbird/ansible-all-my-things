@@ -81,11 +81,13 @@ pinned default variable — never a live upstream query made at converge
 time. `flutter` and `obsidian`, the reference tools of the
 version-update mechanism, follow the same static-pin shape.
 
-A `stat` check on the resulting binary path still gates the whole
-download block in every role (e.g. `/usr/local/bin/rtk`, or the per-user
-`~/.local/bin/claude`). This gate is load-bearing for one narrow
-reason: because the pin is already static, the gate carries no
-version-drift risk either way — its only job is avoiding a
+A gate on the resulting binary still guards the whole download block in
+every role. In `rtk`, `beads_go`, `beads_rust`, `beads_viewer`, `bun`,
+`opencode` and `uv` it is a version compare: the installed tool's
+`--version` is matched against the pin, so a pin bump upgrades a host that
+already has an older version. A bare `stat` on the binary would never
+reach such a host. In the roles that still use a `stat` check (e.g. the
+per-user `~/.local/bin/claude`) the gate's only job is avoiding a
 redundant re-download/re-extract of the same pinned archive on every
 converge (`unarchive`/binary placement has no `creates:`-based
 idempotency of its own).
@@ -115,13 +117,14 @@ static-pin, verify-before-placement shape:
   static-pin reference implementations; version and checksum both
   explicit literals in `defaults/main.yml`.
 - `roles/rtk/tasks/main.yml` — `rtk_version` and a per-architecture
-  `rtk_sha256_*` literal, stat-gated, single system-wide artefact.
+  `rtk_sha256_*` literal, gated on `rtk --version` matching the pin, single
+  system-wide artefact.
 - `roles/beads_go/tasks/main.yml` — `bd` uses a static `beads_go_version`
-  pin and per-architecture literal checksums, gated on a single scalar
-  `stat` check, installed system-wide to `/usr/local/bin`.
+  pin and per-architecture literal checksums, gated on `bd --version`
+  matching the pin, installed system-wide to `/usr/local/bin`.
 - `roles/beads_viewer/tasks/main.yml` — `bv` uses a static
   `beads_viewer_version` pin and per-architecture literal checksums, gated on
-  a single scalar `stat` check, installed system-wide to `/usr/local/bin`.
+  `bv --version` matching the pin, installed system-wide to `/usr/local/bin`.
 - `roles/nodejs/tasks/main.yml` — static `node_version` pin and
   per-architecture literal checksums, stat-gated on the
   version-agnostic `/usr/local/bin/node`.
@@ -129,5 +132,4 @@ static-pin, verify-before-placement shape:
   `claude_code_version` pin and per-architecture literal checksums
   (resolved from the upstream manifest once, at maintenance time, by
   `playbooks/update-versions/tasks/fetch-claude-code-version.yml`), on
-  the same stat-gated, verify-before-placement shape as every role
-  above.
+  a stat-gated, verify-before-placement shape.

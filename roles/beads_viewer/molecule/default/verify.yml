@@ -4,6 +4,10 @@
   hosts: all
   become: true
   tasks:
+    - name: Load role defaults for version reference
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../../defaults/main.yml"
+
     - name: Check beads viewer binary exists
       ansible.builtin.stat:
         path: /usr/local/bin/bv
@@ -15,3 +19,20 @@
           - bv_binary.stat.exists
         fail_msg: "beads viewer (bv) binary not found at /usr/local/bin/bv"
         success_msg: "beads viewer (bv) binary found at /usr/local/bin/bv"
+
+    - name: Get installed bv version
+      ansible.builtin.command:
+        cmd: /usr/local/bin/bv --version
+      register: _verify_bv_version
+      changed_when: false
+
+    # prepare.yml planted a stale bv; reporting the pin proves converge
+    # replaced it (the upgrade path) instead of skipping on file presence.
+    - name: Assert bv reports exactly the pinned version
+      ansible.builtin.assert:
+        that:
+          - (_verify_bv_version.stdout.split() + ['', '', ''])[1] == beads_viewer_version
+        fail_msg: >-
+          Expected bv version {{ beads_viewer_version }} but got
+          '{{ _verify_bv_version.stdout }}'
+        success_msg: "bv reports {{ _verify_bv_version.stdout }}, matching the pin"

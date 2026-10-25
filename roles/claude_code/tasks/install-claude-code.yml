@@ -12,7 +12,7 @@
 # (roles/claude_code/defaults/main.yml), refreshed only by
 # playbooks/update-versions/perform-updates.yml -- see Constitution
 # Principle II. This converges claude_code's idempotency model onto the same
-# stat-gate-before-download shape used by rtk/beads/nodejs (verify-before-
+# stat-gate-before-download shape used by nodejs (verify-before-
 # placement instead of always-reinstall + reverify-after-the-fact).
 - name: Select expected checksum for this architecture
   ansible.builtin.set_fact:

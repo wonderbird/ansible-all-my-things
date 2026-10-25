@@ -1,0 +1,18 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Prepare container
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    # A stale bv at /usr/local/bin/bv makes converge exercise the upgrade
+    # path: the role must replace it, not skip the install because the file exists.
+    - name: Plant a stale bv that reports an older version
+      ansible.builtin.copy:
+        content: |
+          #!/bin/sh
+          echo "bv v0.0.1"
+        dest: /usr/local/bin/bv
+        owner: root
+        group: root
+        mode: '0755'

@@ -4,6 +4,10 @@
   hosts: all
   become: true
   tasks:
+    - name: Load role defaults for version reference
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../../defaults/main.yml"
+
     - name: Check beads binary exists
       ansible.builtin.stat:
         path: /usr/local/bin/bd
@@ -27,3 +31,20 @@
           - beads_src_stat.stat.exists
         fail_msg: "beads source repo not found at /home/testuser/Documents/Cline/beads/.git"
         success_msg: "beads source repo found at /home/testuser/Documents/Cline/beads/.git"
+
+    - name: Get installed bd version
+      ansible.builtin.command:
+        cmd: /usr/local/bin/bd --version
+      register: _verify_bd_version
+      changed_when: false
+
+    # prepare.yml planted a stale bd; reporting the pin proves converge
+    # replaced it (the upgrade path) instead of skipping on file presence.
+    - name: Assert bd reports exactly the pinned version
+      ansible.builtin.assert:
+        that:
+          - (_verify_bd_version.stdout.split() + ['', '', ''])[2] == (beads_go_version | regex_replace('^v', ''))
+        fail_msg: >-
+          Expected bd version {{ beads_go_version | regex_replace('^v', '') }} but got
+          '{{ _verify_bd_version.stdout }}'
+        success_msg: "bd reports {{ _verify_bd_version.stdout }}, matching the pin"

@@ -21,9 +21,9 @@ being bundled with `beads_go`. The tracker (`bd`) is installed by the separate
 None required. The binary's version and checksum are pinned in
 `defaults/main.yml` (`beads_viewer_version`, `beads_viewer_sha256_amd64`,
 `beads_viewer_sha256_arm64`), refreshed only by
-`playbooks/update-versions/perform-updates.yml`. The role does not
-auto-upgrade an already-installed `bv` when the pin changes; remove the binary
-and re-run the role to pick up a new pin.
+`playbooks/update-versions/perform-updates.yml`. The role installs
+`bv` when it is missing or `bv --version` does not report the pinned
+version, so a pin bump upgrades an existing host on the next run.
 
 ## Dependencies
 
@@ -43,7 +43,7 @@ Installs the beads viewer (`bv`) to `/usr/local/bin/bv`, system-wide, by
 downloading the pinned `beads_viewer_version` release archive from
 [Dicklesworthstone/beads_viewer](https://github.com/Dicklesworthstone/beads_viewer)
 and verifying it against the pinned per-arch sha256 checksum before
-extraction. Skipped if `bv` is already installed.
+extraction. Skipped if `bv` already reports the pinned version.
 
 ## License
 
