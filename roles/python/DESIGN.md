@@ -12,8 +12,7 @@ the `universe` component, which is enabled by default in Ubuntu 24.04 images.
 
 `python3-full` includes `python3-venv` and `ensurepip`, required for tools
 that create isolated virtual environments. The minimal `python3` package omits
-these, which causes failures in pipx and related tooling. This role preserves
-the `python3-full` install that previously lived inline in `setup-desktop.yml`.
+these, which causes failures in pipx and related tooling.
 
 ## No universe repository manipulation
 
