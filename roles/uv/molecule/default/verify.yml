@@ -14,16 +14,19 @@
       loop: [uv, uvx]
       register: _verify_uv_stat
 
-    - name: Assert uv and uvx exist, are executable and are owned by root
+    - name: Assert uv and uvx exist as root:root with mode 0755
       ansible.builtin.assert:
         that:
           - item.stat.exists
-          - item.stat.executable
           - item.stat.pw_name == 'root'
+          - item.stat.gr_name == 'root'
+          - item.stat.mode == '0755'
         fail_msg: >-
-          /usr/local/bin/{{ item.item }} missing, not executable, or not owned
-          by root (owner: {{ item.stat.pw_name | default('<missing>') }})
-        success_msg: "/usr/local/bin/{{ item.item }} present, executable, owned by root"
+          /usr/local/bin/{{ item.item }} missing or not root:root 0755
+          (owner: {{ item.stat.pw_name | default('<missing>') }},
+          group: {{ item.stat.gr_name | default('<missing>') }},
+          mode: {{ item.stat.mode | default('<missing>') }})
+        success_msg: "/usr/local/bin/{{ item.item }} present as root:root 0755"
       loop: "{{ _verify_uv_stat.results }}"
       loop_control:
         label: "{{ item.item }}"
@@ -31,13 +34,14 @@
     - name: Get uv and uvx versions as an unprivileged user
       ansible.builtin.command:
         cmd: "/usr/local/bin/{{ item }} --version"
-      become: true
       become_user: testuser
       loop: [uv, uvx]
       register: _verify_uv_version
       changed_when: false
 
-    - name: Assert uv and uvx report exactly the pinned version
+    # uvx execs its sibling uv, so its line proves that uvx runs and reaches
+    # the pinned uv, not a version of uvx itself.
+    - name: Assert uv and uvx run and report exactly the pinned uv version
       ansible.builtin.assert:
         that:
           # The second field of "uv 0.13.5 (<triple>)". A regex backreference
