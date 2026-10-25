@@ -1,0 +1,73 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Load role defaults for version reference
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../../defaults/main.yml"
+
+    - name: Stat installed uv and uvx binaries
+      ansible.builtin.stat:
+        path: "/usr/local/bin/{{ item }}"
+      loop: [uv, uvx]
+      register: _verify_uv_stat
+
+    - name: Assert uv and uvx exist as root:root with mode 0755
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.pw_name == 'root'
+          - item.stat.gr_name == 'root'
+          - item.stat.mode == '0755'
+        fail_msg: >-
+          /usr/local/bin/{{ item.item }} missing or not root:root 0755
+          (owner: {{ item.stat.pw_name | default('<missing>') }},
+          group: {{ item.stat.gr_name | default('<missing>') }},
+          mode: {{ item.stat.mode | default('<missing>') }})
+        success_msg: "/usr/local/bin/{{ item.item }} present as root:root 0755"
+      loop: "{{ _verify_uv_stat.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Get uv and uvx versions as an unprivileged user
+      ansible.builtin.command:
+        cmd: "/usr/local/bin/{{ item }} --version"
+      become_user: testuser
+      loop: [uv, uvx]
+      register: _verify_uv_version
+      changed_when: false
+
+    # uvx execs its sibling uv, so its line proves that uvx runs and reaches
+    # the pinned uv, not a version of uvx itself.
+    - name: Assert uv and uvx run and report exactly the pinned uv version
+      ansible.builtin.assert:
+        that:
+          # The second field of "uv 0.13.5 (<triple>)". A regex backreference
+          # is not used here: inside a conditional, the string '\1' reaches
+          # regex_replace as a control character, not as a group reference.
+          - (item.stdout.split() + [''])[1] == uv_version
+        fail_msg: >-
+          Expected {{ item.item }} version {{ uv_version }} but got
+          '{{ item.stdout }}'
+        success_msg: "{{ item.item }} reports {{ item.stdout }}, matching the pin"
+      loop: "{{ _verify_uv_version.results }}"
+      loop_control:
+        label: "{{ item.item }}"
+
+    - name: Find leftover uv archives or staging directories in /tmp
+      ansible.builtin.find:
+        paths: /tmp
+        patterns: "uv-*"
+        file_type: any
+      register: _verify_uv_leftovers
+
+    - name: Assert the install left nothing behind in /tmp
+      ansible.builtin.assert:
+        that:
+          - _verify_uv_leftovers.matched == 0
+        fail_msg: >-
+          uv install leftovers in /tmp:
+          {{ _verify_uv_leftovers.files | map(attribute='path') | list }}
+        success_msg: "No uv install leftovers in /tmp"

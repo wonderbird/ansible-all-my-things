@@ -15,6 +15,7 @@
     - bun
     - ruby
     - python
+    - uv
     - java
     - vim
     - dolt_sql_server

@@ -400,3 +400,36 @@ _tools:
       - {pin: bun_version, value: "{{ _fetched.version }}"}
       - {pin: bun_sha256_x64, value: "{{ _checksums.x64 }}"}
       - {pin: bun_sha256_aarch64, value: "{{ _checksums.aarch64 }}"}
+
+  uv:
+    role: uv
+    fetch:
+      file: fetch-github-release.yml
+      args:
+        github_repo: astral-sh/uv
+        required_asset_regexes:
+          - '^uv-x86_64-unknown-linux-gnu\.tar\.gz$'
+          - '^uv-x86_64-unknown-linux-gnu\.tar\.gz\.sha256$'
+          - '^uv-aarch64-unknown-linux-gnu\.tar\.gz$'
+          - '^uv-aarch64-unknown-linux-gnu\.tar\.gz\.sha256$'
+      results:
+        version: "{{ fetched_github_tag }}"
+    current_pin: uv_version
+    checksums:
+      # Why the per-archive sidecar: see roles/uv/DESIGN.md.
+      - key: x86_64_gnu
+        kind: checksum_file
+        url: >-
+          https://github.com/astral-sh/uv/releases/download/{{ _fetched.version
+          }}/uv-x86_64-unknown-linux-gnu.tar.gz.sha256
+        filename: uv-x86_64-unknown-linux-gnu.tar.gz
+      - key: aarch64_gnu
+        kind: checksum_file
+        url: >-
+          https://github.com/astral-sh/uv/releases/download/{{ _fetched.version
+          }}/uv-aarch64-unknown-linux-gnu.tar.gz.sha256
+        filename: uv-aarch64-unknown-linux-gnu.tar.gz
+    pins:
+      - {pin: uv_version, value: "{{ _fetched.version }}"}
+      - {pin: uv_sha256_x86_64_gnu, value: "{{ _checksums.x86_64_gnu }}"}
+      - {pin: uv_sha256_aarch64_gnu, value: "{{ _checksums.aarch64_gnu }}"}
