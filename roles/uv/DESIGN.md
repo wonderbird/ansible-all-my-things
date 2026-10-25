@@ -32,10 +32,10 @@ existing hosts, and checking both binaries repairs a host that lost one of
 them.
 
 The version is compared exactly, as the second field of `<binary> --version`
-(`uv 0.13.5 (…)`), not as a substring, so a pin can never match a longer
-version that merely starts with it. Output that does not have this shape stops
-the play with an error naming the binary and its output. Treating it as "not
-installed" instead would reinstall on every run without ever saying why.
+(`uv <version> (<target triple>)`), not as a substring, so a pin can never match
+a longer version that merely starts with it. Output that does not have this
+shape stops the play with an error naming the binary and its output. Treating it
+as "not installed" instead would reinstall on every run without ever saying why.
 
 Once the binaries carry the pinned version, every expensive step is skipped, so
 a re-run is a no-op. Molecule's `idempotence` phase enforces this.
