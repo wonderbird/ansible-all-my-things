@@ -62,18 +62,17 @@
   loop_control:
     label: "{{ item.item.item }}"
 
-# Install when either binary is missing or either reports another version,
-# so a pin bump upgrades an existing host and a lost uvx is repaired.
+# Install unless both binaries exist and both report exactly the pinned
+# version, so a pin bump upgrades an existing host and a lost uvx is repaired.
+# A missing binary has no version output, so it is never counted as current.
 - name: Determine if uv installation is required
   ansible.builtin.set_fact:
     _uv_needs_install: >-
-      {{ (_uv_binary_stat.results | selectattr('stat.exists') | list | length) < 2
-         or (_uv_installed_versions.results
-             | selectattr('stdout', 'defined')
-             | map(attribute='stdout')
-             | map('regex_replace', '^uvx? (\S+).*$', '\1')
-             | reject('equalto', uv_version)
-             | list | length) > 0 }}
+      {{ _uv_installed_versions.results
+         | selectattr('stdout', 'defined')
+         | map(attribute='stdout')
+         | select('match', '^uvx? ' ~ (uv_version | regex_escape) ~ '( |$)')
+         | list | length < 2 }}
 
 - name: Install uv and uvx from the checksum-verified release archive
   when: _uv_needs_install | bool
