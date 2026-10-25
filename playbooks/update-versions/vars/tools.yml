@@ -416,8 +416,7 @@ _tools:
         version: "{{ fetched_github_tag }}"
     current_pin: uv_version
     checksums:
-      # The per-archive sidecar, not the combined sha256.sum: the sidecar names
-      # exactly the archive the role installs.
+      # Why the per-archive sidecar: see roles/uv/DESIGN.md.
       - key: x86_64_gnu
         kind: checksum_file
         url: >-

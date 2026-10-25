@@ -31,8 +31,8 @@ All variables have safe defaults. None are required from the caller.
 | `uv_sha256_x86_64_gnu` | *(see defaults)* | SHA-256 of the x86_64 release archive for `uv_version`. |
 | `uv_sha256_aarch64_gnu` | *(see defaults)* | SHA-256 of the aarch64 release archive for `uv_version`. |
 
-The three pinned values (version + both checksums) are updated together by
-`playbooks/update-versions/perform-updates.yml`.
+The version and every checksum pin are updated together by the
+version-update mechanism.
 
 ## Dependencies
 

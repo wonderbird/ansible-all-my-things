@@ -6,39 +6,45 @@ Non-obvious decisions for the `uv` role.
 ## Integrity Model
 
 Upstream publishes a `<archive>.sha256` sidecar next to every release archive,
-in GNU `sha256sum` format. The two SHA-256 values in `defaults/main.yml` are
-the digests those sidecars state for the x86_64 and aarch64 archives;
-`playbooks/update-versions/perform-updates.yml` reads them from the sidecars
-on every version bump, so no archive is downloaded and hashed locally just to
-refresh a pin.
+in GNU `sha256sum` format. The role pins one SHA-256 per supported
+architecture, taken from those sidecars. The version-update mechanism reads
+the sidecars on every version bump, so no archive is downloaded and hashed
+locally just to refresh a pin.
 
 The per-archive sidecar is used rather than the release's combined checksum
 file because the sidecar names exactly the archive the role installs.
 
 HTTPS to `github.com` plus the pinned per-architecture SHA-256 is the integrity
-chain. The `get_url` task supplies the matching pin as a literal in its
-`checksum:` parameter, so a tampered or corrupted archive fails before
-extraction and no binary is written. The checksum is never fetched at converge
-time, so a converge cannot silently trust a newer release.
+chain. The download step verifies the archive against the pinned digest, so a
+tampered or corrupted archive fails before extraction and no binary is
+written. The checksum is never fetched at converge time, so a converge cannot
+silently trust a newer release.
 
 ## Idempotency: Version Compare, Not File Presence
 
-The role installs when `uv` or `uvx` is missing from `/usr/local/bin`, or when
-either reports a version other than the pin. Checking file presence alone would
-make a re-run a no-op too, but then a pin bump written by the version-update
-mechanism would never reach a host that already has uv: only fresh hosts would
-get the new version. Comparing the reported version makes a pin bump upgrade
-existing hosts, and checking both binaries repairs a host that lost one of
+The role installs when `uv` or `uvx` is missing, or when `uv` reports a
+version other than the pin. Checking file presence alone would make a re-run a
+no-op too, but then a pin bump written by the version-update mechanism would
+never reach a host that already has uv: only fresh hosts would get the new
+version. Comparing the reported version makes a pin bump upgrade existing
+hosts, and checking that both binaries exist repairs a host that lost one of
 them.
 
-The version is compared exactly, as the second field of `<binary> --version`
+Only `uv` is asked for its version. `uvx` is a thin launcher that hands over
+to its sibling `uv`, so `uvx --version` reports the version of `uv`, not of
+itself, and cannot tell a stale `uvx` from a current one. Both binaries come
+from the same archive and are always installed together.
+
+The version is compared exactly, as the second field of `uv --version`
 (`uv <version> (<target triple>)`), not as a substring, so a pin can never match
 a longer version that merely starts with it. Output that does not have this
-shape stops the play with an error naming the binary and its output. Treating it
-as "not installed" instead would reinstall on every run without ever saying why.
+shape stops the play with an error naming the output and how to recover.
+Treating it as "not installed" instead would reinstall on every run without
+ever saying why.
 
-Once the binaries carry the pinned version, every expensive step is skipped, so
-a re-run is a no-op. Molecule's `idempotence` phase enforces this.
+Once both binaries are present and `uv` carries the pinned version, every
+expensive step is skipped, so a re-run is a no-op. Molecule's `idempotence`
+phase enforces this.
 
 ## Why Extract to a Staging Directory and Copy
 
@@ -49,12 +55,12 @@ system binaries on hosts where the numeric ID maps to a real account, which
 could then replace them.
 
 The role therefore downloads and extracts into a staging directory and copies
-the two binaries into `/usr/local/bin` with an explicit `root:root` owner and
+the binaries into `/usr/local/bin` with an explicit `root:root` owner and
 mode `0755`. The copy also replaces each binary by rename, so a running `uv`
 is never overwritten in place.
 
-The staging directory is created fresh for each install by
-`ansible.builtin.tempfile`: root-owned, mode `0700`, with a random name. A
+The staging directory is created fresh for each install: root-owned, mode
+`0700`, with a random name. A
 fixed path in world-writable `/tmp` could be created first by another local
 user, who would then own it and could swap the binaries between extraction and
 the copy into `/usr/local/bin`.
@@ -78,9 +84,9 @@ The role registers with the project-wide version-update mechanism:
 
 - The registry entry names the shared GitHub-release task, the repository it
   queries, and the archives and sidecars the release must carry.
-- `perform-updates.yml` writes the new tag and reads both digests from the
-  per-archive sidecars of that release, then writes all three pins back into
-  `defaults/main.yml` together.
+- On a version bump the mechanism writes the new tag and the digest of every
+  supported archive, read from that release's per-archive sidecars, together
+  in one update.
 
 ## Why Not Upstream's Installer or a Package
 
