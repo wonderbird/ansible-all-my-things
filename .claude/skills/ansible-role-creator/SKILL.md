@@ -103,10 +103,12 @@ Copy the shape of the exemplar role matching your archetype
 2. **Assert supported architecture** — `ansible_facts['architecture'] in <map>`.
 3. **Map arch** — to whatever the chosen exemplar's upstream uses; naming
    varies (opencode `x64`/`arm64`; rtk `x86_64-…-musl`/`aarch64-…-gnu`).
-4. **Idempotence gate** — derive one `_<role>_needs_install` fact, then guard the
+4. **Idempotence gate** — derive one install decision (a
+   `_<role>_needs_install` fact, or the gate role's fact below), then guard the
    expensive tasks with `when:`. Signal choice:
-   - binary reports the pinned version → compare `<tool> --version` (strip
-     leading `v`); see `opencode`.
+   - binary reports the pinned version → call the `binary_version_gate`
+     role through `include_role` and install when `binary_version_gate_current`
+     is false; see `rtk`. Do not hand-roll the compare.
    - version string can't distinguish the build (source build, commit SHA) →
      write and compare a marker file (e.g. `.git_sha`); see `skill_manager`.
 5. **Integrity-gated fetch** — `get_url` with `checksum: "sha256:{{ ... }}"`.

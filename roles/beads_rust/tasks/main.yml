@@ -12,9 +12,8 @@
 # System-wide install rather than per-user: br is a static per-architecture
 # binary with no per-user state (issue/config data lives in ~/.beads or
 # project dirs regardless of binary location). The install is gated on
-# `br --version` matching the pin, not on the file existing: a pin bump then
-# upgrades an existing host, and a re-run at the pinned version skips the
-# redundant re-download/re-extract of the same archive.
+# `br --version` matching the pin (roles/binary_version_gate), so a re-run at
+# the pinned version skips the redundant re-download/re-extract.
 # -----
 
 - name: Assert login_user_names is provided
@@ -28,44 +27,16 @@
       `login_users | map(attribute='name') | list`; a Molecule converge
       play sets it directly in its `vars:` block.
 
-- name: Check if br binary already exists
-  ansible.builtin.stat:
-    path: /usr/local/bin/br
-  register: br_stat
-
-- name: Get installed br version
-  ansible.builtin.command:
-    cmd: /usr/local/bin/br --version
-  when: br_stat.stat.exists
-  register: _br_installed_version
-  changed_when: false
-
-# An unreadable version would make the gate below reinstall on every run,
-# so it stops the play instead (Constitution Principle XII).
-- name: Assert installed br reports a parseable version
-  ansible.builtin.assert:
-    that:
-      - _br_installed_version.stdout is match('^br [0-9]+\.[0-9]+\.[0-9]+( |$)')
-    fail_msg: >-
-      /usr/local/bin/br --version printed '{{ _br_installed_version.stdout }}',
-      which does not start with "br <semver>"; cannot tell whether the
-      installed version matches beads_rust_version {{ beads_rust_version }}. Remove
-      /usr/local/bin/br to let the role reinstall.
-    quiet: true
-  when: br_stat.stat.exists
-
-# Install unless br exists and reports exactly the pinned version, so a
-# pin bump upgrades an existing host. The version is compared as a whole
-# token, so a pin never matches a longer version that merely starts with it.
-- name: Determine if br installation is required
-  ansible.builtin.set_fact:
-    _br_needs_install: >-
-      {{ not (br_stat.stat.exists
-              and _br_installed_version.stdout
-                  is match('^br ' ~ (beads_rust_version | regex_replace('^v', '') | regex_escape) ~ '( |$)')) }}
+- name: Check whether the installed br reports the pinned version
+  ansible.builtin.include_role:
+    name: binary_version_gate
+  vars:
+    binary_version_gate_path: /usr/local/bin/br
+    binary_version_gate_output_prefix: "br "
+    binary_version_gate_pin: "{{ beads_rust_version }}"
 
 - name: Install br from a checksum-verified release archive
-  when: _br_needs_install | bool
+  when: not binary_version_gate_current | bool
   become: true
   block:
     - name: Verify supported processor architecture for br

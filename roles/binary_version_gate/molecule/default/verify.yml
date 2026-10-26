@@ -1,0 +1,42 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Feeds every --version shape planted by prepare.yml to the gate and asserts
+# its answer. The failure cases run inside block/rescue: the rescue checks the
+# gate stopped with the expected message, and the task after the include fails
+# the play if the gate let the bad input through.
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Run the gate on each binary that must yield an answer
+      ansible.builtin.include_tasks: tasks/expect-answer.yml
+      loop:
+        - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.2.3, current: true}
+        - {path: /opt/gate-test/bare, prefix: "fake ", pin: v1.2.3, current: true}
+        - {path: /opt/gate-test/bare, prefix: "fake ", pin: 1.2.3, current: true}
+        - {path: /opt/gate-test/v-prefixed, prefix: "fake v", pin: v1.2.3, current: true}
+        - {path: /opt/gate-test/number, prefix: "", pin: v1.2.3, current: true}
+        - {path: /opt/gate-test/number, prefix: "", pin: 1.2.30, current: false}
+        - {path: /opt/gate-test/absent, prefix: "fake ", pin: v1.2.3, current: false}
+        - {path: /opt/gate-test/older, prefix: "fake ", pin: v1.2.3, current: false}
+        - {path: /opt/gate-test/longer, prefix: "fake ", pin: v1.2.3, current: false}
+        - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.2.30, current: false}
+      loop_control:
+        loop_var: gate_case
+        label: "{{ gate_case.path }} pin {{ gate_case.pin | default('(undefined)') }}"
+
+    - name: Run the gate on each input it must reject
+      ansible.builtin.include_tasks: tasks/expect-failure.yml
+      loop:
+        - {path: /opt/gate-test/garbled, prefix: "fake ", pin: v1.2.3, fails: "does not start with"}
+        - {path: /opt/gate-test/v-prefixed, prefix: "fake ", pin: v1.2.3, fails: "does not start with"}
+        - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.2, fails: "Variable validation failed"}
+        - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.4.0-rc1, fails: "Variable validation failed"}
+        - {path: opt/gate-test/current, prefix: "fake ", pin: v1.2.3, fails: "Variable validation failed"}
+        - {path: /opt/gate-test/current, prefix: "", pin: v1.2.3, fails: "does not start with"}
+        - {path: /opt/gate-test/current, prefix: 5, pin: v1.2.3, fails: "Variable validation failed"}
+        # No pin key: the gate must reject an undefined variable.
+        - {path: /opt/gate-test/current, prefix: "fake ", fails: "Variable validation failed"}
+      loop_control:
+        loop_var: gate_case
+        label: "{{ gate_case.path }} pin {{ gate_case.pin | default('(undefined)') }}"

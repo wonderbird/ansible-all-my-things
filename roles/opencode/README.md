@@ -35,7 +35,9 @@ The three pinned values (version + both checksums) are updated together by
 
 ## Dependencies
 
-None. See `meta/main.yml`.
+- `binary_version_gate` (called through `include_role`, not declared in
+  `meta/main.yml`) — tells whether the installed `opencode` reports the pinned
+  version.
 
 ## Example Playbook
 

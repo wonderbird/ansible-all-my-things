@@ -1,0 +1,73 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Tell whether the binary at binary_version_gate_path reports exactly the
+# pinned version, so a role installs it on a fresh host and on a pin bump
+# alike, and skips the download once the pinned version is in place. A gate on
+# file presence alone would never reach a host that already has an older
+# version. The answer is the host fact binary_version_gate_current; a caller
+# reads it right after the include, before the next include overwrites it.
+# Required vars: binary_version_gate_path, binary_version_gate_output_prefix
+# and binary_version_gate_pin (see README.md).
+
+- name: Validate the binary version gate inputs
+  ansible.builtin.assert:
+    that:
+      - binary_version_gate_path is defined
+      - binary_version_gate_path is match('^/')
+      - binary_version_gate_output_prefix is defined
+      - binary_version_gate_output_prefix is string
+      - binary_version_gate_pin is defined
+      - binary_version_gate_pin is match('^v?[0-9]+\.[0-9]+\.[0-9]+$')
+    fail_msg: >-
+      Variable validation failed: binary_version_gate_path must be an absolute
+      path, got '{{ binary_version_gate_path | default('(undefined)') }}';
+      binary_version_gate_output_prefix must be the text that --version
+      prints before the version, empty when the version comes first, got
+      '{{ binary_version_gate_output_prefix | default('(undefined)') }}';
+      binary_version_gate_pin must be MAJOR.MINOR.PATCH with an optional
+      leading v, got '{{ binary_version_gate_pin | default('(undefined)') }}'.
+    quiet: true
+
+- name: Check whether the binary exists at {{ binary_version_gate_path }}
+  ansible.builtin.stat:
+    path: "{{ binary_version_gate_path }}"
+  register: _binary_version_gate_stat
+
+- name: Get the version reported by {{ binary_version_gate_path }}
+  ansible.builtin.command:
+    argv:
+      - "{{ binary_version_gate_path }}"
+      - --version
+  when: _binary_version_gate_stat.stat.exists
+  register: _binary_version_gate_output
+  changed_when: false
+  # Read-only, so it also runs under --check; skipping it would leave no
+  # output for the parse assert below.
+  check_mode: false
+
+# An unreadable version would make the caller reinstall on every run, so it
+# stops the play instead (Constitution Principle XII).
+- name: Assert a parseable version is reported by {{ binary_version_gate_path }}
+  ansible.builtin.assert:
+    that:
+      - _binary_version_gate_output.stdout
+        is match('^' ~ (binary_version_gate_output_prefix | regex_escape) ~ '[0-9]+\.[0-9]+\.[0-9]+( |$)')
+    fail_msg: >-
+      {{ binary_version_gate_path }} --version printed
+      '{{ _binary_version_gate_output.stdout }}', which does not start with
+      "{{ binary_version_gate_output_prefix }}<semver>"; cannot tell whether the
+      installed version matches the pin {{ binary_version_gate_pin }}. Remove
+      {{ binary_version_gate_path }} to let the role reinstall.
+    quiet: true
+  when: _binary_version_gate_stat.stat.exists
+
+# The version is compared as a whole token, so a pin never matches a longer
+# version that merely starts with it (1.2.3 must not match 1.2.30).
+- name: Record whether the pinned version is reported by {{ binary_version_gate_path }}
+  ansible.builtin.set_fact:
+    binary_version_gate_current: >-
+      {{ _binary_version_gate_stat.stat.exists
+         and _binary_version_gate_output.stdout
+             is match('^' ~ (binary_version_gate_output_prefix | regex_escape)
+                      ~ (binary_version_gate_pin | regex_replace('^v', '') | regex_escape)
+                      ~ '( |$)') }}

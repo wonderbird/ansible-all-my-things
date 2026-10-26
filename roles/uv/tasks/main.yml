@@ -27,10 +27,13 @@
       {{ {'x86_64': uv_sha256_x86_64_gnu,
           'aarch64': uv_sha256_aarch64_gnu}[ansible_facts['architecture']] }}
 
-- name: Check whether uv is installed
-  ansible.builtin.stat:
-    path: /usr/local/bin/uv
-  register: _uv_stat
+- name: Check whether the installed uv reports the pinned version
+  ansible.builtin.include_role:
+    name: binary_version_gate
+  vars:
+    binary_version_gate_path: /usr/local/bin/uv
+    binary_version_gate_output_prefix: "uv "
+    binary_version_gate_pin: "{{ uv_version }}"
 
 # uvx is a launcher that execs its sibling uv, so its --version reports uv's
 # version and says nothing about uvx itself: only its presence is checked.
@@ -39,35 +42,11 @@
     path: /usr/local/bin/uvx
   register: _uvx_stat
 
-- name: Get installed uv version
-  ansible.builtin.command:
-    cmd: /usr/local/bin/uv --version
-  when: _uv_stat.stat.exists
-  register: _uv_installed_version
-  changed_when: false
-
-# An unreadable version would make the gate below reinstall on every run,
-# so it stops the play instead (Constitution Principle XII).
-- name: Assert installed uv reports a parseable version
-  ansible.builtin.assert:
-    that:
-      - _uv_installed_version.stdout is match('^uv [0-9]+\.[0-9]+\.[0-9]+( |$)')
-    fail_msg: >-
-      /usr/local/bin/uv --version printed '{{ _uv_installed_version.stdout }}',
-      which does not start with "uv <semver>"; cannot tell whether the
-      installed version matches uv_version {{ uv_version }}. Remove
-      /usr/local/bin/uv and /usr/local/bin/uvx to let the role reinstall.
-    quiet: true
-  when: _uv_stat.stat.exists
-
 # Install unless both binaries exist and uv reports exactly the pinned
 # version, so a pin bump upgrades an existing host and a lost uvx is repaired.
 - name: Determine if uv installation is required
   ansible.builtin.set_fact:
-    _uv_needs_install: >-
-      {{ not (_uv_stat.stat.exists and _uvx_stat.stat.exists
-              and _uv_installed_version.stdout
-                  is match('^uv ' ~ (uv_version | regex_escape) ~ '( |$)')) }}
+    _uv_needs_install: "{{ not (binary_version_gate_current | bool and _uvx_stat.stat.exists) }}"
 
 - name: Install uv and uvx from the checksum-verified release archive
   when: _uv_needs_install | bool

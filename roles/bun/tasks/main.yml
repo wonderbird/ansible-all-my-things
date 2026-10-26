@@ -25,24 +25,19 @@
   ansible.builtin.set_fact:
     _bun_arch: "{{ 'x64' if ansible_facts['architecture'] == 'x86_64' else 'aarch64' }}"
 
-- name: Check if Bun binary is installed
-  ansible.builtin.stat:
-    path: "{{ bun_install_path }}"
-  register: _bun_binary_stat
+- name: Check whether the installed Bun reports the pinned version
+  ansible.builtin.include_role:
+    name: binary_version_gate
+  vars:
+    binary_version_gate_path: "{{ bun_install_path }}"
+    binary_version_gate_output_prefix: ""
+    binary_version_gate_pin: "{{ bun_version | regex_replace('^bun-v', '') }}"
 
-- name: Get installed Bun version
-  ansible.builtin.command:
-    cmd: "{{ bun_install_path }} --version"
-  register: _bun_installed_version
-  changed_when: false
-  when: _bun_binary_stat.stat.exists
-
+# Copied into a fact of its own: the install tasks below each read it, and
+# another role's call to the gate would overwrite binary_version_gate_current.
 - name: Determine if Bun installation is required
   ansible.builtin.set_fact:
-    _bun_needs_install: >-
-      {{ not _bun_binary_stat.stat.exists or
-         (bun_version | regex_replace('^bun-v', '')) not in
-         (_bun_installed_version.stdout | default('')) }}
+    _bun_needs_install: "{{ not binary_version_gate_current | bool }}"
 
 - name: Install unzip to extract the Bun release archive
   # Upstream publishes the linux builds as .zip only, and ansible.builtin

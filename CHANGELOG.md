@@ -31,6 +31,10 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 - `perform-updates.yml` refuses to run with `--check`, naming the reason.
 - Tracked tools are declared in `playbooks/update-versions/vars/tools.yml`;
   adding a tool is one entry, and a malformed one fails at play start.
+- The `rtk`, `beads_go`, `beads_rust` and `beads_viewer` roles fail when their
+  version pin is not `MAJOR.MINOR.PATCH` with an optional leading `v`.
+- The `bun` and `opencode` roles fail when the installed binary's `--version`
+  output is not a version number, naming the binary to remove.
 - **Breaking:** The `skill_manager` role disables `sm` skill auto-adopt and
   replaces each login user's `sm` config. Run `sm import` to adopt skills.
 - **Breaking:** Only hosts in `claude_opinionated` get the ai-agent-workspace
@@ -56,5 +60,7 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   value an earlier tool fetched.
 - The `rtk`, `beads_go`, `beads_rust` and `beads_viewer` roles upgrade an
   installed binary to the pinned version.
+- The `bun` and `opencode` roles upgrade an installed version whose number
+  merely contains the pin, such as `1.2.30` for pin `1.2.3`.
 
 [Unreleased]: https://github.com/wonderbird/ansible-all-my-things/commits/main

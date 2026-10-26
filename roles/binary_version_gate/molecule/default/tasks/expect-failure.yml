@@ -1,0 +1,31 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Required vars: gate_case, a mapping with the keys path, prefix and fails,
+# the text the failure message must contain, and optionally pin; a case
+# without pin checks that the gate rejects an undefined pin.
+- name: Expect the gate to fail on {{ gate_case.path ~ ' with pin ' ~ gate_case.pin | default('(undefined)') }}
+  block:
+    - name: Run the gate on {{ gate_case.path ~ ' with pin ' ~ gate_case.pin | default('(undefined)') }}
+      ansible.builtin.include_role:
+        name: binary_version_gate
+      vars:
+        binary_version_gate_path: "{{ gate_case.path }}"
+        binary_version_gate_output_prefix: "{{ gate_case.prefix }}"
+        binary_version_gate_pin: "{{ gate_case.pin }}"
+
+    # The message must not quote gate_case.fails: the rescue below would find
+    # it there and pass although the gate accepted the input.
+    - name: Fail because the gate accepted the input
+      ansible.builtin.fail:
+        msg: >-
+          Gate on {{ gate_case.path }} with prefix '{{ gate_case.prefix }}' and
+          pin {{ gate_case.pin | default('(undefined)') }} accepted input it must reject.
+  rescue:
+    - name: Assert the gate failed with the expected message
+      ansible.builtin.assert:
+        that:
+          - gate_case.fails in ansible_failed_result.msg
+        fail_msg: >-
+          Expected a failure containing '{{ gate_case.fails }}', got
+          '{{ ansible_failed_result.msg }}'.
+        quiet: true

@@ -1,0 +1,32 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Prepare container
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Create the directory for the fake binaries
+      ansible.builtin.file:
+        path: /opt/gate-test
+        state: directory
+        mode: '0755'
+
+    # Each fake binary prints one --version shape that verify.yml feeds to the
+    # gate. /opt/gate-test/absent is deliberately never created.
+    - name: Plant fake binaries that print fixed --version output
+      ansible.builtin.copy:
+        content: |
+          #!/bin/sh
+          echo "{{ item.output }}"
+        dest: "/opt/gate-test/{{ item.name }}"
+        mode: '0755'
+      loop:
+        - {name: current, output: "fake 1.2.3 (abc123 2026-01-01)"}
+        - {name: bare, output: "fake 1.2.3"}
+        - {name: older, output: "fake 1.2.2"}
+        - {name: longer, output: "fake 1.2.30"}
+        - {name: v-prefixed, output: "fake v1.2.3"}
+        - {name: number, output: "1.2.3"}
+        - {name: garbled, output: "fake: unknown option --version"}
+      loop_control:
+        label: "{{ item.name }}"

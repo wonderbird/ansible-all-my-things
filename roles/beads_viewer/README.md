@@ -27,7 +27,9 @@ version, so a pin bump upgrades an existing host on the next run.
 
 ## Dependencies
 
-None. See `meta/main.yml` for details.
+- `binary_version_gate` (called through `include_role`, not declared in
+  `meta/main.yml`) — tells whether the installed `bv` reports the pinned
+  version.
 
 ## Example Playbook
 
