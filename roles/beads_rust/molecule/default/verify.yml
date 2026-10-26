@@ -4,6 +4,10 @@
   hosts: all
   become: true
   tasks:
+    - name: Load role defaults for version reference
+      ansible.builtin.include_vars:
+        file: "{{ playbook_dir }}/../../defaults/main.yml"
+
     - name: Check beads_rust binary exists
       ansible.builtin.stat:
         path: /usr/local/bin/br
@@ -27,3 +31,20 @@
           - beads_rust_src_stat.stat.exists
         fail_msg: "beads_rust source repo not found at /home/testuser/Documents/Cline/beads_rust/.git"
         success_msg: "beads_rust source repo found at /home/testuser/Documents/Cline/beads_rust/.git"
+
+    - name: Get installed br version
+      ansible.builtin.command:
+        cmd: /usr/local/bin/br --version
+      register: _verify_br_version
+      changed_when: false
+
+    # prepare.yml planted a stale br; reporting the pin proves converge
+    # replaced it (the upgrade path) instead of skipping on file presence.
+    - name: Assert br reports exactly the pinned version
+      ansible.builtin.assert:
+        that:
+          - (_verify_br_version.stdout.split() + ['', '', ''])[1] == (beads_rust_version | regex_replace('^v', ''))
+        fail_msg: >-
+          Expected br version {{ beads_rust_version | regex_replace('^v', '') }} but got
+          '{{ _verify_br_version.stdout }}'
+        success_msg: "br reports {{ _verify_br_version.stdout }}, matching the pin"

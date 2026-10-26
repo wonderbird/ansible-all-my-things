@@ -5,13 +5,45 @@
     path: /usr/local/bin/rtk
   register: rtk_stat
 
-# The stat gate is load-bearing: rtk_version is a static pin (see below),
-# not a live upstream query, so it carries no version-drift risk either way.
-# Without the gate, every converge would redundantly re-download and
-# re-extract the same pinned archive -- unarchive has no creates:-based
-# idempotency of its own.
+- name: Get installed rtk version
+  ansible.builtin.command:
+    cmd: /usr/local/bin/rtk --version
+  when: rtk_stat.stat.exists
+  register: _rtk_installed_version
+  changed_when: false
+
+# An unreadable version would make the gate below reinstall on every run,
+# so it stops the play instead (Constitution Principle XII).
+- name: Assert installed rtk reports a parseable version
+  ansible.builtin.assert:
+    that:
+      - _rtk_installed_version.stdout is match('^rtk [0-9]+\.[0-9]+\.[0-9]+( |$)')
+    fail_msg: >-
+      /usr/local/bin/rtk --version printed '{{ _rtk_installed_version.stdout }}',
+      which does not start with "rtk <semver>"; cannot tell whether the
+      installed version matches rtk_version {{ rtk_version }}. Remove
+      /usr/local/bin/rtk to let the role reinstall.
+    quiet: true
+  when: rtk_stat.stat.exists
+
+# Install unless rtk exists and reports exactly the pinned version, so a
+# pin bump upgrades an existing host. The version is compared as a whole
+# token, so a pin never matches a longer version that merely starts with it.
+- name: Determine if rtk installation is required
+  ansible.builtin.set_fact:
+    _rtk_needs_install: >-
+      {{ not (rtk_stat.stat.exists
+              and _rtk_installed_version.stdout
+                  is match('^rtk ' ~ ((rtk_version | regex_replace('^v', '')) | regex_escape) ~ '( |$)')) }}
+
+# rtk_version is a static pin (see below), not a live upstream query. The gate
+# above is a version compare rather than a file-presence check: presence alone
+# would never reach a host that already has an older rtk when the pin is
+# bumped. Once the installed version equals the pin the block is skipped,
+# because unarchive has no creates:-based idempotency of its own and would
+# otherwise re-download and re-extract the same archive on every converge.
 - name: Install rtk from a checksum-verified release archive
-  when: not rtk_stat.stat.exists
+  when: _rtk_needs_install | bool
   block:
     # Only architectures listed in rtk_platform_map are supported.
     - name: Verify supported processor architecture

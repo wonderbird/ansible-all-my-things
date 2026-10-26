@@ -18,3 +18,15 @@
         owner: testuser
         group: testuser
         mode: '0755'
+
+    # A stale br at /usr/local/bin/br makes converge exercise the upgrade
+    # path: the role must replace it, not skip the install because the file exists.
+    - name: Plant a stale br that reports an older version
+      ansible.builtin.copy:
+        content: |
+          #!/bin/sh
+          echo "br 0.0.1"
+        dest: /usr/local/bin/br
+        owner: root
+        group: root
+        mode: '0755'
