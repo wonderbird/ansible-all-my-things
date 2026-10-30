@@ -35,6 +35,8 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   version pin is not `MAJOR.MINOR.PATCH` with an optional leading `v`.
 - The `bun` and `opencode` roles fail when the installed binary's `--version`
   output is not a version number, naming the binary to remove.
+- The `bun` and `opencode` roles fail on a pre-release version pin, such as
+  `bun-v1.2.3-canary`.
 - **Breaking:** The `skill_manager` role disables `sm` skill auto-adopt and
   replaces each login user's `sm` config. Run `sm import` to adopt skills.
 - **Breaking:** Only hosts in `claude_opinionated` get the ai-agent-workspace
