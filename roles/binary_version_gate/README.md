@@ -16,6 +16,9 @@ fact.
 ## Requirements
 
 - Ansible 2.19+
+- A binary path that only root can write. The gate runs the binary with the
+  calling play's privileges, usually root through `become`, so a path another
+  user can write would let that user run code as root.
 
 ## Role Variables
 
