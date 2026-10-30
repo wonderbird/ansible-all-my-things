@@ -472,15 +472,16 @@ repeats, because nothing fails when the two disagree.
 Deleted, because it restates the task name:
 
 ```yaml
-# Install libatomic1
-- name: Install the libatomic runtime library Node.js links against
+# Install curl
+- name: Install curl
 ```
 
 Kept, because the code shows it only by the task's position outside a gated
 block:
 
 ```yaml
-# Not gated on node_stat: an already-linked node needs it as much as a new one.
+# Outside the install block: hosts that skip the install still need it.
+- name: Install the runtime library the binary links against
 ```
 
 ### Document the Current State, Not Its History
