@@ -45,6 +45,8 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 - **Breaking:** `claude_code_config` links no ai-agent-workspace skill into
   `~/.claude/skills`. Unlink existing ones: `find ~/.claude/skills -maxdepth 1
   -lname '*/ai-agent-workspace/skills/*' -delete`.
+- The `nodejs` role links no `corepack` command. Install it with
+  `npm install --global corepack`.
 
 ### Fixed
 
@@ -56,5 +58,7 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   value an earlier tool fetched.
 - The `rtk`, `beads_go`, `beads_rust` and `beads_viewer` roles upgrade an
   installed binary to the pinned version.
+- The `nodejs` role installs and runs Node.js 26 releases on minimal Ubuntu
+  hosts.
 
 [Unreleased]: https://github.com/wonderbird/ansible-all-my-things/commits/main

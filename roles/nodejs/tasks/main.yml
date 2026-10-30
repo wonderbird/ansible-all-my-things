@@ -5,6 +5,15 @@
     path: /usr/local/bin/node
   register: node_stat
 
+# The release binary links libatomic.so.1, which minimal Ubuntu images lack.
+# Not gated on node_stat: an already-linked node needs it as much as a new one.
+- name: Install the libatomic runtime library Node.js links against
+  ansible.builtin.apt:
+    name: libatomic1
+    state: present
+    update_cache: true
+  become: true
+
 - name: Install Node.js LTS from a checksum-verified release archive
   when: not node_stat.stat.exists
   become: true
@@ -49,7 +58,6 @@
         - node
         - npm
         - npx
-        - corepack
 
 - name: Install frequently used global npm packages
   ansible.builtin.shell: |
