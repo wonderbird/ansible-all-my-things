@@ -10,11 +10,10 @@ description: >
 This skill is self-contained and authoritative for this repository: review
 documentation against the tiers below and nothing else.
 
-The writing rules every durable artefact must satisfy — intent over
-implementation details, current state over history, and the variable contract a
-task file header states — are defined in `.specify/memory/constitution.md`,
-Documentation Standards. Review against them there; they bind every agent, so
-they are not restated here (Principle XI).
+The writing rules every durable artefact and every comment must satisfy are
+defined in `.specify/memory/constitution.md`, Documentation Standards. Review
+against each of its subsections there; they bind every agent, so they are not
+restated here (Principle XI).
 
 ## Documentation Tiers
 

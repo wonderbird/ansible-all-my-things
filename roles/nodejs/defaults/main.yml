@@ -7,7 +7,7 @@
 #
 # Uses the node_ prefix (matching node_platform_map/node_stat below), NOT
 # nodejs_* -- corrects a naming mismatch found in bd issue m0av.3's text.
-node_version: "v24.22.1"
+node_version: "v26.13.0"
 
 # Maps an Ansible architecture fact to the nodejs.org release archive's
 # platform fragment.
@@ -20,5 +20,5 @@ node_platform_map:
 # file first -- pipe-only sha256sum can truncate and give the wrong hash):
 #   curl -sL https://nodejs.org/dist/<version>/node-<version>-linux-<arch>.tar.gz -o /tmp/node.tar.gz
 #   sha256sum /tmp/node.tar.gz
-node_sha256_x64: "eb6728e77c576a35162c122c45ccadf224d89ff00abc8dae46cc2897c6002d7c"
-node_sha256_arm64: "33c37be234ba8bee041961047b19160f4d7d0f164e8e246f78bdd10feff148b3"
+node_sha256_x64: "5848553868b402d3fabb5b09270649977780a390f832155721025a08b5104455"
+node_sha256_arm64: "439e9c438acdf6a6ffe47418da709153d66c4bed812e30a473faacb107dd2791"

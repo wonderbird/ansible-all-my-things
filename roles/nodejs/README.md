@@ -18,7 +18,7 @@ so it is a standalone role rather than bundled into any one consumer.
 
 | Variable | Default | Description |
 | --- | --- | --- |
-| `node_version` | *(pinned, e.g. `"v24.18.0"`)* | Node.js LTS release to install, refreshed only by `playbooks/update-versions/perform-updates.yml` |
+| `node_version` | *(pinned, `v`-prefixed, see `defaults/main.yml`)* | Node.js LTS release to install, refreshed only by `playbooks/update-versions/perform-updates.yml` |
 | `node_platform_map` | `{x86_64: x64, aarch64: arm64}` | Maps `ansible_architecture` to nodejs.org's release-archive platform fragment |
 | `node_sha256_x64` / `node_sha256_arm64` | *(pinned)* | Per-arch sha256 checksums for `node_version`'s release tarball |
 
@@ -42,6 +42,10 @@ None. See `meta/main.yml` for details.
 
 ## What This Role Does
 
+On every run it first ensures the system libraries the Node.js release
+binary links against are installed, so an already-installed `node` keeps
+working too.
+
 Skipped entirely (Node.js install) once `/usr/local/bin/node` exists. On
 first install it:
 
@@ -50,7 +54,8 @@ first install it:
    checksum using Ansible-native SHA256 checking, which fails atomically
    (leaving no partial file) on mismatch
 2. Extracts the verified archive to `/usr/local/lib/nodejs` and symlinks
-   `node`, `npm`, `npx`, and `corepack` into `/usr/local/bin`
+   the command-line tools the release ships into `/usr/local/bin` (the loop
+   in `tasks/main.yml` lists them)
 
 Regardless of whether Node.js was just installed or already present, it then
 installs the global npm packages (`eslint`, `markdownlint-cli`, `prettier`,

@@ -127,8 +127,8 @@ put `.venv/bin` on `PATH`, or pass the interpreter as the header of
 
 ### Comment and Documentation Robustness
 
-Describe intent and purpose rather than current implementation specifics.
-The rule, its worked examples, and how to handle a document that must state a
-current value are defined in `.specify/memory/constitution.md`, Documentation
-Standards, under "Write Against Intent, Not Against Implementation Details".
-It binds every agent, so it is not restated here (Principle XI).
+Describe intent and purpose rather than current implementation specifics, and
+write a comment only for what the code cannot say. The rules and their worked
+examples are defined in `.specify/memory/constitution.md`, Documentation
+Standards. They bind every agent, so they are not restated here
+(Principle XI).
