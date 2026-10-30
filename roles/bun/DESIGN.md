@@ -52,11 +52,11 @@ that unpacks it.
 ## Idempotency
 
 The role considers the install complete when the binary at `bun_install_path`
-reports a `--version` string containing the pinned version (after stripping the
-`bun-v` prefix). The expensive steps — package install, download, extract, copy
-— are guarded by a single `_bun_needs_install` fact derived from that check, so
-a re-run on an already-pinned host is a no-op. Molecule's `idempotence` phase
-enforces this.
+reports exactly the pinned version (after stripping the `bun-v` prefix), as
+answered by the `binary_version_gate` role. The expensive steps — package
+install, download, extract, copy — are guarded by its answer in
+`_bun_is_current`, so a re-run on an already-pinned host is a no-op.
+Molecule's `idempotence` phase enforces this.
 
 ## Why Not a System Package
 

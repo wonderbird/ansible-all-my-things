@@ -30,11 +30,10 @@ the integrity check local to the one tarball that is actually fetched.
 ## Idempotency
 
 The role considers the install complete when the binary at
-`opencode_install_path` reports a `--version` string containing the pinned
-version (after stripping the leading `v`). The expensive steps —
-download, extract, copy — are guarded by a single `_opencode_needs_install`
-fact derived from that check, so a re-run on an already-pinned host is a
-no-op. Molecule's `idempotence` phase enforces this.
+`opencode_install_path` reports exactly the pinned version, as answered by
+the `binary_version_gate` role. The expensive steps — download, extract, copy
+— are guarded by its answer in `_opencode_is_current`, so a re-run on an
+already-pinned host is a no-op. Molecule's `idempotence` phase enforces this.
 
 ## Version-Update Integration
 

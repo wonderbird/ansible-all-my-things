@@ -87,9 +87,10 @@ every role. In `rtk`, `beads_go`, `beads_rust`, `beads_viewer`, `bun`,
 `--version` is matched against the pin, so a pin bump upgrades a host that
 already has an older version. A bare `stat` on the binary would never
 reach such a host. These roles share that compare through the
-`binary_version_gate` role, whose `README.md` documents its inputs, its result
-fact and its failure modes. In the roles that still use a `stat` check (e.g. the
-per-user `~/.local/bin/claude`) the gate's only job is avoiding a
+`binary_version_gate` role, whose `README.md` documents its inputs, the
+result variable the caller names and its failure modes. In the roles that
+still use a `stat` check (e.g. the per-user `~/.local/bin/claude`) the
+gate's only job is avoiding a
 redundant re-download/re-extract of the same pinned archive on every
 converge (`unarchive`/binary placement has no `creates:`-based
 idempotency of its own).
