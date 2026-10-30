@@ -5,7 +5,6 @@
     path: /usr/local/bin/node
   register: node_stat
 
-# The release binary links libatomic.so.1, which minimal Ubuntu images lack.
 # Not gated on node_stat: an already-linked node needs it as much as a new one.
 - name: Install the libatomic runtime library Node.js links against
   ansible.builtin.apt:
