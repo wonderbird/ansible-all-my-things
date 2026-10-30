@@ -35,6 +35,8 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   replaces each login user's `sm` config. Run `sm import` to adopt skills.
 - **Breaking:** Only hosts in `claude_opinionated` get the ai-agent-workspace
   clone. Add a host to `claude_opinionated` to keep it.
+- **Breaking:** The `nodejs` role installs Node.js 26. Existing hosts upgrade
+  only after removing `/usr/local/bin/node` and re-running the role.
 
 ### Removed
 
@@ -45,6 +47,8 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 - **Breaking:** `claude_code_config` links no ai-agent-workspace skill into
   `~/.claude/skills`. Unlink existing ones: `find ~/.claude/skills -maxdepth 1
   -lname '*/ai-agent-workspace/skills/*' -delete`.
+- **Breaking:** The `nodejs` role links no `corepack` command. Install it with
+  `npm install --global corepack`.
 
 ### Fixed
 
