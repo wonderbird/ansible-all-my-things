@@ -34,6 +34,7 @@
     binary_version_gate_path: /usr/local/bin/uv
     binary_version_gate_output_prefix: "uv "
     binary_version_gate_pin: "{{ uv_version }}"
+    binary_version_gate_result_var: _uv_is_current
 
 # uvx is a launcher that execs its sibling uv, so its --version reports uv's
 # version and says nothing about uvx itself: only its presence is checked.
@@ -46,7 +47,7 @@
 # version, so a pin bump upgrades an existing host and a lost uvx is repaired.
 - name: Determine if uv installation is required
   ansible.builtin.set_fact:
-    _uv_needs_install: "{{ not (binary_version_gate_current | bool and _uvx_stat.stat.exists) }}"
+    _uv_needs_install: "{{ not (_uv_is_current | bool and _uvx_stat.stat.exists) }}"
 
 - name: Install uv and uvx from the checksum-verified release archive
   when: _uv_needs_install | bool

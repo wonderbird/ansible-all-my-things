@@ -32,12 +32,7 @@
     binary_version_gate_path: "{{ bun_install_path }}"
     binary_version_gate_output_prefix: ""
     binary_version_gate_pin: "{{ bun_version | regex_replace('^bun-v', '') }}"
-
-# Copied into a fact of its own: the install tasks below each read it, and
-# another role's call to the gate would overwrite binary_version_gate_current.
-- name: Determine if Bun installation is required
-  ansible.builtin.set_fact:
-    _bun_needs_install: "{{ not binary_version_gate_current | bool }}"
+    binary_version_gate_result_var: _bun_is_current
 
 - name: Install unzip to extract the Bun release archive
   # Upstream publishes the linux builds as .zip only, and ansible.builtin
@@ -47,7 +42,7 @@
     name: unzip
     state: present
     update_cache: true
-  when: _bun_needs_install
+  when: not _bun_is_current | bool
 
 - name: Download Bun release archive
   ansible.builtin.get_url:
@@ -56,21 +51,21 @@
     dest: "/tmp/bun-{{ bun_version }}-linux-{{ _bun_arch }}.zip"
     mode: '0644'
     checksum: "sha256:{{ bun_sha256_x64 if _bun_arch == 'x64' else bun_sha256_aarch64 }}"
-  when: _bun_needs_install
+  when: not _bun_is_current | bool
 
 - name: Create staging directory for Bun extraction
   ansible.builtin.file:
     path: "/tmp/bun-{{ bun_version }}-linux-{{ _bun_arch }}"
     state: directory
     mode: '0755'
-  when: _bun_needs_install
+  when: not _bun_is_current | bool
 
 - name: Extract Bun release archive
   ansible.builtin.unarchive:
     src: "/tmp/bun-{{ bun_version }}-linux-{{ _bun_arch }}.zip"
     dest: "/tmp/bun-{{ bun_version }}-linux-{{ _bun_arch }}"
     remote_src: true
-  when: _bun_needs_install
+  when: not _bun_is_current | bool
 
 - name: Install Bun binary
   ansible.builtin.copy:
@@ -80,7 +75,7 @@
     mode: '0755'
     owner: root
     group: root
-  when: _bun_needs_install
+  when: not _bun_is_current | bool
 
 - name: Link bunx to the Bun binary
   ansible.builtin.file:

@@ -34,9 +34,10 @@
     binary_version_gate_path: /usr/local/bin/br
     binary_version_gate_output_prefix: "br "
     binary_version_gate_pin: "{{ beads_rust_version }}"
+    binary_version_gate_result_var: _beads_rust_is_current
 
 - name: Install br from a checksum-verified release archive
-  when: not binary_version_gate_current | bool
+  when: not _beads_rust_is_current | bool
   become: true
   block:
     - name: Verify supported processor architecture for br

@@ -4,10 +4,10 @@
 # pinned version, so a role installs it on a fresh host and on a pin bump
 # alike, and skips the download once the pinned version is in place. A gate on
 # file presence alone would never reach a host that already has an older
-# version. The answer is the host fact binary_version_gate_current; a caller
-# reads it right after the include, before the next include overwrites it.
-# Required vars: binary_version_gate_path, binary_version_gate_output_prefix
-# and binary_version_gate_pin (see README.md).
+# version. The answer goes to the variable the caller names, so no call can
+# read another call's answer.
+# Required vars: binary_version_gate_path, binary_version_gate_output_prefix,
+# binary_version_gate_pin and binary_version_gate_result_var (see README.md).
 
 - name: Validate the binary version gate inputs
   ansible.builtin.assert:
@@ -18,6 +18,8 @@
       - binary_version_gate_output_prefix is string
       - binary_version_gate_pin is defined
       - binary_version_gate_pin is match('^v?[0-9]+\.[0-9]+\.[0-9]+$')
+      - binary_version_gate_result_var is defined
+      - binary_version_gate_result_var is match('^[a-z_][a-z0-9_]*$')
     fail_msg: >-
       Variable validation failed: binary_version_gate_path must be an absolute
       path, got '{{ binary_version_gate_path | default('(undefined)') }}';
@@ -25,7 +27,9 @@
       prints before the version, empty when the version comes first, got
       '{{ binary_version_gate_output_prefix | default('(undefined)') }}';
       binary_version_gate_pin must be MAJOR.MINOR.PATCH with an optional
-      leading v, got '{{ binary_version_gate_pin | default('(undefined)') }}'.
+      leading v, got '{{ binary_version_gate_pin | default('(undefined)') }}';
+      binary_version_gate_result_var must be a lowercase variable name, got
+      '{{ binary_version_gate_result_var | default('(undefined)') }}'.
     quiet: true
 
 - name: Check whether the binary exists at {{ binary_version_gate_path }}
@@ -65,7 +69,7 @@
 # version that merely starts with it (1.2.3 must not match 1.2.30).
 - name: Record whether the pinned version is reported by {{ binary_version_gate_path }}
   ansible.builtin.set_fact:
-    binary_version_gate_current: >-
+    "{{ binary_version_gate_result_var }}": >-
       {{ _binary_version_gate_stat.stat.exists
          and _binary_version_gate_output.stdout
              is match('^' ~ (binary_version_gate_output_prefix | regex_escape)

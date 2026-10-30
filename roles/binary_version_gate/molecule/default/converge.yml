@@ -9,3 +9,4 @@
         binary_version_gate_path: /opt/gate-test/current
         binary_version_gate_output_prefix: "fake "
         binary_version_gate_pin: v1.2.3
+        binary_version_gate_result_var: _converge_is_current

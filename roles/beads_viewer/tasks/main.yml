@@ -22,9 +22,10 @@
     binary_version_gate_path: /usr/local/bin/bv
     binary_version_gate_output_prefix: "bv v"
     binary_version_gate_pin: "{{ beads_viewer_version }}"
+    binary_version_gate_result_var: _beads_viewer_is_current
 
 - name: Install bv from a checksum-verified release archive
-  when: not binary_version_gate_current | bool
+  when: not _beads_viewer_is_current | bool
   become: true
   block:
     - name: Verify supported processor architecture for bv

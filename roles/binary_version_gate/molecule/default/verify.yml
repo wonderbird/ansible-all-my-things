@@ -1,9 +1,5 @@
 #SPDX-License-Identifier: MIT-0
 ---
-# Feeds every --version shape planted by prepare.yml to the gate and asserts
-# its answer. The failure cases run inside block/rescue: the rescue checks the
-# gate stopped with the expected message, and the task after the include fails
-# the play if the gate let the bad input through.
 - name: Verify
   hosts: all
   become: true
@@ -28,15 +24,48 @@
     - name: Run the gate on each input it must reject
       ansible.builtin.include_tasks: tasks/expect-failure.yml
       loop:
-        - {path: /opt/gate-test/garbled, prefix: "fake ", pin: v1.2.3, fails: "does not start with"}
-        - {path: /opt/gate-test/v-prefixed, prefix: "fake ", pin: v1.2.3, fails: "does not start with"}
-        - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.2, fails: "Variable validation failed"}
-        - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.4.0-rc1, fails: "Variable validation failed"}
-        - {path: opt/gate-test/current, prefix: "fake ", pin: v1.2.3, fails: "Variable validation failed"}
-        - {path: /opt/gate-test/current, prefix: "", pin: v1.2.3, fails: "does not start with"}
-        - {path: /opt/gate-test/current, prefix: 5, pin: v1.2.3, fails: "Variable validation failed"}
+        - {path: /opt/gate-test/garbled, prefix: "fake ", pin: v1.2.3, result_var: _gate_case_is_current, fails: "does not start with"}
+        - {path: /opt/gate-test/v-prefixed, prefix: "fake ", pin: v1.2.3, result_var: _gate_case_is_current, fails: "does not start with"}
+        - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.2, result_var: _gate_case_is_current, fails: "Variable validation failed"}
+        - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.4.0-rc1, result_var: _gate_case_is_current, fails: "Variable validation failed"}
+        - {path: opt/gate-test/current, prefix: "fake ", pin: v1.2.3, result_var: _gate_case_is_current, fails: "Variable validation failed"}
+        - {path: /opt/gate-test/current, prefix: "", pin: v1.2.3, result_var: _gate_case_is_current, fails: "does not start with"}
+        - {path: /opt/gate-test/current, prefix: 5, pin: v1.2.3, result_var: _gate_case_is_current, fails: "Variable validation failed"}
         # No pin key: the gate must reject an undefined variable.
-        - {path: /opt/gate-test/current, prefix: "fake ", fails: "Variable validation failed"}
+        - {path: /opt/gate-test/current, prefix: "fake ", result_var: _gate_case_is_current, fails: "Variable validation failed"}
+        - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.2.3, result_var: 1bad, fails: "Variable validation failed"}
+        # No result_var key: the gate must reject an undefined variable.
+        - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.2.3, fails: "Variable validation failed"}
       loop_control:
         loop_var: gate_case
         label: "{{ gate_case.path }} pin {{ gate_case.pin | default('(undefined)') }}"
+
+    # Each call writes only the variable it names, so a later call cannot
+    # change an earlier call's answer.
+    - name: Run the gate on the current binary
+      ansible.builtin.include_role:
+        name: binary_version_gate
+      vars:
+        binary_version_gate_path: /opt/gate-test/current
+        binary_version_gate_output_prefix: "fake "
+        binary_version_gate_pin: v1.2.3
+        binary_version_gate_result_var: _first_is_current
+
+    - name: Run the gate on the older binary
+      ansible.builtin.include_role:
+        name: binary_version_gate
+      vars:
+        binary_version_gate_path: /opt/gate-test/older
+        binary_version_gate_output_prefix: "fake "
+        binary_version_gate_pin: v1.2.3
+        binary_version_gate_result_var: _second_is_current
+
+    - name: Assert each call kept its own answer
+      ansible.builtin.assert:
+        that:
+          - _first_is_current | bool
+          - not _second_is_current | bool
+        fail_msg: >-
+          Expected the current binary to answer true and the older one false,
+          got {{ _first_is_current }} and {{ _second_is_current }}.
+        quiet: true

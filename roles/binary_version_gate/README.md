@@ -19,13 +19,14 @@ fact.
 
 ## Role Variables
 
-All three are required and have no defaults.
+All four are required and have no defaults.
 
 | Variable | Meaning | Example |
 | --- | --- | --- |
 | `binary_version_gate_path` | Absolute path of the installed binary | `/usr/local/bin/rtk` |
 | `binary_version_gate_output_prefix` | Text that `--version` prints before the version number, empty when the version comes first | `"rtk "`, `"bv v"`, `""` |
 | `binary_version_gate_pin` | Pinned version, `MAJOR.MINOR.PATCH` with an optional leading `v` | `v1.0.1`, `0.13.5` |
+| `binary_version_gate_result_var` | Name of the variable that receives the answer | `_rtk_is_current` |
 
 The prefix is literal text, not a regular expression. The leading `v` of the
 pin is dropped before the comparison, so a `v`-prefixed release tag can be
@@ -33,23 +34,26 @@ passed as is. When the tool itself prints a `v`, put it in the prefix.
 
 ## Result
 
-The host fact `binary_version_gate_current` is `true` when the binary exists
-and its `--version` output starts with the prefix followed by exactly the pin,
-then a space or the end of the output. Otherwise it is `false`.
+The gate sets the variable named by `binary_version_gate_result_var` to `true`
+when the binary exists and its `--version` output starts with the prefix
+followed by exactly the pin, then a space or the end of the output. Otherwise
+it sets it to `false`.
+
+Name the variable after the calling role, such as `_rtk_is_current`. No other
+call then writes it, so a skipped or failed call elsewhere cannot leave a
+stale answer behind.
 
 The version is compared as a whole token, so pin `1.2.3` does not match an
 installed `1.2.30`.
-
-Every call overwrites the fact. Read it right after the call, or copy it into a
-fact of your own when another call comes in between.
 
 ## Failure Modes
 
 The role stops the play (Constitution Principle XII) when:
 
 - a variable is missing, the path is not absolute, the prefix is not a string,
-  or the pin is not `MAJOR.MINOR.PATCH` with an optional leading `v`. Pre-release
-  pins such as `v1.4.0-rc1` are rejected;
+  the pin is not `MAJOR.MINOR.PATCH` with an optional leading `v`, or the
+  result variable name is not lowercase letters, digits and underscores.
+  Pre-release pins such as `v1.4.0-rc1` are rejected;
 - the binary exists but its `--version` output does not start with the prefix
   followed by `MAJOR.MINOR.PATCH`. Treating that as "not installed" would
   reinstall on every run without saying why. The message names the output and
@@ -74,9 +78,10 @@ would call for one.
     binary_version_gate_path: /usr/local/bin/rtk
     binary_version_gate_output_prefix: "rtk "
     binary_version_gate_pin: "{{ rtk_version }}"
+    binary_version_gate_result_var: _rtk_is_current
 
 - name: Install rtk
-  when: not binary_version_gate_current | bool
+  when: not _rtk_is_current | bool
   block:
     - name: Download and install the pinned release
       ansible.builtin.debug:

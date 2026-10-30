@@ -8,13 +8,14 @@
     binary_version_gate_path: "{{ gate_case.path }}"
     binary_version_gate_output_prefix: "{{ gate_case.prefix }}"
     binary_version_gate_pin: "{{ gate_case.pin }}"
+    binary_version_gate_result_var: _gate_case_is_current
 
 - name: Assert the gate answers {{ gate_case.current }}
   ansible.builtin.assert:
     that:
-      - (binary_version_gate_current | bool) == gate_case.current
+      - (_gate_case_is_current | bool) == gate_case.current
     fail_msg: >-
       Gate on {{ gate_case.path }} with prefix '{{ gate_case.prefix }}' and pin
-      {{ gate_case.pin }} answered {{ binary_version_gate_current }}, expected
+      {{ gate_case.pin }} answered {{ _gate_case_is_current }}, expected
       {{ gate_case.current }}.
     quiet: true

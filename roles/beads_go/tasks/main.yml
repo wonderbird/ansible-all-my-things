@@ -33,9 +33,10 @@
     binary_version_gate_path: /usr/local/bin/bd
     binary_version_gate_output_prefix: "bd version "
     binary_version_gate_pin: "{{ beads_go_version }}"
+    binary_version_gate_result_var: _beads_go_is_current
 
 - name: Install bd from a checksum-verified release archive
-  when: not binary_version_gate_current | bool
+  when: not _beads_go_is_current | bool
   become: true
   block:
     - name: Verify supported processor architecture for bd

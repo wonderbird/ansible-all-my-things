@@ -1,8 +1,9 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # Required vars: gate_case, a mapping with the keys path, prefix and fails,
-# the text the failure message must contain, and optionally pin; a case
-# without pin checks that the gate rejects an undefined pin.
+# the text the failure message must contain, and optionally pin and
+# result_var; a case without one of them checks that the gate rejects it as
+# undefined.
 - name: Expect the gate to fail on {{ gate_case.path ~ ' with pin ' ~ gate_case.pin | default('(undefined)') }}
   block:
     - name: Run the gate on {{ gate_case.path ~ ' with pin ' ~ gate_case.pin | default('(undefined)') }}
@@ -12,6 +13,7 @@
         binary_version_gate_path: "{{ gate_case.path }}"
         binary_version_gate_output_prefix: "{{ gate_case.prefix }}"
         binary_version_gate_pin: "{{ gate_case.pin }}"
+        binary_version_gate_result_var: "{{ gate_case.result_var }}"
 
     # The message must not quote gate_case.fails: the rescue below would find
     # it there and pass although the gate accepted the input.

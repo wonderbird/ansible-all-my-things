@@ -7,6 +7,7 @@
     binary_version_gate_path: /usr/local/bin/rtk
     binary_version_gate_output_prefix: "rtk "
     binary_version_gate_pin: "{{ rtk_version }}"
+    binary_version_gate_result_var: _rtk_is_current
 
 # rtk_version is a static pin (see below), not a live upstream query. The gate
 # above (roles/binary_version_gate) explains why it compares versions rather
@@ -15,7 +16,7 @@
 # own and would otherwise re-download and re-extract the same archive on every
 # converge.
 - name: Install rtk from a checksum-verified release archive
-  when: not binary_version_gate_current | bool
+  when: not _rtk_is_current | bool
   block:
     # Only architectures listed in rtk_platform_map are supported.
     - name: Verify supported processor architecture
