@@ -28,5 +28,6 @@
         - {name: v-prefixed, output: "fake v1.2.3"}
         - {name: number, output: "1.2.3"}
         - {name: garbled, output: "fake: unknown option --version"}
+        - {name: multiline, output: "fake 1.2.3\nbuilt 2026-01-01"}
       loop_control:
         label: "{{ item.name }}"

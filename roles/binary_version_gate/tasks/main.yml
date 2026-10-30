@@ -46,16 +46,26 @@
   register: _binary_version_gate_output
   changed_when: false
   # Read-only, so it also runs under --check; skipping it would leave no
-  # output for the parse assert below.
+  # output for the version extraction below.
   check_mode: false
+
+# The version ends at whitespace or at the end of the output, so a pin never
+# matches a longer version that merely starts with it (1.2.3 must not match
+# 1.2.30). Output of a missing binary yields none rather than a value left over
+# from an earlier call.
+- name: Extract the version reported by {{ binary_version_gate_path }}
+  ansible.builtin.set_fact:
+    _binary_version_gate_installed: >-
+      {{ _binary_version_gate_output.stdout | default('')
+         | regex_search('^' ~ (binary_version_gate_output_prefix | regex_escape) ~ '([0-9]+\.[0-9]+\.[0-9]+)(\s|$)', '\1')
+         | default([none], true) | first }}
 
 # An unreadable version would make the caller reinstall on every run, so it
 # stops the play instead (Constitution Principle XII).
 - name: Assert a parseable version is reported by {{ binary_version_gate_path }}
   ansible.builtin.assert:
     that:
-      - _binary_version_gate_output.stdout
-        is match('^' ~ (binary_version_gate_output_prefix | regex_escape) ~ '[0-9]+\.[0-9]+\.[0-9]+( |$)')
+      - _binary_version_gate_installed is not none
     fail_msg: >-
       {{ binary_version_gate_path }} --version printed
       '{{ _binary_version_gate_output.stdout }}', which does not start with
@@ -65,13 +75,8 @@
     quiet: true
   when: _binary_version_gate_stat.stat.exists
 
-# The version is compared as a whole token, so a pin never matches a longer
-# version that merely starts with it (1.2.3 must not match 1.2.30).
 - name: Record whether the pinned version is reported by {{ binary_version_gate_path }}
   ansible.builtin.set_fact:
     "{{ binary_version_gate_result_var }}": >-
       {{ _binary_version_gate_stat.stat.exists
-         and _binary_version_gate_output.stdout
-             is match('^' ~ (binary_version_gate_output_prefix | regex_escape)
-                      ~ (binary_version_gate_pin | regex_replace('^v', '') | regex_escape)
-                      ~ '( |$)') }}
+         and _binary_version_gate_installed == (binary_version_gate_pin | regex_replace('^v', '')) }}

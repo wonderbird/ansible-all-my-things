@@ -36,7 +36,7 @@ passed as is. When the tool itself prints a `v`, put it in the prefix.
 
 The gate sets the variable named by `binary_version_gate_result_var` to `true`
 when the binary exists and its `--version` output starts with the prefix
-followed by exactly the pin, then a space or the end of the output. Otherwise
+followed by exactly the pin, then whitespace or the end of the output. Otherwise
 it sets it to `false`.
 
 Name the variable after the calling role, such as `_rtk_is_current`. No other

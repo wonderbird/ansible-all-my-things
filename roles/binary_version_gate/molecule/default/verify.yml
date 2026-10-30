@@ -10,6 +10,7 @@
         - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.2.3, current: true}
         - {path: /opt/gate-test/bare, prefix: "fake ", pin: v1.2.3, current: true}
         - {path: /opt/gate-test/bare, prefix: "fake ", pin: 1.2.3, current: true}
+        - {path: /opt/gate-test/multiline, prefix: "fake ", pin: v1.2.3, current: true}
         - {path: /opt/gate-test/v-prefixed, prefix: "fake v", pin: v1.2.3, current: true}
         - {path: /opt/gate-test/number, prefix: "", pin: v1.2.3, current: true}
         - {path: /opt/gate-test/number, prefix: "", pin: 1.2.30, current: false}
