@@ -40,7 +40,7 @@
         - {path: /opt/gate-test/current, prefix: "fake ", pin: v1.2.3, fails: "Variable validation failed"}
       loop_control:
         loop_var: gate_case
-        label: "{{ gate_case.path }} pin {{ gate_case.pin | default('(undefined)') }}"
+        label: "{{ gate_case.path }} pin {{ gate_case.pin | default('(undefined)') }} into {{ gate_case.result_var | default('(undefined)') }}"
 
     # Each call writes only the variable it names, so a later call cannot
     # change an earlier call's answer.
@@ -70,4 +70,23 @@
         fail_msg: >-
           Expected the current binary to answer true and the older one false,
           got {{ _first_is_current }} and {{ _second_is_current }}.
+        quiet: true
+
+    # A caller whose gate call is skipped must fail on an undefined answer
+    # rather than read one left behind by another call.
+    - name: Skip a gate call
+      ansible.builtin.include_role:
+        name: binary_version_gate
+      vars:
+        binary_version_gate_path: /opt/gate-test/current
+        binary_version_gate_output_prefix: "fake "
+        binary_version_gate_pin: v1.2.3
+        binary_version_gate_result_var: _skipped_is_current
+      when: false
+
+    - name: Assert the skipped call left its answer undefined
+      ansible.builtin.assert:
+        that:
+          - _skipped_is_current is not defined
+        fail_msg: A skipped gate call set _skipped_is_current to {{ _skipped_is_current | default('') }}.
         quiet: true

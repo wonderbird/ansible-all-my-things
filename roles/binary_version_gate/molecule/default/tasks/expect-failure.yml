@@ -4,9 +4,9 @@
 # the text the failure message must contain, and optionally pin and
 # result_var; a case without one of them checks that the gate rejects it as
 # undefined.
-- name: Expect the gate to fail on {{ gate_case.path ~ ' with pin ' ~ gate_case.pin | default('(undefined)') }}
+- name: Expect failure on {{ gate_case.path ~ ' pin ' ~ gate_case.pin | default('(undefined)') ~ ' into ' ~ gate_case.result_var | default('(undefined)') }}
   block:
-    - name: Run the gate on {{ gate_case.path ~ ' with pin ' ~ gate_case.pin | default('(undefined)') }}
+    - name: Run the gate on {{ gate_case.path ~ ' pin ' ~ gate_case.pin | default('(undefined)') ~ ' into ' ~ gate_case.result_var | default('(undefined)') }}
       ansible.builtin.include_role:
         name: binary_version_gate
       vars:
