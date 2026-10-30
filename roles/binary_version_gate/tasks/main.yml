@@ -37,17 +37,28 @@
     path: "{{ binary_version_gate_path }}"
   register: _binary_version_gate_stat
 
-- name: Get the version reported by {{ binary_version_gate_path }}
-  ansible.builtin.command:
-    argv:
-      - "{{ binary_version_gate_path }}"
-      - --version
+# The module's own error does not name the remedy, so the rescue replaces it
+# with one that does and still stops the play (Constitution Principle XII).
+- name: Run the binary with --version at {{ binary_version_gate_path }}
   when: _binary_version_gate_stat.stat.exists
-  register: _binary_version_gate_output
-  changed_when: false
-  # Read-only, so it also runs under --check; skipping it would leave no
-  # output for the version extraction below.
-  check_mode: false
+  block:
+    - name: Get the version reported by {{ binary_version_gate_path }}
+      ansible.builtin.command:
+        argv:
+          - "{{ binary_version_gate_path }}"
+          - --version
+      register: _binary_version_gate_output
+      changed_when: false
+      # Read-only, so it also runs under --check; skipping it would leave no
+      # output for the version extraction below.
+      check_mode: false
+  rescue:
+    - name: Fail because the binary could not run at {{ binary_version_gate_path }}
+      ansible.builtin.fail:
+        msg: >-
+          {{ binary_version_gate_path }} could not run with --version. Remove
+          {{ binary_version_gate_path }} to let the role reinstall. Error:
+          {{ ansible_failed_result.msg }}
 
 # The version ends at whitespace or at the end of the output, so a pin never
 # matches a longer version that merely starts with it (1.2.3 must not match

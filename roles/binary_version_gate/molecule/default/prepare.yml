@@ -31,3 +31,11 @@
         - {name: multiline, output: "fake 1.2.3\nbuilt 2026-01-01"}
       loop_control:
         label: "{{ item.name }}"
+
+    - name: Plant a fake binary that exits non-zero
+      ansible.builtin.copy:
+        content: |
+          #!/bin/sh
+          exit 3
+        dest: /opt/gate-test/broken
+        mode: '0755'

@@ -57,7 +57,10 @@ The role stops the play (Constitution Principle XII) when:
 - the binary exists but its `--version` output does not start with the prefix
   followed by `MAJOR.MINOR.PATCH`. Treating that as "not installed" would
   reinstall on every run without saying why. The message names the output and
-  says to remove the binary to let the calling role reinstall it.
+  says to remove the binary to let the calling role reinstall it;
+- the binary exists but cannot run, for example because it is built for
+  another architecture or exits non-zero. The message quotes the error and
+  says to remove the binary.
 
 ## Dependencies
 
