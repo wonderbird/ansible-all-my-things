@@ -58,7 +58,8 @@
         msg: >-
           {{ binary_version_gate_path }} could not run with --version. Remove
           {{ binary_version_gate_path }} to let the role reinstall. Error:
-          {{ ansible_failed_result.msg }}
+          {{ ansible_failed_result.msg }} (rc
+          {{ ansible_failed_result.rc | default('unknown') }}){{ (': ' ~ ansible_failed_result.stderr) if ansible_failed_result.stderr | default('') else '' }}
 
 # The version ends at whitespace or at the end of the output, so a pin never
 # matches a longer version that merely starts with it (1.2.3 must not match
