@@ -11,9 +11,8 @@
 # System-wide install rather than per-user: bd is a static per-architecture
 # binary with no per-user state (issue/config data lives in ~/.beads or
 # project dirs regardless of binary location). The install is gated on
-# `bd --version` matching the pin, not on the file existing: a pin bump then
-# upgrades an existing host, and a re-run at the pinned version skips the
-# redundant re-download/re-extract of the same archive.
+# `bd --version` matching the pin (roles/binary_version_gate), so a re-run at
+# the pinned version skips the redundant re-download/re-extract.
 # -----
 
 - name: Assert login_user_names is provided
@@ -27,44 +26,17 @@
       `login_users | map(attribute='name') | list`; a Molecule converge
       play sets it directly in its `vars:` block.
 
-- name: Check if bd binary already exists
-  ansible.builtin.stat:
-    path: /usr/local/bin/bd
-  register: bd_stat
-
-- name: Get installed bd version
-  ansible.builtin.command:
-    cmd: /usr/local/bin/bd --version
-  when: bd_stat.stat.exists
-  register: _bd_installed_version
-  changed_when: false
-
-# An unreadable version would make the gate below reinstall on every run,
-# so it stops the play instead (Constitution Principle XII).
-- name: Assert installed bd reports a parseable version
-  ansible.builtin.assert:
-    that:
-      - _bd_installed_version.stdout is match('^bd version [0-9]+\.[0-9]+\.[0-9]+( |$)')
-    fail_msg: >-
-      /usr/local/bin/bd --version printed '{{ _bd_installed_version.stdout }}',
-      which does not start with "bd version <semver>"; cannot tell whether the
-      installed version matches beads_go_version {{ beads_go_version }}. Remove
-      /usr/local/bin/bd to let the role reinstall.
-    quiet: true
-  when: bd_stat.stat.exists
-
-# Install unless bd exists and reports exactly the pinned version, so a
-# pin bump upgrades an existing host. The version is compared as a whole
-# token, so a pin never matches a longer version that merely starts with it.
-- name: Determine if bd installation is required
-  ansible.builtin.set_fact:
-    _bd_needs_install: >-
-      {{ not (bd_stat.stat.exists
-              and _bd_installed_version.stdout
-                  is match('^bd version ' ~ (beads_go_version | regex_replace('^v', '') | regex_escape) ~ '( |$)')) }}
+- name: Check whether the installed bd reports the pinned version
+  ansible.builtin.include_role:
+    name: binary_version_gate
+  vars:
+    binary_version_gate_path: /usr/local/bin/bd
+    binary_version_gate_output_prefix: "bd version "
+    binary_version_gate_pin: "{{ beads_go_version }}"
+    binary_version_gate_result_var: _beads_go_is_current
 
 - name: Install bd from a checksum-verified release archive
-  when: _bd_needs_install | bool
+  when: not _beads_go_is_current | bool
   become: true
   block:
     - name: Verify supported processor architecture for bd

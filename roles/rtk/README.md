@@ -25,7 +25,9 @@ re-downloads the binary. To upgrade, bump the pin (or run
 
 ## Dependencies
 
-None. See `meta/main.yml` for details.
+- `binary_version_gate` (called through `include_role`, not declared in
+  `meta/main.yml`) — tells whether the installed `rtk` reports the pinned
+  version.
 
 ## Example Playbook
 

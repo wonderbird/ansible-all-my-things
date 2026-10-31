@@ -4,7 +4,7 @@
   ansible.builtin.assert:
     that:
       - opencode_version | length > 0
-      - opencode_version is match('^v[0-9]+\.[0-9]+\.[0-9]+')
+      - opencode_version is match('^v[0-9]+\.[0-9]+\.[0-9]+$')
       - opencode_sha256_amd64 | length == 64
       - opencode_sha256_arm64 | length == 64
     fail_msg: >-
@@ -24,24 +24,14 @@
   ansible.builtin.set_fact:
     _opencode_arch: "{{ 'x64' if ansible_facts['architecture'] == 'x86_64' else 'arm64' }}"
 
-- name: Check if OpenCode binary is installed
-  ansible.builtin.stat:
-    path: "{{ opencode_install_path }}"
-  register: _opencode_binary_stat
-
-- name: Get installed OpenCode version
-  ansible.builtin.command:
-    cmd: "{{ opencode_install_path }} --version"
-  register: _opencode_installed_version
-  changed_when: false
-  when: _opencode_binary_stat.stat.exists
-
-- name: Determine if OpenCode installation is required
-  ansible.builtin.set_fact:
-    _opencode_needs_install: >-
-      {{ not _opencode_binary_stat.stat.exists or
-         (opencode_version | regex_replace('^v', '')) not in
-         (_opencode_installed_version.stdout | default('')) }}
+- name: Check whether the installed OpenCode reports the pinned version
+  ansible.builtin.include_role:
+    name: binary_version_gate
+  vars:
+    binary_version_gate_path: "{{ opencode_install_path }}"
+    binary_version_gate_output_prefix: ""
+    binary_version_gate_pin: "{{ opencode_version }}"
+    binary_version_gate_result_var: _opencode_is_current
 
 - name: Download OpenCode release tarball
   ansible.builtin.get_url:
@@ -50,21 +40,21 @@
     dest: "/tmp/opencode-{{ opencode_version }}-linux-{{ _opencode_arch }}.tar.gz"
     mode: '0644'
     checksum: "sha256:{{ opencode_sha256_amd64 if _opencode_arch == 'x64' else opencode_sha256_arm64 }}"
-  when: _opencode_needs_install
+  when: not _opencode_is_current | bool
 
 - name: Create staging directory for OpenCode extraction
   ansible.builtin.file:
     path: "/tmp/opencode-{{ opencode_version }}-linux-{{ _opencode_arch }}"
     state: directory
     mode: '0755'
-  when: _opencode_needs_install
+  when: not _opencode_is_current | bool
 
 - name: Extract OpenCode release tarball
   ansible.builtin.unarchive:
     src: "/tmp/opencode-{{ opencode_version }}-linux-{{ _opencode_arch }}.tar.gz"
     dest: "/tmp/opencode-{{ opencode_version }}-linux-{{ _opencode_arch }}"
     remote_src: true
-  when: _opencode_needs_install
+  when: not _opencode_is_current | bool
 
 - name: Install OpenCode binary
   ansible.builtin.copy:
@@ -74,4 +64,4 @@
     mode: '0755'
     owner: root
     group: root
-  when: _opencode_needs_install
+  when: not _opencode_is_current | bool

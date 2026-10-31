@@ -31,6 +31,9 @@ version, so a pin bump upgrades an existing host on the next run.
 
 - `git` (declared in `meta/main.yml`) — provides the `git` binary the
   source-clone task requires.
+- `binary_version_gate` (called through `include_role`, not declared in
+  `meta/main.yml`) — tells whether the installed `bd` reports the pinned
+  version.
 
 ## Example Playbook
 

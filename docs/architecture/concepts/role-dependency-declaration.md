@@ -256,17 +256,16 @@ dependency at all is derived rather than copied here:
 
 - **`meta/main.yml` dependencies are reliably honored via the `roles:` play
   keyword** (and transitively, when a dependency role itself has
-  dependencies). Their handling under `import_role`/`include_role` has
-  varied across Ansible versions and is documented inconsistently upstream
-  — do not rely on either honoring them. This repo currently only uses the
-  `roles:` keyword and `import_role` on the paths this document covers (a
-  couple of unrelated roles elsewhere use `include_role` for other
-  purposes), so nothing here breaks today — but if this repo moves toward
-  conditional, task-based role inclusion for a role covered by this
-  document, treat a `meta/main.yml` dependency on it as unenforced and
-  re-express the ordering explicitly (and add a presence-check guard per
-  the section above, since you can no longer rely on the dependency
-  mechanism at all).
+  dependencies). Their handling under `import_role`/`include_role` has varied
+  across Ansible versions and is documented inconsistently upstream — do not
+  rely on either honoring them. This repo currently only uses the `roles:`
+  keyword and `import_role` on the paths this document covers (other roles use
+  `include_role` for unrelated purposes, such as calling a shared gate or
+  helper role), so nothing here breaks today — but if this repo moves toward
+  conditional, task-based role inclusion for a role covered by this document,
+  treat a `meta/main.yml` dependency on it as unenforced and re-express the
+  ordering explicitly (and add a presence-check guard per the section above,
+  since you can no longer rely on the dependency mechanism at all).
 - **Keep dependency chains shallow.** Ansible resolves nested dependencies
   breadth-first in a way that becomes hard to reason about more than one
   level deep. This repo's roles are flat and single-purpose (Constitution

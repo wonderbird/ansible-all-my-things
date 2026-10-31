@@ -30,7 +30,7 @@
     - name: Assert OpenCode version matches pinned version
       ansible.builtin.assert:
         that:
-          - (opencode_version | regex_replace('^v', '')) in _verify_opencode_version.stdout
+          - _verify_opencode_version.stdout == (opencode_version | regex_replace('^v', ''))
         fail_msg: >-
           Expected OpenCode version {{ opencode_version | regex_replace('^v', '') }}
           but got: {{ _verify_opencode_version.stdout }}

@@ -1,0 +1,21 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Required vars: gate_case, a mapping with the keys path, prefix, pin and current.
+- name: Run the gate on {{ gate_case.path ~ ' with pin ' ~ gate_case.pin }}
+  ansible.builtin.include_role:
+    name: binary_version_gate
+  vars:
+    binary_version_gate_path: "{{ gate_case.path }}"
+    binary_version_gate_output_prefix: "{{ gate_case.prefix }}"
+    binary_version_gate_pin: "{{ gate_case.pin }}"
+    binary_version_gate_result_var: _gate_case_is_current
+
+- name: Assert the gate answers {{ gate_case.current }}
+  ansible.builtin.assert:
+    that:
+      - (_gate_case_is_current | bool) == gate_case.current
+    fail_msg: >-
+      Gate on {{ gate_case.path }} with prefix '{{ gate_case.prefix }}' and pin
+      {{ gate_case.pin }} answered {{ _gate_case_is_current }}, expected
+      {{ gate_case.current }}.
+    quiet: true

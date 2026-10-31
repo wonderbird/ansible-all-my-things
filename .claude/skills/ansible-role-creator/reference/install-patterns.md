@@ -6,13 +6,13 @@ drift.
 
 | Archetype | Exemplar role | Fetch/source | Checksum | Idempotence signal |
 | --- | --- | --- | --- | --- |
-| Binary tarball → single system binary | `opencode` | GitHub release tarball via `get_url` | per-arch sha256 in `defaults`, `get_url checksum:` | `<tool> --version` contains pin |
+| Binary tarball → single system binary | `opencode` | GitHub release tarball via `get_url` | per-arch sha256 in `defaults`, `get_url checksum:` | `<tool> --version` equals pin, via `binary_version_gate` |
 | Binary tarball → multi-file install + symlinks | `nodejs` | nodejs.org dist tarball | per-arch sha256 | `stat` on installed binary |
 | Source build from a git ref (no releases) | `skill_manager` | `git` clone at pinned commit SHA, then `npm ci`/`npm run build` | none (commit SHA is the pin) | `.git_sha` marker file |
 | apt repository (GPG-signed) | `github_cli` | `deb822_repository` + keyring, `apt` with `gh=<version>` | apt/GPG (no manual sha) | apt handles it |
 | Language pkg manager, per-user | `specify_cli` | `pipx install git+…@<tag>`, loop over `login_user_names` (assert it first — see SKILL.md step 1) | none | `shell creates:` on the per-user binary |
 | git clone of a repo, per-user workspace | `ai_agent_workspace` | `ansible.builtin.git`; depends on the `git` role | none | `git` module idempotence |
-| Checksum published upstream in a file | `rtk`, `beads_go`, `beads_viewer` | `get_url` tarball | literal per-arch sha256 pinned in `defaults` (the *update mechanism* refreshes it from upstream `checksums.txt` via `fetch-checksum-from-file.yml` — not fetched at converge time) | version compare |
+| Checksum published upstream in a file | `rtk`, `beads_go`, `beads_viewer` | `get_url` tarball | literal per-arch sha256 pinned in `defaults` (the *update mechanism* refreshes it from upstream `checksums.txt` via `fetch-checksum-from-file.yml` — not fetched at converge time) | version compare via `binary_version_gate` |
 
 ## Choosing between them
 

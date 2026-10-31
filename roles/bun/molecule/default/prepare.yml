@@ -12,3 +12,15 @@
         name: testuser
         state: present
         create_home: true
+
+    # A stale bun at /usr/local/bin/bun makes converge exercise the upgrade
+    # path: the role must replace it, not skip the install because the file exists.
+    - name: Plant a stale bun that reports an older version
+      ansible.builtin.copy:
+        content: |
+          #!/bin/sh
+          echo "0.0.1"
+        dest: /usr/local/bin/bun
+        owner: root
+        group: root
+        mode: '0755'

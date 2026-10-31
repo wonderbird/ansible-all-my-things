@@ -36,8 +36,12 @@ version-update mechanism.
 
 ## Dependencies
 
-None. See `meta/main.yml`. uv is a self-contained binary and needs no system
-Python; it can download and manage Python versions itself.
+- `binary_version_gate` (called through `include_role`, not declared in
+  `meta/main.yml`) — tells whether the installed `uv` reports the pinned
+  version.
+
+uv is a self-contained binary and needs no system Python; it can download
+and manage Python versions itself.
 
 ## Example Playbook
 

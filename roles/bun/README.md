@@ -38,8 +38,12 @@ The three pinned values (version + both checksums) are updated together by
 
 ## Dependencies
 
-None. See `meta/main.yml`. The role installs `unzip` itself, because upstream
-publishes the Linux builds as `.zip` archives only.
+- `binary_version_gate` (called through `include_role`, not declared in
+  `meta/main.yml`) — tells whether the installed `bun` reports the pinned
+  version.
+
+The role installs `unzip` itself, because upstream publishes the Linux builds
+as `.zip` archives only.
 
 ## Example Playbook
 

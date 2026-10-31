@@ -53,8 +53,8 @@
     - name: Assert both entry points report the pinned version
       ansible.builtin.assert:
         that:
-          - (bun_version | regex_replace('^bun-v', '')) in _verify_bun_version.stdout
-          - (bun_version | regex_replace('^bun-v', '')) in _verify_bunx_version.stdout
+          - _verify_bun_version.stdout == (bun_version | regex_replace('^bun-v', ''))
+          - _verify_bunx_version.stdout == (bun_version | regex_replace('^bun-v', ''))
         fail_msg: >-
           Expected Bun version {{ bun_version | regex_replace('^bun-v', '') }}
           but got bun: {{ _verify_bun_version.stdout }},

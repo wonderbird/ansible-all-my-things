@@ -1,0 +1,17 @@
+#SPDX-License-Identifier: MIT-0
+---
+galaxy_info:
+  author: Stefan Boos
+  namespace: wonderbird
+  role_name: binary_version_gate
+  description: Tell whether an installed binary reports its pinned version
+  company: n.a.
+  issue_tracker_url: http://github.com/wonderbird/ansible-all-my-things/issues
+  license: MIT
+  min_ansible_version: '2.19'
+  galaxy_tags: []
+
+# If a task in this role will hard-fail without another specific role
+# having already run, declare it here instead of relying only on playbook
+# ordering — see docs/architecture/concepts/role-dependency-declaration.md
+dependencies: []
