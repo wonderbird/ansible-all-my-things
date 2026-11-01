@@ -1,10 +1,23 @@
 # Developer Setup
 
-## Optional Prerequisite: Spec-Kit
+## Optional Prerequisites: OMC, Skills, Spec-Kit
 
-[GitHub Spec Kit](https://github.com/github/spec-kit) and [Claude Code](https://claude.ai)
+When developing in this repository I use Claude Code with the
+[Oh My Claude Code](https://github.com/yeachan-heo/oh-my-claudecode) plugin.
+
+In addition, I use the skills listed in `skills-lock.json` with
+[npx skills](https://github.com/vercel-labs/skills). To restore the skills
+into your project, enter:
+
+```shell
+npx skills experimental_install
+```
+
+[GitHub Spec Kit](https://github.com/github/spec-kit) and
+[Claude Code](https://claude.ai)
 can be used to extend this application. Consider installing the corresponding
-tools as described in the [Spec Kit Getting Started Guide](https://github.com/github/spec-kit).
+tools as described in the
+[Spec Kit Getting Started Guide](https://github.com/github/spec-kit).
 
 After upgrading Spec Kit, check whether any `.claude/commands/speckit.*.md` file
 now duplicates a `.claude/skills/speckit-*/` entry, and delete the command file

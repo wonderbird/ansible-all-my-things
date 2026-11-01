@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "skills": {
+    "caveman": {
+      "source": "juliusbrussee/caveman",
+      "sourceType": "github",
+      "skillPath": "skills/caveman/SKILL.md",
+      "computedHash": "71b600c88c8d1d36f18c4875db23b53c5d6cb9ba3195e19451d6b1bb67db07c4"
+    },
+    "code-review": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/code-review/SKILL.md",
+      "computedHash": "99b3fa95162a7793bce3a1f8918bf9c85f2393dac40d0267258d6a64fea26f2c"
+    },
+    "commit": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/commit/SKILL.md",
+      "computedHash": "38da757c9622c51caae06335c741a86a477c1bc648c08be60955149c2d87d93f"
+    },
+    "commit-message": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/commit-message/SKILL.md",
+      "computedHash": "2c54dcc881a051a80d7139218719de95c43cdf3ed9e7c2fe0a71737777466b90"
+    },
+    "create-adr": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/create-adr/SKILL.md",
+      "computedHash": "a5a7be778132d8a35f1dc49966a5c4b09cb69f7a89b86a3418676b79b2873940"
+    },
+    "fix-problem": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/fix-problem/SKILL.md",
+      "computedHash": "9a487b16282ad48da48131cbac9d977536cb92ffbe212e68fa52dc4aa1ad46e0"
+    },
+    "format-docs": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/format-docs/SKILL.md",
+      "computedHash": "733cbaa76f9eb4e20587f12239dbc693fdf6c9e84c82ec65686fe55995654003"
+    },
+    "format-markdown": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/format-markdown/SKILL.md",
+      "computedHash": "710d96aa9f44cded41e87ef062cd4063db8750ec724fb3318e08a606c50d7de0"
+    },
+    "my-omc-finish-interrupted": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/my-omc/my-omc-finish-interrupted/SKILL.md",
+      "computedHash": "94971d77ca9b0e0a152df3bd71a8f690130144f0213de8c692c7b2dbbf44a422"
+    },
+    "record-findings": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/record-findings/SKILL.md",
+      "computedHash": "58e1851d7a3f4cece967ae8375cff0430b5fb9d0115afd194be1eb0111ab94aa"
+    },
+    "review-single-rule": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/review/review-single-rule/SKILL.md",
+      "computedHash": "9bc27d61ecf612dbf90a738fed62cdb927421220698e1f29ebe13736408ed749"
+    },
+    "sdd-extend": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/sdd/sdd-extend/SKILL.md",
+      "computedHash": "a18784ae195460f7c5dcbf908a84eae9f4863d63360a55d64150f6f67c0681c2"
+    },
+    "sdd-ralph": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/sdd/sdd-ralph/SKILL.md",
+      "computedHash": "f0040a3bde58f1a7f5365639bd318e06b98246ebb21d6f63fca188c2ca36fb69"
+    },
+    "sdd-workflow": {
+      "source": "wonderbird/ai-agent-workspace",
+      "sourceType": "github",
+      "skillPath": "skills/sdd/sdd-workflow/SKILL.md",
+      "computedHash": "bed05f77be1cd62368e0e9331c230d73b3e17ecafa318ebeb46f49d4d5e8d5b8"
+    }
+  }
+}
