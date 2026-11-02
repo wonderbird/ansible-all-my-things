@@ -15,6 +15,16 @@
 .omc/project-memory.json
 .omc/progress.txt
 
+# Skills are managed via https://github.com/omrikais/skill-manager
+# See .skills.json
+.agents
+.claude/skills/commit
+.claude/skills/commit-message
+.claude/skills/create-adr
+.claude/skills/fix-problem
+.claude/skills/format-markdown
+.claude/skills/record-findings
+
 # Oh My OpenAgent (OMO) — per-session agent state, e.g. run-continuation/.
 # Upstream ignores the contents of this directory and whitelists only durable
 # artefacts: https://github.com/code-yeongyu/oh-my-openagent/blob/dev/.gitignore
