@@ -214,7 +214,7 @@ Then run `bash /tmp/omc-wait-idle.sh %3` (Step 0) with Bash-tool `timeout: 59500
 
 The setup runs several turns. After each `wait_idle` returns, decide (`IDLE_BY_DIFF` counts as `IDLE` here):
 
-- **`IDLE` + interactive menu present** (`Select`/`Choose`/`Which`/`[1]`/`(y/n)` and the input box is *not* a plain empty `❯`): inspect the options. Prefer the pre-highlighted/default choice — usually just a bare `Enter` — over guessing a number. For a yes/no that matches the requested defaults (e.g. overwrite CLAUDE.md, which the script backs up), send `y`. If a menu is genuinely ambiguous or could misconfigure, **stop and ask the human** rather than guess. After answering, refresh the snapshot (`omc-submit.sh` does this for a bare `Enter`), then run `wait_idle` again. The setup agent may also auto-answer a menu from the prompt text, or batch several questions into one multi-question form; answer each question, then confirm the form's submit step. Don't wait for a menu that never appears: in an OMC 5.7.4 run the setup agent took every answer from the prompt and showed no menu at all. Known menus, in the order setup asks them (observed through OMC 5.7.4):
+- **`IDLE` + interactive menu present** (`Select`/`Choose`/`Which`/`[1]`/`(y/n)` and the input box is *not* a plain empty `❯`): inspect the options. Prefer the pre-highlighted/default choice — usually just a bare `Enter` — over guessing a number. For a yes/no that matches the requested defaults (e.g. overwrite CLAUDE.md, which the script backs up), send `y`. If a menu is genuinely ambiguous or could misconfigure, **stop and ask the human** rather than guess. After answering, refresh the snapshot (`omc-submit.sh` does this for a bare `Enter`), then run `wait_idle` again. The setup agent may also auto-answer a menu from the prompt text, or batch several questions into one multi-question form; answer each question, then confirm the form's submit step. Don't wait for a menu that never appears: in an OMC 5.7.4 run the setup agent took every answer from the prompt and showed no menu at all. The setup agent may also word a question its own way and offer options of its own. Match a question to a row below by its subject, not by its exact wording. Known menus, in the order setup asks them (observed through OMC 5.7.30):
 
   | Menu (question text) | When it appears | Answer |
   |---|---|---|
@@ -222,6 +222,7 @@ The setup runs several turns. After each `wait_idle` returns, decide (`IDLE_BY_D
   | "Found a previous setup session. Would you like to resume or start fresh?" | An earlier run was interrupted | `Start fresh` |
   | "Where should I configure oh-my-claudecode?" | Setup did not take "install globally" from the prompt | `Global (all projects)` |
   | "Global setup will change your base Claude config" | Base `CLAUDE.md` exists without OMC markers (observed every fresh install) | `1. Overwrite base CLAUDE.md (Recommended)`. It backs up the old file first and is normally pre-highlighted. |
+  | "Your global ~/.claude/CLAUDE.md currently contains only the line '@RTK.md'… Which behavior do you want?" | The setup agent's own wording of the row above (observed in OMC 5.7.30) | `1. Overwrite, re-add @RTK.md`. It is pre-highlighted. Pick the option that keeps existing imports such as `@RTK.md`, never the one that drops them. The setup script itself keeps prior content under `<!-- User customizations -->`, and Step 6 checks that `@RTK` survived. |
   | "Task management tool for OMC to use?" | `bd` or `br` is on `PATH` | `1. Built-in Tasks (Default)`. It is pre-highlighted, so a bare `Enter` picks it. |
   | "Would you like to install the OMC CLI globally…?" | `omc` is not on `PATH` | `Yes (Recommended)` |
   | "Would you like to enable agent teams?" | Always (Phase 3) | `Yes, enable teams (Recommended)` |
@@ -459,10 +460,11 @@ bash /tmp/omc-type.sh %3 'run omc doctor'
 bash /tmp/omc-submit.sh %3
 ```
 
-Run `wait_idle` with a shorter budget, which is plenty for doctor: `bash /tmp/omc-wait-idle.sh %3 300` with Bash-tool `timeout: 340000`. Then capture the full report. Its table is often longer than the 40 lines that `wait_idle` prints:
+Wait and capture the full report in one call, with Bash-tool `timeout: 340000`. The 300s budget is plenty for doctor. The doctor table is often longer than the 40 lines that `wait_idle` prints, so the block keeps only the result line from `wait_idle` and then captures the whole pane. Keep that `head -1`: never send `wait_idle` output to `/dev/null`. A prior run did, and lost the result line, so a `TIMEOUT` or `ABORT` would have gone unseen:
 
 ```bash
 PANE=%3
+bash /tmp/omc-wait-idle.sh "$PANE" 300 | head -1
 tmux capture-pane -t "$PANE" -p -S -200 | grep -v '^\s*$'
 tmux capture-pane -t "$PANE" -p -S -200 | grep -E '│ *(WARN|CRITICAL) *│' || echo "rows: no WARN or CRITICAL"
 ```
@@ -539,7 +541,7 @@ Each rule is explained where it is used; this list is the checklist.
 
 - **TUI input goes through the helpers only**: `omc-type.sh`, then `omc-submit.sh` in a separate, sequential call, never as parallel calls; slash commands get `--slash` (Step 0, principles 4–5).
 - **Never send any key into a busy turn**: there `Escape` is an interrupt, not an input-clear. `omc-type.sh` refuses while busy; one earlier `IDLE` does not prove the agent is still idle (Step 4).
-- **Waits use `wait_idle` only**: internal deadline 540s, Bash `timeout: 595000`, at most 3 chained calls; never `sleep N && cmd` (Step 0).
+- **Waits use `wait_idle` only**: internal deadline 540s, Bash `timeout: 595000`, at most 3 chained calls; never `sleep N && cmd` (Step 0). Always keep the first output line of `omc-wait-idle.sh`, because it is the result: never redirect it to `/dev/null` or filter it out (Step 5).
 - **Detect state from footer chrome and content stability**, not from spinner verbs or summary wording (Step 0).
 - **Hardcode the literal `%N` pane id** in every block: shell state does not persist between Bash calls (Step 0).
 - **Gate the exit on a fresh `setupCompleted` with a matching `setupVersion`**, not on the file existing; keep the nudge and the safety valve (Step 3).
