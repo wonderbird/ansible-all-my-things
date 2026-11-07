@@ -1,0 +1,39 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: apt
+
+    - name: Assert shellcheck package is installed
+      ansible.builtin.assert:
+        that:
+          - "'shellcheck' in ansible_facts.packages"
+        fail_msg: "shellcheck package is not installed"
+
+    - name: Write a script with a known ShellCheck finding
+      ansible.builtin.copy:
+        dest: /tmp/shellcheck-probe.sh
+        content: |
+          #!/bin/bash
+          echo $1
+        mode: '0644'
+
+    - name: Run shellcheck on the probe script
+      ansible.builtin.command: shellcheck /tmp/shellcheck-probe.sh
+      register: shellcheck_probe
+      changed_when: false
+      failed_when: false
+
+    - name: Assert shellcheck reports the unquoted expansion
+      ansible.builtin.assert:
+        that:
+          - shellcheck_probe.rc == 1
+          - "'SC2086' in shellcheck_probe.stdout"
+        fail_msg: >-
+          shellcheck did not report SC2086 on the probe script (rc
+          {{ shellcheck_probe.rc }}): {{ shellcheck_probe.stdout }}
+          {{ shellcheck_probe.stderr }}
