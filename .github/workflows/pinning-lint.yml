@@ -57,7 +57,7 @@ jobs:
       # pull_request events from forks.
       - name: Report zizmor findings to code scanning
         if: ${{ github.repository == 'wonderbird/ansible-all-my-things' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
-        uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+        uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
         with:
           config: .github/zizmor.yml
           inputs: .github/workflows/
@@ -68,7 +68,7 @@ jobs:
       # annotates the offending line. The action propagates that exit code, so
       # a non-conformant reference fails this step and the whole job.
       - name: Enforce the pinning policy
-        uses: zizmorcore/zizmor-action@cc914d7f3750a2d13d75c7f184a1060aa0e9d482 # v0.6.4
+        uses: zizmorcore/zizmor-action@53290badfa369cb0bf7ad16342cb62c2fa47ac7b # v0.8.0
         with:
           config: .github/zizmor.yml
           inputs: .github/workflows/
