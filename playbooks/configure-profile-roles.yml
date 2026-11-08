@@ -18,6 +18,7 @@
     - uv
     - java
     - vim
+    - shellcheck
     - dolt_sql_server
     - rtk
     - beads_go
