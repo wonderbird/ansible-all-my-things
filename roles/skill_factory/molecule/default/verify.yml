@@ -1,0 +1,21 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Read the checked-out branch of the skill-factory clone
+      ansible.builtin.command:
+        cmd: git -C /home/testuser/Documents/Cline/skill-factory symbolic-ref --short HEAD
+      become_user: testuser
+      register: skill_factory_branch
+      changed_when: false
+
+    - name: Assert skill-factory is cloned on the fork branch
+      ansible.builtin.assert:
+        that:
+          - skill_factory_branch.stdout == 'fork'
+        fail_msg: >-
+          skill-factory clone at /home/testuser/Documents/Cline/skill-factory
+          is on branch '{{ skill_factory_branch.stdout }}', expected 'fork'
+        success_msg: "skill-factory repository cloned on branch fork"

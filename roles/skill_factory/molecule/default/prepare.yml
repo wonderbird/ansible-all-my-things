@@ -1,0 +1,20 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Prepare container
+  hosts: all
+  gather_facts: false
+  become: true
+  tasks:
+    - name: Create testuser
+      ansible.builtin.user:
+        name: testuser
+        state: present
+        create_home: true
+
+    - name: Create Documents/Cline directory for testuser
+      ansible.builtin.file:
+        path: /home/testuser/Documents/Cline
+        state: directory
+        owner: testuser
+        group: testuser
+        mode: '0755'

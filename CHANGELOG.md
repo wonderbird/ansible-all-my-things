@@ -20,6 +20,8 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   user's `sm` store, deploying none.
 - Every Linux host gets the uv Python manager, with `uv` and `uvx` on the PATH.
 - Every Linux host gets ShellCheck, with `shellcheck` on the PATH.
+- Hosts in `claude_opinionated` get a skill-factory clone in
+  `~/Documents/Cline/skill-factory` for each login user.
 
 ### Changed
 
