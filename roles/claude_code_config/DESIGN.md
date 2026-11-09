@@ -4,20 +4,19 @@
 
 ## Skills in sm: imported, not deployed
 
-The ai-agent-workspace skills are made available in Skill Manager (`sm`) for
+The skill-factory skills are made available in Skill Manager (`sm`) for
 every login user, but none is deployed to any tool. The owner activates a
 skill deliberately with `sm add`, per project or globally.
 
 The role therefore creates no `~/.claude/skills/<name>` links. Linking every
-skill directory of an ai-agent-workspace clone there, as the upstream
-`scripts/create-skills-links-in-home.sh` does, loads all of them in every
-Claude Code session and leaves them unknown to `sm`.
+skill directory of a skill-factory clone there would load all of them in
+every Claude Code session and leave them unknown to `sm`.
 
-The import runs `sm install https://github.com/wonderbird/ai-agent-workspace
+The import runs `sm install https://github.com/wonderbird/skill-factory
 --force`. It clones the repository as an `sm` source and imports each skill
 into the `sm` store; it creates no deployment link for Claude Code or Codex.
 
-- **Why `--force`**: upstream ai-agent-workspace is the single source of
+- **Why `--force`**: upstream skill-factory is the single source of
   truth for these skills. Without `--force`, `sm` prompts before replacing a
   skill whose content changed and, with no terminal, skips it; with it, every
   run refreshes changed skills and overwrites edits made only in the `sm`

@@ -146,13 +146,13 @@
       changed_when: false
       register: sm_ls_codex_result
 
-    - name: Assert sm holds the ai-agent-workspace skills
+    - name: Assert sm holds the skill-factory skills
       ansible.builtin.assert:
         that:
           - sm_ls_result.stdout is search('^commit\s', multiline=True)
           - sm_ls_result.stdout is search('^Skills \([1-9][0-9]*\)$', multiline=True)
-        fail_msg: "sm ls does not list the ai-agent-workspace commit skill: {{ sm_ls_result.stdout }}"
-        success_msg: "sm holds the ai-agent-workspace skills"
+        fail_msg: "sm ls does not list the skill-factory commit skill: {{ sm_ls_result.stdout }}"
+        success_msg: "sm holds the skill-factory skills"
 
     - name: Assert no sm skill is deployed to Claude Code or Codex
       ansible.builtin.assert:

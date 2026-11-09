@@ -4,7 +4,7 @@ galaxy_info:
   author: Stefan Boos
   namespace: wonderbird
   role_name: ai_agent_workspace
-  description: Clone the ai-agent-workspace skill-library source repo
+  description: Clone the ai-agent-workspace repo
   company: n.a.
   issue_tracker_url: http://github.com/wonderbird/ansible-all-my-things/issues
   license: MIT

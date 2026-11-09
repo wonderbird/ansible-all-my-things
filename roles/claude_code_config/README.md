@@ -6,7 +6,7 @@ CLI configuration for sophisticated development, on top of the general,
 safe-for-any-project baseline `claude_code` creates: installs the
 [oh-my-claudecode](https://github.com/Yeachan-Heo/oh-my-claudecode) and
 [caveman](https://github.com/JuliusBrussee/caveman) Claude Code plugins,
-imports the [ai-agent-workspace](https://github.com/wonderbird/ai-agent-workspace)
+imports the [skill-factory](https://github.com/wonderbird/skill-factory)
 skills into [Skill Manager](https://github.com/omrikais/skill-manager)
 (`sm`) without deploying them, configures the [Exa](https://exa.ai) MCP
 server for web search, installs the `omc` CLI, and merges its own
@@ -31,7 +31,7 @@ live here rather than in `rtk`/their own roles.
 - The `skill_manager` role applied first, providing the `sm` binary and the
   per-user `sm` config that disables auto-adopt
 - Internet access from target hosts (downloads plugins, the omc CLI and the
-  ai-agent-workspace skills)
+  skill-factory skills)
 
 ## Role Variables
 
@@ -66,7 +66,7 @@ See `meta/main.yml`.
 
 ## What This Role Does
 
-1. Imports the ai-agent-workspace skills into each user's `sm` store,
+1. Imports the skill-factory skills into each user's `sm` store,
    refreshing skills changed upstream; deploys none of them to any tool —
    activate one with `sm add` (see `DESIGN.md`)
 2. Registers and installs the oh-my-claudecode Claude Code plugin

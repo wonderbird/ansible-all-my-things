@@ -10,7 +10,7 @@ In addition, I use the skills listed in `.skills.json` with
 into your project, enter:
 
 ```shell
-sm source add --install https://github.com/wonderbird/ai-agent-workspace
+sm source add --install https://github.com/wonderbird/skill-factory
 sm install
 ```
 

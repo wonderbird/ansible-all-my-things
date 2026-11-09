@@ -219,7 +219,7 @@ role-intrinsic dependencies per the decision test above (`rtk` and `git` for
 the reasons in the worked examples above; `nodejs`
 because `install-omc-cli.yml` unconditionally invokes `npm`; `claude_code`
 because this role's `claude plugin`/`claude mcp` shell calls unconditionally
-require the binary it installs; `skill_manager` because the ai-agent-workspace
+require the binary it installs; `skill_manager` because the skill-factory
 skill import unconditionally runs the `sm` binary it installs).
 
 `beads_go`, `beads_rust`, `ai_agent_workspace`, `skill_factory`, `specify_cli`,
