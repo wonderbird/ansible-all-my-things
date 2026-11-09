@@ -16,7 +16,7 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 - The first desktop apply downloads several gigabytes for each login user,
   and every later apply re-downloads the Cursor package.
 - Every Linux host gets the Bun runtime, with `bun` and `bunx` on the PATH.
-- `claude_code_config` imports the ai-agent-workspace skills into each login
+- `claude_code_config` imports the skill-factory skills into each login
   user's `sm` store, deploying none.
 - Every Linux host gets the uv Python manager, with `uv` and `uvx` on the PATH.
 - Every Linux host gets ShellCheck, with `shellcheck` on the PATH.
