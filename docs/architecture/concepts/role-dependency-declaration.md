@@ -222,10 +222,10 @@ because this role's `claude plugin`/`claude mcp` shell calls unconditionally
 require the binary it installs; `skill_manager` because the ai-agent-workspace
 skill import unconditionally runs the `sm` binary it installs).
 
-`beads_go`, `beads_rust`, `ai_agent_workspace`, `specify_cli`, `tmux`, and
-`skill_manager` (which also needs `nodejs`) declare `dependencies: [git]` —
-each unconditionally invokes the `git` binary via `ansible.builtin.git` or,
-for `specify_cli`, `pipx install git+...`.
+`beads_go`, `beads_rust`, `ai_agent_workspace`, `skill_factory`, `specify_cli`,
+`tmux`, and `skill_manager` (which also needs `nodejs`) declare
+`dependencies: [git]` — each unconditionally invokes the `git` binary via
+`ansible.builtin.git` or, for `specify_cli`, `pipx install git+...`.
 
 `claude_code/meta/main.yml` declares `dependencies: []` — it installs the
 binary plus its own minimal version-pin config and has no task that

@@ -31,7 +31,7 @@
     - skill_manager
     - direnv
 
-# claude_code_config, and the ai_agent_workspace clone it is applied after,
+# claude_code_config, and the skill-repository clones it is applied after,
 # run in their own play targeting hosts that opt into the opinionated global
 # Claude config — NOT the base play — so hosts that do not opt in are excluded
 # from all global per-user agent configuration, regardless of their
@@ -47,6 +47,7 @@
 
   roles:
     - ai_agent_workspace
+    - skill_factory
     - claude_code_config
 
 - name: Configure desktop-only linux roles
