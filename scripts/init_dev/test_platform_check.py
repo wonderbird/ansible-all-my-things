@@ -1,6 +1,4 @@
-import tempfile
 import unittest
-from pathlib import Path
 from unittest import mock
 
 from . import platform_check
@@ -8,26 +6,25 @@ from .common import InitError
 
 
 class CheckTest(unittest.TestCase):
-    def check(self, content):
-        with tempfile.TemporaryDirectory() as tmp:
-            os_release = Path(tmp) / "os-release"
-            if content is not None:
-                os_release.write_text(content)
-            platform_check.check(os_release)
+    def check(self, os_release=None, error=None, euid=1000):
+        with mock.patch.object(platform_check.platform,
+                               "freedesktop_os_release",
+                               return_value=os_release, side_effect=error), \
+                mock.patch.object(platform_check.os, "geteuid",
+                                  return_value=euid):
+            platform_check.check()
 
     def test_accepts_ubuntu(self):
-        self.check('NAME="Ubuntu"\nID=ubuntu\nID_LIKE=debian\n')
+        self.check({"ID": "ubuntu"})
 
     def test_rejects_other_distro(self):
         with self.assertRaisesRegex(InitError, "Ubuntu required"):
-            self.check("ID=debian\n")
+            self.check({"ID": "debian"})
 
     def test_rejects_missing_os_release(self):
         with self.assertRaisesRegex(InitError, "Ubuntu required"):
-            self.check(None)
+            self.check(error=OSError("no os-release"))
 
     def test_rejects_root(self):
-        with mock.patch.object(platform_check.os, "geteuid", return_value=0):
-            with self.assertRaisesRegex(InitError, "root"):
-                self.check("ID=ubuntu\n")
-
+        with self.assertRaisesRegex(InitError, "root"):
+            self.check({"ID": "ubuntu"}, euid=0)
