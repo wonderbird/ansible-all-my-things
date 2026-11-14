@@ -41,7 +41,11 @@ Agent-specific runtime guidance lives in [AGENTS.md](AGENTS.md).
 
 ### Python Scripts
 
-ruff formats and lints the Python scripts under `scripts/`, configured by
+The section "Python Scripts" of the
+[constitution](.specify/memory/constitution.md) defines the rules for the
+Python scripts under `scripts/`.
+
+ruff formats and lints them, configured by
 [`ruff.toml`](ruff.toml). The pre-commit git hook, which the initialization
 installs, runs it on every commit and rejects a commit until its scripts
 pass; [`.pre-commit-config.yaml`](.pre-commit-config.yaml) defines the hook.

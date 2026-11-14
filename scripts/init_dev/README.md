@@ -18,31 +18,13 @@ VM provisioning should have installed.
 
 ## Development
 
-### Design rules
-
-- **Standard library only.** The package runs on the system `python3` before
-  the venv and its packages exist.
-- **Standard library before custom code.** If the standard library already
-  solves a part of a step, use it instead of writing our own version.
-- **One module per step**, with its tests in a sibling `test_<module>.py`.
-- **Re-runnable.** A second run must leave the clone unchanged and succeed.
-- **Fail loud.** A step raises `InitError` with a message that names the cause
-  and the fix. It never skips silently.
-- **Name by meaning, don't abbreviate.** Name a variable by what it holds,
-  e.g. `for skill in skills`. Single letters are fine only for the Python
-  idioms `e` (caught exception), `k, v` (dict items), `_` (ignored value)
-  and `i` (index).
-- **One block per intent.** In a function longer than five lines, separate
-  each block of code that serves one intent by an empty line, and state the
-  intent in a short comment above the block.
-- **Formatted and linted by ruff.** Run it before you commit, as described
-  in [`CONTRIBUTING.md`](../../CONTRIBUTING.md), section "Python Scripts".
-- **Test our own logic.** Mock the standard library and external tools at
-  their boundary instead of testing their behaviour.
+Every change follows the section "Python Scripts" of the
+[constitution](../../.specify/memory/constitution.md). The rules below add
+what is specific to init_dev.
 
 ### Add a step
 
-1. Create the step module with one public function.
+1. Create the step module, with its entry point as its only public function.
 2. Create its `test_<module>.py`.
 3. Call the function from `main()` in [`__main__.py`](__main__.py), at the
    point in the sequence where its prerequisites exist.
@@ -51,6 +33,15 @@ VM provisioning should have installed.
    its "Initialize a Fresh Clone" section already covers it.
 5. Extend the acceptance test with the outcome the new step promises, and
    run it (see below).
+
+### Design rules
+
+- **Standard library only.** The package runs on the system `python3` before
+  the venv and its packages exist.
+- **One module per step**, with its tests in a sibling `test_<module>.py`.
+- **Re-runnable.** A second run must leave the clone unchanged and succeed.
+- **Fail with `InitError`.** A step raises `InitError` with a message that
+  names the cause and the fix; `main()` reports it and exits with 1.
 
 ### Run the tests
 
@@ -79,8 +70,3 @@ pytest scripts/init_dev/acceptance_init_dev.py
 The test modules use relative imports, so a single test file cannot be run
 directly with `python3 test_<module>.py`. Select tests through pytest instead,
 for example `pytest scripts/init_dev/test_<module>.py`.
-
-### Prove each guard
-
-Before relying on a new or changed check, break it once and confirm that a
-test turns red, then restore it (constitution Principle XV).
