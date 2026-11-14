@@ -24,18 +24,28 @@ from .common import InitError
 #   fail  exits 1.
 FAKE_SM = textwrap.dedent(f"""\
     #!{sys.executable}
-    import json, os, sys
+    import json
+    import os
+    import sys
     from pathlib import Path
+
+    # Record the call.
     Path(os.environ["FAKE_SM_MARKER"]).touch()
+
+    # Fail if asked to. noop falls through to the exit 0 at the end.
     mode = os.environ.get("FAKE_SM_MODE", "link")
     if mode == "fail":
         sys.exit(1)
+
+    # Link each manifest skill into the store. An existing link stays, so
+    # a second run succeeds, as with the real sm.
     if mode == "link":
-        dirs = {{"cc": ".claude/skills", "codex": ".agents/skills"}}
+        skill_dirs = {{"cc": ".claude/skills", "codex": ".agents/skills"}}
         store = Path(os.environ["FAKE_SM_STORE"])
-        for skill in json.loads(Path(".skills.json").read_text())["skills"]:
+        manifest = json.loads(Path(".skills.json").read_text())
+        for skill in manifest["skills"]:
             for tool in skill["tools"]:
-                link = Path(dirs[tool]) / skill["name"]
+                link = Path(skill_dirs[tool]) / skill["name"]
                 link.parent.mkdir(parents=True, exist_ok=True)
                 if not link.is_symlink():
                     link.symlink_to(store / skill["name"])
