@@ -34,12 +34,17 @@ class InitDevAcceptanceTest(unittest.TestCase):
              "--exclude-standard"],
             cwd=REPO_ROOT, capture_output=True, check=True,
         ).stdout.decode().split("\0")
+
         for name in [n for n in files if n != ""]:
             source = REPO_ROOT / name
             if source.is_file():
                 target = self.clone / name
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(source, target)
+
+        # Make the copy a repository like a clone: init_dev queries git and
+        # .gitignore, and the staged files are the baseline for the check
+        # that initialization leaves nothing to commit.
         subprocess.run(["git", "init", "-q"], cwd=self.clone, check=True)
         subprocess.run(["git", "add", "-A"], cwd=self.clone, check=True)
 
