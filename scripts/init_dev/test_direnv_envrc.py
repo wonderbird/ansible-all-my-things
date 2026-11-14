@@ -28,14 +28,6 @@ class EnsureTest(unittest.TestCase):
             )
         )
 
-    def make_venv(self):
-        # A pyvenv.cfg beside a python symlink is all sys.prefix needs, and
-        # avoids the seconds a real `python -m venv` costs.
-        venv = self.repo / ".venv"
-        (venv / "bin").mkdir(parents=True)
-        (venv / "pyvenv.cfg").write_text(f"home = {Path(sys.executable).parent}\n")
-        (venv / "bin" / "python").symlink_to(sys.executable)
-
     def test_writes_envrc_that_activates_venv(self):
         self.make_venv()
         direnv_envrc.ensure(self.repo)
@@ -86,3 +78,11 @@ class EnsureTest(unittest.TestCase):
         ):
             direnv_envrc.ensure(self.repo)
         self.assertFalse(self.envrc.exists())
+
+    def make_venv(self):
+        # A pyvenv.cfg beside a python symlink is all sys.prefix needs, and
+        # avoids the seconds a real `python -m venv` costs.
+        venv = self.repo / ".venv"
+        (venv / "bin").mkdir(parents=True)
+        (venv / "pyvenv.cfg").write_text(f"home = {Path(sys.executable).parent}\n")
+        (venv / "bin" / "python").symlink_to(sys.executable)

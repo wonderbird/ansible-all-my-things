@@ -23,27 +23,6 @@ class InstallTest(unittest.TestCase):
         self.log = self.tmp / "calls"
         self.python = self.tmp / "python"
 
-    def fake_python(self, install_rc=0, check_rc=0):
-        self.python.write_text(
-            textwrap.dedent(f"""\
-            #!/bin/sh
-            echo "$@" >> "{self.log}"
-            case "$*" in
-              *" install "*) exit {install_rc} ;;
-              *" check") echo "demo 1.0 has requirement x>2"; exit {check_rc} ;;
-            esac
-            """)
-        )
-        self.python.chmod(0o755)
-
-    def calls(self):
-        return self.log.read_text().splitlines() if self.log.exists() else []
-
-    def run_pip_install_with(self, install_rc=0, check_rc=0):
-        self.fake_python(install_rc, check_rc)
-        with contextlib.redirect_stdout(io.StringIO()):
-            pip_requirements.install(self.python, self.repo)
-
     def test_installs_into_venv_then_checks(self):
         self.run_pip_install_with()
         install, check = self.calls()
@@ -64,3 +43,24 @@ class InstallTest(unittest.TestCase):
     def test_fails_on_conflicting_packages(self):
         with self.assertRaisesRegex(InitError, "x>2"):
             self.run_pip_install_with(check_rc=1)
+
+    def fake_python(self, install_rc=0, check_rc=0):
+        self.python.write_text(
+            textwrap.dedent(f"""\
+            #!/bin/sh
+            echo "$@" >> "{self.log}"
+            case "$*" in
+              *" install "*) exit {install_rc} ;;
+              *" check") echo "demo 1.0 has requirement x>2"; exit {check_rc} ;;
+            esac
+            """)
+        )
+        self.python.chmod(0o755)
+
+    def calls(self):
+        return self.log.read_text().splitlines() if self.log.exists() else []
+
+    def run_pip_install_with(self, install_rc=0, check_rc=0):
+        self.fake_python(install_rc, check_rc)
+        with contextlib.redirect_stdout(io.StringIO()):
+            pip_requirements.install(self.python, self.repo)

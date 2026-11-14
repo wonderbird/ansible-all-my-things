@@ -98,9 +98,6 @@ class InstallTest(unittest.TestCase):
     def setUp(self):
         self.fixture = Fixture(Path(self.enterContext(tempfile.TemporaryDirectory())))
 
-    def assert_sm_not_called(self):
-        self.assertFalse(self.fixture.marker.exists(), "sm ran despite failed check")
-
     def test_links_skill_into_store(self):
         self.fixture.run_skills_install_with()
         link = self.fixture.repo / ".claude/skills/demo"
@@ -194,3 +191,6 @@ class InstallTest(unittest.TestCase):
         (self.fixture.repo / ".gitignore").write_text("")
         with self.assertRaisesRegex(InitError, "not gitignored"):
             self.fixture.run_skills_install_with()
+
+    def assert_sm_not_called(self):
+        self.assertFalse(self.fixture.marker.exists(), "sm ran despite failed check")

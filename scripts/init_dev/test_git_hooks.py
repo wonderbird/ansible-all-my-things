@@ -16,6 +16,16 @@ class InstallTest(unittest.TestCase):
         self.log = self.tmp / "calls"
         self.python = self.tmp / "python"
 
+    def test_installs_hooks_with_venv_pre_commit(self):
+        self.run_git_hooks_install_with()
+        self.assertEqual(
+            self.log.read_text(), "-m pre_commit install --install-hooks\n"
+        )
+
+    def test_fails_when_pre_commit_fails(self):
+        with self.assertRaises(subprocess.CalledProcessError):
+            self.run_git_hooks_install_with(exit_code=1)
+
     def run_git_hooks_install_with(self, exit_code=0):
         self.python.write_text(
             textwrap.dedent(f"""\
@@ -26,13 +36,3 @@ class InstallTest(unittest.TestCase):
         )
         self.python.chmod(0o755)
         git_hooks.install(self.python, self.tmp)
-
-    def test_installs_hooks_with_venv_pre_commit(self):
-        self.run_git_hooks_install_with()
-        self.assertEqual(
-            self.log.read_text(), "-m pre_commit install --install-hooks\n"
-        )
-
-    def test_fails_when_pre_commit_fails(self):
-        with self.assertRaises(subprocess.CalledProcessError):
-            self.run_git_hooks_install_with(exit_code=1)

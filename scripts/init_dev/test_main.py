@@ -18,20 +18,6 @@ from .common import InitError
 
 
 class MainTest(unittest.TestCase):
-    def run_main(self, error):
-        stderr = io.StringIO()
-        with (
-            mock.patch.object(platform_check, "check"),
-            mock.patch.object(user_check, "check"),
-            mock.patch.object(skills, "install", side_effect=error),
-            mock.patch.object(python_venv, "ensure"),
-            mock.patch.object(direnv_envrc, "ensure"),
-            mock.patch.object(pip_requirements, "install"),
-            mock.patch.object(git_hooks, "install"),
-            contextlib.redirect_stderr(stderr),
-        ):
-            return entry.main(), stderr.getvalue()
-
     def test_returns_1_and_reports_init_error(self):
         code, err = self.run_main(InitError("boom"))
         self.assertEqual(code, 1)
@@ -45,3 +31,17 @@ class MainTest(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             code, _ = self.run_main(None)
         self.assertEqual(code, 0)
+
+    def run_main(self, error):
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(platform_check, "check"),
+            mock.patch.object(user_check, "check"),
+            mock.patch.object(skills, "install", side_effect=error),
+            mock.patch.object(python_venv, "ensure"),
+            mock.patch.object(direnv_envrc, "ensure"),
+            mock.patch.object(pip_requirements, "install"),
+            mock.patch.object(git_hooks, "install"),
+            contextlib.redirect_stderr(stderr),
+        ):
+            return entry.main(), stderr.getvalue()
