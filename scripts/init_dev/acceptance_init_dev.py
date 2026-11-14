@@ -34,7 +34,7 @@ class InitDevAcceptanceTest(unittest.TestCase):
              "--exclude-standard"],
             cwd=REPO_ROOT, capture_output=True, check=True,
         ).stdout.decode().split("\0")
-        for name in filter(None, files):
+        for name in [n for n in files if n != ""]:
             source = REPO_ROOT / name
             if source.is_file():
                 target = self.clone / name
