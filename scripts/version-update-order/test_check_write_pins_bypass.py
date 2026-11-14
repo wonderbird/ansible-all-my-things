@@ -4,6 +4,7 @@
 Each test writes a small tree and asserts what the check reports, so a
 weakening of the pattern or the exclusions turns this red.
 """
+
 import contextlib
 import importlib.util
 import io
@@ -46,7 +47,10 @@ class CheckWritePinsBypassTest(unittest.TestCase):
         return code, out.getvalue()
 
     def test_clean_tree_passes(self):
-        self.write("tasks/fetch-thing.yml", "---\n- name: Fetch\n  ansible.builtin.uri:\n    url: x\n")
+        self.write(
+            "tasks/fetch-thing.yml",
+            "---\n- name: Fetch\n  ansible.builtin.uri:\n    url: x\n",
+        )
         code, out = self.run_check()
         self.assertIn("0 bypass violation(s)", out)
         self.assertEqual(code, 0)
@@ -86,9 +90,11 @@ class CheckWritePinsBypassTest(unittest.TestCase):
         self.assertEqual(code, 0)
 
     def test_commented_out_module_is_not_reported(self):
-        self.write("tasks/commented.yml",
-                   "---\n- name: Mention\n  # ansible.builtin.copy: not a task\n"
-                   "  ansible.builtin.debug:\n    msg: copy: is only a word here\n")
+        self.write(
+            "tasks/commented.yml",
+            "---\n- name: Mention\n  # ansible.builtin.copy: not a task\n"
+            "  ansible.builtin.debug:\n    msg: copy: is only a word here\n",
+        )
         code, out = self.run_check()
         self.assertIn("0 bypass violation(s)", out)
         self.assertEqual(code, 0)
@@ -97,7 +103,9 @@ class CheckWritePinsBypassTest(unittest.TestCase):
         repo = Path(__file__).resolve().parent.parent.parent
         out = io.StringIO()
         with contextlib.redirect_stdout(out):
-            code = check_write_pins_bypass.main([str(repo / "playbooks" / "update-versions")])
+            code = check_write_pins_bypass.main(
+                [str(repo / "playbooks" / "update-versions")]
+            )
         self.assertEqual(code, 0, out.getvalue())
 
 

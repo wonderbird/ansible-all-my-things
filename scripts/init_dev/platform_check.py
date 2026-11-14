@@ -1,4 +1,5 @@
 """Refuse to run anywhere but on Ubuntu."""
+
 import platform
 
 from .common import InitError

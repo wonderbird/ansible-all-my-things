@@ -1,4 +1,5 @@
 """Provide a working .venv in the clone."""
+
 import os
 import shutil
 import subprocess
@@ -22,6 +23,7 @@ def ensure(repo_root=REPO_ROOT, python=sys.executable):
             stdin=subprocess.DEVNULL,
             capture_output=True,
             text=True,
+            check=False,
         )
         if result.returncode != 0:
             # Only this run created it, so nothing of the user's is lost.
@@ -33,12 +35,17 @@ def ensure(repo_root=REPO_ROOT, python=sys.executable):
 
     # Verify that the venv, new or existing, has a python with pip.
     venv_python = venv / "bin" / "python"
-    check = subprocess.run(
-        [str(venv_python), "-m", "pip", "--version"],
-        stdin=subprocess.DEVNULL,
-        capture_output=True,
-        text=True,
-    ) if venv_python.exists() else None
+    check = (
+        subprocess.run(
+            [str(venv_python), "-m", "pip", "--version"],
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if venv_python.exists()
+        else None
+    )
     if check is None or check.returncode != 0:
         raise InitError(
             f"{venv} exists but is unusable (no working python with pip). "

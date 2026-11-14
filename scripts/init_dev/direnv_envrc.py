@@ -1,4 +1,5 @@
 """Make direnv activate .venv whenever a shell enters the repository."""
+
 import os
 import shutil
 import subprocess
@@ -14,9 +15,7 @@ ENVRC = 'export VIRTUAL_ENV="$PWD/.venv"\nlayout python3\n'
 def ensure(repo_root=REPO_ROOT):
     # Require direnv from the VM provisioning.
     if shutil.which("direnv") is None:
-        raise InitError(
-            "direnv not on PATH. Provision this VM with the direnv role."
-        )
+        raise InitError("direnv not on PATH. Provision this VM with the direnv role.")
 
     # Write .envrc, but never replace a foreign one: .envrc is gitignored,
     # so it may hold the user's secrets.
@@ -45,11 +44,18 @@ def ensure(repo_root=REPO_ROOT):
     # Verify that a python started through direnv runs from .venv.
     venv = repo_root / ".venv"
     result = subprocess.run(
-        ["direnv", "exec", str(repo_root),
-         "python", "-c", "import sys; print(sys.prefix)"],
+        [
+            "direnv",
+            "exec",
+            str(repo_root),
+            "python",
+            "-c",
+            "import sys; print(sys.prefix)",
+        ],
         stdin=subprocess.DEVNULL,
         capture_output=True,
         text=True,
+        check=False,
     )
     prefix = result.stdout.strip()
     if result.returncode != 0 or Path(prefix).resolve() != venv.resolve():

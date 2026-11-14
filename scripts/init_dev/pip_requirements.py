@@ -1,4 +1,5 @@
 """Install requirements.txt into the venv."""
+
 import subprocess
 
 from .common import REPO_ROOT, InitError
@@ -27,6 +28,7 @@ def install(venv_python, repo_root=REPO_ROOT):
         stdin=subprocess.DEVNULL,
         capture_output=True,
         text=True,
+        check=False,
     )
     if check.returncode != 0:
         raise InitError(

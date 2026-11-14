@@ -7,6 +7,7 @@ that defeat the contract as well as the shape that honours it.
 
 Usage: test_check_fetch_call_identity.py
 """
+
 import importlib.util
 import os
 import tempfile
@@ -74,17 +75,23 @@ class CallIdentityCheckerTest(unittest.TestCase):
         self.assertIn("writes no fetched_for stamp at all", findings[0][1])
 
     def test_accepts_a_short_form_set_fact(self):
-        findings = self.scan(**{"fetch-short": """
+        findings = self.scan(
+            **{
+                "fetch-short": """
             ---
             - name: Resolve the tag
               set_fact:
                 fetched_github_tag: "v1.0.0"
                 fetched_for: "{{ fetch_call_id }}"
-            """})
+            """
+            }
+        )
         self.assertEqual(findings, [])
 
     def test_accepts_a_stamp_beside_a_secondary_output(self):
-        findings = self.scan(**{"fetch-multi": """
+        findings = self.scan(
+            **{
+                "fetch-multi": """
             ---
             - name: Resolve the intermediate value
               ansible.builtin.set_fact:
@@ -95,7 +102,9 @@ class CallIdentityCheckerTest(unittest.TestCase):
                 fetched_flutter_version: "1.2.3"
                 fetched_flutter_sha256: "deadbeef"
                 fetched_for: "{{ fetch_call_id }}"
-            """})
+            """
+            }
+        )
         self.assertEqual(findings, [])
 
     def test_ignores_the_caller_that_asserts_the_stamp(self):
@@ -105,11 +114,13 @@ class CallIdentityCheckerTest(unittest.TestCase):
         self.assertEqual(self.scan(**{"write-pins": self.NO_STAMP}), [])
 
     def test_reports_every_offending_file(self):
-        findings = self.scan(**{
-            "fetch-bare": self.NO_STAMP,
-            "fetch-separate": self.STAMP_IN_ITS_OWN_TASK,
-            "fetch-good": self.STAMPED_WITH_OUTPUT,
-        })
+        findings = self.scan(
+            **{
+                "fetch-bare": self.NO_STAMP,
+                "fetch-separate": self.STAMP_IN_ITS_OWN_TASK,
+                "fetch-good": self.STAMPED_WITH_OUTPUT,
+            }
+        )
         self.assertEqual(len(findings), 2)
 
     BORROWS_WITHOUT_ASSERTING = """
@@ -135,11 +146,14 @@ class CallIdentityCheckerTest(unittest.TestCase):
           ansible.builtin.assert:
             that: fetched_for == fetch_call_id
 
-        - name: Strip the prefix""")
+        - name: Strip the prefix""",
+        )
         self.assertEqual(self.scan(**{"fetch-composed": asserted}), [])
 
     def test_reading_a_fact_the_same_file_wrote_is_not_borrowing(self):
-        findings = self.scan(**{"fetch-two-stage": """
+        findings = self.scan(
+            **{
+                "fetch-two-stage": """
             ---
             - name: Resolve the build number
               ansible.builtin.set_fact:
@@ -149,17 +163,23 @@ class CallIdentityCheckerTest(unittest.TestCase):
               ansible.builtin.set_fact:
                 fetched_android_sha256: "sha-{{ fetched_android_build }}"
                 fetched_for: "{{ fetch_call_id }}"
-            """})
+            """
+            }
+        )
         self.assertEqual(findings, [])
 
     def test_an_underscore_prefixed_fact_is_not_an_output(self):
-        findings = self.scan(**{"fetch-intermediate-only": """
+        findings = self.scan(
+            **{
+                "fetch-intermediate-only": """
             ---
             - name: Stamp beside an intermediate value only
               ansible.builtin.set_fact:
                 _intermediate: "x"
                 fetched_for: "{{ fetch_call_id }}"
-            """})
+            """
+            }
+        )
         self.assertEqual(len(findings), 1)
         self.assertIn("writes no output of its own", findings[0][1])
 

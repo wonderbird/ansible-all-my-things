@@ -1,4 +1,5 @@
 """Refuse to run as root."""
+
 import os
 
 from .common import InitError

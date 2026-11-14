@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Resolve RTK database path from config.toml, or fall back to the default."""
+
 import sys
 import tomllib
 from pathlib import Path

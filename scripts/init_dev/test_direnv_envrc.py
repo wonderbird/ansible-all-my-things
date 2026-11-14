@@ -20,10 +20,13 @@ class EnsureTest(unittest.TestCase):
         self.envrc = self.repo / ".envrc"
 
         # Keep direnv's allow list out of the real ~/.local/share/direnv.
-        env = mock.patch.dict(os.environ, {
-            "XDG_DATA_HOME": str(self.tmp / "data"),
-            "XDG_CONFIG_HOME": str(self.tmp / "config"),
-        })
+        env = mock.patch.dict(
+            os.environ,
+            {
+                "XDG_DATA_HOME": str(self.tmp / "data"),
+                "XDG_CONFIG_HOME": str(self.tmp / "config"),
+            },
+        )
         env.start()
         self.addCleanup(env.stop)
 
@@ -32,8 +35,7 @@ class EnsureTest(unittest.TestCase):
         # avoids the seconds a real `python -m venv` costs.
         venv = self.repo / ".venv"
         (venv / "bin").mkdir(parents=True)
-        (venv / "pyvenv.cfg").write_text(
-            f"home = {Path(sys.executable).parent}\n")
+        (venv / "pyvenv.cfg").write_text(f"home = {Path(sys.executable).parent}\n")
         (venv / "bin" / "python").symlink_to(sys.executable)
 
     def test_writes_envrc_that_activates_venv(self):
@@ -80,8 +82,9 @@ class EnsureTest(unittest.TestCase):
             direnv_envrc.ensure(self.repo)
 
     def test_fails_without_direnv_on_path(self):
-        with mock.patch.object(direnv_envrc.shutil, "which", return_value=None):
-            with self.assertRaisesRegex(InitError, "direnv not on"):
-                direnv_envrc.ensure(self.repo)
+        with (
+            mock.patch.object(direnv_envrc.shutil, "which", return_value=None),
+            self.assertRaisesRegex(InitError, "direnv not on"),
+        ):
+            direnv_envrc.ensure(self.repo)
         self.assertFalse(self.envrc.exists())
-

@@ -1,5 +1,6 @@
 """Uses a fake venv python that logs its arguments, so no test needs the
 network or a real venv."""
+
 import contextlib
 import io
 import subprocess
@@ -25,14 +26,16 @@ class InstallTest(unittest.TestCase):
         self.python = self.tmp / "python"
 
     def fake_python(self, install_rc=0, check_rc=0):
-        self.python.write_text(textwrap.dedent(f"""\
+        self.python.write_text(
+            textwrap.dedent(f"""\
             #!/bin/sh
             echo "$@" >> "{self.log}"
             case "$*" in
               *" install "*) exit {install_rc} ;;
               *" check") echo "demo 1.0 has requirement x>2"; exit {check_rc} ;;
             esac
-            """))
+            """)
+        )
         self.python.chmod(0o755)
 
     def calls(self):
@@ -63,4 +66,3 @@ class InstallTest(unittest.TestCase):
     def test_fails_on_conflicting_packages(self):
         with self.assertRaisesRegex(InitError, "x>2"):
             self.run_pip_install_with(check_rc=1)
-

@@ -32,12 +32,14 @@ class EnsureTest(unittest.TestCase):
         # Mimics Ubuntu without python3-venv: the directory is half-built,
         # then ensurepip fails.
         fake = self.tmp / "python"
-        fake.write_text(textwrap.dedent("""\
+        fake.write_text(
+            textwrap.dedent("""\
             #!/bin/sh
             mkdir -p "$3/bin"
             echo "ensurepip is not available" >&2
             exit 1
-            """))
+            """)
+        )
         fake.chmod(0o755)
 
         with self.assertRaisesRegex(InitError, "python3-venv"):
@@ -69,4 +71,3 @@ class EnsureTest(unittest.TestCase):
 
         with self.assertRaisesRegex(InitError, "rm -rf"):
             python_venv.ensure(self.repo)
-

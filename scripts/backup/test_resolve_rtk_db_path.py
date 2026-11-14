@@ -1,11 +1,12 @@
 """pytest suite for resolve_rtk_db_path.py"""
+
 import sys
 from pathlib import Path
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent))
-from resolve_rtk_db_path import resolve  # noqa: E402
+from resolve_rtk_db_path import resolve
 
 
 def _write_config(tmp_path: Path, content: str) -> None:

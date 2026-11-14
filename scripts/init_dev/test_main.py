@@ -19,13 +19,15 @@ from .common import InitError
 class MainTest(unittest.TestCase):
     def run_main(self, error):
         stderr = io.StringIO()
-        with mock.patch.object(platform_check, "check"), \
-                mock.patch.object(user_check, "check"), \
-                mock.patch.object(skills, "install", side_effect=error), \
-                mock.patch.object(python_venv, "ensure"), \
-                mock.patch.object(direnv_envrc, "ensure"), \
-                mock.patch.object(pip_requirements, "install"), \
-                contextlib.redirect_stderr(stderr):
+        with (
+            mock.patch.object(platform_check, "check"),
+            mock.patch.object(user_check, "check"),
+            mock.patch.object(skills, "install", side_effect=error),
+            mock.patch.object(python_venv, "ensure"),
+            mock.patch.object(direnv_envrc, "ensure"),
+            mock.patch.object(pip_requirements, "install"),
+            contextlib.redirect_stderr(stderr),
+        ):
             return entry.main(), stderr.getvalue()
 
     def test_returns_1_and_reports_init_error(self):
@@ -41,4 +43,3 @@ class MainTest(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             code, _ = self.run_main(None)
         self.assertEqual(code, 0)
-

@@ -7,9 +7,12 @@ from .common import InitError
 
 class CheckTest(unittest.TestCase):
     def run_platform_check_with(self, os_release=None, error=None):
-        with mock.patch.object(platform_check.platform,
-                               "freedesktop_os_release",
-                               return_value=os_release, side_effect=error):
+        with mock.patch.object(
+            platform_check.platform,
+            "freedesktop_os_release",
+            return_value=os_release,
+            side_effect=error,
+        ):
             platform_check.check()
 
     def test_accepts_ubuntu(self):

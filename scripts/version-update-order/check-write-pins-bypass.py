@@ -16,14 +16,15 @@ files on purpose.
 
 Usage: check-write-pins-bypass.py <directory>
 """
+
 import os
 import re
 import sys
 
 # a file-editing module at key position, FQCN or short name
 EDITOR = re.compile(
-    r'^\s*(?:-\s+)?(?:ansible\.builtin\.)?'
-    r'(replace|lineinfile|blockinfile|copy|template):',
+    r"^\s*(?:-\s+)?(?:ansible\.builtin\.)?"
+    r"(replace|lineinfile|blockinfile|copy|template):",
     re.MULTILINE,
 )
 EXCLUDED_FILES = ("write-pins.yml",)
@@ -34,9 +35,11 @@ def offending_lines(path):
     """Return (line number, line) for every file-editing module in `path`."""
     with open(path) as handle:
         lines = handle.read().splitlines()
-    return [(number, line.strip())
-            for number, line in enumerate(lines, start=1)
-            if EDITOR.match(line)]
+    return [
+        (number, line.strip())
+        for number, line in enumerate(lines, start=1)
+        if EDITOR.match(line)
+    ]
 
 
 def scan(root):
@@ -48,8 +51,9 @@ def scan(root):
             if not name.endswith((".yml", ".yaml")) or name in EXCLUDED_FILES:
                 continue
             path = os.path.join(directory, name)
-            findings.extend((path, number, line)
-                            for number, line in offending_lines(path))
+            findings.extend(
+                (path, number, line) for number, line in offending_lines(path)
+            )
     return findings
 
 
@@ -61,13 +65,17 @@ def main(argv=None):
 
     findings = scan(argv[0])
     for path, number, line in findings:
-        print(f"{path}:{number}: BYPASS: edits a file outside tasks/write-pins.yml "
-              f"-- {line}")
+        print(
+            f"{path}:{number}: BYPASS: edits a file outside tasks/write-pins.yml "
+            f"-- {line}"
+        )
 
     print(f"\n{len(findings)} bypass violation(s)")
     if findings:
-        print("Every pin write goes through tasks/write-pins.yml, which checks "
-              "that the pin exists exactly once. A direct edit skips that check.")
+        print(
+            "Every pin write goes through tasks/write-pins.yml, which checks "
+            "that the pin exists exactly once. A direct edit skips that check."
+        )
     return 1 if findings else 0
 
 

@@ -1,5 +1,7 @@
 """Each test builds a throwaway git repository, sm store and fake `sm`
 binary, so no test touches the real checkout or ~/.skill-manager."""
+
+import json
 import os
 import subprocess
 import sys
@@ -36,11 +38,8 @@ FAKE_SM = textwrap.dedent(f"""\
 
 
 def json_manifest(name, scope="project", tools=("cc",)):
-    return (
-        '{"version": 1, "skills": [{"name": "%s", "tools": [%s], '
-        '"scope": "%s"}], "profiles": {}}'
-        % (name, ", ".join(f'"{tool}"' for tool in tools), scope)
-    )
+    skill = {"name": name, "tools": list(tools), "scope": scope}
+    return json.dumps({"version": 1, "skills": [skill], "profiles": {}})
 
 
 class Fixture:
@@ -87,23 +86,23 @@ class InstallTest(unittest.TestCase):
         self.fixture = Fixture(Path(tmp.name))
 
     def assert_sm_not_called(self):
-        self.assertFalse(self.fixture.marker.exists(),
-                         "sm ran despite failed check")
+        self.assertFalse(self.fixture.marker.exists(), "sm ran despite failed check")
 
     def test_links_skill_into_store(self):
         self.fixture.run_skills_install_with()
         link = self.fixture.repo / ".claude/skills/demo"
-        self.assertEqual(link.resolve(),
-                         (self.fixture.store / "demo").resolve())
+        self.assertEqual(link.resolve(), (self.fixture.store / "demo").resolve())
 
     def test_second_run_succeeds(self):
         self.fixture.run_skills_install_with()
         self.fixture.run_skills_install_with()
 
     def test_fails_without_sm_on_path(self):
-        with mock.patch.object(skills.shutil, "which", return_value=None):
-            with self.assertRaisesRegex(InitError, "sm not on PATH"):
-                self.fixture.run_skills_install_with()
+        with (
+            mock.patch.object(skills.shutil, "which", return_value=None),
+            self.assertRaisesRegex(InitError, "sm not on PATH"),
+        ):
+            self.fixture.run_skills_install_with()
 
     def test_fails_when_auto_adopt_enabled(self):
         (self.fixture.sm_home / "config.toml").write_text("autoAdopt = true\n")
@@ -131,7 +130,8 @@ class InstallTest(unittest.TestCase):
 
     def test_fails_on_unsupported_scope(self):
         (self.fixture.repo / ".skills.json").write_text(
-            json_manifest("demo", scope="user"))
+            json_manifest("demo", scope="user")
+        )
         with self.assertRaisesRegex(InitError, "unsupported"):
             self.fixture.run_skills_install_with()
         self.assert_sm_not_called()
@@ -153,8 +153,9 @@ class InstallTest(unittest.TestCase):
         tracked = self.fixture.repo / ".claude/skills/demo/SKILL.md"
         tracked.parent.mkdir(parents=True)
         tracked.write_text("tracked\n")
-        subprocess.run(["git", "add", "-f", str(tracked)],
-                       cwd=self.fixture.repo, check=True)
+        subprocess.run(
+            ["git", "add", "-f", str(tracked)], cwd=self.fixture.repo, check=True
+        )
 
         with self.assertRaisesRegex(InitError, "collide"):
             self.fixture.run_skills_install_with()
@@ -180,4 +181,3 @@ class InstallTest(unittest.TestCase):
         (self.fixture.repo / ".gitignore").write_text("")
         with self.assertRaisesRegex(InitError, "not gitignored"):
             self.fixture.run_skills_install_with()
-

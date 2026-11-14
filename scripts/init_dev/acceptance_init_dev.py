@@ -5,6 +5,7 @@ real sm, direnv, venv and pip, and checks the outcomes. Needs network and
 takes about half a minute, so the name keeps it out of the default test
 run; see README.md for the command.
 """
+
 import json
 import os
 import shutil
@@ -38,16 +39,16 @@ class InitDevAcceptanceTest(unittest.TestCase):
     def assert_skills_deployed(self):
         manifest = json.loads((self.clone / ".skills.json").read_text())
         for skill in manifest["skills"]:
-            skill_file = (self.clone / ".claude/skills" / skill["name"]
-                          / "SKILL.md")
-            self.assertTrue(skill_file.is_file(),
-                            f"skill {skill['name']} not deployed")
+            skill_file = self.clone / ".claude/skills" / skill["name"] / "SKILL.md"
+            self.assertTrue(skill_file.is_file(), f"skill {skill['name']} not deployed")
 
     def assert_direnv_activates_venv(self):
-        prefix = self.in_direnv(
-            "python", "-c", "import sys; print(sys.prefix)")
-        self.assertEqual(Path(prefix.stdout.strip()).resolve(),
-                         (self.clone / ".venv").resolve(), prefix.stderr)
+        prefix = self.in_direnv("python", "-c", "import sys; print(sys.prefix)")
+        self.assertEqual(
+            Path(prefix.stdout.strip()).resolve(),
+            (self.clone / ".venv").resolve(),
+            prefix.stderr,
+        )
 
     def assert_venv_provides_requirements(self):
         # An import through the venv's python, not `ansible --version`: the
@@ -57,33 +58,49 @@ class InitDevAcceptanceTest(unittest.TestCase):
 
     def assert_nothing_left_to_commit(self):
         untracked = self.run_in_clone(
-            "git", "ls-files", "--others", "--exclude-standard")
+            "git", "ls-files", "--others", "--exclude-standard"
+        )
         modified = self.run_in_clone("git", "diff", "--name-only")
-        self.assertEqual(untracked.stdout + modified.stdout, "",
-                         "initialization left files git would commit")
+        self.assertEqual(
+            untracked.stdout + modified.stdout,
+            "",
+            "initialization left files git would commit",
+        )
 
     def run_init_dev(self):
         result = self.run_in_clone(sys.executable, "-m", "scripts.init_dev")
-        self.assertEqual(result.returncode, 0,
-                         f"init_dev failed:\n{result.stdout}{result.stderr}")
+        self.assertEqual(
+            result.returncode, 0, f"init_dev failed:\n{result.stdout}{result.stderr}"
+        )
 
     def in_direnv(self, *cmd):
         return self.run_in_clone("direnv", "exec", str(self.clone), *cmd)
 
     def run_in_clone(self, *cmd):
-        return subprocess.run(cmd, cwd=self.clone, env=self.env,
-                              stdin=subprocess.DEVNULL,
-                              capture_output=True, text=True)
+        return subprocess.run(
+            cmd,
+            cwd=self.clone,
+            env=self.env,
+            stdin=subprocess.DEVNULL,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
 
 
 def copy_working_tree(target):
     # List what git would commit, not what a `git clone` would get:
     # uncommitted changes to init_dev are what a developer wants to test.
-    files = subprocess.run(
-        ["git", "ls-files", "-z", "--cached", "--others",
-         "--exclude-standard"],
-        cwd=REPO_ROOT, capture_output=True, check=True,
-    ).stdout.decode().split("\0")
+    files = (
+        subprocess.run(
+            ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            check=True,
+        )
+        .stdout.decode()
+        .split("\0")
+    )
 
     # Copy the listed files. A tracked file deleted from the working tree is
     # listed too, but has nothing to copy.
@@ -106,13 +123,15 @@ def isolated_env(home):
     # Give the test its own HOME, so sm's link records and direnv's allow
     # list stay out of the real ones, which would otherwise point at a
     # deleted clone. sm needs its configuration and store there.
-    shutil.copytree(Path.home() / ".skill-manager",
-                    home / ".skill-manager", symlinks=True)
+    shutil.copytree(
+        Path.home() / ".skill-manager", home / ".skill-manager", symlinks=True
+    )
 
     # Drop the caller's active direnv and venv, and point HOME and the XDG
     # directories at the test's HOME.
     env = {
-        k: v for k, v in os.environ.items()
+        k: v
+        for k, v in os.environ.items()
         if not k.startswith(("DIRENV_", "VIRTUAL_ENV"))
     }
     env.update(
