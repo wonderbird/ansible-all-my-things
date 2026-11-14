@@ -17,6 +17,11 @@ from .common import InitError
 # Stands in for sm: links each manifest skill into the store named by
 # FAKE_SM_STORE, unless FAKE_SM_MODE says otherwise. Every call leaves a
 # marker so tests can tell whether sm ran at all.
+#
+# FAKE_SM_MODE:
+#   link  links the skills like the real sm (default).
+#   noop  exits 0 without linking, like the real sm when it only warns.
+#   fail  exits 1.
 FAKE_SM = textwrap.dedent(f"""\
     #!{sys.executable}
     import json, os, sys
