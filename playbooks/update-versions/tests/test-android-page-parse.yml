@@ -12,8 +12,9 @@
 # A digest in another format, several digests, or a digest from another
 # platform's row must fail the parse instead of becoming the pin. The fixture
 # rows of cases 6 and 7 are compact, so the next row's digest lies within the
-# 400-character window: only the stop at the next `commandlinetools-` keeps the
-# parser out of it.
+# 400-character window. In case 7 only the stop at the next `commandlinetools-`
+# keeps the parser out of it; in case 6 the length guard rejects the short
+# digest even when that stop is missing.
 
 - name: Parse every Android fixture page and check the outcome
   hosts: localhost
