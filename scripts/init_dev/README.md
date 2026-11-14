@@ -40,8 +40,8 @@ VM provisioning should have installed.
 4. If the step automates a manual instruction in
    [`CONTRIBUTING.md`](../../CONTRIBUTING.md), remove that instruction there;
    its "Initialize a Fresh Clone" section already covers it.
-5. Run `python3 -m scripts.init_dev` twice on a provisioned VM; both runs
-   must succeed.
+5. Extend the acceptance test with the outcome the new step promises, and
+   run it (see below).
 
 ### Run the tests
 
@@ -56,6 +56,15 @@ Without a venv, for example before the first initialization:
 
 ```shell
 python3 -m unittest discover -s scripts/init_dev -t .
+```
+
+The acceptance test runs the real script twice on a fresh copy of the
+working tree, with the real tools, and checks its outcomes. It needs a
+provisioned VM and network access and takes about half a minute, so the
+default test run skips it. Run it explicitly:
+
+```shell
+pytest scripts/init_dev/acceptance_init_dev.py
 ```
 
 The test modules use relative imports, so a single test file cannot be run
