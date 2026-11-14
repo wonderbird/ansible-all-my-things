@@ -45,26 +45,29 @@ def json_manifest(name, scope="project", tools=("cc",)):
 
 class Fixture:
     def __init__(self, tmp):
+        # Name the parts of the fixture.
         self.repo = tmp / "repo"
         self.sm_home = tmp / "sm_home"
         self.store = self.sm_home / "skills"
         self.marker = tmp / "sm-called"
         bin_dir = tmp / "bin"
 
+        # A git repository whose manifest lists one ignored skill, demo.
         self.repo.mkdir()
         subprocess.run(["git", "init", "-q"], cwd=self.repo, check=True)
         (self.repo / ".skills.json").write_text(json_manifest("demo"))
         (self.repo / ".gitignore").write_text(".claude/skills/demo\n")
 
+        # An sm home with demo in its store and auto-adopt disabled.
         (self.store / "demo").mkdir(parents=True)
         (self.store / "demo" / "SKILL.md").write_text("# demo\n")
         (self.sm_home / "config.toml").write_text("autoAdopt = false\n")
 
+        # The fake sm, first on PATH.
         bin_dir.mkdir()
         sm = bin_dir / "sm"
         sm.write_text(FAKE_SM)
         sm.chmod(0o755)
-
         self.env = {
             "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
             "FAKE_SM_STORE": str(self.store),
@@ -144,11 +147,13 @@ class InstallTest(unittest.TestCase):
         self.assert_sm_not_called()
 
     def test_refuses_to_overwrite_tracked_skill(self):
+        # A tracked file where sm would place the demo link.
         tracked = self.f.repo / ".claude/skills/demo/SKILL.md"
         tracked.parent.mkdir(parents=True)
         tracked.write_text("tracked\n")
         subprocess.run(["git", "add", "-f", str(tracked)],
                        cwd=self.f.repo, check=True)
+
         with self.assertRaisesRegex(InitError, "collide"):
             self.f.run_skills_install_with()
         self.assert_sm_not_called()

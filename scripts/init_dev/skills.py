@@ -8,25 +8,32 @@ from pathlib import Path
 from .common import REPO_ROOT, InitError
 
 SM_HOME = Path.home() / ".skill-manager"
+# Keys are sm's tool ids in .skills.json: cc is Claude Code.
 SKILL_DIRS = {"cc": Path(".claude/skills"), "codex": Path(".agents/skills")}
 
 
 def install(repo_root=REPO_ROOT, sm_home=SM_HOME):
+    # Require sm from the VM provisioning.
     if shutil.which("sm") is None:
         raise InitError(
             "sm not on PATH. Provision this VM with the skill_manager role."
         )
+
+    # Check every precondition before sm changes anything.
     _require_auto_adopt_disabled(sm_home / "config.toml")
     skills = _load_manifest(repo_root / ".skills.json")
     _require_in_store(skills, sm_home / "skills")
     _refuse_tracked_collisions(skills, repo_root)
-    # sm reads .skills.json from its working directory.
+
+    # Deploy the skills. sm reads .skills.json from its working directory.
     subprocess.run(
         ["sm", "install"],
         cwd=repo_root,
         stdin=subprocess.DEVNULL,
         check=True,
     )
+
+    # Verify the outcome, because sm reports some failures only as warnings.
     _verify_links(skills, repo_root, sm_home / "skills")
 
 
@@ -47,10 +54,13 @@ def _require_auto_adopt_disabled(config):
 
 
 def _load_manifest(path):
+    # Read the skill list.
     try:
         skills = json.loads(path.read_text())["skills"]
     except (OSError, ValueError, KeyError) as e:
         raise InitError(f"Cannot read skills from {path}: {e}") from e
+
+    # Accept only skills this step knows where to link.
     for s in skills:
         if s["scope"] != "project" or not set(s["tools"]) <= SKILL_DIRS.keys():
             raise InitError(
@@ -92,10 +102,13 @@ def _refuse_tracked_collisions(skills, repo_root):
 def _verify_links(skills, repo_root, store):
     for s in skills:
         for tool in s["tools"]:
+            # Require a symlink into the store.
             link = repo_root / SKILL_DIRS[tool] / s["name"]
             if (not link.is_symlink()
                     or link.resolve() != (store / s["name"]).resolve()):
                 raise InitError(f"{link} is not a symlink into {store}.")
+
+            # Require git to ignore it, so the link is never committed.
             ignored = subprocess.run(
                 ["git", "check-ignore", "-q", "--", str(link)],
                 cwd=repo_root,

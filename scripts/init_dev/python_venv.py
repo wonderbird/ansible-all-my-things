@@ -13,9 +13,9 @@ def ensure(repo_root=REPO_ROOT, python=sys.executable):
     A child process cannot activate a venv in the calling shell, so later
     steps call the returned interpreter directly.
     """
+    # Create .venv unless present. lexists: a dangling .venv symlink counts
+    # as present, not as absent.
     venv = repo_root / ".venv"
-    venv_python = venv / "bin" / "python"
-    # lexists: a dangling .venv symlink counts as present, not as absent.
     if not os.path.lexists(venv):
         result = subprocess.run(
             [python, "-m", "venv", str(venv)],
@@ -30,6 +30,9 @@ def ensure(repo_root=REPO_ROOT, python=sys.executable):
                 f"Creating {venv} failed: {result.stderr.strip()} "
                 "Install the venv module: sudo apt install python3-venv"
             )
+
+    # Verify that the venv, new or existing, has a python with pip.
+    venv_python = venv / "bin" / "python"
     check = subprocess.run(
         [str(venv_python), "-m", "pip", "--version"],
         stdin=subprocess.DEVNULL,

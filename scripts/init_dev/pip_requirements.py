@@ -5,11 +5,13 @@ from .common import REPO_ROOT, InitError
 
 
 def install(venv_python, repo_root=REPO_ROOT):
+    # Require the requirements file.
     requirements = repo_root / "requirements.txt"
     if not requirements.is_file():
         raise InitError(f"{requirements} not found.")
-    # The venv's own interpreter: a bare `pip` would be whichever one the
-    # calling shell happens to resolve.
+
+    # Install through the venv's own interpreter: a bare `pip` would be
+    # whichever one the calling shell happens to resolve.
     pip = [str(venv_python), "-m", "pip", "--disable-pip-version-check"]
     subprocess.run(
         [*pip, "install", "--no-input", "-r", str(requirements)],
@@ -17,7 +19,9 @@ def install(venv_python, repo_root=REPO_ROOT):
         stdin=subprocess.DEVNULL,
         check=True,
     )
-    # pip install exits 0 even when it leaves conflicting versions behind.
+
+    # Verify the installed versions: pip install exits 0 even when it leaves
+    # conflicting versions behind.
     check = subprocess.run(
         [*pip, "check"],
         stdin=subprocess.DEVNULL,

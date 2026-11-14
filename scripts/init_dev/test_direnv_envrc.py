@@ -11,12 +11,14 @@ from .common import InitError
 
 class EnsureTest(unittest.TestCase):
     def setUp(self):
+        # Create an empty repository in a temporary directory.
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
         self.tmp = Path(tmp.name)
         self.repo = self.tmp / "repo"
         self.repo.mkdir()
         self.envrc = self.repo / ".envrc"
+
         # Keep direnv's allow list out of the real ~/.local/share/direnv.
         env = mock.patch.dict(os.environ, {
             "XDG_DATA_HOME": str(self.tmp / "data"),
@@ -67,6 +69,7 @@ class EnsureTest(unittest.TestCase):
         python = self.repo / ".venv" / "bin" / "python"
         python.parent.mkdir(parents=True)
         python.symlink_to(sys.executable)
+
         with self.assertRaisesRegex(InitError, "does not activate"):
             direnv_envrc.ensure(self.repo)
 

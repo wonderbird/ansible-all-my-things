@@ -12,14 +12,16 @@ ENVRC = 'export VIRTUAL_ENV="$PWD/.venv"\nlayout python3\n'
 
 
 def ensure(repo_root=REPO_ROOT):
+    # Require direnv from the VM provisioning.
     if shutil.which("direnv") is None:
         raise InitError(
             "direnv not on PATH. Provision this VM with the direnv role."
         )
+
+    # Write .envrc, but never replace a foreign one: .envrc is gitignored,
+    # so it may hold the user's secrets.
     envrc = repo_root / ".envrc"
-    venv = repo_root / ".venv"
     if os.path.lexists(envrc):
-        # .envrc is gitignored, so a foreign one may hold the user's secrets.
         try:
             foreign = envrc.read_text() != ENVRC
         except OSError:
@@ -31,13 +33,17 @@ def ensure(repo_root=REPO_ROOT):
             )
     else:
         envrc.write_text(ENVRC)
-    # Approving is safe only because the content is exactly ENVRC.
+
+    # Approve .envrc. This is safe only because its content is exactly ENVRC.
     subprocess.run(
         ["direnv", "allow", str(repo_root)],
         stdin=subprocess.DEVNULL,
         capture_output=True,
         check=True,
     )
+
+    # Verify that a python started through direnv runs from .venv.
+    venv = repo_root / ".venv"
     result = subprocess.run(
         ["direnv", "exec", str(repo_root),
          "python", "-c", "import sys; print(sys.prefix)"],

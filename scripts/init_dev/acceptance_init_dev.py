@@ -25,9 +25,11 @@ class InitDevAcceptanceTest(unittest.TestCase):
         self.env = isolated_env(home=Path(tmp.name) / "home")
 
     def test_prepares_clone_and_can_run_again(self):
+        # Run twice: the second run proves that init_dev is re-runnable.
         self.run_init_dev()
         self.run_init_dev()
 
+        # Check each outcome init_dev promises.
         self.assert_skills_deployed()
         self.assert_direnv_activates_venv()
         self.assert_venv_provides_requirements()
@@ -75,14 +77,16 @@ class InitDevAcceptanceTest(unittest.TestCase):
 
 
 def copy_working_tree(target):
-    # A copy of what git would commit, not a `git clone`: uncommitted
-    # changes to init_dev are what a developer wants to test.
+    # List what git would commit, not what a `git clone` would get:
+    # uncommitted changes to init_dev are what a developer wants to test.
     files = subprocess.run(
         ["git", "ls-files", "-z", "--cached", "--others",
          "--exclude-standard"],
         cwd=REPO_ROOT, capture_output=True, check=True,
     ).stdout.decode().split("\0")
 
+    # Copy the listed files. A tracked file deleted from the working tree is
+    # listed too, but has nothing to copy.
     for name in [n for n in files if n != ""]:
         source = REPO_ROOT / name
         if source.is_file():
@@ -99,10 +103,14 @@ def copy_working_tree(target):
 
 
 def isolated_env(home):
-    # A separate HOME keeps sm's link records and direnv's allow list out
-    # of the real ones, which would otherwise point at a deleted clone.
+    # Give the test its own HOME, so sm's link records and direnv's allow
+    # list stay out of the real ones, which would otherwise point at a
+    # deleted clone. sm needs its configuration and store there.
     shutil.copytree(Path.home() / ".skill-manager",
                     home / ".skill-manager", symlinks=True)
+
+    # Drop the caller's active direnv and venv, and point HOME and the XDG
+    # directories at the test's HOME.
     env = {
         k: v for k, v in os.environ.items()
         if not k.startswith(("DIRENV_", "VIRTUAL_ENV"))

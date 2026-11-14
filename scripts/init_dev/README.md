@@ -28,6 +28,9 @@ VM provisioning should have installed.
 - **Re-runnable.** A second run must leave the clone unchanged and succeed.
 - **Fail loud.** A step raises `InitError` with a message that names the cause
   and the fix. It never skips silently.
+- **One block per intent.** In a function longer than five lines, separate
+  each block of code that serves one intent by an empty line, and state the
+  intent in a short comment above the block.
 - **Test our own logic.** Mock the standard library and external tools at
   their boundary instead of testing their behaviour.
 

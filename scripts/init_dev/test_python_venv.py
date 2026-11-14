@@ -18,8 +18,11 @@ class EnsureTest(unittest.TestCase):
         self.venv = self.repo / ".venv"
 
     def test_creates_working_venv_and_reuses_it(self):
+        # The first run creates the venv.
         python = python_venv.ensure(self.repo)
         self.assertEqual(python, self.venv / "bin" / "python")
+
+        # The second run keeps it: a marker file survives.
         marker = self.venv / "kept"
         marker.touch()
         self.assertEqual(python_venv.ensure(self.repo), python)
@@ -36,6 +39,7 @@ class EnsureTest(unittest.TestCase):
             exit 1
             """))
         fake.chmod(0o755)
+
         with self.assertRaisesRegex(InitError, "python3-venv"):
             python_venv.ensure(self.repo, python=str(fake))
         self.assertFalse(os.path.lexists(self.venv))
@@ -57,10 +61,12 @@ class EnsureTest(unittest.TestCase):
             python_venv.ensure(self.repo)
 
     def test_rejects_venv_whose_python_lacks_pip(self):
+        # A python that fails every command, `-m pip` included.
         python = self.venv / "bin" / "python"
         python.parent.mkdir(parents=True)
         python.write_text("#!/bin/sh\nexit 1\n")
         python.chmod(0o755)
+
         with self.assertRaisesRegex(InitError, "rm -rf"):
             python_venv.ensure(self.repo)
 
