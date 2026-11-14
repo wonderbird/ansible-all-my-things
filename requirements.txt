@@ -25,3 +25,6 @@ molecule-plugins[podman]>=23.0.0
 # Unit tests for the Python scripts under scripts/, with `ptw` as watcher
 pytest>=8.0.0
 pytest-watcher>=0.6.0
+
+# Formatter and linter for the Python scripts under scripts/
+ruff>=0.17.0

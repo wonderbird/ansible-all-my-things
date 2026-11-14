@@ -35,6 +35,8 @@ VM provisioning should have installed.
 - **One block per intent.** In a function longer than five lines, separate
   each block of code that serves one intent by an empty line, and state the
   intent in a short comment above the block.
+- **Formatted and linted by ruff.** Run it before you commit, as described
+  in [`CONTRIBUTING.md`](../../CONTRIBUTING.md), section "Python Scripts".
 - **Test our own logic.** Mock the standard library and external tools at
   their boundary instead of testing their behaviour.
 

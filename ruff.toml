@@ -1,0 +1,7 @@
+# Formatting and linting for the Python scripts under scripts/.
+target-version = "py312"
+
+[lint]
+# The defaults plus line length, import order, current Python idioms and
+# common bug patterns.
+extend-select = ["E501", "W", "I", "UP", "B"]

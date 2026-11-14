@@ -39,6 +39,18 @@ changelog entries, review and merge — is defined in
 
 Agent-specific runtime guidance lives in [AGENTS.md](AGENTS.md).
 
+### Python Scripts
+
+Format and lint the Python scripts under `scripts/` with ruff before you
+commit. Run from the repository root, with the venv active:
+
+```shell
+ruff format scripts/
+ruff check scripts/
+```
+
+[`ruff.toml`](ruff.toml) configures both.
+
 ## CI/CD Pipeline Security
 
 Workflow changes (adding, updating, or removing GitHub Actions) must follow
