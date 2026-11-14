@@ -15,9 +15,7 @@ from .common import InitError
 
 class InstallTest(unittest.TestCase):
     def setUp(self):
-        tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(tmp.cleanup)
-        self.tmp = Path(tmp.name)
+        self.tmp = Path(self.enterContext(tempfile.TemporaryDirectory()))
         self.repo = self.tmp / "repo"
         self.repo.mkdir()
         self.requirements = self.repo / "requirements.txt"

@@ -12,9 +12,7 @@ from . import git_hooks
 
 class InstallTest(unittest.TestCase):
     def setUp(self):
-        tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(tmp.cleanup)
-        self.tmp = Path(tmp.name)
+        self.tmp = Path(self.enterContext(tempfile.TemporaryDirectory()))
         self.log = self.tmp / "calls"
         self.python = self.tmp / "python"
 

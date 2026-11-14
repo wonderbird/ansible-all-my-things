@@ -20,10 +20,9 @@ from .common import REPO_ROOT
 
 class InitDevAcceptanceTest(unittest.TestCase):
     def setUp(self):
-        tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(tmp.cleanup)
-        self.clone = copy_working_tree(Path(tmp.name) / "clone")
-        self.env = isolated_env(home=Path(tmp.name) / "home")
+        tmp = Path(self.enterContext(tempfile.TemporaryDirectory()))
+        self.clone = copy_working_tree(tmp / "clone")
+        self.env = isolated_env(home=tmp / "home")
 
     def test_prepares_clone_and_can_run_again(self):
         # Run twice: the second run proves that init_dev is re-runnable.

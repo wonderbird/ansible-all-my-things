@@ -10,9 +10,7 @@ from .common import InitError
 
 class EnsureTest(unittest.TestCase):
     def setUp(self):
-        tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(tmp.cleanup)
-        self.tmp = Path(tmp.name)
+        self.tmp = Path(self.enterContext(tempfile.TemporaryDirectory()))
         self.repo = self.tmp / "repo"
         self.repo.mkdir()
         self.venv = self.repo / ".venv"

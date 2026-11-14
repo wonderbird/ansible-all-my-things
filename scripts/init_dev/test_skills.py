@@ -96,9 +96,7 @@ class Fixture:
 
 class InstallTest(unittest.TestCase):
     def setUp(self):
-        tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(tmp.cleanup)
-        self.fixture = Fixture(Path(tmp.name))
+        self.fixture = Fixture(Path(self.enterContext(tempfile.TemporaryDirectory())))
 
     def assert_sm_not_called(self):
         self.assertFalse(self.fixture.marker.exists(), "sm ran despite failed check")

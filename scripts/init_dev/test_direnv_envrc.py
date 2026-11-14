@@ -12,23 +12,21 @@ from .common import InitError
 class EnsureTest(unittest.TestCase):
     def setUp(self):
         # Create an empty repository in a temporary directory.
-        tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(tmp.cleanup)
-        self.tmp = Path(tmp.name)
+        self.tmp = Path(self.enterContext(tempfile.TemporaryDirectory()))
         self.repo = self.tmp / "repo"
         self.repo.mkdir()
         self.envrc = self.repo / ".envrc"
 
         # Keep direnv's allow list out of the real ~/.local/share/direnv.
-        env = mock.patch.dict(
-            os.environ,
-            {
-                "XDG_DATA_HOME": str(self.tmp / "data"),
-                "XDG_CONFIG_HOME": str(self.tmp / "config"),
-            },
+        self.enterContext(
+            mock.patch.dict(
+                os.environ,
+                {
+                    "XDG_DATA_HOME": str(self.tmp / "data"),
+                    "XDG_CONFIG_HOME": str(self.tmp / "config"),
+                },
+            )
         )
-        env.start()
-        self.addCleanup(env.stop)
 
     def make_venv(self):
         # A pyvenv.cfg beside a python symlink is all sys.prefix needs, and
