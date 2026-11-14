@@ -22,6 +22,8 @@ VM provisioning should have installed.
 
 - **Standard library only.** The package runs on the system `python3` before
   the venv and its packages exist.
+- **Standard library before custom code.** If the standard library already
+  solves a part of a step, use it instead of writing our own version.
 - **One module per step**, with its tests in a sibling `test_<module>.py`.
 - **Re-runnable.** A second run must leave the clone unchanged and succeed.
 - **Fail loud.** A step raises `InitError` with a message that names the cause
