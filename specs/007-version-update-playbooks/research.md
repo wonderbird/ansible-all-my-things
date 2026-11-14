@@ -84,8 +84,10 @@ blast radius if Google restructures the page.
 digests; it is recorded as an open point in
 `docs/architecture/version-update-playbooks.md`.
 
-**Known risk**: SHA-1 checksum only (SHA-256 not published). Accepted risk per
-TD-009.
+**Checksum**: the SHA-256 published next to the Linux archive on the page. The
+parse accepts only one complete 64-hex value from the Linux row and fails on
+anything else, so a change of the page's checksum format stops the run instead
+of writing a wrong pin. The XML manifest publishes SHA-1 only.
 
 ---
 

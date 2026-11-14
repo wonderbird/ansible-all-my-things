@@ -1,0 +1,82 @@
+#SPDX-License-Identifier: MIT-0
+---
+# Required vars: android_page_content
+# Sets facts: _android_parsed_build, _android_parsed_sha256
+#
+# Parses the cmdline-tools table of https://developer.android.com/studio. Kept
+# apart from the fetch so tests/test-android-page-parse.yml can exercise it on
+# fixture pages without network access. It sets private facts only: the fetch
+# file writes the fetched_* outputs and their stamp together, as the
+# call-identity contract requires.
+#
+# The digest is read from a window after each occurrence of the Linux
+# filename. The window stops at the next `commandlinetools-`, so another
+# platform's digest is never read. Every hex run of 32 or more characters in
+# the windows is collected rather than only 64-character ones, so a digest in a
+# new format fails here instead of being skipped or truncated.
+
+- name: Extract Android cmdline-tools build number from page
+  ansible.builtin.set_fact:
+    _android_build_match: >-
+      {{ android_page_content
+         | regex_search('commandlinetools-linux-(\d+)_latest\.zip', '\1')
+         | default([], true) }}
+
+- name: Fail if Android cmdline-tools build number not found on developer page
+  vars:
+    failure_source: upstream
+  ansible.builtin.fail:
+    msg: >-
+      Android developer page (https://developer.android.com/studio) could not be parsed:
+      commandlinetools-linux build number not found.
+      The page structure may have changed.
+  when: _android_build_match | length == 0
+
+- name: Set Android build number fact
+  ansible.builtin.set_fact:
+    _android_parsed_build: "{{ _android_build_match | first }}"
+
+- name: Collect the hex runs that follow the Linux cmdline-tools filename
+  ansible.builtin.set_fact:
+    _android_digest_runs: >-
+      {{ android_page_content
+         | regex_findall('commandlinetools-linux-' ~ _android_parsed_build
+                         ~ '_latest\.zip((?:(?!commandlinetools-)[\s\S]){0,400})')
+         | map('regex_findall', '(?<![0-9a-f])[0-9a-f]{32,}(?![0-9a-f])')
+         | flatten }}
+
+- name: Fail if no cmdline-tools digest follows the Linux filename
+  vars:
+    failure_source: upstream
+  ansible.builtin.fail:
+    msg: >-
+      Android developer page (https://developer.android.com/studio) could not be parsed:
+      no checksum (lowercase hex expected) follows commandlinetools-linux-{{ _android_parsed_build }}_latest.zip.
+      The page may have changed its checksum format.
+  when: _android_digest_runs | length == 0
+
+- name: Fail if a cmdline-tools digest is not a 64-hex SHA-256
+  vars:
+    failure_source: upstream
+  ansible.builtin.fail:
+    msg: >-
+      Android developer page (https://developer.android.com/studio) could not be parsed:
+      the checksum after commandlinetools-linux-{{ _android_parsed_build }}_latest.zip
+      has length {{ _android_digest_runs | map('length') | unique | list }}, expected 64 (SHA-256).
+      The page may have changed its checksum format.
+  when: _android_digest_runs | map('length') | unique | list != [64]
+
+- name: Fail if the Linux filename is followed by more than one digest
+  vars:
+    failure_source: upstream
+  ansible.builtin.fail:
+    msg: >-
+      Android developer page (https://developer.android.com/studio) could not be parsed:
+      commandlinetools-linux-{{ _android_parsed_build }}_latest.zip is followed by
+      {{ _android_digest_runs | unique | length }} different checksums, expected exactly one.
+      The page may have changed its checksum format.
+  when: _android_digest_runs | unique | length != 1
+
+- name: Set Android SHA-256 fact
+  ansible.builtin.set_fact:
+    _android_parsed_sha256: "{{ _android_digest_runs | first }}"

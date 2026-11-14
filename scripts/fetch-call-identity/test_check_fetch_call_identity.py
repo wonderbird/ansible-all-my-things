@@ -147,7 +147,7 @@ class CallIdentityCheckerTest(unittest.TestCase):
 
             - name: Resolve the digest from it
               ansible.builtin.set_fact:
-                fetched_android_sha1: "sha-{{ fetched_android_build }}"
+                fetched_android_sha256: "sha-{{ fetched_android_build }}"
                 fetched_for: "{{ fetch_call_id }}"
             """})
         self.assertEqual(findings, [])

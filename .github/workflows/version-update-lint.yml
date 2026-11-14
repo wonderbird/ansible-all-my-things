@@ -91,6 +91,7 @@ jobs:
           - fixture-registry-smoke
           - failure-source
           - fetch-call-identity
+          - android-page-parse
 
     steps:
       - name: Checkout repository

@@ -46,6 +46,8 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   clone. Add a host to `claude_opinionated` to keep it.
 - **Breaking:** The `nodejs` role installs Node.js 26. Existing hosts upgrade
   only after removing `/usr/local/bin/node` and re-running the role.
+- **Breaking:** The `android_studio` role reads its checksum pin from
+  `android_cmdlinetools_sha256`. Rename host overrides of `android_cmdlinetools_sha1`.
 
 ### Removed
 
@@ -71,5 +73,9 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   installed binary to the pinned version.
 - The `bun` and `opencode` roles upgrade an installed version whose number
   merely contains the pin, such as `1.2.30` for pin `1.2.3`.
+- The `android_studio` role downloads the SDK command-line tools again,
+  verified by SHA-256.
+- `perform-updates.yml` fails, naming the build, when the Android download page
+  lacks exactly one SHA-256 for the Linux command-line tools.
 
 [Unreleased]: https://github.com/wonderbird/ansible-all-my-things/commits/main

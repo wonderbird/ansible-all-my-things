@@ -27,8 +27,7 @@ runs on localhost, not managed hosts)
 **Project Type**: Ansible maintenance playbooks
 **Performance Goals**: N/A — on-demand maintenance run; no SLA
 **Constraints**: Unauthenticated GitHub API (60 req/hr); Android HTML scraping
-is fragile (isolated per FR-007); SHA-1 checksum for Android (accepted risk per
-TD-009); SDKMAN API response format — see research.md
+is fragile (isolated per FR-007); SDKMAN API response format — see research.md
 **Scale/Scope**: the tools in `vars/tools.yml`, one maintenance playbook, one
 concept document
 

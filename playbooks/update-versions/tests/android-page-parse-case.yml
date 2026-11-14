@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Runs one case of test-android-page-parse.yml against
+# ../tasks/parse-android-page.yml.
+# Required vars: _case, _fixture_dir, _expected_build, _expected_sha256
+#
+# A case that expects a failure but parses successfully fails the harness, so
+# a weakened guard in the parser turns the run red.
+
+- name: "Reset case state for case {{ _case.id }}"
+  ansible.builtin.set_fact:
+    _case_failed: false
+    _case_failed_msg: ""
+    _android_parsed_build: ""
+    _android_parsed_sha256: ""
+
+- name: "Parse the fixture page of case {{ _case.id }}"
+  block:
+    - name: "Include the parser for case {{ _case.id }}"
+      ansible.builtin.include_tasks: ../tasks/parse-android-page.yml
+      vars:
+        android_page_content: "{{ lookup('ansible.builtin.file', _fixture_dir ~ '/' ~ _case.id ~ '.html') }}"
+  rescue:
+    - name: "Record the parse failure of case {{ _case.id }}"
+      ansible.builtin.set_fact:
+        _case_failed: true
+        _case_failed_msg: "{{ ansible_failed_result.msg | default('') }}"
+
+- name: "Assert case {{ _case.id }} parsed the Linux build and its full digest"
+  ansible.builtin.assert:
+    that:
+      - not _case_failed
+      - _android_parsed_build == _expected_build
+      - _android_parsed_sha256 == _expected_sha256
+    fail_msg: >-
+      Case {{ _case.id }} should parse build {{ _expected_build }} and digest
+      {{ _expected_sha256 }}, but got build '{{ _android_parsed_build }}' and
+      digest '{{ _android_parsed_sha256 }}'. Failure: '{{ _case_failed_msg }}'.
+    quiet: true
+  when: _case.expect == 'pass'
+
+- name: "Assert case {{ _case.id }} failed for the expected reason"
+  ansible.builtin.assert:
+    that:
+      - _case_failed
+      - _case.expect in _case_failed_msg
+    fail_msg: >-
+      Case {{ _case.id }} should fail with '{{ _case.expect }}', but
+      {{ ('it failed with: ' ~ _case_failed_msg) if _case_failed
+         else ('it parsed digest ' ~ _android_parsed_sha256) }}.
+    quiet: true
+  when: _case.expect != 'pass'
