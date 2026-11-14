@@ -3,6 +3,7 @@ import sys
 
 from . import (
     direnv_envrc,
+    git_hooks,
     pip_requirements,
     platform_check,
     python_venv,
@@ -22,6 +23,7 @@ def main():
         venv_python = python_venv.ensure()
         direnv_envrc.ensure()
         pip_requirements.install(venv_python)
+        git_hooks.install(venv_python)
     except (InitError, subprocess.CalledProcessError) as e:
         print(f"init-dev: {e}", file=sys.stderr)
         return 1

@@ -1,0 +1,14 @@
+# Git hooks run by pre-commit before each commit; init_dev installs them.
+#
+# Each rev is pinned to a commit SHA, like the GitHub Actions in this
+# repository, so a retargeted tag cannot change what runs. Dependabot
+# proposes updates weekly; by hand, run `pre-commit autoupdate --freeze`.
+# Keep ruff's version in step with requirements.txt.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: ef6cf06c079dd6b299dfc720b0f14400c9d168e1  # frozen: v0.17.5
+    hooks:
+      - id: ruff-format
+        files: ^scripts/
+      - id: ruff-check
+        files: ^scripts/

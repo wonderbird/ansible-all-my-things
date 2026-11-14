@@ -26,5 +26,7 @@ molecule-plugins[podman]>=23.0.0
 pytest>=8.0.0
 pytest-watcher>=0.6.0
 
-# Formatter and linter for the Python scripts under scripts/
+# Formatter and linter for the Python scripts under scripts/, run by the
+# pre-commit git hook
 ruff>=0.17.0
+pre-commit>=4.0.0

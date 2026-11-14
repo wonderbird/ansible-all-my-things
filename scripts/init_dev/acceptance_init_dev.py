@@ -35,6 +35,7 @@ class InitDevAcceptanceTest(unittest.TestCase):
         self.assert_direnv_activates_venv()
         self.assert_venv_provides_requirements()
         self.assert_nothing_left_to_commit()
+        self.assert_commit_runs_ruff()
 
     def assert_skills_deployed(self):
         manifest = json.loads((self.clone / ".skills.json").read_text())
@@ -66,6 +67,25 @@ class InitDevAcceptanceTest(unittest.TestCase):
             "",
             "initialization left files git would commit",
         )
+
+    def assert_commit_runs_ruff(self):
+        # Stage a script that ruff would reformat, then try to commit it.
+        (self.clone / "scripts/unformatted.py").write_text("x=1\n")
+        self.run_in_clone("git", "add", "scripts/unformatted.py")
+        commit = self.run_in_clone(
+            "git",
+            "-c",
+            "user.name=init_dev",
+            "-c",
+            "user.email=init_dev@example.invalid",
+            "commit",
+            "-m",
+            "unformatted",
+        )
+
+        # The pre-commit hook rejects the commit.
+        self.assertNotEqual(commit.returncode, 0, "commit bypassed the hook")
+        self.assertIn("ruff", commit.stdout + commit.stderr)
 
     def run_init_dev(self):
         result = self.run_in_clone(sys.executable, "-m", "scripts.init_dev")
@@ -138,7 +158,8 @@ def isolated_env(home):
         HOME=str(home),
         XDG_DATA_HOME=str(home / ".local/share"),
         XDG_CONFIG_HOME=str(home / ".config"),
-        # Reusing the real download cache only saves time.
+        # Reusing the real download caches only saves time.
         PIP_CACHE_DIR=str(Path.home() / ".cache/pip"),
+        PRE_COMMIT_HOME=str(Path.home() / ".cache/pre-commit"),
     )
     return env
