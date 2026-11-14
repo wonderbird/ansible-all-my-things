@@ -61,10 +61,11 @@ def _load_manifest(path):
         raise InitError(f"Cannot read skills from {path}: {e}") from e
 
     # Accept only skills this step knows where to link.
-    for s in skills:
-        if s["scope"] != "project" or not set(s["tools"]) <= SKILL_DIRS.keys():
+    for skill in skills:
+        if (skill["scope"] != "project"
+                or not set(skill["tools"]) <= SKILL_DIRS.keys()):
             raise InitError(
-                f"{path}: unsupported scope/tools for skill {s['name']!r}."
+                f"{path}: unsupported scope/tools for skill {skill['name']!r}."
             )
     return skills
 
@@ -72,8 +73,8 @@ def _load_manifest(path):
 def _require_in_store(skills, store):
     # sm only warns and exits 0 for a skill missing from its store.
     missing = [
-        s["name"] for s in skills
-        if not (store / s["name"] / "SKILL.md").is_file()
+        skill["name"] for skill in skills
+        if not (store / skill["name"] / "SKILL.md").is_file()
     ]
     if missing:
         raise InitError(
@@ -85,7 +86,11 @@ def _require_in_store(skills, store):
 def _refuse_tracked_collisions(skills, repo_root):
     # sm deletes whatever already sits at a link path, tracked content
     # included.
-    paths = [str(SKILL_DIRS[t] / s["name"]) for s in skills for t in s["tools"]]
+    paths = [
+        str(SKILL_DIRS[tool] / skill["name"])
+        for skill in skills
+        for tool in skill["tools"]
+    ]
     tracked = subprocess.run(
         ["git", "ls-files", "--", *paths],
         cwd=repo_root,
@@ -100,12 +105,12 @@ def _refuse_tracked_collisions(skills, repo_root):
 
 
 def _verify_links(skills, repo_root, store):
-    for s in skills:
-        for tool in s["tools"]:
+    for skill in skills:
+        for tool in skill["tools"]:
             # Require a symlink into the store.
-            link = repo_root / SKILL_DIRS[tool] / s["name"]
+            link = repo_root / SKILL_DIRS[tool] / skill["name"]
             if (not link.is_symlink()
-                    or link.resolve() != (store / s["name"]).resolve()):
+                    or link.resolve() != (store / skill["name"]).resolve()):
                 raise InitError(f"{link} is not a symlink into {store}.")
 
             # Require git to ignore it, so the link is never committed.

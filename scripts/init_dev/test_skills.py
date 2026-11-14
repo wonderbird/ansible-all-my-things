@@ -26,12 +26,12 @@ FAKE_SM = textwrap.dedent(f"""\
     if mode == "link":
         dirs = {{"cc": ".claude/skills", "codex": ".agents/skills"}}
         store = Path(os.environ["FAKE_SM_STORE"])
-        for s in json.loads(Path(".skills.json").read_text())["skills"]:
-            for t in s["tools"]:
-                link = Path(dirs[t]) / s["name"]
+        for skill in json.loads(Path(".skills.json").read_text())["skills"]:
+            for tool in skill["tools"]:
+                link = Path(dirs[tool]) / skill["name"]
                 link.parent.mkdir(parents=True, exist_ok=True)
                 if not link.is_symlink():
-                    link.symlink_to(store / s["name"])
+                    link.symlink_to(store / skill["name"])
     """)
 
 
@@ -39,7 +39,7 @@ def json_manifest(name, scope="project", tools=("cc",)):
     return (
         '{"version": 1, "skills": [{"name": "%s", "tools": [%s], '
         '"scope": "%s"}], "profiles": {}}'
-        % (name, ", ".join(f'"{t}"' for t in tools), scope)
+        % (name, ", ".join(f'"{tool}"' for tool in tools), scope)
     )
 
 
@@ -84,98 +84,100 @@ class InstallTest(unittest.TestCase):
     def setUp(self):
         tmp = tempfile.TemporaryDirectory()
         self.addCleanup(tmp.cleanup)
-        self.f = Fixture(Path(tmp.name))
+        self.fixture = Fixture(Path(tmp.name))
 
     def assert_sm_not_called(self):
-        self.assertFalse(self.f.marker.exists(), "sm ran despite failed check")
+        self.assertFalse(self.fixture.marker.exists(),
+                         "sm ran despite failed check")
 
     def test_links_skill_into_store(self):
-        self.f.run_skills_install_with()
-        link = self.f.repo / ".claude/skills/demo"
-        self.assertEqual(link.resolve(), (self.f.store / "demo").resolve())
+        self.fixture.run_skills_install_with()
+        link = self.fixture.repo / ".claude/skills/demo"
+        self.assertEqual(link.resolve(),
+                         (self.fixture.store / "demo").resolve())
 
     def test_second_run_succeeds(self):
-        self.f.run_skills_install_with()
-        self.f.run_skills_install_with()
+        self.fixture.run_skills_install_with()
+        self.fixture.run_skills_install_with()
 
     def test_fails_without_sm_on_path(self):
         with mock.patch.object(skills.shutil, "which", return_value=None):
             with self.assertRaisesRegex(InitError, "sm not on PATH"):
-                self.f.run_skills_install_with()
+                self.fixture.run_skills_install_with()
 
     def test_fails_when_auto_adopt_enabled(self):
-        (self.f.sm_home / "config.toml").write_text("autoAdopt = true\n")
+        (self.fixture.sm_home / "config.toml").write_text("autoAdopt = true\n")
         with self.assertRaisesRegex(InitError, "autoAdopt = false"):
-            self.f.run_skills_install_with()
+            self.fixture.run_skills_install_with()
         self.assert_sm_not_called()
 
     def test_fails_when_auto_adopt_unset(self):
-        (self.f.sm_home / "config.toml").write_text("")
+        (self.fixture.sm_home / "config.toml").write_text("")
         with self.assertRaisesRegex(InitError, "autoAdopt = false"):
-            self.f.run_skills_install_with()
+            self.fixture.run_skills_install_with()
         self.assert_sm_not_called()
 
     def test_fails_when_config_missing(self):
-        (self.f.sm_home / "config.toml").unlink()
+        (self.fixture.sm_home / "config.toml").unlink()
         with self.assertRaisesRegex(InitError, "Cannot read"):
-            self.f.run_skills_install_with()
+            self.fixture.run_skills_install_with()
         self.assert_sm_not_called()
 
     def test_fails_when_config_unparsable(self):
-        (self.f.sm_home / "config.toml").write_text("autoAdopt = \n")
+        (self.fixture.sm_home / "config.toml").write_text("autoAdopt = \n")
         with self.assertRaisesRegex(InitError, "Cannot read"):
-            self.f.run_skills_install_with()
+            self.fixture.run_skills_install_with()
         self.assert_sm_not_called()
 
     def test_fails_on_unsupported_scope(self):
-        (self.f.repo / ".skills.json").write_text(
+        (self.fixture.repo / ".skills.json").write_text(
             json_manifest("demo", scope="user"))
         with self.assertRaisesRegex(InitError, "unsupported"):
-            self.f.run_skills_install_with()
+            self.fixture.run_skills_install_with()
         self.assert_sm_not_called()
 
     def test_fails_on_unparsable_manifest(self):
-        (self.f.repo / ".skills.json").write_text("{")
+        (self.fixture.repo / ".skills.json").write_text("{")
         with self.assertRaisesRegex(InitError, "Cannot read skills"):
-            self.f.run_skills_install_with()
+            self.fixture.run_skills_install_with()
         self.assert_sm_not_called()
 
     def test_fails_when_skill_missing_from_store(self):
-        (self.f.store / "demo" / "SKILL.md").unlink()
+        (self.fixture.store / "demo" / "SKILL.md").unlink()
         with self.assertRaisesRegex(InitError, "Not in .*demo"):
-            self.f.run_skills_install_with()
+            self.fixture.run_skills_install_with()
         self.assert_sm_not_called()
 
     def test_refuses_to_overwrite_tracked_skill(self):
         # A tracked file where sm would place the demo link.
-        tracked = self.f.repo / ".claude/skills/demo/SKILL.md"
+        tracked = self.fixture.repo / ".claude/skills/demo/SKILL.md"
         tracked.parent.mkdir(parents=True)
         tracked.write_text("tracked\n")
         subprocess.run(["git", "add", "-f", str(tracked)],
-                       cwd=self.f.repo, check=True)
+                       cwd=self.fixture.repo, check=True)
 
         with self.assertRaisesRegex(InitError, "collide"):
-            self.f.run_skills_install_with()
+            self.fixture.run_skills_install_with()
         self.assert_sm_not_called()
         self.assertEqual(tracked.read_text(), "tracked\n")
 
     def test_fails_when_sm_exits_nonzero(self):
         with self.assertRaises(subprocess.CalledProcessError):
-            self.f.run_skills_install_with(sm_mode="fail")
+            self.fixture.run_skills_install_with(sm_mode="fail")
 
     def test_fails_when_sm_succeeds_without_linking(self):
         with self.assertRaisesRegex(InitError, "not a symlink"):
-            self.f.run_skills_install_with(sm_mode="noop")
+            self.fixture.run_skills_install_with(sm_mode="noop")
 
     def test_fails_when_link_points_elsewhere(self):
-        link = self.f.repo / ".claude/skills/demo"
+        link = self.fixture.repo / ".claude/skills/demo"
         link.parent.mkdir(parents=True)
-        link.symlink_to(self.f.repo)
+        link.symlink_to(self.fixture.repo)
         with self.assertRaisesRegex(InitError, "not a symlink"):
-            self.f.run_skills_install_with(sm_mode="noop")
+            self.fixture.run_skills_install_with(sm_mode="noop")
 
     def test_fails_when_link_not_gitignored(self):
-        (self.f.repo / ".gitignore").write_text("")
+        (self.fixture.repo / ".gitignore").write_text("")
         with self.assertRaisesRegex(InitError, "not gitignored"):
-            self.f.run_skills_install_with()
+            self.fixture.run_skills_install_with()
 

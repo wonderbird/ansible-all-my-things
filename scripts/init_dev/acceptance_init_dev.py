@@ -87,7 +87,7 @@ def copy_working_tree(target):
 
     # Copy the listed files. A tracked file deleted from the working tree is
     # listed too, but has nothing to copy.
-    for name in [n for n in files if n != ""]:
+    for name in [name for name in files if name != ""]:
         source = REPO_ROOT / name
         if source.is_file():
             destination = target / name

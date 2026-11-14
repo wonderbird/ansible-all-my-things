@@ -28,6 +28,10 @@ VM provisioning should have installed.
 - **Re-runnable.** A second run must leave the clone unchanged and succeed.
 - **Fail loud.** A step raises `InitError` with a message that names the cause
   and the fix. It never skips silently.
+- **Name by meaning, don't abbreviate.** Name a variable by what it holds,
+  e.g. `for skill in skills`. Single letters are fine only for the Python
+  idioms `e` (caught exception), `k, v` (dict items), `_` (ignored value)
+  and `i` (index).
 - **One block per intent.** In a function longer than five lines, separate
   each block of code that serves one intent by an empty line, and state the
   intent in a short comment above the block.
