@@ -8,7 +8,6 @@ from pathlib import Path
 from .common import REPO_ROOT, InitError
 
 SM_HOME = Path.home() / ".skill-manager"
-# sm deploys project-scoped skills into one directory per tool.
 SKILL_DIRS = {"cc": Path(".claude/skills"), "codex": Path(".agents/skills")}
 
 

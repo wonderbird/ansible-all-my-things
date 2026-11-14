@@ -1,4 +1,3 @@
-"""Run every initialization step in order; see the package docstring."""
 import subprocess
 import sys
 
