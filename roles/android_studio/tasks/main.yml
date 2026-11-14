@@ -21,7 +21,7 @@
   ansible.builtin.get_url:
     url: "https://dl.google.com/android/repository/commandlinetools-linux-{{ android_cmdlinetools_build }}_latest.zip"
     dest: "/tmp/commandlinetools-linux-{{ android_cmdlinetools_build }}_latest.zip"
-    checksum: "sha1:{{ android_cmdlinetools_sha1 }}"
+    checksum: "sha256:{{ android_cmdlinetools_sha256 }}"
 
 - name: Create ANDROID_HOME directory
   ansible.builtin.file:

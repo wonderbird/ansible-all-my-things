@@ -1,7 +1,7 @@
 #SPDX-License-Identifier: MIT-0
 ---
 # Required vars: fetch_call_id
-# Sets facts: fetched_android_build, fetched_android_sha1, fetched_for
+# Sets facts: fetched_android_build, fetched_android_sha256, fetched_for
 #
 # fetched_for stamps this output with the caller's fetch_call_id, in the same
 # set_fact so a skipped output cannot pass as this call's result. Contract:
@@ -15,49 +15,13 @@
     follow_redirects: all
   register: _android_page_response
 
-- name: Extract Android cmdline-tools build number from page
-  ansible.builtin.set_fact:
-    _android_build_match: >-
-      {{ _android_page_response.content
-         | regex_search('commandlinetools-linux-(\d+)_latest\.zip', '\1')
-         | default([], true) }}
-
-- name: Fail if Android cmdline-tools build number not found on developer page
-
+- name: Parse the cmdline-tools build number and SHA-256 from the page
+  ansible.builtin.include_tasks: parse-android-page.yml
   vars:
+    android_page_content: "{{ _android_page_response.content }}"
 
-    failure_source: upstream
-  ansible.builtin.fail:
-    msg: >-
-      Android developer page (https://developer.android.com/studio) could not be parsed:
-      commandlinetools-linux build number not found.
-      The page structure may have changed.
-  when: _android_build_match | length == 0
-
-- name: Set Android build number fact
+- name: Set Android build number and SHA-256 facts
   ansible.builtin.set_fact:
-    fetched_android_build: "{{ _android_build_match | first }}"
-
-- name: Extract Android cmdline-tools SHA-1 from page
-  ansible.builtin.set_fact:
-    _android_sha1_match: >-
-      {{ _android_page_response.content
-         | regex_search('commandlinetools-linux-' ~ fetched_android_build ~ '_latest\.zip[\s\S]{0,400}?([0-9a-f]{40})', '\1')
-         | default([], true) }}
-
-- name: Fail if Android cmdline-tools SHA-1 not found on developer page
-
-  vars:
-
-    failure_source: upstream
-  ansible.builtin.fail:
-    msg: >-
-      Android developer page (https://developer.android.com/studio) could not be parsed:
-      cmdline-tools SHA-1 checksum not found near build {{ fetched_android_build }}.
-      The page structure may have changed.
-  when: _android_sha1_match | length == 0
-
-- name: Set Android SHA-1 fact
-  ansible.builtin.set_fact:
-    fetched_android_sha1: "{{ _android_sha1_match | first }}"
+    fetched_android_build: "{{ _android_parsed_build }}"
+    fetched_android_sha256: "{{ _android_parsed_sha256 }}"
     fetched_for: "{{ fetch_call_id }}"

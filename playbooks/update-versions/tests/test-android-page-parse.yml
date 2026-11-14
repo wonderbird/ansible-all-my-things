@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Test harness for ../tasks/parse-android-page.yml. Runs on localhost, needs no
+# vault and reaches no network: each case parses a fixture page from
+# fixtures/android-page/.
+#
+# Run from the repository root:
+#   ANSIBLE_CONFIG=playbooks/update-versions/tests/ansible.cfg \
+#     ansible-playbook playbooks/update-versions/tests/test-android-page-parse.yml
+#
+# The parser must accept only one complete 64-hex digest from the Linux row.
+# A digest in another format, several digests, or a digest from another
+# platform's row must fail the parse instead of becoming the pin. The fixture
+# rows of cases 6 and 7 are compact, so the next row's digest lies within the
+# 400-character window: only the stop at the next `commandlinetools-` keeps the
+# parser out of it.
+
+- name: Parse every Android fixture page and check the outcome
+  hosts: localhost
+  gather_facts: false
+  vars:
+    _fixture_dir: "{{ playbook_dir }}/fixtures/android-page"
+    _expected_build: "12345678"
+    _expected_sha256: "4e4c464f145a7512b57d088ac6c278c03c9eea610886b35a5e0804e74eedf583"
+    _cases:
+      - {id: 1-live-like, expect: pass}
+      - {id: 2-filename-three-times, expect: pass}
+      - {id: 3-sha1-length, expect: "expected 64"}
+      - {id: 4-sha512-length, expect: "expected 64"}
+      - {id: 5-two-digests, expect: "expected exactly one"}
+      - {id: 6-sha1-before-next-row, expect: "expected 64"}
+      - {id: 7-no-digest-before-next-row, expect: "no checksum"}
+      - {id: 8-no-linux-filename, expect: "build number not found"}
+      - {id: 9-uppercase-digest, expect: "(lowercase hex expected)"}
+  tasks:
+    - name: Run each parse case
+      ansible.builtin.include_tasks: android-page-parse-case.yml
+      loop: "{{ _cases }}"
+      loop_control:
+        loop_var: _case
+        label: "{{ _case.id }}"
+
+    - name: Report the harness result
+      ansible.builtin.debug:
+        msg: "android page parse harness: {{ _cases | length }} cases behaved as expected"

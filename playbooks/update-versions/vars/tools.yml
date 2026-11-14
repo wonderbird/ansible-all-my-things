@@ -85,11 +85,11 @@ _tools:
       file: fetch-android-version.yml
       results:
         build: "{{ fetched_android_build }}"
-        sha1: "{{ fetched_android_sha1 }}"
+        sha256: "{{ fetched_android_sha256 }}"
     current_pin: android_cmdlinetools_build
     pins:
       - {pin: android_cmdlinetools_build, value: "{{ _fetched.build }}"}
-      - {pin: android_cmdlinetools_sha1, value: "{{ _fetched.sha1 }}"}
+      - {pin: android_cmdlinetools_sha256, value: "{{ _fetched.sha256 }}"}
 
   dolt_sql_server:
     role: dolt_sql_server
