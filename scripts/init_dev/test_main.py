@@ -5,7 +5,14 @@ import unittest
 from unittest import mock
 
 from . import __main__ as entry
-from . import direnv_envrc, pip_requirements, platform_check, python_venv, skills
+from . import (
+    direnv_envrc,
+    pip_requirements,
+    platform_check,
+    python_venv,
+    skills,
+    user_check,
+)
 from .common import InitError
 
 
@@ -13,6 +20,7 @@ class MainTest(unittest.TestCase):
     def run_main(self, error):
         stderr = io.StringIO()
         with mock.patch.object(platform_check, "check"), \
+                mock.patch.object(user_check, "check"), \
                 mock.patch.object(skills, "install", side_effect=error), \
                 mock.patch.object(python_venv, "ensure"), \
                 mock.patch.object(direnv_envrc, "ensure"), \

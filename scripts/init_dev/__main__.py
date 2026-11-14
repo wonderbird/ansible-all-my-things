@@ -1,13 +1,21 @@
 import subprocess
 import sys
 
-from . import direnv_envrc, pip_requirements, platform_check, python_venv, skills
+from . import (
+    direnv_envrc,
+    pip_requirements,
+    platform_check,
+    python_venv,
+    skills,
+    user_check,
+)
 from .common import REPO_ROOT, InitError
 
 
 def main():
     try:
         platform_check.check()
+        user_check.check()
         skills.install()
         venv_python = python_venv.ensure()
         direnv_envrc.ensure()
