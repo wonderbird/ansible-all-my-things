@@ -121,8 +121,7 @@ about `apply: tags:` when using `include_role`.
 `ansible.builtin.get_url`.
 
 **Rationale**: FR-019. SHA-256 is available from the Flutter release
-manifest (unlike the Android cmdline-tools which only publish SHA-1).
-This mirrors the `android_studio` checksum pattern structurally.
+manifest. This mirrors the `android_studio` checksum pattern structurally.
 
 ## Android SDK Components: NDK, CMake, and Latest SDK Platform
 

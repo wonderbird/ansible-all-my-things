@@ -34,7 +34,7 @@ A hash value paired with a Version Pin, used to verify download integrity.
 | Field | Description |
 |-------|-------------|
 | `key` | Ansible variable name (maps to an entry of the tool's `pins` list) |
-| `algorithm` | `sha256` or `sha1` |
+| `algorithm` | `sha256` |
 | `current_value` | Hash currently in the defaults file |
 | `latest_value` | Hash fetched from upstream at update time |
 

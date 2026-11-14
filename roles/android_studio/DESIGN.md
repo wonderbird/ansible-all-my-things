@@ -84,11 +84,12 @@ as an idempotency guard.
 `latest` token. The role detects the current latest versions at runtime
 by parsing `sdkmanager --list --channel=0` output.
 
-### SHA-1 Checksum Only
+### SHA-256 Checksum from the Download Page
 
-Google publishes SHA-1 checksums (not SHA-256) for cmdline-tools ZIPs.
-The download task uses `checksum: "sha1:{{ android_cmdlinetools_sha1 }}"`.
-See TD-009 in the technical debt register for the accepted risk.
+The cmdline-tools ZIP is verified against the SHA-256 that Google publishes
+next to it on the Android Studio download page. Google's XML package index
+publishes only a SHA-1 for the same ZIP, so the page is the source of the
+stronger digest.
 
 ## Per-User Provisioning
 

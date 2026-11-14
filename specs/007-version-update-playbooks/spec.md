@@ -93,9 +93,7 @@ guidance.
    **Then** they can identify the upstream source for every tracked tool.
 2. **Given** the concept document exists, **When** a maintainer reads it,
    **Then** they understand which constraints apply (unauthenticated API limits,
-   HTML scraping risk, SHA-1 vs SHA-256 per tool) and that the Android SHA-1
-   risk is tracked in `docs/architecture/technical-debt/technical-debt.md` as
-   TD-009.
+   HTML scraping risk, and where each tool's checksum comes from).
 
 ---
 
@@ -159,8 +157,9 @@ is worth more to anyone citing one than a gapless sequence.
 - **Version Pin**: A key-value pair in a role defaults file that specifies the
   exact version of a tool to install. May be paired with a checksum.
 - **Checksum**: A hash value paired with a version pin, used to verify download
-  integrity. The hash algorithm varies by upstream source (SHA-256 for Flutter,
-  SHA-1 for Android cmdline-tools per TD-009).
+  integrity. Every tracked tool is verified by SHA-256; the source of the
+  digest varies by tool (a release manifest, a published checksum file, the
+  download page, or the downloaded artefact).
 - **Upstream Source**: The authoritative external location from which the latest
   version of a tool is fetched. Each tool has exactly one upstream source
   (structured API or HTML page).
@@ -196,6 +195,6 @@ is worth more to anyone citing one than a gapless sequence.
   decision.
 - Android SDK command-line tools version and checksum are sourced from the
   Android developer HTML page; the scraping is isolated per FR-007. The
-  SHA-1-only checksum is an accepted risk documented in TD-009.
+  checksum is the SHA-256 published on that page.
 - The SDKMAN REST API is used for Java version discovery — the `sdk` CLI is not
   required on the control node.

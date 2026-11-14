@@ -57,9 +57,11 @@ section Requirements.
 - Java tracking follows a same-major patch strategy: the latest patch
   release of the currently pinned major version. Major version upgrades
   remain a manual decision.
-- Android SHA-1 is the only checksum published by Google for
-  cmdline-tools. This is an accepted risk documented in
-  `docs/architecture/technical-debt/technical-debt.md` as TD-009.
+- The Android cmdline-tools digest is the SHA-256 that Google publishes
+  on the developer download page. The fetch accepts only a single,
+  complete 64-hex value from the Linux row; any other format, several
+  values, or a value from another platform's row fails the fetch, so a
+  change on the page stops the run instead of writing a wrong pin.
 - `community.general.version_sort` is already present in
   `requirements.yml` — no new dependency.
 
@@ -96,6 +98,7 @@ playbooks/update-versions/
 │   ├── apply-tool.yml
 │   ├── resolve-checksum.yml
 │   ├── fetch-*.yml
+│   ├── parse-android-page.yml
 │   ├── write-pins.yml
 │   ├── record-tool-failure.yml
 │   └── report-update-failures.yml
@@ -266,8 +269,6 @@ that ran before.
 - SDKMAN REST API: <https://api.sdkman.io/2/candidates/java/linuxx64/versions/all>
 - Android developer page: <https://developer.android.com/studio#command-line-tools-only>
 - Android SDK repository manifest: <https://dl.google.com/android/repository/repository2-3.xml>
-- Technical debt entry (TD-009):
-  `docs/architecture/technical-debt/technical-debt.md`
 
 ---
 
@@ -478,10 +479,12 @@ be read and ignored.
 - **Android HTML scraping fragility**: `fetch-android-version.yml`
   parses the developer download page via regex. If Google restructures
   the page, the regex will break. Google also serves an XML repository
-  manifest that lists the cmdline-tools archives with build numbers and
-  SHA-1 digests (see Sources); it is a candidate replacement for the
-  scraping. The scraping lives in its own task file to contain the blast
-  radius.
+  manifest that lists the cmdline-tools archives with build numbers, but
+  only with SHA-1 digests (see Sources), while the page publishes SHA-256.
+  Replacing the scraping with the manifest therefore trades digest
+  strength for a structured source; that choice is open. The page parsing
+  lives in its own task file, `parse-android-page.yml`, so a network-free
+  harness can exercise it on fixture pages.
 - **Unauthenticated GitHub API**: The 60 requests/hour limit is
   sufficient for manual runs. If CI integration is added, a GitHub
   token should be introduced to raise the limit to
@@ -502,7 +505,7 @@ be read and ignored.
 - **Per-role targeting**: Add optional role-filtering to update only
   a subset of tools in a single run.
 - **Checksum algorithm expansion**: `resolve-checksum.yml` produces
-  SHA-256 digests; a tool whose upstream publishes only another
-  algorithm takes the digest from its own fetch results, as Android
-  does with SHA-1. A tool needing a further algorithm would add a
-  checksum kind there.
+  SHA-256 digests. A tool whose upstream publishes its digest on the
+  page its version is read from takes it from its own fetch results
+  instead, as Android does. A tool needing a further algorithm would add
+  a checksum kind there.

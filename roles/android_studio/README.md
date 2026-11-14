@@ -16,15 +16,12 @@ for all desktop users.
 | --- | --- | --- |
 | `login_user_names` | *(required)* | List of local usernames to install Android Studio and the SDK for. Must contain at least one name; the role fails loudly if it is undefined or empty. |
 | `android_cmdlinetools_build` | *(see defaults)* | Build number of the cmdline-tools ZIP. |
-| `android_cmdlinetools_sha1` | *(see defaults)* | SHA-1 checksum of the cmdline-tools ZIP. |
+| `android_cmdlinetools_sha256` | *(see defaults)* | SHA-256 checksum of the cmdline-tools ZIP. |
 
 `defaults/main.yml` carries both pins together with the upstream page they
 are read from. Both must move together, and the version-update mechanism
 refreshes them from that page — see
 [version-update-playbooks.md](../../docs/architecture/version-update-playbooks.md).
-
-Note: Google publishes SHA-1 (not SHA-256) for cmdline-tools downloads.
-See TD-009 in the technical debt register for the accepted risk.
 
 ## Dependencies
 
