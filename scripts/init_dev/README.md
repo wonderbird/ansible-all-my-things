@@ -35,6 +35,11 @@ VM provisioning should have installed.
 2. Create its `test_<module>.py`.
 3. Call the function from `main()` in [`__main__.py`](__main__.py), at the
    point in the sequence where its prerequisites exist.
+4. If the step automates a manual instruction in
+   [`CONTRIBUTING.md`](../../CONTRIBUTING.md), remove that instruction there;
+   its "Initialize a Fresh Clone" section already covers it.
+5. Run `python3 -m scripts.init_dev` twice on a provisioned VM; both runs
+   must succeed.
 
 ### Run the tests
 
