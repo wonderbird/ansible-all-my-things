@@ -60,7 +60,7 @@ python3 -m unittest discover -s scripts/init_dev -t .
 
 The acceptance test runs the real script twice on a fresh copy of the
 working tree, with the real tools, and checks its outcomes. It needs a
-provisioned VM and network access and takes about half a minute, so the
+provisioned VM and network access and takes about a minute and a half, so the
 default test run skips it. Run it explicitly:
 
 ```shell

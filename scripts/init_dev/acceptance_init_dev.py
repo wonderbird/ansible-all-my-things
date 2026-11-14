@@ -33,6 +33,7 @@ class InitDevAcceptanceTest(unittest.TestCase):
         self.assert_skills_deployed()
         self.assert_direnv_activates_venv()
         self.assert_venv_provides_requirements()
+        self.assert_galaxy_requirements_installed()
         self.assert_nothing_left_to_commit()
         self.assert_commit_runs_ruff()
 
@@ -55,6 +56,17 @@ class InitDevAcceptanceTest(unittest.TestCase):
         # VM may also have a system-wide ansible on PATH.
         ansible = self.in_direnv("python", "-c", "import ansible")
         self.assertEqual(ansible.returncode, 0, ansible.stderr)
+
+    def assert_galaxy_requirements_installed(self):
+        verify = self.in_direnv(
+            "ansible-galaxy",
+            "collection",
+            "verify",
+            "--offline",
+            "-r",
+            "requirements.yml",
+        )
+        self.assertEqual(verify.returncode, 0, verify.stdout + verify.stderr)
 
     def assert_nothing_left_to_commit(self):
         untracked = self.run_in_clone(

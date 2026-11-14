@@ -7,6 +7,7 @@ from unittest import mock
 from . import __main__ as entry
 from . import (
     direnv_envrc,
+    galaxy_requirements,
     git_hooks,
     pip_requirements,
     platform_check,
@@ -41,6 +42,7 @@ class MainTest(unittest.TestCase):
             mock.patch.object(python_venv, "ensure"),
             mock.patch.object(direnv_envrc, "ensure"),
             mock.patch.object(pip_requirements, "install"),
+            mock.patch.object(galaxy_requirements, "install"),
             mock.patch.object(git_hooks, "install"),
             contextlib.redirect_stderr(stderr),
         ):
