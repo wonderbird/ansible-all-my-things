@@ -38,32 +38,29 @@ class InstallTest(unittest.TestCase):
     def calls(self):
         return self.log.read_text().splitlines() if self.log.exists() else []
 
-    def install(self):
+    def run_pip_install_with(self, install_rc=0, check_rc=0):
+        self.fake_python(install_rc, check_rc)
         with contextlib.redirect_stdout(io.StringIO()):
             pip_requirements.install(self.python, self.repo)
 
     def test_installs_into_venv_then_checks(self):
-        self.fake_python()
-        self.install()
+        self.run_pip_install_with()
         install, check = self.calls()
         self.assertIn(f"install --no-input -r {self.requirements}", install)
         self.assertTrue(install.startswith("-m pip "))
         self.assertTrue(check.endswith("check"))
 
     def test_fails_when_requirements_missing(self):
-        self.fake_python()
         self.requirements.unlink()
         with self.assertRaisesRegex(InitError, "not found"):
-            self.install()
+            self.run_pip_install_with()
         self.assertEqual(self.calls(), [])
 
     def test_fails_when_install_fails(self):
-        self.fake_python(install_rc=1)
         with self.assertRaises(subprocess.CalledProcessError):
-            self.install()
+            self.run_pip_install_with(install_rc=1)
 
     def test_fails_on_conflicting_packages(self):
-        self.fake_python(check_rc=1)
         with self.assertRaisesRegex(InitError, "x>2"):
-            self.install()
+            self.run_pip_install_with(check_rc=1)
 
