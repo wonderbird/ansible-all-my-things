@@ -22,6 +22,9 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 - Every Linux host gets ShellCheck, with `shellcheck` on the PATH.
 - Hosts in `claude_opinionated` get a skill-factory clone in
   `~/Documents/Cline/skill-factory` for each login user.
+- `python3 -m scripts.init_dev` prepares a fresh clone for development on a
+  provisioned VM.
+- A pre-commit git hook rejects commits whose Python scripts fail ruff.
 
 ### Changed
 
