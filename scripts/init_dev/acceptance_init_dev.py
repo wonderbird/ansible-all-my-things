@@ -2,7 +2,7 @@
 
 Runs the real script twice on a fresh copy of the working tree, with the
 real sm, direnv, venv and pip, and checks the outcomes. Needs network and
-takes about half a minute, so the name keeps it out of the default test
+takes about two minutes, so the name keeps it out of the default test
 run; see README.md for the command.
 """
 

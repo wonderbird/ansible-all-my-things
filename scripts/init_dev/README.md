@@ -70,3 +70,9 @@ pytest scripts/init_dev/acceptance_init_dev.py
 The test modules use relative imports, so a single test file cannot be run
 directly with `python3 test_<module>.py`. Select tests through pytest instead,
 for example `pytest scripts/init_dev/test_<module>.py`.
+
+The workflow [`init-dev.yml`](../../.github/workflows/init-dev.yml) runs the
+pre-commit hooks, the unit tests and the acceptance test in CI. It provisions
+the runner with the playbook [`ci_prerequisites.yml`](ci_prerequisites.yml),
+which applies the roles that install the required tools on the VMs. When a
+step needs a new tool, add its role to that playbook.
