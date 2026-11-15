@@ -91,11 +91,13 @@ Unit tests use `unittest`, run under pytest, and sit next to their module as
 lies outside it:
 
 - **External tools are fake executables.** A test writes a short shell script
-  named like the tool, e.g. `sm` or `bd`, into a temporary directory and puts
-  that directory first on `PATH`. The fake logs its arguments, and an
-  environment variable selects its behaviour, e.g. success or failure. The
-  script under test runs unchanged through its real `subprocess` calls, so the
-  test checks what the script asks of the tool, not how it calls Python.
+  named like the tool into a temporary directory. A tool the script finds on
+  `PATH`, e.g. `sm` or `bd`, reaches it through that directory placed first
+  on `PATH`. A tool the script receives as a path, e.g. the venv's `python`,
+  reaches it as that path. The fake logs its arguments and succeeds or fails
+  as the test requires. The script under test runs unchanged through its real
+  `subprocess` calls, so the test checks what the script asks of the tool,
+  not how it calls Python.
 - **Fast, local tools stay real.** git and direnv run for real, in a temporary
   repository, with `HOME` and the XDG directories redirected, so no test
   touches the developer's checkout or configuration.
