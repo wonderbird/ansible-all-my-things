@@ -26,6 +26,11 @@ roles and task files; they do not contain tasks directly — except for the
 backup/restore pattern described in the
 [Backup and Restore Pattern](#backup-and-restore-pattern) section below.
 
+A playbook that serves a single script lives next to that script instead of
+in `playbooks/`, so the script and its playbook change together. Example:
+`scripts/init_dev/ci_prerequisites.yml` provisions the CI runner for the
+init_dev tests.
+
 ## Technology Choices
 
 | Concern | Choice | Rationale |
@@ -50,7 +55,7 @@ documented in this file and in the relevant `specs/<feature>/plan.md`.
 | Quality Goal | Approach |
 | --- | --- |
 | **Idempotency** | Use built-in Ansible modules with idempotent semantics (running twice yields the same result as running once). Raw `command`/`shell` tasks require an explicit `creates:` or `changed_when:` guard. |
-| **Testability** | Roles with a Molecule scenario are validated in a Podman container (primary path). Roles requiring a full VM (desktop, display managers, hardware drivers) use a Tart or Docker VM via `create-vm.yml` (fallback). Cloud targets are only provisioned after local validation passes. See `docs/architecture/concepts/testing.md` for the test procedure. |
+| **Testability** | Roles with a Molecule scenario are validated in a Podman container (primary path). Roles requiring a full VM (desktop, display managers, hardware drivers) use a Tart or Docker VM via `create-vm.yml` (fallback). Cloud targets are only provisioned after local validation passes. Python scripts have unit tests with fake external tools and, where they change a system, an acceptance test with the real tools; CI runs both. See `docs/architecture/concepts/testing.md` for the test procedure. |
 | **Simplicity** | YAGNI (You Aren't Gonna Need It): minimum working solution. Parameterise only confirmed needs; no speculative abstraction. |
 | **Traceability** | Conventional commits; co-authorship trailers for AI-assisted changes. Git is the sole source of version and author history. |
 

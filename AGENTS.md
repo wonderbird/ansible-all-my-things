@@ -72,17 +72,19 @@ a Dolt remote sync.
 The same rule cuts the other way: `bd init --stealth` writes the directory
 pattern `.beads/` into the clone-local `.git/info/exclude`, and git then
 never reads the `.gitignore` negations — `git add .beads/issues.jsonl`
-refuses the file. After every `bd init --stealth`, remove that one line:
-
-```bash
-sed -i '/^\.beads\/$/d' .git/info/exclude
-git check-ignore -v --no-index .beads/issues.jsonl   # must name .gitignore:2:!.beads/issues.jsonl
-```
+refuses the file. `python3 -m scripts.init_dev` initializes beads, removes
+that line and verifies that git sees `.beads/issues.jsonl`. After a `bd init`
+by hand, run init_dev again.
 
 Never stage the file with `git add -f` to work around this: the next agent
 hits the same refusal, and the clone stays misconfigured.
 
-`.beads/config.yaml` keeps beads out of git's way: `no-git-ops: true`, so bd
+`.beads/config.yaml` sets `issue-prefix`, because bd otherwise derives the
+prefix of new issues from the clone's directory name. bd rewrites the file
+with `issue-prefix` as its first key; keep it there, or every `bd init` leaves
+the tracked file modified.
+
+`.beads/config.yaml` also keeps beads out of git's way: `no-git-ops: true`, so bd
 runs no git operation of its own, and no auto-export is configured. bd's
 auto-export hardcodes memories, infra, templates, and gates out of every
 write (`includeMemories=false`, unconditionally — GH#3650: memories may hold

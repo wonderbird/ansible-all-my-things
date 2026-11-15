@@ -30,6 +30,7 @@ producer that writes one.
 
 Usage: check-fetch-call-identity.py <directory>
 """
+
 import os
 import re
 import sys
@@ -52,17 +53,21 @@ def set_fact_mappings(path):
         if not isinstance(task, dict):
             continue
         for key, value in task.items():
-            if key in ("set_fact", "ansible.builtin.set_fact") and isinstance(value, dict):
+            if key in ("set_fact", "ansible.builtin.set_fact") and isinstance(
+                value, dict
+            ):
                 mappings.append((task.get("name", "<unnamed task>"), value))
     return mappings
 
 
 def outputs_written(path):
     """Return every fetched_* fact `path` writes, the stamp excluded."""
-    return {key
-            for _, keys in set_fact_mappings(path)
-            for key in keys
-            if key.startswith(OUTPUT_PREFIX) and key != STAMP}
+    return {
+        key
+        for _, keys in set_fact_mappings(path)
+        for key in keys
+        if key.startswith(OUTPUT_PREFIX) and key != STAMP
+    }
 
 
 def borrowed_outputs(path):
@@ -94,18 +99,22 @@ def violations(path):
     stamping = [(name, keys) for name, keys in mappings if STAMP in keys]
 
     if not stamping:
-        return [f"writes no {STAMP} stamp at all, so its caller cannot tell this "
-                f"fetch's outputs from the previous one's"]
+        return [
+            (
+                f"writes no {STAMP} stamp at all, so its caller cannot tell this "
+                f"fetch's outputs from the previous one's"
+            )
+        ]
 
     faults = []
     for name, keys in stamping:
-        outputs = [k for k in keys
-                   if k.startswith(OUTPUT_PREFIX) and k != STAMP]
+        outputs = [k for k in keys if k.startswith(OUTPUT_PREFIX) and k != STAMP]
         if not outputs:
             faults.append(
                 f"stamps {STAMP} in a task that writes no output of its own "
                 f"({name!r}). A condition on the output alone would then leave a "
-                f"fresh stamp over a stale value, and the caller would accept it.")
+                f"fresh stamp over a stale value, and the caller would accept it."
+            )
 
     borrowed = borrowed_outputs(path)
     if borrowed and not asserts_the_stamp(path):
@@ -113,7 +122,8 @@ def violations(path):
             f"reads {', '.join(borrowed)} from another fetch without asserting "
             f"{STAMP} itself. Its own caller sees only the LAST stamp, which this "
             f"file writes after reading the borrowed value, so a stale borrowed "
-            f"value would pass unnoticed.")
+            f"value would pass unnoticed."
+        )
     return faults
 
 
@@ -145,8 +155,10 @@ def main(argv=None):
 
     print(f"\n{len(findings)} call-identity violation(s)")
     if findings:
-        print(f"Every fetch task file writes {STAMP} in the same set_fact as an "
-              f"output, so a skipped output means a skipped stamp.")
+        print(
+            f"Every fetch task file writes {STAMP} in the same set_fact as an "
+            f"output, so a skipped output means a skipped stamp."
+        )
     return 1 if findings else 0
 
 

@@ -1,0 +1,68 @@
+# SPDX-License-Identifier: MIT-0
+---
+name: init_dev Tests
+
+# Test scripts/init_dev, the script that initializes a fresh clone, and lint
+# the Python scripts.
+#
+# The job provisions the runner with the repository's own roles, so the
+# tests use the tool versions of the development VMs. Then it runs the
+# pre-commit hooks (ruff), the unit tests, and the acceptance test, which runs
+# init_dev twice on a copy of the checkout.
+#
+# The root ansible.cfg runs a vault password script that fails without
+# ANSIBLE_VAULT_PASSWORD. No step reads a vault secret, so a placeholder
+# suffices.
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+jobs:
+  init-dev:
+    name: Lint and test init_dev
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+    env:
+      ANSIBLE_VAULT_PASSWORD: placeholder-not-a-secret
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      # 3.12 is the system python of Ubuntu 24.04, which runs init_dev on
+      # the VMs, and the target version in ruff.toml.
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run the pre-commit hooks on all files
+        run: pre-commit run --all-files --show-diff-on-failure
+
+      - name: Install Ansible collections
+        run: ansible-galaxy collection install -r requirements.yml
+
+      - name: Provision the runner with the init_dev prerequisites
+        run: >-
+          ansible-playbook -i localhost,
+          scripts/init_dev/ci_prerequisites.yml
+
+      - name: Run the unit tests
+        run: python -m pytest scripts/init_dev
+
+      # On a VM the developer fills the store once by hand, as the error
+      # message of the skills step says.
+      - name: Fill the sm skill store
+        run: sm install https://github.com/wonderbird/skill-factory --force
+
+      - name: Run the acceptance test
+        run: python -m pytest scripts/init_dev/acceptance_init_dev.py

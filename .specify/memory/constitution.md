@@ -1,12 +1,11 @@
 <!--
-Sync Impact Report — 2.2.1 → 2.3.0 (MINOR)
-- Documentation Standards: new subsection "Comments State What the Code
-  Cannot". A comment carries only what the task name and code do not, with a
-  deletion test and a worked example.
+Sync Impact Report — 2.3.0 → 2.4.0 (MINOR)
+- New section "Python Scripts" with the subsections Code and Tests: rules for
+  every Python script under scripts/ and its tests, and the statement that
+  Principles XII and XV apply to scripts.
 - MINOR: new section added; no principle removed or redefined.
 - Modified principles: none.
-- Added sections: Documentation Standards > Comments State What the Code
-  Cannot.
+- Added sections: Python Scripts > Code, Python Scripts > Tests.
 - Removed sections: none.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
@@ -15,17 +14,17 @@ Sync Impact Report — 2.2.1 → 2.3.0 (MINOR)
   ✅ .specify/templates/checklist-template.md — no changes required
   ✅ .specify/templates/constitution-template.md — no changes required
   ✅ .specify/templates/agent-file-template.md — no changes required
-  No template gives guidance on code comments.
-- AGENTS.md checked: no propagation required; it gives no comment rule.
-- CLAUDE.md checked: no propagation required; it names no principle and
-  points at this file.
-- Skills checked: ansible-review-documentation listed the Documentation
-  Standards rules by name and ansible-developer pointed at one subsection;
-  both now point at the whole section, so a new subsection needs no skill
-  edit. Other ansible-* skills give no comment guidance. commit,
-  format-markdown, and fix-problem are not stored in this repository and were
-  not checked.
-- Follow-up TODOs: none.
+  No template gives guidance on Python code style or tests.
+- AGENTS.md checked: no propagation required; it gives no Python rule.
+- CLAUDE.md checked: no propagation required; it points at this file.
+- Skills checked: ansible-developer, ansible-molecule-testing and
+  ansible-role-creator mention Python only as a target-host runtime; no
+  propagation required.
+- Runtime guidance updated: scripts/init_dev/README.md keeps only rules
+  specific to init_dev and points here; CONTRIBUTING.md "Python Scripts"
+  keeps the ruff commands and points here.
+- Follow-up TODOs: review the Python scripts outside scripts/init_dev
+  against the new section.
 -->
 # ansible-all-my-things Constitution
 
@@ -410,6 +409,59 @@ This covers tooling run on the control node. No additional runtime languages
 (Python services, Node apps, etc.) are introduced on managed hosts without
 explicit justification and documentation.
 
+## Python Scripts
+
+These rules bind every Python script under `scripts/` and its tests. A
+script's own README MAY add rules specific to that script; it MUST NOT
+restate these. Principle XII (Fail Loud) applies to scripts as it does to
+tasks: a script MUST stop with an actionable error and never skip silently.
+Principle XV (Guards Proven by Failure) applies to every check a script makes.
+
+### Code
+
+- **Standard library before custom code.** Where the standard library already
+  solves a part of the problem, a script MUST use it instead of its own
+  version.
+- **One public entry point.** A module exposes only the functions its callers
+  use. Every internal helper carries a `_` prefix.
+- **Name by meaning.** A name MUST state what it holds, e.g.
+  `for skill in skills`. Single letters are permitted only for the Python
+  idioms `e` (caught exception), `k, v` (dict items), `_` (ignored value) and
+  `i` (index).
+- **One block per intent.** A function longer than five lines MUST separate
+  each block that serves one intent by an empty line, under a short comment
+  stating the intent. That comment names its block the way `name:` names an
+  Ansible task; any further comment follows "Comments State What the Code
+  Cannot".
+- **Explicit over implicit.** Comparisons MUST be explicit, e.g.
+  `name != ""` rather than relying on truthiness, and every `subprocess.run`
+  MUST pass `check=`.
+- **Formatted and linted by ruff.** Every script MUST pass `ruff format` and
+  `ruff check` as configured in `ruff.toml`. The pre-commit hook defined in
+  `.pre-commit-config.yaml` enforces both on each commit.
+
+### Tests
+
+- **Test our own logic.** Tests mock the standard library and external tools
+  at their boundary. They MUST NOT test the behaviour of either.
+- **Outcomes, not call order.** That a program runs all its parts MUST be
+  proven through their outcomes, in an integration or acceptance test. A test
+  that mocks the order of calls only cements the internal design.
+- **A test body reads as its specification.** Mechanics live in helpers named
+  by intent, e.g. `assert_skills_deployed()`. A helper that runs the function
+  under test is named after it, e.g. `run_platform_check_with`.
+- **Top-down order.** A test class lists `setUp`, then the tests, then the
+  helpers they call. Module-level fixture builders follow the class.
+- **Fixture builders take explicit inputs.** A builder takes its inputs as
+  arguments and returns what it builds, so `setUp` shows the data flow.
+
+**Rationale**: Scripts are read far more often than written, and often by
+contributors who know another language better than Python. Uniform names,
+blocks with stated intent, and explicit comparisons let such a reader follow
+any script without knowing Python's idioms, and tests that read as
+specifications state what a script promises before showing how it is
+checked.
+
 ## Secret Management
 
 All sensitive data (cloud credentials, API tokens, SSH keys, vault passwords)
@@ -625,4 +677,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 2.3.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-10-30
+**Version**: 2.4.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-11-14

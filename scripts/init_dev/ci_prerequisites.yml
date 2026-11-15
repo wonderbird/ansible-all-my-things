@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: MIT-0
+---
+# Provision the CI runner with the tools init_dev requires, through the same
+# roles that provision the development VMs, so CI tests the same versions.
+#
+# Run from the repository root:
+#   ansible-playbook -i localhost, scripts/init_dev/ci_prerequisites.yml
+- name: Install the init_dev prerequisites on the CI runner
+  hosts: localhost
+  connection: local
+  become: true
+
+  vars:
+    # The system python has the apt bindings, a venv python does not.
+    ansible_python_interpreter: /usr/bin/python3
+    login_user_names:
+      - "{{ lookup('ansible.builtin.env', 'USER') }}"
+
+  roles:
+    - git
+    - direnv
+    - beads_go
+    - nodejs
+    - skill_manager

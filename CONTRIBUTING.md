@@ -1,18 +1,24 @@
 # Developer Setup
 
+## Initialize a Fresh Clone
+
+On a VM provisioned by this repository, run from the repository root:
+
+```shell
+python3 -m scripts.init_dev
+```
+
+The [init_dev README](scripts/init_dev/README.md) describes what it sets up
+and how to develop it.
+
 ## Optional Prerequisites: OMC, Skills, Spec-Kit
 
 When developing in this repository I use Claude Code with the
 [Oh My Claude Code](https://github.com/yeachan-heo/oh-my-claudecode) plugin.
 
 In addition, I use the skills listed in `.skills.json` with
-[Skill Manager](https://github.com/omrikais/skill-manager). To restore the skills
-into your project, enter:
-
-```shell
-sm source add --install https://github.com/wonderbird/skill-factory
-sm install
-```
+[Skill Manager](https://github.com/omrikais/skill-manager). The
+initialization above deploys them into the clone.
 
 [GitHub Spec Kit](https://github.com/github/spec-kit) and
 [Claude Code](https://claude.ai)
@@ -32,6 +38,24 @@ changelog entries, review and merge — is defined in
 "Development Workflow". It is binding for human and agent contributors alike.
 
 Agent-specific runtime guidance lives in [AGENTS.md](AGENTS.md).
+
+### Python Scripts
+
+The section "Python Scripts" of the
+[constitution](.specify/memory/constitution.md) defines the rules for the
+Python scripts under `scripts/`.
+
+ruff formats and lints them, configured by
+[`ruff.toml`](ruff.toml). The pre-commit git hook, which the initialization
+installs, runs it on every commit and rejects a commit until its scripts
+pass; [`.pre-commit-config.yaml`](.pre-commit-config.yaml) defines the hook.
+
+To run ruff by hand, from the repository root with the venv active:
+
+```shell
+ruff format scripts/
+ruff check scripts/
+```
 
 ## CI/CD Pipeline Security
 
