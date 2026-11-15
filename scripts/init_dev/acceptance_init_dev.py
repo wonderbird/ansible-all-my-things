@@ -33,6 +33,7 @@ class InitDevAcceptanceTest(unittest.TestCase):
         self.assert_skills_deployed()
         self.assert_direnv_activates_venv()
         self.assert_venv_provides_requirements()
+        self.assert_ansible_gets_a_vault_password()
         self.assert_galaxy_requirements_installed()
         self.assert_beads_holds_tracked_issues()
         self.assert_nothing_left_to_commit()
@@ -57,6 +58,11 @@ class InitDevAcceptanceTest(unittest.TestCase):
         # VM may also have a system-wide ansible on PATH.
         ansible = self.in_direnv("python", "-c", "import ansible")
         self.assertEqual(ansible.returncode, 0, ansible.stderr)
+
+    def assert_ansible_gets_a_vault_password(self):
+        # ansible.cfg's vault password script fails without the variable.
+        ping = self.in_direnv("ansible", "localhost", "-m", "ping")
+        self.assertEqual(ping.returncode, 0, ping.stdout + ping.stderr)
 
     def assert_galaxy_requirements_installed(self):
         verify = self.in_direnv(
@@ -178,12 +184,12 @@ def isolated_env(home):
     if bd_config.is_dir():
         shutil.copytree(bd_config, home / ".config/bd")
 
-    # Drop the caller's active direnv and venv, and point HOME and the XDG
-    # directories at the test's HOME.
+    # Drop the caller's active direnv, venv and vault password, and point
+    # HOME and the XDG directories at the test's HOME.
     env = {
         k: v
         for k, v in os.environ.items()
-        if not k.startswith(("DIRENV_", "VIRTUAL_ENV"))
+        if not k.startswith(("DIRENV_", "VIRTUAL_ENV", "ANSIBLE_VAULT_PASSWORD"))
     }
     env.update(
         HOME=str(home),

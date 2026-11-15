@@ -8,8 +8,14 @@ from pathlib import Path
 from .common import REPO_ROOT, InitError
 
 # Setting VIRTUAL_ENV first makes direnv's python layout use .venv instead of
-# building its own venv under .direnv/.
-ENVRC = 'export VIRTUAL_ENV="$PWD/.venv"\nlayout python3\n'
+# building its own venv under .direnv/. The vault password is a placeholder:
+# the vault password script in ansible.cfg fails without one, also for
+# molecule tests, which use no vault secrets.
+ENVRC = (
+    'export VIRTUAL_ENV="$PWD/.venv"\n'
+    "layout python3\n"
+    "export ANSIBLE_VAULT_PASSWORD=placeholder-not-a-secret\n"
+)
 
 
 def ensure(repo_root=REPO_ROOT):

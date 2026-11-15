@@ -33,6 +33,11 @@ class EnsureTest(unittest.TestCase):
         direnv_envrc.ensure(self.repo)
         self.assertEqual(self.envrc.read_text(), direnv_envrc.ENVRC)
 
+    def test_envrc_sets_a_vault_password(self):
+        # ansible.cfg's vault password script fails when the variable is
+        # empty, and every ansible command runs that script.
+        self.assertRegex(direnv_envrc.ENVRC, r"(?m)^export ANSIBLE_VAULT_PASSWORD=\S+$")
+
     def test_second_run_succeeds(self):
         self.make_venv()
         direnv_envrc.ensure(self.repo)
