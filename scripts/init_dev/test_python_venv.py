@@ -59,10 +59,17 @@ class EnsureTest(unittest.TestCase):
             python_venv.ensure(self.repo)
 
     def test_rejects_venv_whose_python_lacks_pip(self):
-        # A python that fails every command, `-m pip` included.
+        # A python that runs, but has no pip module.
         python = self.venv / "bin" / "python"
         python.parent.mkdir(parents=True)
-        write_fake(python, "exit 1\n")
+        write_fake(
+            python,
+            """\
+            case "$*" in
+              "-m pip "*) exit 1 ;;
+            esac
+            """,
+        )
 
         with self.assertRaisesRegex(InitError, "rm -rf"):
             python_venv.ensure(self.repo)
