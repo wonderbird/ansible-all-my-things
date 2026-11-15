@@ -3,11 +3,11 @@ network or a real venv."""
 
 import subprocess
 import tempfile
-import textwrap
 import unittest
 from pathlib import Path
 
 from . import git_hooks
+from .fakes import logged_calls, write_fake
 
 
 class InstallTest(unittest.TestCase):
@@ -19,7 +19,7 @@ class InstallTest(unittest.TestCase):
     def test_installs_hooks_with_venv_pre_commit(self):
         self.run_git_hooks_install_with()
         self.assertEqual(
-            self.log.read_text(), "-m pre_commit install --install-hooks\n"
+            logged_calls(self.log), ["-m pre_commit install --install-hooks"]
         )
 
     def test_fails_when_pre_commit_fails(self):
@@ -27,12 +27,5 @@ class InstallTest(unittest.TestCase):
             self.run_git_hooks_install_with(exit_code=1)
 
     def run_git_hooks_install_with(self, exit_code=0):
-        self.python.write_text(
-            textwrap.dedent(f"""\
-            #!/bin/sh
-            echo "$@" >> "{self.log}"
-            exit {exit_code}
-            """)
-        )
-        self.python.chmod(0o755)
+        write_fake(self.python, f"exit {exit_code}\n", log=self.log)
         git_hooks.install(self.python, self.tmp)

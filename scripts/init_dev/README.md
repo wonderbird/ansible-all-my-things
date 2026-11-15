@@ -39,6 +39,8 @@ what is specific to init_dev.
 - **Standard library only.** The package runs on the system `python3` before
   the venv and its packages exist.
 - **One module per step**, with its tests in a sibling `test_<module>.py`.
+  Test support that several test modules share, such as the fake executables
+  in [`fakes.py`](fakes.py), lives in its own module.
 - **Re-runnable.** A second run must leave the clone unchanged and succeed.
 - **Fail with `InitError`.** A step raises `InitError` with a message that
   names the cause and the fix; `main()` reports it and exits with 1.

@@ -3,12 +3,12 @@ so no test needs the network or a real venv."""
 
 import subprocess
 import tempfile
-import textwrap
 import unittest
 from pathlib import Path
 
 from . import galaxy_requirements
 from .common import InitError
+from .fakes import logged_calls, write_fake
 
 
 class InstallTest(unittest.TestCase):
@@ -37,16 +37,15 @@ class InstallTest(unittest.TestCase):
             self.run_galaxy_install_with(exit_code=1)
 
     def run_galaxy_install_with(self, exit_code=0):
-        galaxy = self.venv_bin / "ansible-galaxy"
-        galaxy.write_text(
-            textwrap.dedent(f"""\
-            #!/bin/sh
+        # Logs the working directory too, which makes ansible.cfg apply.
+        write_fake(
+            self.venv_bin / "ansible-galaxy",
+            f"""\
             echo "$PWD $@" >> "{self.log}"
             exit {exit_code}
-            """)
+            """,
         )
-        galaxy.chmod(0o755)
         galaxy_requirements.install(self.venv_bin / "python", self.repo)
 
     def calls(self):
-        return self.log.read_text().splitlines() if self.log.exists() else []
+        return logged_calls(self.log)

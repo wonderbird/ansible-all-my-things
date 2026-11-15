@@ -13,10 +13,12 @@ from unittest import mock
 
 from . import skills
 from .common import InitError
+from .fakes import first_on_path, logged_calls, write_executable
 
 # Stands in for sm: links each manifest skill into the store named by
-# FAKE_SM_STORE, unless FAKE_SM_MODE says otherwise. Every call leaves a
-# marker so tests can tell whether sm ran at all.
+# FAKE_SM_STORE, unless FAKE_SM_MODE says otherwise. Every call is logged to
+# FAKE_SM_LOG, so tests can tell whether sm ran at all. Python, not sh,
+# because it parses the manifest.
 #
 # FAKE_SM_MODE:
 #   link  links the skills like the real sm (default).
@@ -29,8 +31,9 @@ FAKE_SM = textwrap.dedent(f"""\
     import sys
     from pathlib import Path
 
-    # Record the call.
-    Path(os.environ["FAKE_SM_MARKER"]).touch()
+    # Log the call.
+    with open(os.environ["FAKE_SM_LOG"], "a") as log:
+        print(*sys.argv[1:], file=log)
 
     # Fail if asked to. noop falls through to the exit 0 at the end.
     mode = os.environ.get("FAKE_SM_MODE", "link")
@@ -63,7 +66,7 @@ class Fixture:
         self.repo = tmp / "repo"
         self.sm_home = tmp / "sm_home"
         self.store = self.sm_home / "skills"
-        self.marker = tmp / "sm-called"
+        self.log = tmp / "sm-calls"
         bin_dir = tmp / "bin"
 
         # A git repository whose manifest lists one ignored skill, demo.
@@ -79,13 +82,11 @@ class Fixture:
 
         # The fake sm, first on PATH.
         bin_dir.mkdir()
-        sm = bin_dir / "sm"
-        sm.write_text(FAKE_SM)
-        sm.chmod(0o755)
+        write_executable(bin_dir / "sm", FAKE_SM)
         self.env = {
-            "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
+            **first_on_path(bin_dir),
             "FAKE_SM_STORE": str(self.store),
-            "FAKE_SM_MARKER": str(self.marker),
+            "FAKE_SM_LOG": str(self.log),
         }
 
     def run_skills_install_with(self, sm_mode="link"):
@@ -193,4 +194,6 @@ class InstallTest(unittest.TestCase):
             self.fixture.run_skills_install_with()
 
     def assert_sm_not_called(self):
-        self.assertFalse(self.fixture.marker.exists(), "sm ran despite failed check")
+        self.assertEqual(
+            logged_calls(self.fixture.log), [], "sm ran despite failed check"
+        )

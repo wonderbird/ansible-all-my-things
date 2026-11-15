@@ -98,6 +98,8 @@ lies outside it:
   as the test requires. The script under test runs unchanged through its real
   `subprocess` calls, so the test checks what the script asks of the tool,
   not how it calls Python.
+  [`fakes.py`](../../../scripts/init_dev/fakes.py) holds the plumbing all
+  fakes share; each test states what its fake does.
 - **Fast, local tools stay real.** git and direnv run for real, in a temporary
   repository, with `HOME` and the XDG directories redirected, so no test
   touches the developer's checkout or configuration.

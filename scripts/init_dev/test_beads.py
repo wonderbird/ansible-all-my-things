@@ -4,30 +4,28 @@ test touches the real checkout or a beads database."""
 import os
 import subprocess
 import tempfile
-import textwrap
 import unittest
 from pathlib import Path
 from unittest import mock
 
 from . import beads
 from .common import InitError
+from .fakes import first_on_path, logged_calls, write_fake
 
-# Stands in for bd: logs its arguments, and on `init` excludes .beads/ from
-# git the way stealth mode does.
+# What the fake bd does: on `init`, it excludes .beads/ from git the way
+# stealth mode does.
 #
 # FAKE_BD_MODE:
 #   ok    succeeds (default).
 #   fail  exits 1.
-FAKE_BD = textwrap.dedent("""\
-    #!/bin/sh
-    echo "$@" >> "$FAKE_BD_LOG"
+FAKE_BD_BEHAVIOUR = """\
     if [ "$FAKE_BD_MODE" = fail ]; then
       exit 1
     fi
     if [ "$1" = init ]; then
       echo ".beads/" >> .git/info/exclude
     fi
-    """)
+    """
 
 
 class EnsureTest(unittest.TestCase):
@@ -49,14 +47,9 @@ class EnsureTest(unittest.TestCase):
         # The fake bd, first on PATH.
         bin_dir = tmp / "bin"
         bin_dir.mkdir()
-        bd = bin_dir / "bd"
-        bd.write_text(FAKE_BD)
-        bd.chmod(0o755)
         self.log = tmp / "calls"
-        self.env = {
-            "PATH": f"{bin_dir}{os.pathsep}{os.environ['PATH']}",
-            "FAKE_BD_LOG": str(self.log),
-        }
+        write_fake(bin_dir / "bd", FAKE_BD_BEHAVIOUR, log=self.log)
+        self.env = first_on_path(bin_dir)
 
     def test_initializes_beads_and_imports_issues(self):
         self.run_beads_ensure_with()
@@ -108,4 +101,4 @@ class EnsureTest(unittest.TestCase):
             beads.ensure(self.repo)
 
     def calls(self):
-        return self.log.read_text().splitlines() if self.log.exists() else []
+        return logged_calls(self.log)

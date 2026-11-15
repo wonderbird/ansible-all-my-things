@@ -5,12 +5,12 @@ import contextlib
 import io
 import subprocess
 import tempfile
-import textwrap
 import unittest
 from pathlib import Path
 
 from . import pip_requirements
 from .common import InitError
+from .fakes import logged_calls, write_fake
 
 
 class InstallTest(unittest.TestCase):
@@ -45,20 +45,19 @@ class InstallTest(unittest.TestCase):
             self.run_pip_install_with(check_rc=1)
 
     def fake_python(self, install_rc=0, check_rc=0):
-        self.python.write_text(
-            textwrap.dedent(f"""\
-            #!/bin/sh
-            echo "$@" >> "{self.log}"
+        write_fake(
+            self.python,
+            f"""\
             case "$*" in
               *" install "*) exit {install_rc} ;;
               *" check") echo "demo 1.0 has requirement x>2"; exit {check_rc} ;;
             esac
-            """)
+            """,
+            log=self.log,
         )
-        self.python.chmod(0o755)
 
     def calls(self):
-        return self.log.read_text().splitlines() if self.log.exists() else []
+        return logged_calls(self.log)
 
     def run_pip_install_with(self, install_rc=0, check_rc=0):
         self.fake_python(install_rc, check_rc)

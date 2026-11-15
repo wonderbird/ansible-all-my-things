@@ -1,11 +1,11 @@
 import os
 import tempfile
-import textwrap
 import unittest
 from pathlib import Path
 
 from . import python_venv
 from .common import InitError
+from .fakes import write_fake
 
 
 class EnsureTest(unittest.TestCase):
@@ -29,16 +29,14 @@ class EnsureTest(unittest.TestCase):
     def test_removes_partial_venv_when_creation_fails(self):
         # Mimics Ubuntu without python3-venv: the directory is half-built,
         # then ensurepip fails.
-        fake = self.tmp / "python"
-        fake.write_text(
-            textwrap.dedent("""\
-            #!/bin/sh
+        fake = write_fake(
+            self.tmp / "python",
+            """\
             mkdir -p "$3/bin"
             echo "ensurepip is not available" >&2
             exit 1
-            """)
+            """,
         )
-        fake.chmod(0o755)
 
         with self.assertRaisesRegex(InitError, "python3-venv"):
             python_venv.ensure(self.repo, python=str(fake))
@@ -64,8 +62,7 @@ class EnsureTest(unittest.TestCase):
         # A python that fails every command, `-m pip` included.
         python = self.venv / "bin" / "python"
         python.parent.mkdir(parents=True)
-        python.write_text("#!/bin/sh\nexit 1\n")
-        python.chmod(0o755)
+        write_fake(python, "exit 1\n")
 
         with self.assertRaisesRegex(InitError, "rm -rf"):
             python_venv.ensure(self.repo)
