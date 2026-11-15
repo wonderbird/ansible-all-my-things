@@ -77,6 +77,65 @@ hardware drivers) are tested against a local Tart or Docker VM:
 > When done, remember to uncomment the other roles in the base and
 > desktop-extension plays of `configure-profile-roles.yml`.
 
+## Python Script Tests
+
+This section describes how `scripts/init_dev` is tested; new Python scripts
+follow the same pattern. The rules for writing the tests themselves are in the
+[constitution](../../../.specify/memory/constitution.md), section "Python
+Scripts".
+
+### Unit Tests
+
+Unit tests use `unittest`, run under pytest, and sit next to their module as
+`test_<module>.py`. They test the script's own logic and replace only what
+lies outside it:
+
+- **External tools are fake executables.** A test writes a short shell script
+  named like the tool, e.g. `sm` or `bd`, into a temporary directory and puts
+  that directory first on `PATH`. The fake logs its arguments, and an
+  environment variable selects its behaviour, e.g. success or failure. The
+  script under test runs unchanged through its real `subprocess` calls, so the
+  test checks what the script asks of the tool, not how it calls Python.
+- **Fast, local tools stay real.** git and direnv run for real, in a temporary
+  repository, with `HOME` and the XDG directories redirected, so no test
+  touches the developer's checkout or configuration.
+
+Unit tests need no network and finish in seconds.
+
+### Acceptance Tests
+
+An acceptance test checks, with the real tools, the outcome a script
+promises. For init_dev, `acceptance_init_dev.py`:
+
+- copies the working tree, uncommitted changes included, into a temporary
+  directory and makes it a git repository, like a fresh clone;
+- gives the script a temporary HOME, so the tools' records stay out of the
+  developer's own;
+- runs the script twice, which proves that it is re-runnable;
+- asserts each outcome through a helper named by its intent, e.g.
+  `assert_direnv_activates_venv()`.
+
+It needs network access and the tools of a provisioned VM, and it takes
+minutes. Its file name does not match pytest's default pattern `test_*.py`, so
+the default test run skips it; run it by naming the file.
+
+### Continuous Integration
+
+The workflow [`init-dev.yml`](../../../.github/workflows/init-dev.yml) runs
+the pre-commit hooks (ruff), the unit tests and the acceptance test. Before
+the tests, the playbook
+[`ci_prerequisites.yml`](../../../scripts/init_dev/ci_prerequisites.yml)
+applies the repository's own roles to the runner. CI therefore uses the tool
+versions of the development VMs, and it also exercises those roles on a real
+Ubuntu host.
+
+### Proving the Tests
+
+Principle XV (Guards Proven by Failure) applies to every test: break the
+guarded code, e.g. delete a check or drop a command-line flag, run the tests,
+see at least one fail, then restore the code. A guard that no test catches
+needs a new test.
+
 ## Host Architecture Map
 
 For the architecture and provider of each test host, see the infrastructure

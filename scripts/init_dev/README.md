@@ -58,10 +58,8 @@ Without a venv, for example before the first initialization:
 python3 -m unittest discover -s scripts/init_dev -t .
 ```
 
-The acceptance test runs the real script twice on a fresh copy of the
-working tree, with the real tools, and checks its outcomes. It needs a
-provisioned VM and network access and takes about two minutes, so the
-default test run skips it. Run it explicitly:
+The acceptance test needs a provisioned VM and network access and takes about
+two minutes, so the default test run skips it. Run it explicitly:
 
 ```shell
 pytest scripts/init_dev/acceptance_init_dev.py
@@ -71,8 +69,8 @@ The test modules use relative imports, so a single test file cannot be run
 directly with `python3 test_<module>.py`. Select tests through pytest instead,
 for example `pytest scripts/init_dev/test_<module>.py`.
 
-The workflow [`init-dev.yml`](../../.github/workflows/init-dev.yml) runs the
-pre-commit hooks, the unit tests and the acceptance test in CI. It provisions
-the runner with the playbook [`ci_prerequisites.yml`](ci_prerequisites.yml),
-which applies the roles that install the required tools on the VMs. When a
-step needs a new tool, add its role to that playbook.
+[Python Script Tests](../../docs/architecture/concepts/testing.md#python-script-tests)
+explains the unit tests, the acceptance test and how CI runs them. When a step
+needs a new tool, add the role that installs it to
+[`ci_prerequisites.yml`](ci_prerequisites.yml), which provisions the CI
+runner.
