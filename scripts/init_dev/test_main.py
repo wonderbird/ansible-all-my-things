@@ -6,6 +6,7 @@ from unittest import mock
 
 from . import __main__ as entry
 from . import (
+    beads,
     direnv_envrc,
     galaxy_requirements,
     git_hooks,
@@ -44,6 +45,7 @@ class MainTest(unittest.TestCase):
             mock.patch.object(pip_requirements, "install"),
             mock.patch.object(galaxy_requirements, "install"),
             mock.patch.object(git_hooks, "install"),
+            mock.patch.object(beads, "ensure"),
             contextlib.redirect_stderr(stderr),
         ):
             return entry.main(), stderr.getvalue()

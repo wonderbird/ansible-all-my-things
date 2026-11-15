@@ -34,6 +34,7 @@ class InitDevAcceptanceTest(unittest.TestCase):
         self.assert_direnv_activates_venv()
         self.assert_venv_provides_requirements()
         self.assert_galaxy_requirements_installed()
+        self.assert_beads_holds_tracked_issues()
         self.assert_nothing_left_to_commit()
         self.assert_commit_runs_ruff()
 
@@ -67,6 +68,19 @@ class InitDevAcceptanceTest(unittest.TestCase):
             "requirements.yml",
         )
         self.assertEqual(verify.returncode, 0, verify.stdout + verify.stderr)
+
+    def assert_beads_holds_tracked_issues(self):
+        # Every issue record of the tracked export is in the database.
+        lines = (self.clone / ".beads/issues.jsonl").read_text().splitlines()
+        records = [json.loads(line) for line in lines if line != ""]
+        expected = [r for r in records if r.get("_type", "issue") == "issue"]
+        count = self.run_in_clone("bd", "count")
+        self.assertEqual(count.stdout.strip(), str(len(expected)), count.stderr)
+
+        # New issues get the repository's prefix, not the clone's directory
+        # name.
+        prefix = self.run_in_clone("bd", "config", "get", "issue_prefix")
+        self.assertEqual(prefix.stdout.strip(), "ansible-all-my-things", prefix.stderr)
 
     def assert_nothing_left_to_commit(self):
         untracked = self.run_in_clone(
@@ -157,6 +171,12 @@ def isolated_env(home):
     shutil.copytree(
         Path.home() / ".skill-manager", home / ".skill-manager", symlinks=True
     )
+
+    # Keep bd's user settings, such as the answered metrics notice, so bd
+    # runs as it does for the developer.
+    bd_config = Path.home() / ".config/bd"
+    if bd_config.is_dir():
+        shutil.copytree(bd_config, home / ".config/bd")
 
     # Drop the caller's active direnv and venv, and point HOME and the XDG
     # directories at the test's HOME.

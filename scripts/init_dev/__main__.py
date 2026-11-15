@@ -2,6 +2,7 @@ import subprocess
 import sys
 
 from . import (
+    beads,
     direnv_envrc,
     galaxy_requirements,
     git_hooks,
@@ -26,6 +27,7 @@ def main():
         pip_requirements.install(venv_python)
         galaxy_requirements.install(venv_python)
         git_hooks.install(venv_python)
+        beads.ensure()
     except (InitError, subprocess.CalledProcessError) as e:
         print(f"init-dev: {e}", file=sys.stderr)
         return 1
