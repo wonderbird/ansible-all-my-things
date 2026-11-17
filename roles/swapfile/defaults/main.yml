@@ -1,0 +1,10 @@
+#SPDX-License-Identifier: MIT-0
+---
+swapfile_path: /swapfile
+
+# The kernel uses swap only when memory gets really tight.
+swapfile_swappiness: 10
+
+# swapfile_size_gb has no default: a host opts in with its own size through
+# the swapfile inventory group, written by create-vm.yml or
+# enable-swapfile.yml.
