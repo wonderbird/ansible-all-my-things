@@ -184,6 +184,15 @@ Wait until the welcome banner and an empty `❯` box are visible (substitute the
 PANE=%3
 deadline=$(( $(date +%s) + 60 ))
 until tmux capture-pane -t "$PANE" -p | grep -q "bypass permissions"; do
+  # Occasional startup menu (not every run): "Try the new fullscreen renderer?" blocks the banner.
+  if tmux capture-pane -t "$PANE" -p | grep -q "fullscreen renderer"; then
+    tmux send-keys -t "$PANE" Down; sleep 0.4
+    if tmux capture-pane -t "$PANE" -p | grep -qE '❯ *2\. Not now'; then
+      tmux send-keys -t "$PANE" '' Enter; sleep 1; echo "RENDERER_MENU: chose Not now"
+    else
+      echo "RENDERER_MENU_UNEXPECTED — capture the pane and inspect it; nothing was confirmed"; break
+    fi
+  fi
   [ "$(date +%s)" -ge "$deadline" ] && { echo "BANNER_TIMEOUT"; break; }
   sleep 2
 done
@@ -191,6 +200,8 @@ tmux capture-pane -t "$PANE" -p | grep -q "bypass permissions" && echo "BANNER_O
 ```
 
 The success line matters: without it, a loop that succeeds prints nothing, which looks the same as a failed call.
+
+**Fullscreen renderer menu.** Some launches (not all) show `Try the new fullscreen renderer?` with `1. Yes, try it` pre-highlighted, before the banner and footer appear. The loop answers `2. Not now`: the helpers' footer and busy-chrome detection were built against the default renderer, and the fullscreen one is untested here. It moves the highlight with `Down`, confirms `❯ 2. Not now` is highlighted, and only then presses `Enter`. If the highlight is not where expected, it stops with `RENDERER_MENU_UNEXPECTED` instead of confirming blind. If you see `RENDERER_MENU` in the output, mention it in the Step 7 report. The Step 4 restart reuses this wait, so the menu is handled there too.
 
 Install the three helper scripts from Step 0 (`omc-type.sh`, `omc-submit.sh`, `omc-wait-idle.sh`) now. Reinstall them on every run, so a stale copy from an earlier version of this prompt is never used.
 
