@@ -1,0 +1,150 @@
+#SPDX-License-Identifier: MIT-0
+---
+- name: Assert swapfile_size_gb is a positive whole number of gigabytes
+  ansible.builtin.assert:
+    that:
+      - swapfile_size_gb is defined
+      - swapfile_size_gb | string is match('^[1-9][0-9]*$')
+    fail_msg: >-
+      swapfile_size_gb must be a positive whole number of gigabytes, got
+      '{{ swapfile_size_gb | default('undefined') }}'. A host gets it by
+      joining the swapfile group: create-vm.yml -e swap_size_gb=<GB> or
+      enable-swapfile.yml -e hostname=<name> -e swap_size_gb=<GB>.
+
+# The role must not depend on its caller having gathered facts: without them
+# the container guard below would fail on an undefined fact instead of its
+# own assertion.
+- name: Gather virtualization facts
+  ansible.builtin.setup:
+    gather_subset:
+      - "!all"
+      - "!min"
+      - virtual
+
+- name: Assert the host is not a container
+  ansible.builtin.assert:
+    that: >-
+      ansible_facts['virtualization_role'] != 'guest'
+      or ansible_facts['virtualization_type'] not in ['docker', 'podman', 'container', 'lxc']
+    fail_msg: >-
+      {{ inventory_hostname }} is a container (virtualization_type
+      '{{ ansible_facts['virtualization_type'] }}'), which may not activate a
+      swap file. Remove it from the swapfile group.
+
+- name: Compute the swap file size in bytes
+  ansible.builtin.set_fact:
+    _swapfile_bytes: "{{ swapfile_size_gb | int * 1024 * 1024 * 1024 }}"
+
+- name: Check for an existing swap file
+  ansible.builtin.stat:
+    path: "{{ swapfile_path }}"
+  register: _swapfile_stat
+
+# Why resizing stays manual: DESIGN.md, "Fail Loud Instead of Resizing".
+- name: Assert an existing swap file has the requested size
+  ansible.builtin.assert:
+    that: _swapfile_stat.stat.size | int == _swapfile_bytes | int
+    fail_msg: >-
+      {{ swapfile_path }} is {{ _swapfile_stat.stat.size }} bytes, expected
+      {{ _swapfile_bytes }} ({{ swapfile_size_gb }} GB). Resizing is manual:
+      run `sudo swapoff {{ swapfile_path }} && sudo rm {{ swapfile_path }}`
+      on the host, then run this role again.
+  when: _swapfile_stat.stat.exists
+
+- name: Create the swap file
+  when: not _swapfile_stat.stat.exists
+  block:
+    - name: Read free space on the swap file's filesystem
+      ansible.builtin.command:
+        cmd: "df --output=avail -B1 {{ swapfile_path | dirname }}"
+      register: _swapfile_df
+      changed_when: false
+
+    # The margin keeps the filesystem writable for apt and logs afterwards.
+    - name: Assert the filesystem has room for the swap file plus 1 GiB
+      ansible.builtin.assert:
+        that:
+          - _swapfile_df.stdout_lines | last | trim is match('^[0-9]+$')
+          - (_swapfile_df.stdout_lines | last | int) >= (_swapfile_bytes | int) + 1073741824
+        fail_msg: >-
+          {{ swapfile_path | dirname }} has
+          '{{ _swapfile_df.stdout_lines | last | trim }}' bytes free, but a
+          {{ swapfile_size_gb }} GB swap file needs {{ _swapfile_bytes }}
+          bytes plus 1073741824 bytes margin. Choose a smaller
+          swapfile_size_gb or a larger disk.
+
+    - name: Allocate the swap file, removing a partial file on failure
+      block:
+        - name: Allocate the swap file
+          ansible.builtin.command:
+            cmd: "fallocate -l {{ swapfile_size_gb }}G {{ swapfile_path }}"
+            creates: "{{ swapfile_path }}"
+      rescue:
+        # A failed fallocate can leave an empty file behind, which the next
+        # run would report as a size mismatch with misleading instructions.
+        - name: Remove the partially allocated swap file
+          ansible.builtin.file:
+            path: "{{ swapfile_path }}"
+            state: absent
+
+        - name: Fail with the allocation error
+          ansible.builtin.fail:
+            msg: >-
+              fallocate could not create {{ swapfile_path }}:
+              {{ ansible_failed_result.stderr | default(ansible_failed_result.msg) }}
+
+- name: Restrict the swap file to root
+  ansible.builtin.file:
+    path: "{{ swapfile_path }}"
+    owner: root
+    group: root
+    mode: "0600"
+
+# blkid exits 2 when the file carries no signature yet. -p bypasses the
+# blkid cache.
+- name: Read the swap file signature
+  ansible.builtin.command:
+    cmd: "blkid -p -o value -s TYPE {{ swapfile_path }}"
+  register: _swapfile_signature
+  changed_when: false
+  failed_when: _swapfile_signature.rc not in [0, 2]
+
+- name: Assert the swap file holds swap or nothing
+  ansible.builtin.assert:
+    that: _swapfile_signature.stdout | trim in ['swap', '']
+    fail_msg: >-
+      {{ swapfile_path }} holds a '{{ _swapfile_signature.stdout | trim }}'
+      signature, not swap. It is not a swap file this role created; move it
+      away or choose another swapfile_path.
+
+# Also covers a run interrupted between allocation and formatting.
+- name: Format the swap file
+  ansible.builtin.command:
+    cmd: "mkswap {{ swapfile_path }}"
+  when: _swapfile_signature.stdout | trim == ''
+  changed_when: true
+
+- name: Read active swap areas
+  ansible.builtin.command:
+    cmd: swapon --show=NAME --noheadings
+  register: _swapfile_active
+  changed_when: false
+
+- name: Activate the swap file
+  ansible.builtin.command:
+    cmd: "swapon {{ swapfile_path }}"
+  when: swapfile_path not in (_swapfile_active.stdout_lines | map('trim'))
+  changed_when: true
+
+- name: Activate the swap file at boot
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '^{{ swapfile_path | regex_escape }}\s'
+    line: "{{ swapfile_path }} none swap sw 0 0"
+
+- name: Set swappiness
+  ansible.posix.sysctl:
+    name: vm.swappiness
+    value: "{{ swapfile_swappiness }}"
+    sysctl_file: /etc/sysctl.d/99-swappiness.conf
+    reload: true

@@ -24,6 +24,31 @@
       '{{ claude_opinionated }}'.
   when: claude_opinionated is defined
 
+# swap_size_gb is only defined by create-vm.yml and enable-swapfile.yml.
+# Extra-vars arrive as strings, so the check matches the text, not the type.
+- name: Assert swap_size_gb is a positive whole number of gigabytes
+  ansible.builtin.assert:
+    that: swap_size_gb | string is match('^[1-9][0-9]*$')
+    fail_msg: >-
+      swap_size_gb must be a positive whole number of gigabytes, e.g. 2 or
+      16. Got: '{{ swap_size_gb }}'.
+  when: swap_size_gb is defined
+
+- name: Reject a swap file on provider=docker
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported combination: swap_size_gb is set, but provider=docker
+      cannot activate a swap file (a container may not run swapon). Omit
+      swap_size_gb for docker.
+  when: swap_size_gb is defined and provider == 'docker'
+
+- name: Reject a swap file on a Windows profile
+  ansible.builtin.fail:
+    msg: >-
+      Unsupported combination: swap_size_gb is set, but profile=windows has
+      no Linux swap file. Omit swap_size_gb for Windows VMs.
+  when: swap_size_gb is defined and profile is defined and profile == 'windows'
+
 - name: Reject unsupported provider/profile combination
   ansible.builtin.fail:
     msg: >-

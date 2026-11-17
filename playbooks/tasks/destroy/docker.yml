@@ -69,32 +69,7 @@
   changed_when: true
 
 - name: Build cleaned inventory without destroyed host
-  ansible.builtin.set_fact:
-    cleaned_inventory: >-
-      {{
-        {
-          'all': {
-            'hosts': (current_inventory.all.hosts | default({}) | dict2items
-                      | selectattr('key', '!=', hostname) | list | items2dict)
-          },
-          'linux': {
-            'hosts': (current_inventory.linux.hosts | default({}) | dict2items
-                      | selectattr('key', '!=', hostname) | list | items2dict)
-          },
-          'docker': {
-            'hosts': (current_inventory.docker.hosts | default({}) | dict2items
-                      | selectattr('key', '!=', hostname) | list | items2dict)
-          },
-          'basic': {
-            'hosts': ((current_inventory.basic | default({})).hosts | default({}) | dict2items
-                      | selectattr('key', '!=', hostname) | list | items2dict)
-          },
-          'desktop': {
-            'hosts': ((current_inventory.desktop | default({})).hosts | default({}) | dict2items
-                      | selectattr('key', '!=', hostname) | list | items2dict)
-          }
-        }
-      }}
+  ansible.builtin.include_tasks: "{{ playbook_dir }}/tasks/inventory/remove-host.yml"
 
 - name: Write cleaned Docker inventory
   ansible.builtin.copy:

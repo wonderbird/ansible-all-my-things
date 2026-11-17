@@ -1,0 +1,12 @@
+---
+# Hosts opt in through the swapfile group, written by create-vm.yml or
+# enable-swapfile.yml together with each host's swapfile_size_gb.
+- name: Configure the swap file for hosts opting into swapfile
+  hosts: swapfile
+  become: true
+
+  vars:
+    ansible_user: "{{ my_ansible_user }}"
+
+  roles:
+    - swapfile

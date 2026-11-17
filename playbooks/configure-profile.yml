@@ -28,6 +28,10 @@
           per-user configuration would be silently skipped.
 
 - import_playbook: setup-users.yml
+
+# Right after setup-users.yml, the first point where my_ansible_user exists,
+# so swap is active before the package upgrade and the heavy roles run.
+- import_playbook: setup-swapfile.yml
 - import_playbook: setup-basics.yml
 
 # Desktop profile only (FR-005, FR-012): verbatim-imported, unmodified,
