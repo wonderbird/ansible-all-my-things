@@ -39,8 +39,9 @@ procedure, so a host configured by hand reports no changes.
 ## Recovery from Interrupted Runs
 
 - A failed `fallocate` can leave an empty file. The rescue removes it, so the
-  next run does not mistake it for a wrong-size swap file. `creates:` ensures
-  the rescue never removes a file that existed before the run.
+  next run does not mistake it for a wrong-size swap file. The block runs only
+  when no file existed before the run; `creates:` is a second safeguard
+  against a file appearing in between.
 - A run stopped between allocation and `mkswap` leaves a file without a
   signature. `blkid` reports none and the next run formats it. Any other
   signature, e.g. a filesystem image, stops the role instead of being

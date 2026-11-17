@@ -134,13 +134,13 @@
 - name: Activate the swap file
   ansible.builtin.command:
     cmd: "swapon {{ swapfile_path }}"
-  when: swapfile_path not in _swapfile_active.stdout_lines
+  when: swapfile_path not in (_swapfile_active.stdout_lines | map('trim'))
   changed_when: true
 
 - name: Activate the swap file at boot
   ansible.builtin.lineinfile:
     path: /etc/fstab
-    regexp: '^{{ swapfile_path }}\s'
+    regexp: '^{{ swapfile_path | regex_escape }}\s'
     line: "{{ swapfile_path }} none swap sw 0 0"
 
 - name: Set swappiness

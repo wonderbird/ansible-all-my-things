@@ -80,8 +80,8 @@ hardware drivers) are tested against a local Tart or Docker VM:
 The `swapfile` role runs from its own playbook, `setup-swapfile.yml`, not from
 `configure-profile-roles.yml`. Create the VM with `swap_size_gb` so it joins
 the `swapfile` group, then test the role alone with
-`./scripts/run-role.sh <host> swapfile`. To try another size without editing
-the inventory, run
+`./scripts/run-role.sh <host> swapfile`. To try another size on a VM that has
+no swap file yet, without editing the inventory, run
 `ansible-playbook playbooks/setup-swapfile.yml --limit <host> -e swapfile_size_gb=<GB>`.
 
 ## Python Script Tests

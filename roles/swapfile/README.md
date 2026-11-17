@@ -12,7 +12,8 @@ See [DESIGN.md](DESIGN.md) for non-obvious decisions.
 The role creates and activates one swap file of one size. It does not resize
 an existing swap file, manage swap partitions or zram, or choose a size for
 the host. It never deactivates swap: taking a host out of the `swapfile`
-group leaves its swap file active.
+group leaves its swap file active. Check mode (`--check`) is not supported:
+later steps inspect the file that the skipped allocation would create.
 
 A host already configured by hand with the same path, size, `fstab` line and
 `/etc/sysctl.d/99-swappiness.conf` is adopted without changes.
@@ -58,6 +59,7 @@ On the host:
 sudo swapoff /swapfile
 sudo sed -i '\|^/swapfile\s|d' /etc/fstab
 sudo rm /swapfile /etc/sysctl.d/99-swappiness.conf
+sudo sysctl vm.swappiness=60
 ```
 
 ## Testing
