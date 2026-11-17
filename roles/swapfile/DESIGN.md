@@ -34,7 +34,9 @@ Each step checks the state it would produce: `stat` for the file, `blkid -p`
 for the swap signature, `swapon --show` (whole-line match) for activation,
 `lineinfile` for the `fstab` line and `ansible.posix.sysctl` for the sysctl
 file. The `fstab` line and the `vm.swappiness=10` line match the manual setup
-procedure, so a host configured by hand reports no changes.
+procedure, so a host configured by hand reports no changes. The exception is
+a live swappiness that differs from the file: with `reload: true`, the sysctl
+task compares the live value too and applies the file.
 
 ## Recovery from Interrupted Runs
 

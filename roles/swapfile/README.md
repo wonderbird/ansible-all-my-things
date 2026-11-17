@@ -16,7 +16,9 @@ group leaves its swap file active. Check mode (`--check`) is not supported:
 later steps inspect the file that the skipped allocation would create.
 
 A host already configured by hand with the same path, size, `fstab` line and
-`/etc/sysctl.d/99-swappiness.conf` is adopted without changes.
+`/etc/sysctl.d/99-swappiness.conf` is adopted. If the host has not applied
+that swappiness yet, e.g. no reboot since the file was written, the role
+applies it and reports one change.
 
 ## Requirements
 
