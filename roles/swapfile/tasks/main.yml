@@ -40,8 +40,7 @@
     path: "{{ swapfile_path }}"
   register: _swapfile_stat
 
-# Resizing would need swapoff, which can trigger the OOM killer on a host
-# under memory pressure, so it stays a manual decision.
+# Why resizing stays manual: DESIGN.md, "Fail Loud Instead of Resizing".
 - name: Assert an existing swap file has the requested size
   ansible.builtin.assert:
     that: _swapfile_stat.stat.size | int == _swapfile_bytes | int
