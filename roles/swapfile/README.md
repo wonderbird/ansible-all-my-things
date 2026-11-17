@@ -34,11 +34,18 @@ A host already configured by hand with the same path, size, `fstab` line and
 ## Opting a Host In
 
 The role runs on hosts in the `swapfile` group, which carries each host's
-`swapfile_size_gb`:
+`swapfile_size_gb`. A new VM joins it at creation:
 
-- New VM: `ansible-playbook playbooks/create-vm.yml -e provider=hcloud -e swap_size_gb=2`
-- Existing VM: `ansible-playbook playbooks/enable-swapfile.yml -e provider=hcloud -e hostname=<name> -e swap_size_gb=2`,
-  then `configure-profile.yml` or `./scripts/run-role.sh <name> swapfile`
+```shell
+ansible-playbook playbooks/create-vm.yml -e provider=hcloud -e swap_size_gb=2
+```
+
+An existing VM joins it through `enable-swapfile.yml`, then gets its swap file
+from `configure-profile.yml` or `./scripts/run-role.sh <name> swapfile`:
+
+```shell
+ansible-playbook playbooks/enable-swapfile.yml -e provider=hcloud -e hostname=<name> -e swap_size_gb=2
+```
 
 A host with 4 GB RAM running OpenClaw works well with 2 GB swap. Docker and
 Windows VMs are refused.

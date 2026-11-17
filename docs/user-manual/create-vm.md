@@ -264,6 +264,35 @@ skill import, `.bashrc` agent block) is a separate, orthogonal opt-in: pass
 `profile`. It defaults to `false`. See
 [ADR-005](../architecture/decisions/005-install-only-profile.md).
 
+### Optional swap file
+
+A Linux VM gets a swap file only when you ask for one, with its size in whole
+gigabytes:
+
+```shell
+ansible-playbook playbooks/create-vm.yml --extra-vars "provider=hcloud swap_size_gb=2"
+```
+
+The swap file is created when the profile is configured. 2 GB suits a VM with
+4 GB RAM running OpenClaw; larger hosts may want 16 GB. Docker and Windows VMs
+refuse `swap_size_gb`.
+
+The disk must hold the swap file plus 1 GiB, or configuration stops before
+writing anything. AWS VMs use the default root volume of the image, which may
+be too small for a large swap file.
+
+To give an existing Linux VM a swap file, add it to the `swapfile` group of
+its inventory, then configure it:
+
+```shell
+ansible-playbook playbooks/enable-swapfile.yml --extra-vars "provider=hcloud hostname=<name> swap_size_gb=2"
+ansible-playbook playbooks/configure-profile.yml --limit <name>
+```
+
+The size of an existing swap file is never changed. See the
+[swapfile role](../../roles/swapfile/README.md) for details, including how to
+remove swap from a host.
+
 > [!NOTE]
 > Windows is only supported by `provider=aws`.
 

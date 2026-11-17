@@ -77,6 +77,13 @@ hardware drivers) are tested against a local Tart or Docker VM:
 > When done, remember to uncomment the other roles in the base and
 > desktop-extension plays of `configure-profile-roles.yml`.
 
+The `swapfile` role runs from its own playbook, `setup-swapfile.yml`, not from
+`configure-profile-roles.yml`. Create the VM with `swap_size_gb` so it joins
+the `swapfile` group, then test the role alone with
+`./scripts/run-role.sh <host> swapfile`. To try another size without editing
+the inventory, run
+`ansible-playbook playbooks/setup-swapfile.yml --limit <host> -e swapfile_size_gb=<GB>`.
+
 ## Python Script Tests
 
 This section describes how `scripts/init_dev` is tested; new Python scripts

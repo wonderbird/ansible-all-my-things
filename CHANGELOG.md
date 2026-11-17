@@ -25,6 +25,9 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 - `python3 -m scripts.init_dev` prepares a fresh clone for development on a
   provisioned VM.
 - A pre-commit git hook rejects commits whose Python scripts fail ruff.
+- `create-vm.yml -e swap_size_gb=<GB>` gives a Linux VM a swap file of that
+  size; Docker and Windows VMs refuse it.
+- `enable-swapfile.yml` opts an existing Linux VM into a swap file.
 
 ### Changed
 
@@ -80,5 +83,6 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   verified by SHA-256.
 - `perform-updates.yml` fails, naming the build, when the Android download page
   lacks exactly one SHA-256 for the Linux command-line tools.
+- `destroy-vm.yml` keeps the remaining hosts in `claude_opinionated`.
 
 [Unreleased]: https://github.com/wonderbird/ansible-all-my-things/commits/main

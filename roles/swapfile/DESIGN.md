@@ -33,8 +33,8 @@ with the operator.
 Each step checks the state it would produce: `stat` for the file, `blkid -p`
 for the swap signature, `swapon --show` (whole-line match) for activation,
 `lineinfile` for the `fstab` line and `ansible.posix.sysctl` for the sysctl
-file. The `fstab` line and the `vm.swappiness=10` line match what the operator
-used to write by hand, so a hand-configured host reports no changes.
+file. The `fstab` line and the `vm.swappiness=10` line match the manual setup
+procedure, so a host configured by hand reports no changes.
 
 ## Recovery from Interrupted Runs
 
@@ -63,10 +63,10 @@ this role avoids, and would leave its core behaviour untested.
 
 ## Container Guard
 
-The role gathers its own virtualization facts and refuses a host whose
-`virtualization_type` is `docker`, `podman`, `container` or `lxc`. Without the
-guard, a container in the group fails late at `swapon` with
-`Operation not permitted`, after the file was created; with it, the role stops
-before touching the disk. Run against a Podman container, the guard stops with
-`virtualization_type 'podman'`. Container types outside the list, such as
-`systemd-nspawn` or `openvz`, are not caught; no host here runs them.
+The role gathers its own virtualization facts and refuses a host that they
+identify as one of the container runtimes this repository provisions or tests
+with; the assertion task holds the list. Without the guard, a container in the
+group fails late at `swapon` with `Operation not permitted`, after the file was
+created; with it, the role stops before touching the disk. Run against a Podman
+container, the guard stops with `virtualization_type 'podman'`. Container
+runtimes outside the list are not caught (YAGNI).
