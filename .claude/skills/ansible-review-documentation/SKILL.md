@@ -53,6 +53,14 @@ Role-specific documentation MUST NOT be placed under `docs/roles/`.
 Cross-cutting architecture documentation belongs to the `docs/architecture/`
 tier instead, because it outlives any single role.
 
+## Rule Files Stay Lean
+
+The constitution and `AGENTS.md` are read at the start of every session, so
+every word in them costs every task. When either changes, apply the size
+review of the constitution's Governance section, step 5. A pointer to a skill
+also says when to invoke it. Growth is not a failure, but it needs a reason
+the pull request states.
+
 ## Migration Policy
 
 Content moves from `specs/` to `docs/` when it becomes stable, reusable

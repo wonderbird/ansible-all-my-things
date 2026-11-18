@@ -16,15 +16,17 @@ The repository is divided into four top-level directories:
 
 ```text
 roles/          ← reusable capability units (single responsibility each)
-playbooks/      ← orchestration only; no implementation logic
+playbooks/      ← compose roles; procedures and user-environment transfer
 inventories/    ← host groups and variables
 configuration/  ← committed configuration files and backup archives
 ```
 
-Every reusable capability lives in a role. Playbooks only import or include
-roles and task files; they do not contain tasks directly — except for the
-backup/restore pattern described in the
-[Backup and Restore Pattern](#backup-and-restore-pattern) section below.
+Everything a managed host must have to be correct lives in a role. Playbooks
+compose roles; besides roles they hold only precondition assertions,
+procedures (VM lifecycle, inventory edits, version-pin updates, reboots,
+bootstrap access) and user-environment transfer (backup and restore).
+[Playbook Classes](concepts/playbook-classes.md) defines these classes and
+the test that separates them from role work.
 
 A playbook that serves a single script lives next to that script instead of
 in `playbooks/`, so the script and its playbook change together. Example:
@@ -69,9 +71,10 @@ path, archive name, exclusion patterns, and restore destination. This keeps
 archival logic in one place while keeping each application playbook
 independently readable and executable.
 
-This is a deliberate exception to the role-first rule: these playbooks
-pre-date Constitution Principle II. Whether they should be migrated to roles
-is an open question (see [Known Technical Debt](#known-technical-debt)).
+Backup and restore carry one user's own files and preferences between hosts,
+so they are user-environment transfer, not role work.
+[Playbook Classes](concepts/playbook-classes.md) states what such a playbook
+may change.
 
 ## Platform Constraints
 
@@ -95,15 +98,15 @@ and why it was accepted or deferred.
 
 Two items are most relevant to architectural understanding:
 
-- **TD-002 — Playbooks contain implementation logic** (High severity): eight
-  `setup-*.yml` playbooks pre-date Constitution Principle II (Role-First
-  Organisation) and contain direct task lists instead of delegating to roles.
-  These are to be migrated to `roles/` one at a time as a dedicated
-  refactoring effort.
-- **Backup/restore pattern — open question**: the thin-delegation playbooks in
-  `playbooks/backup/` and `playbooks/restore/` also pre-date the constitution.
-  Whether this pattern should become Ansible roles is an open question.
-  No change is made until this is resolved.
+- **TD-002 — Playbooks contain implementation logic** (High severity): six
+  `setup-*.yml` playbooks and three task files they share pre-date
+  Constitution Principle II (Role-First Organisation) and configure managed
+  hosts directly instead of delegating to roles. They are to be migrated to
+  `roles/` one at a time as a dedicated refactoring effort.
+- **TD-013 — Roles overwrite a user's configuration files** (Medium
+  severity): `tmux` and `skill_manager` replace files in a user's home
+  directory on every run, which undoes a user's own version, e.g. one put
+  back by a restore.
 
 ## References
 
