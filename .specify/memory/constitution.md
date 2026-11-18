@@ -1,12 +1,24 @@
 <!--
-Sync Impact Report — 2.3.0 → 2.4.0 (MINOR)
-- New section "Python Scripts" with the subsections Code and Tests: rules for
-  every Python script under scripts/ and its tests, and the statement that
-  Principles XII and XV apply to scripts.
-- MINOR: new section added; no principle removed or redefined.
-- Modified principles: none.
-- Added sections: Python Scripts > Code, Python Scripts > Tests.
-- Removed sections: none.
+Sync Impact Report — 2.4.0 → 2.5.0 (MINOR)
+- Principle II (Role-First Organisation) redefines its playbook rule by what
+  the logic does instead of by a directory allowlist: host state lives in
+  standalone roles; playbooks compose roles and MAY contain tasks, handlers or
+  templates only for precondition assertions, procedures (control-node
+  operations, one-shot actions, bootstrap access) and user-environment
+  transfer. One test separates them: "must a fresh host get this to be
+  correct?". A new procedure or user-environment playbook needs a plan whose
+  architect review decides. Procedures and user-environment playbooks MUST be
+  validated per Principle III.
+- New rule: a role that writes a configuration file into a user's home
+  directory MUST create it only if missing or merge only its own keys.
+- MINOR: everything allowed before stays allowed (backup/, restore/ and
+  update-versions/ are now examples of the classes); the VM-lifecycle
+  playbooks, precondition assertions and bootstrap access, previously covered
+  only by per-plan exceptions, are now named; the home-directory rule is
+  material new guidance.
+- Modified principles: II. Role-First Organisation.
+- Added sections: none. Removed sections: none (the "Maintenance-playbook
+  exception" paragraph is replaced by the playbook classes).
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
@@ -14,17 +26,15 @@ Sync Impact Report — 2.3.0 → 2.4.0 (MINOR)
   ✅ .specify/templates/checklist-template.md — no changes required
   ✅ .specify/templates/constitution-template.md — no changes required
   ✅ .specify/templates/agent-file-template.md — no changes required
-  No template gives guidance on Python code style or tests.
-- AGENTS.md checked: no propagation required; it gives no Python rule.
-- CLAUDE.md checked: no propagation required; it points at this file.
-- Skills checked: ansible-developer, ansible-molecule-testing and
-  ansible-role-creator mention Python only as a target-host runtime; no
-  propagation required.
-- Runtime guidance updated: scripts/init_dev/README.md keeps only rules
-  specific to init_dev and points here; CONTRIBUTING.md "Python Scripts"
-  keeps the ruff commands and points here.
-- Follow-up TODOs: review the Python scripts outside scripts/init_dev
-  against the new section.
+- AGENTS.md and CLAUDE.md checked: no propagation required.
+- Skills checked: ansible-role-creator cites Principle II only for Molecule
+  and version-update wiring, which are unchanged; no propagation required.
+- Runtime guidance updated: docs/architecture/solution-strategy.md
+  (repository structure, backup/restore pattern, known technical debt).
+- Technical debt: TD-002 updated (reboot-if-required.yml removed, shared
+  setup task files added); TD-013 added for roles that overwrite a user's
+  configuration files.
+- Follow-up TODOs: none.
 -->
 # ansible-all-my-things Constitution
 
@@ -52,11 +62,10 @@ most important property of reliable Ansible code.
 
 ### II. Role-First Organisation
 
-Every reusable capability MUST be implemented as a standalone Ansible role
-inside the `roles/` directory. Playbooks MUST only orchestrate roles; they
-MUST NOT contain implementation logic (tasks, handlers, templates) directly
-(narrow carve-out: see the Maintenance-playbook exception below).
-Roles MUST have a clear single responsibility.
+Every capability that defines what a managed host must have to be correct —
+packages, files, services, accounts and settings, independent of which user
+works on it — MUST be implemented as a standalone Ansible role inside the
+`roles/` directory. Roles MUST have a clear single responsibility.
 
 Every role that can be exercised in a container MUST include a Molecule test
 scenario in `molecule/default/` covering the full
@@ -99,35 +108,58 @@ ordering only. The full decision test, worked examples, and caveats are in
 `docs/architecture/concepts/role-dependency-declaration.md`, which is the
 authoritative source of truth for this distinction.
 
-**Maintenance-playbook exception**: Three directories of operator-invoked
-procedural playbooks are exempt from the role-only rule above and MAY contain
-inline task logic: `playbooks/update-versions/` (control-node tools that query
-upstream release sources and rewrite local `defaults/main.yml` pins),
-`playbooks/backup/`, and `playbooks/restore/` (data-movement tools that archive
-and restore a user's files to and from a target host). These are operator-run
-procedures, not host role configuration; any reuse they need is already served
-by shared task files — `backup.yml` and `restore.yml` are each included by the
-per-application playbooks in their directory. Wrapping such a procedure in a
-role would add role lifecycle and Molecule scaffolding that buys nothing for a
-control-plane operation, violating Principle IV (YAGNI). The exemption is a
-**closed allowlist of these three directories**: any new maintenance playbook
-MUST amend this principle to be added. A playbook not on the list — including
-any that installs, templates, or otherwise configures a managed host — MUST
-orchestrate roles only. `backup/` and `restore/` run against a managed host yet
-remain exempt — allowlist membership, not the target host, is the gate.
+A role that writes a configuration file into a user's home directory MUST
+create it only if it is missing, or merge only the keys the role requires, so
+that a user's own version of that file survives every later run. Software the
+role installs there, e.g. a binary or an SDK, is not a configuration file.
 
-**Rationale**: Roles keep the codebase modular and reusable across different
-target hosts without duplicating logic. Molecule container tests provide fast,
-repeatable, local validation without requiring a full VM. Version-update
-registration prevents pinned tools from drifting silently behind upstream
-releases. Declaring genuine hard dependencies in `meta/main.yml` makes a
-role self-defending for any future consumer, while explicit ordering keeps
-the full apply order human-auditable from one flat playbook file; Ansible's
-role deduplication means requiring both costs nothing at runtime. Exempting a
-closed set of operator-run maintenance procedures from the role wrapper avoids
-lifecycle scaffolding that adds nothing to a control-plane operation, while the
-closed allowlist keeps the carve-out from eroding the role-only rule for
-managed-host configuration.
+**Playbooks** compose roles: they decide which roles run on which hosts, in
+which order. Besides roles, a playbook MAY contain tasks, handlers or
+templates only for:
+
+1. **Precondition assertions** that fail loud on missing or invalid input
+   before anything changes.
+2. **Procedures** — logic that does not define what a host must have:
+   - *control-node operations*, which act on local files or provider APIs,
+     e.g. creating and destroying VMs, editing the inventory, updating
+     version pins (`create-vm.yml`, `destroy-vm.yml`, `enable-swapfile.yml`,
+     `playbooks/update-versions/`);
+   - *one-shot actions*, which run to an end instead of converging to a
+     state, e.g. a reboot (`reboot-if-required.yml`);
+   - *bootstrap access*, the steps inside VM creation that enable the first
+     login before any inventory play can connect, e.g. installing the
+     operator's SSH key or Windows `user_data` (ADR-004).
+3. **User-environment transfer** — moving one user's own files and
+   preferences to and from a host, e.g. `playbooks/backup/` and
+   `playbooks/restore/`. These MUST NOT install software or change system
+   configuration. They MAY overwrite configuration files a role placed in that
+   user's home directory: the user's choice wins.
+
+The test for any playbook task is: **must a fresh host get this to be
+correct?** If yes, it belongs in a role. Procedure and user-environment logic
+that several playbooks share lives in task files under `playbooks/tasks/` or
+the playbook's own directory. Procedures and user-environment playbooks MUST
+be validated as Principle III requires, on a local VM or with fixture tests.
+A new playbook of class 2 or 3 MUST be justified in a plan that names its
+class and the rejected role alternative; the plan's architect review decides.
+Known playbooks and task files that fail the test are recorded as technical
+debt (TD-002); no new task that fails the test may be added to a playbook.
+
+**Rationale**: Roles keep host configuration modular, reusable, idempotent
+and testable in isolation, without duplicating logic. Molecule container tests
+provide fast, repeatable, local validation without requiring a full VM.
+Version-update registration prevents pinned tools from drifting silently
+behind upstream releases. Declaring genuine hard dependencies in
+`meta/main.yml` makes a role self-defending for any future consumer, while
+explicit ordering keeps the full apply order human-auditable from one flat
+playbook file; Ansible's role deduplication means requiring both costs nothing
+at runtime. Procedures have no state to converge, so wrapping them in a role
+adds lifecycle and Molecule scaffolding that tests nothing, violating
+Principle IV (YAGNI). User-environment playbooks carry one user's preferences,
+which roles must not undo, so roles create or merge files in a home directory
+instead of overwriting them. Gating by what the logic does, not by where the
+file lives, gives one test that covers every playbook and keeps file paths
+stable; the plan review keeps new exceptions deliberate.
 
 ### III. Test Locally Before Cloud
 
@@ -677,4 +709,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 2.4.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-11-14
+**Version**: 2.5.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-11-18
