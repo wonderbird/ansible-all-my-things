@@ -1,14 +1,10 @@
 <!--
 Sync Impact Report — 2.4.0 → 2.5.0 (MINOR)
-- Size: 5134 → 4900 words.
+- Size: 5134 → 4861 words.
 - Principle II (Role-First Organisation) keeps only its rules and their why.
-  Host state lives in standalone roles; playbooks compose roles and MAY hold
-  tasks, handlers or templates only for precondition assertions, procedures
-  and user-environment transfer. The closed directory allowlist is replaced
-  by these classes. A new procedure or user-environment playbook needs a plan
-  whose architect review decides. New role rule: a configuration file in a
-  user's home directory is created only if missing or gets only the role's
-  keys merged in.
+  Playbook classes replace the closed directory allowlist; a new procedure
+  or user-environment playbook needs a plan whose architect review decides;
+  new role rule for configuration files in a user's home directory.
 - Moved detail: the playbook classes and the fresh-host test to
   docs/architecture/concepts/playbook-classes.md (authoritative); role
   how-to (version-update wiring, meta dependencies, Molecule) stays in the

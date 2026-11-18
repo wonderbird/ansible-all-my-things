@@ -539,8 +539,8 @@ The roles that already comply show both accepted patterns: `cursor_ide` seeds
 
 ### TD-013: Mitigation
 
-Until a role is fixed, a user who changed one of these files loses the change
-on the next `configure-profile.yml` run and has to restore it again.
+None. A user who changed one of these files restores it again after each
+`configure-profile.yml` run.
 
 ### TD-013: Ideas for solution
 

@@ -72,10 +72,9 @@ archival logic in one place while keeping each application playbook
 independently readable and executable.
 
 Backup and restore carry one user's own files and preferences between hosts,
-so they are user-environment transfer, not role work (see
-[Playbook Classes](concepts/playbook-classes.md)). A restore may overwrite a
-file a role placed in the user's home directory; roles therefore create such
-files only if missing or merge only their own keys.
+so they are user-environment transfer, not role work.
+[Playbook Classes](concepts/playbook-classes.md) states what such a playbook
+may change.
 
 ## Platform Constraints
 

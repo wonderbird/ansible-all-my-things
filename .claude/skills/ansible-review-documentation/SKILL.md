@@ -56,15 +56,10 @@ tier instead, because it outlives any single role.
 ## Rule Files Stay Lean
 
 The constitution and `AGENTS.md` are read at the start of every session, so
-every word in them costs every task. When either changes, check each addition:
-
-- Does it state a rule and its why? Then it belongs there.
-- Is it how-to, a decision test or an example? Then move it to a skill or to
-  `docs/architecture/`, and leave a pointer that names the authoritative
-  source and, for a skill, when to invoke it.
-
-Report the file's word count before → after in the review. Growth is not a
-failure, but it needs a reason the pull request states.
+every word in them costs every task. When either changes, apply the size
+review of the constitution's Governance section, step 5. A pointer to a skill
+also says when to invoke it. Growth is not a failure, but it needs a reason
+the pull request states.
 
 ## Migration Policy
 
