@@ -30,21 +30,26 @@ Each entry uses the following fields:
 - **Category:** Technical Debt
 - **Severity:** High
 - **Affected file(s):**
-  - [playbooks/reboot-if-required.yml](../../playbooks/reboot-if-required.yml)
   - [playbooks/setup-basics.yml](../../playbooks/setup-basics.yml)
   - [playbooks/setup-desktop-apps.yml](../../playbooks/setup-desktop-apps.yml)
   - [playbooks/setup-desktop.yml](../../playbooks/setup-desktop.yml)
   - [playbooks/setup-homebrew.yml](../../playbooks/setup-homebrew.yml)
   - [playbooks/setup-keyring.yml](../../playbooks/setup-keyring.yml)
   - [playbooks/setup-users.yml](../../playbooks/setup-users.yml)
+  - [playbooks/tasks/setup-chromium.yml](../../playbooks/tasks/setup-chromium.yml)
+  - [playbooks/tasks/setup-vscode.yml](../../playbooks/tasks/setup-vscode.yml)
+  - [playbooks/tasks/setup-git.yml](../../playbooks/tasks/setup-git.yml)
 - **Date added:** 2026-03-12
 
 ### TD-002: Description
 
-Constitution Principle II (Role-First Organisation) requires that playbooks only
-orchestrate roles and must not contain implementation logic (tasks, handlers, or
-templates) directly. All seven playbooks listed above pre-date the ratification
-of the constitution (2026-03-11) and contain direct task lists.
+Constitution Principle II (Role-First Organisation) requires that everything a
+fresh host must get to be correct lives in a role; a playbook may hold tasks,
+handlers or templates only for precondition assertions, procedures and
+user-environment transfer. The six playbooks listed above and the three task
+files they share pre-date the ratification of the constitution (2026-03-11)
+and configure managed hosts directly. The `reboot-if-required.yml` import in
+`setup-basics.yml` is a one-shot action and stays allowed.
 
 When the constitution was ratified, no refactoring migration was performed. New
 work continued to follow the pre-existing pattern: commit `85acad9` added the
@@ -503,3 +508,50 @@ Open — this register is the only place the two deferrals are tracked. Each is
 discharged by one Molecule scenario: one for `flutter`, one for `cursor_ide`.
 The `flutter` scenario needs an AMD64 runner the project does not have. The
 `android_studio` exemption stands until the role's install design changes.
+
+---
+
+## TD-013 — Roles overwrite a user's configuration files on every run
+
+- **Category:** Technical Debt
+- **Severity:** Medium
+- **Affected file(s):**
+  - [roles/tmux/tasks/configure.yml](../../roles/tmux/tasks/configure.yml)
+  - [roles/skill_manager/tasks/main.yml](../../roles/skill_manager/tasks/main.yml)
+- **Date added:** 2026-11-18
+
+### TD-013: Description
+
+Constitution Principle II requires a role that writes a configuration file into
+a user's home directory to create it only if it is missing, or to merge only
+the keys it requires. A user's own version of the file, e.g. one put back by
+`playbooks/restore/`, must survive every later run.
+
+Two roles copy a whole file unconditionally, so each configure run replaces the
+user's version with the role's default and reports a change:
+
+- `tmux` writes `~/.tmux.conf` and `~/.gitmux.conf`.
+- `skill_manager` writes `~/.skill-manager/config.toml`.
+
+The roles that already comply show both accepted patterns: `cursor_ide` seeds
+`~/.cursor/argv.json` with `force: no`, and `claude_code` and
+`claude_code_config` merge their keys into `~/.claude/settings.json`.
+
+### TD-013: Mitigation
+
+Until a role is fixed, a user who changed one of these files loses the change
+on the next `configure-profile.yml` run and has to restore it again.
+
+### TD-013: Ideas for solution
+
+- `tmux` — seed both files with `force: false`, or move the settings the
+  project needs into a file the user's `.tmux.conf` sources.
+- `skill_manager` — the file exists to disable auto-adopt; merge only that key,
+  e.g. with `community.general.ini_file` if the TOML stays flat enough, or seed
+  the file with `force: false`.
+
+Each fix needs a Molecule check that a user's own file survives a second run.
+
+### TD-013: Status
+
+Open.
