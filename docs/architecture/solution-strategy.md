@@ -25,8 +25,8 @@ Everything a managed host must have to be correct lives in a role. Playbooks
 compose roles; besides roles they hold only precondition assertions,
 procedures (VM lifecycle, inventory edits, version-pin updates, reboots,
 bootstrap access) and user-environment transfer (backup and restore).
-Constitution Principle II defines these classes and the test that separates
-them from role work.
+[Playbook Classes](concepts/playbook-classes.md) defines these classes and
+the test that separates them from role work.
 
 A playbook that serves a single script lives next to that script instead of
 in `playbooks/`, so the script and its playbook change together. Example:
@@ -72,10 +72,10 @@ archival logic in one place while keeping each application playbook
 independently readable and executable.
 
 Backup and restore carry one user's own files and preferences between hosts,
-so Constitution Principle II classes them as user-environment transfer, not
-role work. A restore may overwrite a file a role placed in the user's home
-directory; roles therefore create such files only if missing or merge only
-their own keys.
+so they are user-environment transfer, not role work (see
+[Playbook Classes](concepts/playbook-classes.md)). A restore may overwrite a
+file a role placed in the user's home directory; roles therefore create such
+files only if missing or merge only their own keys.
 
 ## Platform Constraints
 

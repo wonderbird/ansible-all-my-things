@@ -1,7 +1,7 @@
 ---
 name: ansible-role-creator
 description: Create a new Ansible role in this repo end-to-end — scaffold, choose the right install pattern, wire version tracking, register it in a profile, and test it with Molecule. Use when adding a role for a new tool or capability.
-when_to_use: Triggers include "create a role", "add a role", "new role", "install <tool> via Ansible", "add <tool> to the base profile". Use before scaffolding so the role follows this repo's conventions the first time.
+when_to_use: Triggers include "create a role", "add a role", "new role", "install <tool> via Ansible", "add <tool> to the base profile". Use before scaffolding so the role follows this repo's conventions the first time. Also use when changing an existing role's install pattern, version pins, dependencies or files in users' home directories (Constitution Principle II).
 ---
 
 # Role Creator
@@ -131,6 +131,12 @@ Rules that bite:
   see `ai_agent_workspace`); do not assume it is present, and do not
   reinstall it in-role.
 - Never use `blockinfile` `append_newline`/`prepend_newline` (Principle I).
+- A configuration file in a user's home directory (dotfiles, tool config) is
+  seeded with `force: false` or gets only the role's own keys merged in, e.g.
+  `lineinfile`, `blockinfile` or a `jq` merge as in `claude_code`. Never copy
+  a whole file over it on every run: a user's own version, e.g. one put back
+  by `playbooks/restore/`, must survive (Principle II). Software the role
+  installs into the home directory is not a configuration file.
 
 ## Step 3 — `meta/main.yml`
 

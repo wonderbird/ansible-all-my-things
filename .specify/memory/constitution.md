@@ -1,24 +1,30 @@
 <!--
 Sync Impact Report — 2.4.0 → 2.5.0 (MINOR)
-- Principle II (Role-First Organisation) redefines its playbook rule by what
-  the logic does instead of by a directory allowlist: host state lives in
-  standalone roles; playbooks compose roles and MAY contain tasks, handlers or
-  templates only for precondition assertions, procedures (control-node
-  operations, one-shot actions, bootstrap access) and user-environment
-  transfer. One test separates them: "must a fresh host get this to be
-  correct?". A new procedure or user-environment playbook needs a plan whose
-  architect review decides. Procedures and user-environment playbooks MUST be
-  validated per Principle III.
-- New rule: a role that writes a configuration file into a user's home
-  directory MUST create it only if missing or merge only its own keys.
-- MINOR: everything allowed before stays allowed (backup/, restore/ and
-  update-versions/ are now examples of the classes); the VM-lifecycle
-  playbooks, precondition assertions and bootstrap access, previously covered
-  only by per-plan exceptions, are now named; the home-directory rule is
-  material new guidance.
-- Modified principles: II. Role-First Organisation.
-- Added sections: none. Removed sections: none (the "Maintenance-playbook
-  exception" paragraph is replaced by the playbook classes).
+- Size: 5134 → 4900 words.
+- Principle II (Role-First Organisation) keeps only its rules and their why.
+  Host state lives in standalone roles; playbooks compose roles and MAY hold
+  tasks, handlers or templates only for precondition assertions, procedures
+  and user-environment transfer. The closed directory allowlist is replaced
+  by these classes. A new procedure or user-environment playbook needs a plan
+  whose architect review decides. New role rule: a configuration file in a
+  user's home directory is created only if missing or gets only the role's
+  keys merged in.
+- Moved detail: the playbook classes and the fresh-host test to
+  docs/architecture/concepts/playbook-classes.md (authoritative); role
+  how-to (version-update wiring, meta dependencies, Molecule) stays in the
+  ansible-role-creator and ansible-molecule-testing skills, which agents MUST
+  invoke; docs/architecture/concepts/role-dependency-declaration.md stays
+  authoritative for the dependency decision.
+- Governance: new amendment step 5, a size review (rule plus why in the
+  constitution, detail behind a pointer, word count before → after in this
+  report); it also applies to AGENTS.md.
+- MINOR: everything allowed before stays allowed; the VM-lifecycle
+  playbooks, precondition assertions and bootstrap access, before covered
+  only by per-plan exceptions, are now named; the home-directory rule and
+  the size review are new guidance.
+- Modified principles: II. Role-First Organisation. Modified sections:
+  Governance.
+- Added sections: none. Removed sections: none.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
@@ -27,10 +33,10 @@ Sync Impact Report — 2.4.0 → 2.5.0 (MINOR)
   ✅ .specify/templates/constitution-template.md — no changes required
   ✅ .specify/templates/agent-file-template.md — no changes required
 - AGENTS.md and CLAUDE.md checked: no propagation required.
-- Skills checked: ansible-role-creator cites Principle II only for Molecule
-  and version-update wiring, which are unchanged; no propagation required.
-- Runtime guidance updated: docs/architecture/solution-strategy.md
-  (repository structure, backup/restore pattern, known technical debt).
+- Skills updated: ansible-role-creator (home-directory configuration rule),
+  ansible-review-documentation (rule files stay lean).
+- Runtime guidance updated: docs/architecture/solution-strategy.md,
+  docs/architecture/concepts/playbook-classes.md (new).
 - Technical debt: TD-002 updated (reboot-if-required.yml removed, shared
   setup task files added); TD-013 added for roles that overwrite a user's
   configuration files.
@@ -62,104 +68,36 @@ most important property of reliable Ansible code.
 
 ### II. Role-First Organisation
 
-Every capability that defines what a managed host must have to be correct —
-packages, files, services, accounts and settings, independent of which user
-works on it — MUST be implemented as a standalone Ansible role inside the
-`roles/` directory. Roles MUST have a clear single responsibility.
+Everything a fresh managed host must get to be correct — packages, files,
+services, accounts and settings, independent of which user works on it — MUST
+be implemented as a standalone Ansible role in `roles/` with a single
+responsibility. A role MUST:
 
-Every role that can be exercised in a container MUST include a Molecule test
-scenario in `molecule/default/` covering the full
-create → prepare → converge → idempotence → verify → destroy lifecycle.
+- include a Molecule scenario covering the full create → prepare → converge →
+  idempotence → verify → destroy lifecycle if it can run in a container, and
+  otherwise be validated on a local Tart or Docker VM;
+- register every tool version it pins in the version-update mechanism;
+- declare a hard runtime dependency on another role in `meta/main.yml`, in
+  addition to explicit ordering, and no other role relationship;
+- create a configuration file in a user's home directory only if it is
+  missing, or merge only the keys it requires.
 
-**The scenario file contract, required content of `prepare.yml`,
-`converge.yml`, `verify.yml`, and `molecule.yml` are defined in the
-`ansible-molecule-testing` skill, which is the authoritative source of truth. All
-agents MUST invoke it when creating or modifying a role's Molecule scenario.**
+Agents creating or changing a role MUST invoke the `ansible-role-creator`
+skill, and the `ansible-molecule-testing` skill for its scenario; they hold the
+details. `docs/architecture/concepts/role-dependency-declaration.md` is
+authoritative for the dependency decision.
 
-Roles that cannot be exercised in a container (e.g., desktop environment
-configuration, display managers, hardware drivers) MUST instead be validated
-on a local Tart or Docker VM as described in
-`docs/architecture/concepts/testing.md`.
+Playbooks compose roles. Besides roles, a playbook MAY contain tasks, handlers
+or templates only for precondition assertions, procedures and
+user-environment transfer, as defined in
+`docs/architecture/concepts/playbook-classes.md`, which is authoritative. A new
+procedure or user-environment playbook MUST be justified in a plan whose
+architect review decides.
 
-Every role that pins a tool version in `defaults/main.yml` MUST also register
-the tool in the version-update mechanism:
-
-- An entry in `playbooks/update-versions/vars/tools.yml` naming the role, the
-  pins it writes, the upstream source and the values each pin is written from.
-  The version-update mechanism reads that entry; no playbook is edited per
-  tool.
-- A fetch task file under `playbooks/update-versions/tasks/` implementing the
-  upstream version query, unless an existing one already serves that source. A
-  registry entry alone cannot query a source nothing implements.
-
-A role that installs a versioned tool without this wiring silently escapes
-version tracking. The mechanism structure is documented in
-`docs/architecture/version-update-playbooks.md`.
-
-A role whose tasks unconditionally require an artefact that only another
-specific role provisions — such that the task would hard-fail for any
-consumer that has not already applied that other role — MUST declare that
-role in its own `meta/main.yml` `dependencies:` list, **in addition to**
-(not instead of) explicit ordering in the consuming playbook and any
-Molecule `converge.yml`. A role relationship that exists only for this
-project's own orchestration convenience, without a hard runtime need, MUST
-NOT be declared as a `meta/main.yml` dependency — express it via explicit
-ordering only. The full decision test, worked examples, and caveats are in
-`docs/architecture/concepts/role-dependency-declaration.md`, which is the
-authoritative source of truth for this distinction.
-
-A role that writes a configuration file into a user's home directory MUST
-create it only if it is missing, or merge only the keys the role requires, so
-that a user's own version of that file survives every later run. Software the
-role installs there, e.g. a binary or an SDK, is not a configuration file.
-
-**Playbooks** compose roles: they decide which roles run on which hosts, in
-which order. Besides roles, a playbook MAY contain tasks, handlers or
-templates only for:
-
-1. **Precondition assertions** that fail loud on missing or invalid input
-   before anything changes.
-2. **Procedures** — logic that does not define what a host must have:
-   - *control-node operations*, which act on local files or provider APIs,
-     e.g. creating and destroying VMs, editing the inventory, updating
-     version pins (`create-vm.yml`, `destroy-vm.yml`, `enable-swapfile.yml`,
-     `playbooks/update-versions/`);
-   - *one-shot actions*, which run to an end instead of converging to a
-     state, e.g. a reboot (`reboot-if-required.yml`);
-   - *bootstrap access*, the steps inside VM creation that enable the first
-     login before any inventory play can connect, e.g. installing the
-     operator's SSH key or Windows `user_data` (ADR-004).
-3. **User-environment transfer** — moving one user's own files and
-   preferences to and from a host, e.g. `playbooks/backup/` and
-   `playbooks/restore/`. These MUST NOT install software or change system
-   configuration. They MAY overwrite configuration files a role placed in that
-   user's home directory: the user's choice wins.
-
-The test for any playbook task is: **must a fresh host get this to be
-correct?** If yes, it belongs in a role. Procedure and user-environment logic
-that several playbooks share lives in task files under `playbooks/tasks/` or
-the playbook's own directory. Procedures and user-environment playbooks MUST
-be validated as Principle III requires, on a local VM or with fixture tests.
-A new playbook of class 2 or 3 MUST be justified in a plan that names its
-class and the rejected role alternative; the plan's architect review decides.
-Known playbooks and task files that fail the test are recorded as technical
-debt (TD-002); no new task that fails the test may be added to a playbook.
-
-**Rationale**: Roles keep host configuration modular, reusable, idempotent
-and testable in isolation, without duplicating logic. Molecule container tests
-provide fast, repeatable, local validation without requiring a full VM.
-Version-update registration prevents pinned tools from drifting silently
-behind upstream releases. Declaring genuine hard dependencies in
-`meta/main.yml` makes a role self-defending for any future consumer, while
-explicit ordering keeps the full apply order human-auditable from one flat
-playbook file; Ansible's role deduplication means requiring both costs nothing
-at runtime. Procedures have no state to converge, so wrapping them in a role
-adds lifecycle and Molecule scaffolding that tests nothing, violating
-Principle IV (YAGNI). User-environment playbooks carry one user's preferences,
-which roles must not undo, so roles create or merge files in a home directory
-instead of overwriting them. Gating by what the logic does, not by where the
-file lives, gives one test that covers every playbook and keeps file paths
-stable; the plan review keeps new exceptions deliberate.
+**Rationale**: Roles keep host configuration modular, idempotent and testable
+in isolation. Procedures and user-environment transfer have no state a role
+could converge, so a role wrapper would add scaffolding that tests nothing
+(Principle IV).
 
 ### III. Test Locally Before Cloud
 
@@ -686,6 +624,11 @@ This constitution supersedes all informal conventions. Any amendment requires:
 4. Propagation checks across `.specify/templates/`, `AGENTS.md`,
    `CLAUDE.md`, and any `.claude/skills/*/SKILL.md` named in this
    constitution.
+5. A size review: each addition states a rule and its why. How-to, decision
+   tests and examples go to a skill or to `docs/architecture/`, behind a
+   pointer that names the authoritative source. The Sync Impact Report
+   records the file's word count before → after, so growth is discussed in
+   the pull request. The same review applies to every change of `AGENTS.md`.
 
 Complexity exceptions (violations of any Core Principle) MUST be documented
 in the `Complexity Tracking` table of the relevant plan.md before
