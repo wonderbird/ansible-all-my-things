@@ -48,6 +48,30 @@
         "codex"
       ],
       "scope": "project"
+    },
+    {
+      "name": "commit",
+      "tools": [
+        "cc",
+        "codex"
+      ],
+      "scope": "user"
+    },
+    {
+      "name": "record-findings",
+      "tools": [
+        "cc",
+        "codex"
+      ],
+      "scope": "user"
+    },
+    {
+      "name": "flow-consultant",
+      "tools": [
+        "codex",
+        "cc"
+      ],
+      "scope": "project"
     }
   ],
   "profiles": {}
