@@ -166,6 +166,10 @@ structured Markdown so they are readable there, not as one unbroken blob:
   `--description "…"` stores zero line breaks and renders as a blob; instead
   feed a here-doc, e.g.
   `bd update <id> --description "$(cat <<'EOF' … EOF)"`.
+- To change an existing description, start from its raw text:
+  `bd show <id> --json` returns a list, so read `.[0].description`. Plain
+  `bd show` drops backticks, turns `-` bullets into `•` and re-wraps lines;
+  text copied from it damages the description when written back.
 
 This applies to every `bd create` / `bd update` description, including gate and
 finding bodies.
