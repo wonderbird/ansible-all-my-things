@@ -5,7 +5,9 @@ this repository flows. Work is sorted into machines, lab, rework,
 automated and discarded per month. The look covers 2026-04-01 to
 2026-11-20, from git snapshot `0455604`. The page `report.html` explains
 the categories and the charts. `answers.md` holds the answers, and
-`method-evidence.md` holds the rules and the checks.
+`method-evidence.md` holds the rules and the checks. `session-insights.md`
+records what the planning, review and execution of the look taught about the
+data, the method and the collaboration.
 
 The copy is not maintained. It exists so the result can be reproduced and
 discussed. A durable script for this metric would be built fresh, with
