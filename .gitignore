@@ -22,6 +22,7 @@
 .claude/skills/commit-message
 .claude/skills/create-adr
 .claude/skills/fix-problem
+.claude/skills/flow-consultant
 .claude/skills/format-markdown
 .claude/skills/record-findings
 
