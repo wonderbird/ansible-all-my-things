@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flow First Look</title>
+<style>
+:root { --bg:#ffffff; --fg:#1d1d1f; --muted:#5f6368; --line:#d9d9de; }
+@media (prefers-color-scheme: dark) { :root { --bg:#16171a; --fg:#e8e8ea; --muted:#a0a3a8; --line:#33353a; } }
+body { background:var(--bg); color:var(--fg); font:15px/1.45 system-ui,sans-serif; margin:0 auto; max-width:1100px; padding:16px; }
+h1 { font-size:22px; } h2 { font-size:17px; margin-top:28px; }
+.muted { color:var(--muted); } .chart { position:relative; height:340px; }
+table { border-collapse:collapse; width:100%; font-size:13px; display:block; overflow-x:auto; }
+th,td { border-bottom:1px solid var(--line); padding:4px 6px; text-align:right; white-space:nowrap; }
+th:first-child,td:first-child { text-align:left; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script></head><body>
+<h1>Flow first look: where delivered work flows</h1>
+<h2>What this page shows</h2>
+<p>This repository automates how my machines are built (Ansible). I build it together with AI coding agents, and I also use it
+as a lab for learning how to work with agents. This page looks back at the work that was <b>delivered</b> each month and asks
+where it went:</p>
+<ul>
+<li><b>Machines:</b> work on the machine automation itself (roles, playbooks, CI, scripts).</li>
+<li><b>Lab:</b> work on how the agents work: their rules, skills and settings (for example <code>.claude/</code>,
+<code>AGENTS.md</code>).</li>
+<li><b>Rework:</b> fixes and reverts of earlier delivered work. This is <i>failure demand</i>: work that exists only because
+earlier work was not right.</li>
+<li><b>Automated:</b> dependency updates opened by Dependabot. <b>Discarded:</b> pull requests closed without merging.</li>
+</ul>
+<p>"Delivered" means a pull request merged into <code>main</code>, or a commit made directly on <code>main</code>. Every
+item counts once, whatever its size. A change is sorted into machines or lab by the majority of the files it touches; a title
+starting with "fix", "bug" or "revert" makes it rework. Data covers 2026-04-01 to 2026-11-20 (git snapshot 0455604). Earlier
+months are left out, because before April most work went straight to <code>main</code> and the counts are not comparable.</p>
+<p>The question behind it: my own attention is probably the bottleneck of this way of working, and rework probably eats a
+large part of it. This first look tests the cheap part of that idea with data that already exists.</p>
+<h2>How to read</h2><ul><li>Signals come only from the D8 p-chart verdicts below; otherwise the answer is &quot;no signal&quot;. Never read trends by eye.</li><li>2026-11 is partial (snapshot 2026-11-20) and is left out of the trend verdicts.</li><li>A count is not effort: large and small items count the same.</li><li>chore is excluded only for direct commits; the 4 chore PRs are counted.</li><li>Rework counts are candidates: fixes also repair external breakage.</li><li>Discarded counts closed, unmerged PRs only: a lower bound, counted, not judged.</li></ul>
+<h2>Chart 1: machines, lab and rework as shares of delivered non-automated items</h2>
+<p class="muted">n above each bar. Hatched months have n &lt; 5: too small to read. Automated and discarded are counts in the table, outside the base.</p>
+<div class="chart"><canvas id="chart1"></canvas></div>
+<h2>Chart 2: delivered items by author and channel, as shares</h2>
+<p class="muted">n above each bar = all delivered items in the month. "manual" = opened or committed by the owner by hand.</p>
+<div class="chart"><canvas id="chart2"></canvas></div>
+<h2>Is anything changing? Trend verdicts</h2>
+<p>Monthly shares jump around by chance, especially in months with few items. To avoid reading a trend into noise, each share
+is judged by a fixed rule chosen before looking at the data: a <b>p-chart</b> (Wheeler). It computes the average share over all
+readable months (p&#772;) and, for each month, a band of normal variation that is wider when the month has fewer items.
+<b>A real change shows as a month outside its band</b>, or as 6 rises or 6 falls in a row. Anything else is "no signal": the
+months differ, but not more than chance would explain. Only full months with at least 5 items are read (2026-04 to 2026-10);
+the 6-in-a-row rule needs at least 7 such months.</p>
+<ul><li><b>Rework share</b>: Is rework (failure demand) growing or shrinking? The share counts rework items among all delivered non-automated items. Average p&#772; = 17.5% (22 of 126). Verdict: <b>no signal: every readable month stays inside its band</b>; the 6-in-a-row rule could not fire with only 5 readable months. Months too small to read: 2026-07, 2026-08.</li><li><b>My share</b>: Am I opening or committing less of the work myself? The share counts items I opened or committed among all delivered non-automated items. Average p&#772; = 27.8% (35 of 126). Verdict: <b>no signal: every readable month stays inside its band</b>; the 6-in-a-row rule could not fire with only 5 readable months. Months too small to read: 2026-07, 2026-08.</li><li><b>Agent rework share</b>: Does handing work to agents come back as rework? (the balancing check for my share) The share counts rework items among the items agents opened or committed. Average p&#772; = 18.7% (17 of 91). Verdict: <b>no signal: every readable month stays inside its band</b>; the 6-in-a-row rule could not fire with only 5 readable months. Months too small to read: 2026-07, 2026-08.</li></ul>
+<h2>Counts per month</h2>
+<p>One row per month. <b>machines, lab, rework</b> are the delivered items in Chart 1; <b>base n</b> is their sum, the base of
+the shares. <b>automated</b> are merged Dependabot pull requests; <b>discarded</b> are pull requests closed without merging;
+<b>closed Dependabot</b> are superseded Dependabot updates. The five author columns split all delivered items by who opened
+the pull request (or authored the direct commit): "agent" is an AI coding agent, "manual" is me. Git cannot fully separate my
+work from interactive agent work, so read these columns as "who opened it", not "who did the work". <b>median commits / PR</b>
+shows how big pull requests were; it guards against more pull requests appearing only because they got smaller.</p>
+<table><tr><th>month</th><th>machines</th><th>lab</th><th>rework</th><th>base n</th><th>automated</th><th>discarded</th><th>closed Dependabot</th><th>agent PR</th><th>manual PR</th><th>automated PR</th><th>agent direct</th><th>manual direct</th><th>median commits / PR</th></tr>
+<tr><td>2026-04</td><td>9</td><td>1</td><td>4</td><td>14</td><td>1</td><td>1</td><td>0</td><td>9</td><td>3</td><td>1</td><td>0</td><td>2</td><td>4.5</td></tr>
+<tr><td>2026-05</td><td>12</td><td>1</td><td>2</td><td>15</td><td>0</td><td>7</td><td>1</td><td>9</td><td>0</td><td>0</td><td>0</td><td>6</td><td>8</td></tr>
+<tr><td>2026-06</td><td>24</td><td>4</td><td>10</td><td>38</td><td>1</td><td>3</td><td>0</td><td>30</td><td>4</td><td>1</td><td>0</td><td>4</td><td>5</td></tr>
+<tr><td>2026-07</td><td>3</td><td>0</td><td>0</td><td>3</td><td>1</td><td>0</td><td>0</td><td>3</td><td>0</td><td>1</td><td>0</td><td>0</td><td>8</td></tr>
+<tr><td>2026-08</td><td>2</td><td>0</td><td>0</td><td>2</td><td>1</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>25</td></tr>
+<tr><td>2026-09</td><td>23</td><td>5</td><td>3</td><td>31</td><td>3</td><td>3</td><td>0</td><td>20</td><td>1</td><td>3</td><td>4</td><td>6</td><td>4</td></tr>
+<tr><td>2026-10</td><td>17</td><td>8</td><td>3</td><td>28</td><td>1</td><td>0</td><td>1</td><td>17</td><td>3</td><td>1</td><td>2</td><td>6</td><td>2</td></tr>
+<tr><td>2026-11</td><td>12</td><td>3</td><td>3</td><td>18</td><td>3</td><td>0</td><td>0</td><td>9</td><td>3</td><td>3</td><td>6</td><td>0</td><td>2</td></tr>
+</table><ul><li>Rework split by path vote: lab 3, machines 22.</li><li>Version bumps by author type: agent 3, manual 11.</li><li>Category x author: machines: agent 73, manual 29; lab: agent 18, manual 4; automated: automated 11; rework: agent 19, manual 6.</li></ul>
+<script>
+const DATA = {"labels": ["2026-04", "2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10", "2026-11 (partial)"], "chart1": {"n": [14, 15, 38, 3, 2, 31, 28, 18], "series": [{"label": "machines", "color": "#4C78A8", "values": [9, 12, 24, 3, 2, 23, 17, 12]}, {"label": "lab", "color": "#54A24B", "values": [1, 1, 4, 0, 0, 5, 8, 3]}, {"label": "rework", "color": "#E45756", "values": [4, 2, 10, 0, 0, 3, 3, 3]}]}, "chart2": {"n": [15, 15, 39, 4, 3, 34, 29, 21], "series": [{"label": "agent PR", "color": "#4C78A8", "values": [9, 9, 30, 3, 1, 20, 17, 9]}, {"label": "manual PR", "color": "#F58518", "values": [3, 0, 4, 0, 1, 1, 3, 3]}, {"label": "automated PR", "color": "#9D755D", "values": [1, 0, 1, 1, 1, 3, 1, 3]}, {"label": "agent direct", "color": "#72B7B2", "values": [0, 0, 0, 0, 0, 4, 2, 6]}, {"label": "manual direct", "color": "#EECA3B", "values": [2, 6, 4, 0, 0, 6, 6, 0]}]}};
+const CSS = getComputedStyle(document.documentElement);
+const FG = CSS.getPropertyValue('--fg').trim(), MUTED = CSS.getPropertyValue('--muted').trim();
+function hatch(color) {
+  const c = document.createElement('canvas'); c.width = c.height = 8;
+  const x = c.getContext('2d'); x.fillStyle = color; x.globalAlpha = 0.35; x.fillRect(0, 0, 8, 8);
+  x.globalAlpha = 1; x.strokeStyle = color; x.lineWidth = 2; x.beginPath(); x.moveTo(0, 8); x.lineTo(8, 0); x.stroke();
+  return x.createPattern(c, 'repeat');
+}
+const nLabels = { id: 'nLabels', afterDatasetsDraw(chart) {
+  const ctx = chart.ctx, meta = chart.getDatasetMeta(chart.data.datasets.length - 1);
+  ctx.save(); ctx.fillStyle = MUTED; ctx.font = '12px system-ui'; ctx.textAlign = 'center';
+  chart.options.nValues.forEach((n, i) => { const bar = meta.data[i]; ctx.fillText('n=' + n, bar.x, chart.chartArea.top - 6); });
+  ctx.restore(); } };
+function shareChart(id, spec) {
+  new Chart(document.getElementById(id), { type: 'bar', plugins: [nLabels],
+    data: { labels: DATA.labels, datasets: spec.series.map(s => ({ label: s.label,
+      data: s.values.map((v, i) => spec.n[i] === 0 ? 0 : 100 * v / spec.n[i]),
+      backgroundColor: spec.n.map(n => n < 5 ? hatch(s.color) : s.color) })) },
+    options: { nValues: spec.n, maintainAspectRatio: false, layout: { padding: { top: 18 } },
+      plugins: { legend: { labels: { color: FG } },
+        tooltip: { callbacks: { label: c => `${c.dataset.label}: ${c.parsed.y.toFixed(0)}% (${spec.series[c.datasetIndex].values[c.dataIndex]} of ${spec.n[c.dataIndex]})` } } },
+      scales: { x: { stacked: true, ticks: { color: FG } },
+        y: { stacked: true, max: 100, ticks: { color: FG, callback: v => v + '%' } } } } });
+}
+shareChart('chart1', DATA.chart1); shareChart('chart2', DATA.chart2);
+</script></body></html>

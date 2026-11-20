@@ -1,0 +1,845 @@
+[
+ {
+  "sha": "0455604815252edec7fa4a0c2f33cb902f0c4d38",
+  "committed": "2026-11-20T18:31:23+01:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after the first flow consultation",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "e43c6d1aa5691eeaa417c75e4a2c0efc0138f9a3",
+  "committed": "2026-11-20T16:57:05+01:00",
+  "author": "Eudicy",
+  "subject": "ai(skills): ensure flow-consultant, commit and record-findings skills",
+  "files": [
+   ".skills.json"
+  ]
+ },
+ {
+  "sha": "35061ee8fc01a86ff9f888c73e3bfdc69c6f248b",
+  "committed": "2026-11-20T16:35:20+01:00",
+  "author": "Eudicy",
+  "subject": "chore: label the flow metrics epic and keep only its problem statement",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "b72bca4ba817f962b6fa531eda5c3f9c6c502f40",
+  "committed": "2026-11-20T15:46:20+01:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after replacing the metrics skill with an epic",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "43b93206c1276b106106581fd68bdf45e52739b8",
+  "committed": "2026-11-15T15:50:41+01:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing the init_dev issue",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "8c11812aa69ac80d3729a95478f12c6b9d91146c",
+  "committed": "2026-11-09T10:52:12+01:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing the sm skill import issue",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "92c74c337b4a922087e69bb7c11d60e912ff96fd",
+  "committed": "2026-11-09T05:19:47+01:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing the skill-factory role issue",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "357e790b09d029a3b86525177ed65e6673833091",
+  "committed": "2026-11-08T10:38:57+01:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing the shellcheck role issue",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "aa1729fc0872ba59ec0ed0daf500ae8a3ce9d205",
+  "committed": "2026-11-02T12:52:23+01:00",
+  "author": "Eudicy",
+  "subject": "ai: let OMC setup conductor match reworded menus and keep wait result",
+  "files": [
+   "roles/claude_code_config/files/setup-omc-prompt.md"
+  ]
+ },
+ {
+  "sha": "c90f1ae890e5d4ef2cc0904e17f23e13ee46b00d",
+  "committed": "2026-11-02T12:49:54+01:00",
+  "author": "Eudicy",
+  "subject": "ai(skills): use skill-manager instead of npx skills",
+  "files": [
+   ".gitignore",
+   "CONTRIBUTING.md"
+  ]
+ },
+ {
+  "sha": "59a094c2fb0a7a94c46a86a99fda7367e99a5174",
+  "committed": "2026-11-02T12:25:53+01:00",
+  "author": "Eudicy",
+  "subject": "Revert \"ai(skills): replace skill manager by npx skills\"",
+  "files": [
+   ".skills.json",
+   "CONTRIBUTING.md",
+   "skills-lock.json"
+  ]
+ },
+ {
+  "sha": "5a181f4523e9f55acc5764a2f1d616ad9da5c80b",
+  "committed": "2026-11-02T11:12:05+01:00",
+  "author": "Eudicy",
+  "subject": "deps: update roles",
+  "files": [
+   "roles/claude_code/defaults/main.yml",
+   "roles/dolt_sql_server/defaults/main.yml",
+   "roles/flutter/defaults/main.yml",
+   "roles/rtk/.rtk/filters.toml",
+   "roles/rtk/CLAUDE.md"
+  ]
+ },
+ {
+  "sha": "f83bc833e42e6a1277f92926c920a51554e2b662",
+  "committed": "2026-11-01T14:47:00+01:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after reopening the release download timeout bug",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "5790c927bc1217a242c759c62988b6ae504db6a9",
+  "committed": "2026-11-01T12:03:29+01:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after deferring the release download timeout fix",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "b436ae0134d75c76bb0f99aa5db7818352a81c1d",
+  "committed": "2026-11-01T11:26:54+01:00",
+  "author": "Eudicy",
+  "subject": "ai(skills): replace skill manager by npx skills",
+  "files": [
+   ".skills.json",
+   "CONTRIBUTING.md",
+   "skills-lock.json"
+  ]
+ },
+ {
+  "sha": "1eee370cf9f8249f39b870e42dea27ec0064e1c0",
+  "committed": "2026-10-31T08:45:24+01:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after the human review of the PR #152 findings",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "f445bb00cd5700bd71808de2962467c3806c9a66",
+  "committed": "2026-10-29T15:50:51+01:00",
+  "author": "Stefan Boos",
+  "subject": "deps: update roles",
+  "files": [
+   "roles/claude_code/defaults/main.yml",
+   "roles/dolt_sql_server/defaults/main.yml",
+   "roles/github_cli/defaults/main.yml",
+   "roles/java/defaults/main.yml",
+   "roles/nodejs/defaults/main.yml",
+   "roles/opencode/defaults/main.yml",
+   "roles/rtk/defaults/main.yml",
+   "roles/specify_cli/defaults/main.yml",
+   "roles/uv/defaults/main.yml"
+  ]
+ },
+ {
+  "sha": "f6c636e2ac669982e1f12942b0c65ddee0517496",
+  "committed": "2026-10-25T16:06:57+01:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing the merged uv role work",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "a562c361d5659281ee2b0718df7949be68699f90",
+  "committed": "2026-10-24T17:17:55+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing nnj5",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "1cf7db73884b90bb5245e9b261f217d499ab4d6c",
+  "committed": "2026-10-24T16:51:02+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing epic 2br8 and detaching unrelated work",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "506c7f38873d0e98d7e256b556d729415064f743",
+  "committed": "2026-10-24T16:06:07+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after adding evidence to the git apt 404 bug",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "9093a30c32d0a77ba4af47b8600fcce06422ac88",
+  "committed": "2026-10-24T14:43:32+02:00",
+  "author": "Stefan Boos",
+  "subject": "deps: update roles",
+  "files": [
+   "roles/beads_go/defaults/main.yml",
+   "roles/bun/defaults/main.yml",
+   "roles/claude_code/defaults/main.yml",
+   "roles/dolt_sql_server/defaults/main.yml",
+   "roles/flutter/defaults/main.yml",
+   "roles/github_cli/defaults/main.yml",
+   "roles/nodejs/defaults/main.yml",
+   "roles/obsidian/defaults/main.yml",
+   "roles/opencode/defaults/main.yml",
+   "roles/specify_cli/defaults/main.yml"
+  ]
+ },
+ {
+  "sha": "6d61fd18d4318a2d055afacbbc0727e5884fa531",
+  "committed": "2026-10-24T14:08:09+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing the PR #146 findings gate",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "ad55112cd56dd7e9b2796591453d0ff75823a90d",
+  "committed": "2026-10-24T12:09:20+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing the sm skill import",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "ba890b1aecc0ace90677f19e0a0970600c3c841b",
+  "committed": "2026-10-19T05:39:00+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after splitting the sm skill import into ordered steps",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "c98e2661c7835839c1758e7d68aa3db8af6f085f",
+  "committed": "2026-10-18T20:37:24+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing the ai-agent-workspace clone move",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "9c33faa4ffce9d4e0a4735302ad8bf9fed43c08c",
+  "committed": "2026-10-18T20:37:20+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after keeping the ai_agent_workspace role",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "40644b802f96b2cc4d4e169d1c28f9d13ec98b0d",
+  "committed": "2026-10-18T20:37:20+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after implementing the ai-agent-workspace clone move",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "76954bdf58c1e3b326cb5abe8e7f279ccff40e88",
+  "committed": "2026-10-18T16:12:59+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing PR #143 review findings",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "ec1006d3f1779b29b6310199c8ab5003b7483a0d",
+  "committed": "2026-10-17T22:33:42+02:00",
+  "author": "Eudicy",
+  "subject": "improvement: omc setup prompt",
+  "files": [
+   ".beads/issues.jsonl",
+   "roles/claude_code_config/files/setup-omc-prompt.md"
+  ]
+ },
+ {
+  "sha": "b8f8a5acd7b6b64bbbd8a68c052d42c42cb20acb",
+  "committed": "2026-10-17T18:03:51+02:00",
+  "author": "Eudicy",
+  "subject": "deps: update tools",
+  "files": [
+   "roles/beads_rust/defaults/main.yml",
+   "roles/claude_code/defaults/main.yml",
+   "roles/dolt_sql_server/defaults/main.yml",
+   "roles/java/defaults/main.yml",
+   "roles/nodejs/defaults/main.yml",
+   "roles/opencode/defaults/main.yml",
+   "roles/rtk/defaults/main.yml",
+   "roles/specify_cli/defaults/main.yml"
+  ]
+ },
+ {
+  "sha": "ed9286839240e674c605f41a4b9f4da9e2aa6bad",
+  "committed": "2026-10-17T17:36:47+02:00",
+  "author": "Eudicy",
+  "subject": "style: reformat beads config",
+  "files": [
+   ".beads/config.yaml"
+  ]
+ },
+ {
+  "sha": "9c2a8e3d2463cc9ab71031111fc5300555bd6d73",
+  "committed": "2026-10-10T10:55:49+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export tracker after planning the incremental nvchecker migration",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "ad2b88e03eb8f73591efc1ea4aea7537349b25b9",
+  "committed": "2026-10-09T17:16:22+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export tracker after closing the version-update ADR amendment",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "61db85f0c88ccf5dbfc5e46df9b2d121482b8287",
+  "committed": "2026-10-05T04:51:10+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export tracker after accepting the version-update ADR",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "b5c9d6acd1c048f32544066f13456a7068380aa2",
+  "committed": "2026-10-03T20:42:01+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export tracker after closing the version-update docs drift",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "8452be5049cc98ccd5ea1751f84f4a6e7e5df34f",
+  "committed": "2026-10-03T16:15:37+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export tracker after closing RTK catalogue removal",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "32a96e9618d775bcb86629d41582b4b815cea087",
+  "committed": "2026-10-03T16:04:29+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export tracker after removing beads memories",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "2064ac5a07f6f07223ae3e2fe026e889597fd0fd",
+  "committed": "2026-10-03T06:45:28+02:00",
+  "author": "Eudicy",
+  "subject": "chore: update beads",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "56ade6d48d4e63815a4f4837a557e1fbe89eea29",
+  "committed": "2026-10-02T20:21:28+02:00",
+  "author": "Stefan Boos",
+  "subject": "ai(skills): restore repository-owned changelog guidance",
+  "files": [
+   ".agents/skills/changelog-entry",
+   ".claude/skills/ansible-changelog-entry/SKILL.md",
+   ".claude/skills/ansible-changelog-entry/reference.md",
+   ".specify/memory/constitution.md",
+   "AGENTS.md"
+  ]
+ },
+ {
+  "sha": "25d2097c0816e871c115bb88dc2af5c2d0dfd68d",
+  "committed": "2026-10-02T17:30:08+02:00",
+  "author": "Stefan Boos",
+  "subject": "ai: every mandatory skill invocation is listed with its authority",
+  "files": [
+   "AGENTS.md",
+   "specs/010-configure-basic-profile/tasks.md"
+  ]
+ },
+ {
+  "sha": "ed5eee2fcdcefd72c5daa7afc01d944bdbdb2eeb",
+  "committed": "2026-10-02T17:29:55+02:00",
+  "author": "Stefan Boos",
+  "subject": "ai(skills): this repository's own skills carry an ansible- prefix",
+  "files": [
+   ".claude/skills/ansible-developer/SKILL.md",
+   ".claude/skills/ansible-manual-testing/SKILL.md",
+   ".claude/skills/ansible-molecule-testing/SKILL.md",
+   ".claude/skills/ansible-review-documentation/SKILL.md",
+   ".claude/skills/ansible-role-creator/SKILL.md",
+   ".claude/skills/ansible-role-creator/reference/install-patterns.md",
+   ".claude/skills/ansible-role-creator/reference/version-update-wiring.md",
+   ".claude/skills/ansible-technical-coach/SKILL.md",
+   ".claude/skills/review-documentation-here/SKILL.md",
+   ".specify/memory/constitution.md",
+   "AGENTS.md",
+   "docs/architecture/concepts/login-user-names-assertion.md",
+   "docs/architecture/decisions/005-install-only-profile.md",
+   "docs/architecture/technical-debt/technical-debt.md",
+   "docs/feature-requests/feat.kiro/solution-design.md",
+   "docs/feature-requests/improvement.documentation.updates/prd.md",
+   "docs/feature-requests/improvement.documentation.updates/solution-design.md",
+   "specs/007-version-update-playbooks/checklists/requirements.md",
+   "specs/007-version-update-playbooks/tasks.md",
+   "specs/008-dolt-sql-server-role/research.md",
+   "specs/008-dolt-sql-server-role/tasks.md",
+   "specs/010-configure-basic-profile/tasks.md",
+   "specs/012-hcloud-vm-provider/tasks.md",
+   "specs/013-aws-vm-provider/tasks.md",
+   "specs/014-desktop-profile/tasks.md",
+   "specs/015-aws-windows-profile/tasks.md"
+  ]
+ },
+ {
+  "sha": "121b9786d23a3a76817fd2cf3b195c7896ef36c7",
+  "committed": "2026-10-02T17:29:19+02:00",
+  "author": "Stefan Boos",
+  "subject": "ai: shared skills come from the skill-manager store",
+  "files": [
+   ".agents/skills/beads/SKILL.md",
+   ".agents/skills/beads/agents/openai.yaml",
+   ".agents/skills/changelog-entry",
+   ".claude/skills/changelog-entry/SKILL.md",
+   ".claude/skills/changelog-entry/reference.md",
+   ".gitignore"
+  ]
+ },
+ {
+  "sha": "e616f6947ffa0ff8422ff3e5c453b17ca29a15b0",
+  "committed": "2026-10-02T15:30:58+02:00",
+  "author": "Stefan Boos",
+  "subject": "chore: update beads",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "276b1bd570e14f21b55aa4d6aa9041ce613b2d2f",
+  "committed": "2026-10-01T17:51:59+02:00",
+  "author": "Stefan Boos",
+  "subject": "chore: plan the opinionated OpenCode configuration as beads increments",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "63d5974586c14b5248782f0fe32360c0af4f469f",
+  "committed": "2026-09-28T06:22:04+02:00",
+  "author": "Eudicy",
+  "subject": "chore: update beads",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "66c840d3e8df61298412bba5abea5812b1bc24ab",
+  "committed": "2026-09-27T16:00:44+02:00",
+  "author": "Stefan Boos",
+  "subject": "deps: update beads rust, claude code, opencode, rtk, specify cli",
+  "files": [
+   "roles/beads_rust/defaults/main.yml",
+   "roles/claude_code/defaults/main.yml",
+   "roles/opencode/defaults/main.yml",
+   "roles/rtk/defaults/main.yml",
+   "roles/specify_cli/defaults/main.yml"
+  ]
+ },
+ {
+  "sha": "0969ffc8eaa32a261e4f139ded00a3dcdc929c0f",
+  "committed": "2026-09-26T23:25:40+02:00",
+  "author": "Eudicy",
+  "subject": "chore: cleanup old .omc files",
+  "files": [
+   ".omc/plans/3w2s-molecule-lock.md",
+   ".omc/prd-ru3.json"
+  ]
+ },
+ {
+  "sha": "44865ecfd0fe4b9083d285ef225490f85a621751",
+  "committed": "2026-09-26T23:15:45+02:00",
+  "author": "Eudicy",
+  "subject": "chore: point the version-update ADR memory at its tracking issue",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "d7a612162e95735983b8558bdb8c189cd01c7639",
+  "committed": "2026-09-26T23:14:10+02:00",
+  "author": "Eudicy",
+  "subject": "chore: track the version-update ADR amendment as human-only work",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "a611156d95c78c36e19a068ffa5d9c165a59bd1e",
+  "committed": "2026-09-26T23:11:59+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads with the observed-evidence working rule",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "5078abd80244579449a0ef43bdb7f521e9fa923b",
+  "committed": "2026-09-26T22:53:13+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads with handover notes for the next session",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "842434ed09cff2458b37e831dc4bc57652d5906d",
+  "committed": "2026-09-26T21:01:55+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after filing two action-pinning follow-ups",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "bf948561aea3419910e0b2ecb4d9dc20000a7739",
+  "committed": "2026-09-26T07:27:06+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing login_user_names contract issue",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "97ed94e8e6252fb3e76c8bda7e6f5f4d0befd450",
+  "committed": "2026-09-25T06:32:51+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after deferring the two Molecule scenarios to the register",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "147688b29a7619686135ec4f8b352022985e2ad7",
+  "committed": "2026-09-23T16:51:20+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after detaching the CI linter issue",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "5fc2754276e7376342eaad35dc5ac7916264fb56",
+  "committed": "2026-09-23T16:44:05+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing the per-tool failure isolation work",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "4371c6fe296ce4be8e8d29734b4f34a4eab0d6c5",
+  "committed": "2026-09-23T16:21:54+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing the first-round review findings",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "fc9d46c35a60e985d0d087e195e0651ab9b8e344",
+  "committed": "2026-09-23T16:14:40+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing the work pull request 122 delivered",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "a951734cb566a2d38484c711302f0f69521a939b",
+  "committed": "2026-09-21T09:34:48+02:00",
+  "author": "Stefan Boos",
+  "subject": "build(deps): bump pinned tool versions",
+  "files": [
+   "roles/claude_code/defaults/main.yml",
+   "roles/dolt_sql_server/defaults/main.yml",
+   "roles/flutter/defaults/main.yml",
+   "roles/specify_cli/defaults/main.yml"
+  ]
+ },
+ {
+  "sha": "2b251e9794b575576af8e68a75a0da9054154137",
+  "committed": "2026-09-14T07:49:44+02:00",
+  "author": "Eudicy",
+  "subject": "chore: beads stealth disables git interaction",
+  "files": [
+   ".beads/config.yaml",
+   ".gitignore"
+  ]
+ },
+ {
+  "sha": "54b2404786b85cd01676c1606a5473b713473239",
+  "committed": "2026-09-14T06:14:32+02:00",
+  "author": "Stefan Boos",
+  "subject": "feat: update beads rust, beads viewer, claude code, flutter",
+  "files": [
+   "roles/beads_rust/defaults/main.yml",
+   "roles/beads_viewer/defaults/main.yml",
+   "roles/claude_code/defaults/main.yml",
+   "roles/flutter/defaults/main.yml"
+  ]
+ },
+ {
+  "sha": "fc3cf0d366bd38c7f89d9ee917df44be02932033",
+  "committed": "2026-09-13T08:09:57+02:00",
+  "author": "Eudicy",
+  "subject": "docs: changelog states the format version it follows",
+  "files": [
+   "CHANGELOG.md"
+  ]
+ },
+ {
+  "sha": "7aebd3a82b19be5a3292e9a321381787e5a6d492",
+  "committed": "2026-09-13T08:09:56+02:00",
+  "author": "Eudicy",
+  "subject": "ai(skills): changelog-entry follows Keep a Changelog 2.0.0",
+  "files": [
+   ".claude/skills/changelog-entry/SKILL.md",
+   ".claude/skills/changelog-entry/reference.md"
+  ]
+ },
+ {
+  "sha": "2b87590bed2f317796fdf80036514643eacc8299",
+  "committed": "2026-09-12T21:42:30+02:00",
+  "author": "Eudicy",
+  "subject": "ai(rules): agents invoke changelog-entry before requesting review",
+  "files": [
+   "AGENTS.md"
+  ]
+ },
+ {
+  "sha": "53bc687908dcd9eb9361922bc97687ac9cd7f4c8",
+  "committed": "2026-09-12T21:42:30+02:00",
+  "author": "Eudicy",
+  "subject": "docs: a pull request carries its changelog entries",
+  "files": [
+   ".specify/memory/constitution.md",
+   "CONTRIBUTING.md"
+  ]
+ },
+ {
+  "sha": "2f359d878c5cb13d7ebb08aa6653815e34dc3efc",
+  "committed": "2026-09-11T16:57:55+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing PR #112 findings gate",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "5692bf302c829684e3754fc326f9a640a2a505d8",
+  "committed": "2026-09-09T08:59:37+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after closing PR #110 findings",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "b6d25928cd48ecbc7ca8a3f17199c4d38d79ec97",
+  "committed": "2026-09-09T06:08:25+02:00",
+  "author": "Eudicy",
+  "subject": "chore: export beads after filing skill_manager/claude_code_config design issue",
+  "files": [
+   ".beads/issues.jsonl"
+  ]
+ },
+ {
+  "sha": "e1bc66562550dae81bd5d96bbaf981525709a8d7",
+  "committed": "2026-09-06T19:20:21+02:00",
+  "author": "Stefan Boos",
+  "subject": "docs: prevent statusline-combiner rediscovery in future OMC installs",
+  "files": [
+   "roles/claude_code_config/files/setup-omc-prompt.md"
+  ]
+ },
+ {
+  "sha": "019f6a3b162dadd92088422165a8e302e6d3d2dd",
+  "committed": "2026-09-06T11:08:21+02:00",
+  "author": "Stefan Boos",
+  "subject": "deps: update dolt, flutter, github cli, nerd font, opencode",
+  "files": [
+   "roles/dolt_sql_server/defaults/main.yml",
+   "roles/flutter/defaults/main.yml",
+   "roles/github_cli/defaults/main.yml",
+   "roles/nerd_font/defaults/main.yml",
+   "roles/opencode/defaults/main.yml"
+  ]
+ },
+ {
+  "sha": "43970463307e37f455d761a82a94f7a0d25ef8d8",
+  "committed": "2026-09-06T11:08:20+02:00",
+  "author": "Stefan Boos",
+  "subject": "feat: java is now part of base config",
+  "files": [
+   "playbooks/configure-profile-roles.yml"
+  ]
+ },
+ {
+  "sha": "f875f86b88167a862df3d618750f437522d8b514",
+  "committed": "2026-06-19T05:26:02+02:00",
+  "author": "Stefan Boos",
+  "subject": "feat: tmux installed with basic profile",
+  "files": [
+   "playbooks/configure-profile-roles.yml"
+  ]
+ },
+ {
+  "sha": "f0f930d477d33061d787d880d94c931fcf6b3a48",
+  "committed": "2026-06-11T17:42:30+02:00",
+  "author": "Stefan Boos",
+  "subject": "fix: misconfigured roles path broke configure-profile-roles.yml",
+  "files": [
+   "ansible.cfg"
+  ]
+ },
+ {
+  "sha": "52344c9312aa3b8db01f0b3886cc907b3bd8dc3a",
+  "committed": "2026-06-11T17:36:27+02:00",
+  "author": "Stefan Boos",
+  "subject": "fix: misconfigured playbook path broke configure-profile.yml",
+  "files": [
+   "playbooks/configure-profile.yml"
+  ]
+ },
+ {
+  "sha": "fe23e77bf13c5c0f3b09afd123ef08b2778aa673",
+  "committed": "2026-06-05T05:52:55+02:00",
+  "author": "Stefan Boos",
+  "subject": "feat: increase disk for lorien",
+  "files": [
+   "test/tart/Vagrantfile"
+  ]
+ },
+ {
+  "sha": "25970636c0e381b666a6875a751789ff675a5fea",
+  "committed": "2026-05-14T09:51:53+02:00",
+  "author": "Stefan Boos",
+  "subject": "feat: smaller vm as hcloud default",
+  "files": [
+   "inventories/group_vars/hcloud_linux/vars.yml"
+  ]
+ },
+ {
+  "sha": "3ca1b0f74c9be6f3089370e2aa1134c23c12f3bd",
+  "committed": "2026-05-14T08:33:32+02:00",
+  "author": "Stefan Boos",
+  "subject": "deps: upgrade Windows image to 2026-04-15",
+  "files": [
+   "inventories/group_vars/aws_ec2_windows/vars.yml"
+  ]
+ },
+ {
+  "sha": "cb93a66101f049b54a130a9b0fbe3b5acb3da322",
+  "committed": "2026-05-06T04:56:04+02:00",
+  "author": "Stefan Boos",
+  "subject": "feat: update dotnet to 10",
+  "files": [
+   "playbooks/setup-desktop.yml"
+  ]
+ },
+ {
+  "sha": "a369c88e45f938465e13681e8ec1026b01a00e5a",
+  "committed": "2026-05-06T04:55:48+02:00",
+  "author": "Stefan Boos",
+  "subject": "deps: upgrade aws vm ami id",
+  "files": [
+   "inventories/group_vars/aws_ec2_linux/vars.yml"
+  ]
+ },
+ {
+  "sha": "9d33de38cea1663e6e1a5e06c2e9ab46bb13fdae",
+  "committed": "2026-05-06T04:55:30+02:00",
+  "author": "Stefan Boos",
+  "subject": "feat: access aws vm from any ip",
+  "files": [
+   "provisioners/aws-linux.yml"
+  ]
+ },
+ {
+  "sha": "d52d8e7682101a2f9c18e5ec421d5c817715522f",
+  "committed": "2026-05-06T04:53:28+02:00",
+  "author": "Stefan Boos",
+  "subject": "feat: update current tart ip",
+  "files": [
+   "inventories/vagrant_tart.yml"
+  ]
+ },
+ {
+  "sha": "2448d397d4480af5a230f36c81882f0e03b0e6df",
+  "committed": "2026-04-10T11:46:53+02:00",
+  "author": "Stefan Boos",
+  "subject": "feat: disable flutter dev by default",
+  "files": [
+   "configure-linux-roles.yml"
+  ]
+ },
+ {
+  "sha": "e9e961cbcf903e3160fdeb821cd15049361b64f8",
+  "committed": "2026-04-01T05:11:42+02:00",
+  "author": "Stefan Boos",
+  "subject": "feat: make cursor_ide an optional role",
+  "files": [
+   "configure-linux-roles.yml"
+  ]
+ }
+]

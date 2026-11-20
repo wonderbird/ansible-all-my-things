@@ -1,0 +1,4170 @@
+{
+ "months": [
+  "2026-04",
+  "2026-05",
+  "2026-06",
+  "2026-07",
+  "2026-08",
+  "2026-09",
+  "2026-10",
+  "2026-11"
+ ],
+ "partial_month": "2026-11",
+ "month_category": {
+  "2026-04": {
+   "machines": 9,
+   "lab": 1,
+   "rework": 4,
+   "automated": 1,
+   "base_n": 14
+  },
+  "2026-05": {
+   "machines": 12,
+   "lab": 1,
+   "rework": 2,
+   "automated": 0,
+   "base_n": 15
+  },
+  "2026-06": {
+   "machines": 24,
+   "lab": 4,
+   "rework": 10,
+   "automated": 1,
+   "base_n": 38
+  },
+  "2026-07": {
+   "machines": 3,
+   "lab": 0,
+   "rework": 0,
+   "automated": 1,
+   "base_n": 3
+  },
+  "2026-08": {
+   "machines": 2,
+   "lab": 0,
+   "rework": 0,
+   "automated": 1,
+   "base_n": 2
+  },
+  "2026-09": {
+   "machines": 23,
+   "lab": 5,
+   "rework": 3,
+   "automated": 3,
+   "base_n": 31
+  },
+  "2026-10": {
+   "machines": 17,
+   "lab": 8,
+   "rework": 3,
+   "automated": 1,
+   "base_n": 28
+  },
+  "2026-11": {
+   "machines": 12,
+   "lab": 3,
+   "rework": 3,
+   "automated": 3,
+   "base_n": 18
+  }
+ },
+ "month_segments": {
+  "2026-04": {
+   "manual PR": 3,
+   "agent PR": 9,
+   "automated PR": 1,
+   "manual direct": 2
+  },
+  "2026-05": {
+   "agent PR": 9,
+   "manual direct": 6
+  },
+  "2026-06": {
+   "agent PR": 30,
+   "manual PR": 4,
+   "automated PR": 1,
+   "manual direct": 4
+  },
+  "2026-07": {
+   "agent PR": 3,
+   "automated PR": 1
+  },
+  "2026-08": {
+   "agent PR": 1,
+   "automated PR": 1,
+   "manual PR": 1
+  },
+  "2026-09": {
+   "agent PR": 20,
+   "automated PR": 3,
+   "manual PR": 1,
+   "manual direct": 6,
+   "agent direct": 4
+  },
+  "2026-10": {
+   "agent PR": 17,
+   "automated PR": 1,
+   "manual PR": 3,
+   "manual direct": 6,
+   "agent direct": 2
+  },
+  "2026-11": {
+   "agent PR": 9,
+   "automated PR": 3,
+   "manual PR": 3,
+   "agent direct": 6
+  }
+ },
+ "month_discarded": {
+  "2026-04": {
+   "discarded": 1
+  },
+  "2026-05": {
+   "discarded": 7,
+   "closed_dependabot": 1
+  },
+  "2026-06": {
+   "discarded": 3
+  },
+  "2026-07": {},
+  "2026-08": {},
+  "2026-09": {
+   "discarded": 3
+  },
+  "2026-10": {
+   "closed_dependabot": 1
+  },
+  "2026-11": {}
+ },
+ "category_author": {
+  "machines": {
+   "agent": 73,
+   "manual": 29
+  },
+  "lab": {
+   "agent": 18,
+   "manual": 4
+  },
+  "automated": {
+   "automated": 11
+  },
+  "rework": {
+   "manual": 6,
+   "agent": 19
+  }
+ },
+ "rework_split": {
+  "machines": 22,
+  "lab": 3
+ },
+ "bumps_by_author": {
+  "manual": 11,
+  "agent": 3
+ },
+ "median_commits_per_pr": {
+  "2026-04": 4.5,
+  "2026-05": 8,
+  "2026-06": 5.0,
+  "2026-07": 8,
+  "2026-08": 25.0,
+  "2026-09": 4,
+  "2026-10": 2.0,
+  "2026-11": 2.0
+ },
+ "d8": {
+  "rework_share": {
+   "p_bar": 0.1746031746031746,
+   "months": [
+    {
+     "month": "2026-04",
+     "num": 4,
+     "n": 14,
+     "share": 0.2857142857142857,
+     "lower": 0.0,
+     "upper": 0.47898218577592416,
+     "outside": false
+    },
+    {
+     "month": "2026-05",
+     "num": 2,
+     "n": 15,
+     "share": 0.13333333333333333,
+     "lower": 0.0,
+     "upper": 0.46866123623896916,
+     "outside": false
+    },
+    {
+     "month": "2026-06",
+     "num": 10,
+     "n": 38,
+     "share": 0.2631578947368421,
+     "lower": 0.0,
+     "upper": 0.35935422717442383,
+     "outside": false
+    },
+    {
+     "month": "2026-09",
+     "num": 3,
+     "n": 31,
+     "share": 0.0967741935483871,
+     "lower": 0.0,
+     "upper": 0.3791524157917129,
+     "outside": false
+    },
+    {
+     "month": "2026-10",
+     "num": 3,
+     "n": 28,
+     "share": 0.10714285714285714,
+     "lower": 0.0,
+     "upper": 0.38983163745428173,
+     "outside": false
+    }
+   ],
+   "flagged": [
+    "2026-07",
+    "2026-08"
+   ],
+   "signals": [],
+   "run_rule_possible": false,
+   "verdict": "no signal"
+  },
+  "manual_share": {
+   "p_bar": 0.2777777777777778,
+   "months": [
+    {
+     "month": "2026-04",
+     "num": 5,
+     "n": 14,
+     "share": 0.35714285714285715,
+     "lower": 0.0,
+     "upper": 0.6368992808491672,
+     "outside": false
+    },
+    {
+     "month": "2026-05",
+     "num": 6,
+     "n": 15,
+     "share": 0.4,
+     "lower": 0.0,
+     "upper": 0.6247221110221333,
+     "outside": false
+    },
+    {
+     "month": "2026-06",
+     "num": 8,
+     "n": 38,
+     "share": 0.21052631578947367,
+     "lower": 0.05979929286919572,
+     "upper": 0.49575626268635986,
+     "outside": false
+    },
+    {
+     "month": "2026-09",
+     "num": 7,
+     "n": 31,
+     "share": 0.22580645161290322,
+     "lower": 0.03644040479429994,
+     "upper": 0.5191151507612557,
+     "outside": false
+    },
+    {
+     "month": "2026-10",
+     "num": 9,
+     "n": 28,
+     "share": 0.32142857142857145,
+     "lower": 0.023840527686092794,
+     "upper": 0.5317150278694628,
+     "outside": false
+    }
+   ],
+   "flagged": [
+    "2026-07",
+    "2026-08"
+   ],
+   "signals": [],
+   "run_rule_possible": false,
+   "verdict": "no signal"
+  },
+  "agent_rework_share": {
+   "p_bar": 0.18681318681318682,
+   "months": [
+    {
+     "month": "2026-04",
+     "num": 2,
+     "n": 9,
+     "share": 0.2222222222222222,
+     "lower": 0.0,
+     "upper": 0.5765746780432572,
+     "outside": false
+    },
+    {
+     "month": "2026-05",
+     "num": 2,
+     "n": 9,
+     "share": 0.2222222222222222,
+     "lower": 0.0,
+     "upper": 0.5765746780432572,
+     "outside": false
+    },
+    {
+     "month": "2026-06",
+     "num": 7,
+     "n": 30,
+     "share": 0.23333333333333334,
+     "lower": 0.0,
+     "upper": 0.4002943476067483,
+     "outside": false
+    },
+    {
+     "month": "2026-09",
+     "num": 3,
+     "n": 24,
+     "share": 0.125,
+     "lower": 0.0,
+     "upper": 0.42549238053817007,
+     "outside": false
+    },
+    {
+     "month": "2026-10",
+     "num": 3,
+     "n": 19,
+     "share": 0.15789473684210525,
+     "lower": 0.0,
+     "upper": 0.4550654424482802,
+     "outside": false
+    }
+   ],
+   "flagged": [
+    "2026-07",
+    "2026-08"
+   ],
+   "signals": [],
+   "run_rule_possible": false,
+   "verdict": "no signal"
+  }
+ },
+ "diagnostics": {
+  "mixed": 8,
+  "neutral_only": 5,
+  "default_machines_paths": {
+   "roles/": 86,
+   "playbooks/": 56,
+   ".github/": 22,
+   "scripts/": 16,
+   "CONTRIBUTING.md": 13,
+   "inventories/": 12,
+   "configure-linux-roles.yml": 12,
+   "role-template/": 5,
+   "requirements.yml": 4,
+   "memory-bank-branches/": 4,
+   "backup.yml": 3,
+   "requirements.txt": 2,
+   ".devcontainer/": 2,
+   "ansible.cfg": 2,
+   "provisioners/": 2,
+   "test/": 2,
+   ".markdownlint.json": 2,
+   "restore.yml": 2,
+   "FINDINGS.md": 2,
+   "REVIEW-FINDINGS.md": 2,
+   ".pre-commit-config.yaml": 1,
+   "ruff.toml": 1,
+   "configure-linux.yml": 1,
+   "configure-windows.yml": 1,
+   "configure.sh": 1,
+   "destroy-aws-tasks.yml": 1,
+   "destroy-hcloud-tasks.yml": 1,
+   "destroy.yml": 1,
+   "provision.yml": 1,
+   "container-structure-test-linux-arm64": 1,
+   "provision-aws-linux.yml": 1,
+   "provision-aws-windows.yml": 1
+  },
+  "opener_commit_disagreements": [
+   {
+    "id": "#159",
+    "opener": "manual",
+    "commit_authors": {
+     "agent": 1
+    }
+   },
+   {
+    "id": "#114",
+    "opener": "manual",
+    "commit_authors": {
+     "agent": 1
+    }
+   },
+   {
+    "id": "#103",
+    "opener": "agent",
+    "commit_authors": {
+     "agent": 48,
+     "manual": 1
+    }
+   },
+   {
+    "id": "#100",
+    "opener": "agent",
+    "commit_authors": {
+     "agent": 6,
+     "manual": 2
+    }
+   },
+   {
+    "id": "#99",
+    "opener": "agent",
+    "commit_authors": {
+     "agent": 4,
+     "manual": 1
+    }
+   },
+   {
+    "id": "#98",
+    "opener": "agent",
+    "commit_authors": {
+     "agent": 14,
+     "manual": 62
+    }
+   },
+   {
+    "id": "#96",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 7,
+     "agent": 2
+    }
+   },
+   {
+    "id": "#95",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 8
+    }
+   },
+   {
+    "id": "#93",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 2
+    }
+   },
+   {
+    "id": "#91",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 1
+    }
+   },
+   {
+    "id": "#90",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 1
+    }
+   },
+   {
+    "id": "#89",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 2
+    }
+   },
+   {
+    "id": "#88",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 38
+    }
+   },
+   {
+    "id": "#87",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 3
+    }
+   },
+   {
+    "id": "#86",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 2,
+     "agent": 2
+    }
+   },
+   {
+    "id": "#85",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 4
+    }
+   },
+   {
+    "id": "#84",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 20
+    }
+   },
+   {
+    "id": "#83",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 1,
+     "agent": 4
+    }
+   },
+   {
+    "id": "#80",
+    "opener": "manual",
+    "commit_authors": {
+     "agent": 4
+    }
+   },
+   {
+    "id": "#79",
+    "opener": "agent",
+    "commit_authors": {
+     "agent": 5,
+     "manual": 1
+    }
+   },
+   {
+    "id": "#69",
+    "opener": "agent",
+    "commit_authors": {
+     "agent": 10,
+     "manual": 1
+    }
+   },
+   {
+    "id": "#42",
+    "opener": "agent",
+    "commit_authors": {
+     "agent": 36,
+     "manual": 4
+    }
+   },
+   {
+    "id": "#40",
+    "opener": "manual",
+    "commit_authors": {
+     "agent": 1
+    }
+   },
+   {
+    "id": "#38",
+    "opener": "agent",
+    "commit_authors": {
+     "agent": 17,
+     "manual": 2
+    }
+   },
+   {
+    "id": "#34",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 7,
+     "agent": 10
+    }
+   },
+   {
+    "id": "#32",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 2,
+     "agent": 6
+    }
+   },
+   {
+    "id": "#31",
+    "opener": "agent",
+    "commit_authors": {
+     "manual": 2
+    }
+   },
+   {
+    "id": "#29",
+    "opener": "manual",
+    "commit_authors": {
+     "agent": 1
+    }
+   },
+   {
+    "id": "#28",
+    "opener": "manual",
+    "commit_authors": {
+     "agent": 15,
+     "manual": 4
+    }
+   }
+  ],
+  "direct_excluded": {
+   "beads-only": 46,
+   "chore": 2
+  }
+ },
+ "absorbed": {
+  "#94": "#95",
+  "#113": "#112"
+ },
+ "totals": {
+  "delivered_prs": 124,
+  "delivered_direct": 36,
+  "discarded": 14,
+  "closed_dependabot": 2
+ },
+ "items": [
+  {
+   "channel": "PR",
+   "id": "#168",
+   "month": "2026-11",
+   "title": "build(deps): update pinned tool versions in roles",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 6,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#167",
+   "month": "2026-11",
+   "title": "ai(constitution): classify playbook logic and keep Principle II lean",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 7
+   },
+   "category": "lab",
+   "commit_count": 7,
+   "bump": false,
+   "vote": "lab",
+   "lab": 3,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#166",
+   "month": "2026-11",
+   "title": "feat: optional swap file for Linux VMs",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 13
+   },
+   "category": "machines",
+   "commit_count": 13,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 20,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#165",
+   "month": "2026-11",
+   "title": "ai: let OMC setup conductor decline the fullscreen renderer menu",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#163",
+   "month": "2026-11",
+   "title": "build(deps): bump docker/login-action from 4.7.0 to 4.8.0 in the all-actions group across 1 directory",
+   "author_type": "automated",
+   "commit_author_types": {
+    "automated": 1
+   },
+   "category": "automated",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#164",
+   "month": "2026-11",
+   "title": "feat: init_dev initializes a fresh clone on a provisioned VM",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 36
+   },
+   "category": "machines",
+   "commit_count": 36,
+   "bump": false,
+   "vote": "machines",
+   "lab": 2,
+   "machines": 40,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/",
+    ".pre-commit-config.yaml",
+    "CONTRIBUTING.md",
+    "requirements.txt",
+    "ruff.toml",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#162",
+   "month": "2026-11",
+   "title": "fix(android_studio)!: verify SDK command-line tools by SHA-256",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 6
+   },
+   "category": "rework",
+   "commit_count": 6,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 21,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/",
+    "playbooks/",
+    "roles/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#161",
+   "month": "2026-11",
+   "title": "build(deps): update pinned tool versions in roles",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 8,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#160",
+   "month": "2026-11",
+   "title": "fix: sm skill import failed with 0 skills after skills moved to skill-factory",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "rework",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 10,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "CONTRIBUTING.md",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#158",
+   "month": "2026-11",
+   "title": "feat: clone skill-factory for hosts opting into claude_opinionated",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 3
+   },
+   "category": "machines",
+   "commit_count": 3,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 11,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#159",
+   "month": "2026-11",
+   "title": "build(deps): update pinned tool versions in roles",
+   "author_type": "manual",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#157",
+   "month": "2026-11",
+   "title": "build(deps): bump the all-actions group with 2 updates",
+   "author_type": "automated",
+   "commit_author_types": {
+    "automated": 1
+   },
+   "category": "automated",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 2,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#156",
+   "month": "2026-11",
+   "title": "feat: install shellcheck on every linux host",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "machines",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 9,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#155",
+   "month": "2026-11",
+   "title": "build(deps): update pinned tool versions in roles",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 7,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#154",
+   "month": "2026-11",
+   "title": "build(deps): bump the all-actions group across 1 directory with 3 updates",
+   "author_type": "automated",
+   "commit_author_types": {
+    "automated": 1
+   },
+   "category": "automated",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 4,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#152",
+   "month": "2026-10",
+   "title": "fix: bun and opencode treated a version containing the pin as current",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 14
+   },
+   "category": "rework",
+   "commit_count": 14,
+   "bump": false,
+   "vote": "machines",
+   "lab": 2,
+   "machines": 30,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#153",
+   "month": "2026-10",
+   "title": "fix: nodejs role failed to install node.js 26",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 7
+   },
+   "category": "rework",
+   "commit_count": 7,
+   "bump": false,
+   "vote": "lab",
+   "lab": 3,
+   "machines": 2,
+   "mixed": true,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#151",
+   "month": "2026-10",
+   "title": "fix: pin bumps upgrade rtk, bd, br and bv on existing hosts",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "rework",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 17,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#150",
+   "month": "2026-10",
+   "title": "feat(uv): install uv and uvx on every Linux host",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 14
+   },
+   "category": "machines",
+   "commit_count": 14,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 13,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#148",
+   "month": "2026-10",
+   "title": "ai: name the cleanup bd init --stealth needs to keep issues.jsonl stageable",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 1,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#147",
+   "month": "2026-10",
+   "title": "refactor: claude_code_config no longer depends on ai_agent_workspace",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "machines",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 6,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#146",
+   "month": "2026-10",
+   "title": "feat: keep ai-agent-workspace skills inactive until activated with sm",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 5
+   },
+   "category": "machines",
+   "commit_count": 5,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 8,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#145",
+   "month": "2026-10",
+   "title": "feat: make ai-agent-workspace skills available in sm without deploying them",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "machines",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 6,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#144",
+   "month": "2026-10",
+   "title": "feat: only claude_opinionated hosts get the ai-agent-workspace clone",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 4
+   },
+   "category": "machines",
+   "commit_count": 4,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 7,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#143",
+   "month": "2026-10",
+   "title": "feat: sm never adopts skills in the directory it runs in",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 8
+   },
+   "category": "machines",
+   "commit_count": 8,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 7,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#142",
+   "month": "2026-10",
+   "title": "build(deps): bump the all-actions group with 2 updates",
+   "author_type": "automated",
+   "commit_author_types": {
+    "automated": 1
+   },
+   "category": "automated",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#141",
+   "month": "2026-10",
+   "title": "Update versions",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 2
+   },
+   "category": "machines",
+   "commit_count": 2,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 10,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#140",
+   "month": "2026-10",
+   "title": "docs: describe today's version-update mechanism in ADR-006",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 7
+   },
+   "category": "machines",
+   "commit_count": 7,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": true,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#139",
+   "month": "2026-10",
+   "title": "docs: describe the one-playbook version-update mechanism",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 11
+   },
+   "category": "machines",
+   "commit_count": 11,
+   "bump": false,
+   "vote": "machines",
+   "lab": 3,
+   "machines": 9,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/",
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#138",
+   "month": "2026-10",
+   "title": "ai: drop outdated RTK command catalogue from AGENTS.md",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "lab",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "lab",
+   "lab": 1,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#137",
+   "month": "2026-10",
+   "title": "ai: move durable agent memories into rules files",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "lab",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "lab",
+   "lab": 3,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#136",
+   "month": "2026-10",
+   "title": "ai: harden OMC setup conductor against TUI pitfalls",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#135",
+   "month": "2026-10",
+   "title": "ai: improve OMC setup prompt",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#134",
+   "month": "2026-10",
+   "title": "deps: update roles",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 9,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#133",
+   "month": "2026-10",
+   "title": "Record that bd's git hooks stay uninstalled",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "lab",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "lab",
+   "lab": 1,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#132",
+   "month": "2026-10",
+   "title": "feat: every Linux host provides the bun and bunx commands",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 4
+   },
+   "category": "machines",
+   "commit_count": 4,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 13,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#131",
+   "month": "2026-09",
+   "title": "Attribute every fetch output to the call that produced it",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 6
+   },
+   "category": "machines",
+   "commit_count": 6,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 20,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/",
+    "playbooks/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#129",
+   "month": "2026-09",
+   "title": "build(deps): bump the all-actions group with 3 updates",
+   "author_type": "automated",
+   "commit_author_types": {
+    "automated": 1
+   },
+   "category": "automated",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 2,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#128",
+   "month": "2026-09",
+   "title": "ci: pin every workflow action by SHA and enforce it",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 9
+   },
+   "category": "machines",
+   "commit_count": 9,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 7,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/",
+    "CONTRIBUTING.md"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#127",
+   "month": "2026-09",
+   "title": "docs: collapse GitHub Actions pinning to a single SHA-pinned tier (ADR-007)",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 3
+   },
+   "category": "machines",
+   "commit_count": 3,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": true,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#125",
+   "month": "2026-09",
+   "title": "ai(rules): a beads-export-only commit may go straight to main",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 1,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#124",
+   "month": "2026-09",
+   "title": "docs: clear the last three blockers on review gate 8itk",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 5
+   },
+   "category": "machines",
+   "commit_count": 5,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 4,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#123",
+   "month": "2026-09",
+   "title": "Clear the 8itk gate blockers: spec fix, role READMEs, desktop profile wiring",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 18
+   },
+   "category": "machines",
+   "commit_count": 18,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 12,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#122",
+   "month": "2026-09",
+   "title": "feat: isolate per-tool failures and drive version updates from one registry",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 56
+   },
+   "category": "machines",
+   "commit_count": 56,
+   "bump": false,
+   "vote": "machines",
+   "lab": 5,
+   "machines": 57,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/",
+    "playbooks/",
+    "roles/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#121",
+   "month": "2026-09",
+   "title": "feat: a release without the asset a tool installs fails the update run",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 5
+   },
+   "category": "machines",
+   "commit_count": 5,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 5,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#119",
+   "month": "2026-09",
+   "title": "refactor: each checksum fetch sets its own named fact",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 4
+   },
+   "category": "machines",
+   "commit_count": 4,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 5,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#120",
+   "month": "2026-09",
+   "title": "build(deps): bump pinned tool versions",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 2,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#117",
+   "month": "2026-09",
+   "title": "fix: a renamed pin variable now fails the version-update run",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 15
+   },
+   "category": "rework",
+   "commit_count": 15,
+   "bump": false,
+   "vote": "machines",
+   "lab": 2,
+   "machines": 9,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/",
+    "playbooks/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#118",
+   "month": "2026-09",
+   "title": "build(deps): update pinned tool versions",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 5,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#116",
+   "month": "2026-09",
+   "title": "Move agent memories into the constitution, the molecule-testing skill and the version-update docs",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 3
+   },
+   "category": "lab",
+   "commit_count": 3,
+   "bump": false,
+   "vote": "lab",
+   "lab": 2,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#115",
+   "month": "2026-09",
+   "title": "Assert login_user_names is provided in per-user roles",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 14
+   },
+   "category": "machines",
+   "commit_count": 14,
+   "bump": false,
+   "vote": "machines",
+   "lab": 4,
+   "machines": 23,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#114",
+   "month": "2026-09",
+   "title": "build(deps): bump pinned tool versions and checksums",
+   "author_type": "manual",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 8,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#112",
+   "month": "2026-09",
+   "title": "fix: version-update playbook aborted at Obsidian and never updated claude_code",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 23
+   },
+   "category": "rework",
+   "commit_count": 23,
+   "bump": false,
+   "vote": "machines",
+   "lab": 2,
+   "machines": 10,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/",
+    "playbooks/",
+    "roles/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#111",
+   "month": "2026-09",
+   "title": "feat: add direnv role for system-wide install and per-user bash hook",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 13,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#110",
+   "month": "2026-09",
+   "title": "feat: extract dedicated git role, remove per-role duplication",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 6
+   },
+   "category": "machines",
+   "commit_count": 6,
+   "bump": false,
+   "vote": "machines",
+   "lab": 3,
+   "machines": 38,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#109",
+   "month": "2026-09",
+   "title": "chore(deps): bump the all-actions group across 1 directory with 2 updates",
+   "author_type": "automated",
+   "commit_author_types": {
+    "automated": 1
+   },
+   "category": "automated",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#105",
+   "month": "2026-09",
+   "title": "chore(deps): bump docker/setup-buildx-action from 4.2.0 to 4.3.0 in the all-actions group",
+   "author_type": "automated",
+   "commit_author_types": {
+    "automated": 1
+   },
+   "category": "automated",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#108",
+   "month": "2026-09",
+   "title": "feat: add role-creator skill for authoring new Ansible roles",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "lab",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "lab",
+   "lab": 3,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#107",
+   "month": "2026-09",
+   "title": "feat: add skill_manager role to install sm CLI from source",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 13,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#106",
+   "month": "2026-09",
+   "title": "fix: point ai-agent-workspace clone and refs at wonderbird upstream",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "rework",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 5,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#103",
+   "month": "2026-08",
+   "title": "feat: opinionated claude configuration is deactivated by default",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 48,
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 49,
+   "bump": false,
+   "vote": "machines",
+   "lab": 4,
+   "machines": 108,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".devcontainer/",
+    "inventories/",
+    "playbooks/",
+    "roles/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#101",
+   "month": "2026-08",
+   "title": "chore(deps): bump the all-actions group across 1 directory with 6 updates",
+   "author_type": "automated",
+   "commit_author_types": {
+    "automated": 1
+   },
+   "category": "automated",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 3,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#102",
+   "month": "2026-08",
+   "title": "deps: upgrade Android Studio, Dolt SQL Server, Flutter, GitHub CLI, Java, Nerd Font, OpenCode",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 7,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#100",
+   "month": "2026-07",
+   "title": "Add vim role, dependency updates, and constitution Principle II clarification",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 6,
+    "manual": 2
+   },
+   "category": "machines",
+   "commit_count": 8,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 13,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#97",
+   "month": "2026-07",
+   "title": "chore(deps): bump the all-actions group with 3 updates",
+   "author_type": "automated",
+   "commit_author_types": {
+    "automated": 1
+   },
+   "category": "automated",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 3,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#99",
+   "month": "2026-07",
+   "title": "feat: add beads_rust role installing br CLI",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 4,
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 5,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 33,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#98",
+   "month": "2026-07",
+   "title": "feat: cross-harness CLI role extraction, version pinning, and Obsidian role",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 14,
+    "manual": 62
+   },
+   "category": "machines",
+   "commit_count": 76,
+   "bump": false,
+   "vote": "machines",
+   "lab": 9,
+   "machines": 84,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "role-template/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#96",
+   "month": "2026-06",
+   "title": "docs(claude_code): automate omc setup via conductor prompt",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 7,
+    "agent": 2
+   },
+   "category": "machines",
+   "commit_count": 9,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 7,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#95",
+   "month": "2026-06",
+   "title": "refactor(github_cli): migrate apt repo to deb822_repository format",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 8
+   },
+   "category": "machines",
+   "commit_count": 8,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 13,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "role-template/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#93",
+   "month": "2026-06",
+   "title": "fix: assert task logged excessive file metadata per skill directory",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 2
+   },
+   "category": "rework",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 2,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#92",
+   "month": "2026-06",
+   "title": "docs: fix macos compatibility in first-steps.md",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": true,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#91",
+   "month": "2026-06",
+   "title": "fix: ansible_env and ansible_architecture caused deprecation warnings",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "rework",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 6,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#90",
+   "month": "2026-06",
+   "title": "fix: git binary was missing before TPM clone in tmux role",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "rework",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#89",
+   "month": "2026-06",
+   "title": "docs: add first-steps guide for Docker VM with basic profile",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 2
+   },
+   "category": "machines",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": true,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#88",
+   "month": "2026-06",
+   "title": "Phase 6: retire legacy provision/destroy stack; overhaul docs and inventory",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 38
+   },
+   "category": "machines",
+   "commit_count": 38,
+   "bump": false,
+   "vote": "machines",
+   "lab": 3,
+   "machines": 70,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "CONTRIBUTING.md",
+    "ansible.cfg",
+    "configure-linux-roles.yml",
+    "configure-linux.yml",
+    "configure-windows.yml",
+    "configure.sh",
+    "destroy-aws-tasks.yml",
+    "destroy-hcloud-tasks.yml",
+    "destroy.yml",
+    "inventories/",
+    "playbooks/",
+    "provision.yml",
+    "provisioners/",
+    "roles/",
+    "scripts/",
+    "test/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#87",
+   "month": "2026-06",
+   "title": "feat: bd-guard hook blocks runaway beads command",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 3
+   },
+   "category": "machines",
+   "commit_count": 3,
+   "bump": false,
+   "vote": "machines",
+   "lab": 2,
+   "machines": 3,
+   "mixed": true,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#86",
+   "month": "2026-06",
+   "title": "feat: install OpenCode AI CLI; sync roadmap + backup/restore refactor",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 2,
+    "agent": 2
+   },
+   "category": "machines",
+   "commit_count": 4,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 12,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#85",
+   "month": "2026-06",
+   "title": "fix: backup playbooks failed with cryptic error when run without -e backup_from_host",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 4
+   },
+   "category": "rework",
+   "commit_count": 4,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 2,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "backup.yml",
+    "inventories/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#84",
+   "month": "2026-06",
+   "title": "feat: AWS Windows profile for VM create/destroy/configure",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 20
+   },
+   "category": "machines",
+   "commit_count": 20,
+   "bump": false,
+   "vote": "machines",
+   "lab": 6,
+   "machines": 8,
+   "mixed": true,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "requirements.yml"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#83",
+   "month": "2026-06",
+   "title": "build(deps): bump dolt to v2.1.8",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 1,
+    "agent": 4
+   },
+   "category": "machines",
+   "commit_count": 5,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 2,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "inventories/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#82",
+   "month": "2026-06",
+   "title": "Add desktop profile to create-vm/configure-profile/destroy-vm",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 15
+   },
+   "category": "machines",
+   "commit_count": 15,
+   "bump": false,
+   "vote": "machines",
+   "lab": 4,
+   "machines": 31,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "configure-linux-roles.yml",
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#81",
+   "month": "2026-06",
+   "title": "fix: concurrent molecule test runs collided on shared container",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 6
+   },
+   "category": "rework",
+   "commit_count": 6,
+   "bump": false,
+   "vote": "lab",
+   "lab": 3,
+   "machines": 2,
+   "mixed": true,
+   "neutral_only": false,
+   "default_paths": [
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#80",
+   "month": "2026-06",
+   "title": "fix: tmux role failed on console-only Linux targets",
+   "author_type": "manual",
+   "commit_author_types": {
+    "agent": 4
+   },
+   "category": "rework",
+   "commit_count": 4,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 11,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "configure-linux-roles.yml",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#79",
+   "month": "2026-06",
+   "title": "fix: NVM and claude_code role missing prerequisites on fresh hosts",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 5,
+    "manual": 1
+   },
+   "category": "rework",
+   "commit_count": 6,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 8,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#78",
+   "month": "2026-06",
+   "title": "deps: update dolt_sql_server and flutter versions",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 2,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#77",
+   "month": "2026-06",
+   "title": "deps: Windows requires posix.authorized_key",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 2,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "requirements.yml"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#76",
+   "month": "2026-06",
+   "title": "refactor: remove ambient curl from claude_code molecule scenario",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 4
+   },
+   "category": "machines",
+   "commit_count": 4,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 6,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#75",
+   "month": "2026-06",
+   "title": "fix: uniform SSH key-based auth for local VM providers",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 8
+   },
+   "category": "rework",
+   "commit_count": 8,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 6,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "inventories/",
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#74",
+   "month": "2026-06",
+   "title": "feat: add AWS EC2 provider for create-vm/destroy-vm",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 5
+   },
+   "category": "machines",
+   "commit_count": 5,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 6,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#73",
+   "month": "2026-06",
+   "title": "feat: add Hetzner Cloud (hcloud) VM provider",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 10
+   },
+   "category": "machines",
+   "commit_count": 10,
+   "bump": false,
+   "vote": "machines",
+   "lab": 3,
+   "machines": 6,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#72",
+   "month": "2026-06",
+   "title": "feat: add Docker provider for create-vm/destroy-vm playbooks",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 22
+   },
+   "category": "machines",
+   "commit_count": 22,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 10,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#71",
+   "month": "2026-06",
+   "title": "Remove duplicate speckit command files",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 4
+   },
+   "category": "lab",
+   "commit_count": 4,
+   "bump": false,
+   "vote": "lab",
+   "lab": 9,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "CONTRIBUTING.md"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#70",
+   "month": "2026-06",
+   "title": "Update Spec Kit",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 49,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#69",
+   "month": "2026-06",
+   "title": "Configure basic profile playbook for tart VMs + recent fixes",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 10,
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 11,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 6,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "inventories/",
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#68",
+   "month": "2026-06",
+   "title": "feat: create-vm boots in 7s via direct tart CLI (replace vagrant)",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 39
+   },
+   "category": "machines",
+   "commit_count": 39,
+   "bump": false,
+   "vote": "machines",
+   "lab": 2,
+   "machines": 7,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".markdownlint.json",
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#66",
+   "month": "2026-06",
+   "title": "docs: correct bd dep-add type rules and epic-gating semantics",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 8
+   },
+   "category": "lab",
+   "commit_count": 8,
+   "bump": false,
+   "vote": "lab",
+   "lab": 1,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#65",
+   "month": "2026-06",
+   "title": "ai(rules): mandate version-update registration for version-pinning roles",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 8
+   },
+   "category": "lab",
+   "commit_count": 8,
+   "bump": false,
+   "vote": "lab",
+   "lab": 2,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#64",
+   "month": "2026-06",
+   "title": "feat: back up and restore RTK token analytics settings",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 11
+   },
+   "category": "machines",
+   "commit_count": 11,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 7,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "backup.yml",
+    "playbooks/",
+    "restore.yml",
+    "roles/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#63",
+   "month": "2026-06",
+   "title": "build(deps): bump the all-actions group with 4 updates",
+   "author_type": "automated",
+   "commit_author_types": {
+    "automated": 1
+   },
+   "category": "automated",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#62",
+   "month": "2026-06",
+   "title": "feat(backup): narrow claude backup/restore to role-unmanaged state",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 3
+   },
+   "category": "machines",
+   "commit_count": 3,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 2,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#61",
+   "month": "2026-06",
+   "title": "feat(claude_code): clone ai-agent-workspace and symlink skills per user",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 5
+   },
+   "category": "machines",
+   "commit_count": 5,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 29,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "inventories/",
+    "playbooks/",
+    "role-template/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#58",
+   "month": "2026-06",
+   "title": "feat(claude_code): install specify-cli and context7 plugin",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "machines",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 5,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#57",
+   "month": "2026-05",
+   "title": "feat: dedicated python role + constitution amendments",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 11
+   },
+   "category": "machines",
+   "commit_count": 11,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 18,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "configure-linux-roles.yml",
+    "playbooks/",
+    "role-template/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#56",
+   "month": "2026-05",
+   "title": "feat: install Ruby on new VMs to support OMC ralph skill",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 4
+   },
+   "category": "machines",
+   "commit_count": 4,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 7,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#55",
+   "month": "2026-05",
+   "title": "fix: dolt-sql-server failed to start due to missing HOME directory",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "rework",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#54",
+   "month": "2026-05",
+   "title": "feat: add dolt_sql_server role with loopback SQL server on VM boot",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 8
+   },
+   "category": "machines",
+   "commit_count": 8,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 14,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "configure-linux-roles.yml",
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#52",
+   "month": "2026-05",
+   "title": "feat: version-update playbooks, CI improvements, beads cleanup",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 14
+   },
+   "category": "machines",
+   "commit_count": 14,
+   "bump": false,
+   "vote": "machines",
+   "lab": 7,
+   "machines": 10,
+   "mixed": true,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/",
+    "playbooks/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#50",
+   "month": "2026-05",
+   "title": "ai(constitution): add DRY, Fail Loud principles and no-version-history rule",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 2
+   },
+   "category": "lab",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "lab",
+   "lab": 1,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#49",
+   "month": "2026-05",
+   "title": "fix(ci): SARIF upload failed with 'Resource not accessible by integration'",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "rework",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#48",
+   "month": "2026-05",
+   "title": "ci: fork-safe Docker CI with native per-arch matrix builds",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 111
+   },
+   "category": "machines",
+   "commit_count": 111,
+   "bump": false,
+   "vote": "machines",
+   "lab": 9,
+   "machines": 13,
+   "mixed": true,
+   "neutral_only": false,
+   "default_paths": [
+    ".devcontainer/",
+    ".github/",
+    ".markdownlint.json",
+    "CONTRIBUTING.md",
+    "container-structure-test-linux-arm64",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#42",
+   "month": "2026-05",
+   "title": "RTK integration, run-role script, dotnet 10, claude backup and docs overhaul",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 36,
+    "manual": 4
+   },
+   "category": "machines",
+   "commit_count": 40,
+   "bump": false,
+   "vote": "machines",
+   "lab": 24,
+   "machines": 47,
+   "mixed": true,
+   "neutral_only": false,
+   "default_paths": [
+    "CONTRIBUTING.md",
+    "FINDINGS.md",
+    "memory-bank-branches/",
+    "playbooks/",
+    "provision-aws-linux.yml",
+    "provision-aws-windows.yml",
+    "roles/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#40",
+   "month": "2026-04",
+   "title": "fix: backed up ~/.tmux.conf would be downgraded on restore",
+   "author_type": "manual",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "rework",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#39",
+   "month": "2026-04",
+   "title": "feat(claude_code): install omc cli and config tmux in claude settings",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 6
+   },
+   "category": "machines",
+   "commit_count": 6,
+   "bump": false,
+   "vote": "machines",
+   "lab": 2,
+   "machines": 9,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "FINDINGS.md",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#38",
+   "month": "2026-04",
+   "title": "feat: configure Oh My Claude + install tmux (role)",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 17,
+    "manual": 2
+   },
+   "category": "machines",
+   "commit_count": 19,
+   "bump": false,
+   "vote": "machines",
+   "lab": 5,
+   "machines": 35,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "backup.yml",
+    "configure-linux-roles.yml",
+    "playbooks/",
+    "restore.yml",
+    "role-template/",
+    "roles/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#37",
+   "month": "2026-04",
+   "title": "docs: move memory banks into permanent docs",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 3
+   },
+   "category": "machines",
+   "commit_count": 3,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 15,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "CONTRIBUTING.md",
+    "REVIEW-FINDINGS.md",
+    "memory-bank-branches/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#36",
+   "month": "2026-04",
+   "title": "deps(skills): update to latest ai-agent-workspace",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "lab",
+   "lab": 5,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "PR",
+   "id": "#35",
+   "month": "2026-04",
+   "title": "feat: add rootless Podman role with Molecule tests",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 16
+   },
+   "category": "machines",
+   "commit_count": 16,
+   "bump": false,
+   "vote": "machines",
+   "lab": 13,
+   "machines": 27,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "CONTRIBUTING.md",
+    "REVIEW-FINDINGS.md",
+    "configure-linux-roles.yml",
+    "memory-bank-branches/",
+    "requirements.txt",
+    "requirements.yml",
+    "roles/",
+    "scripts/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#34",
+   "month": "2026-04",
+   "title": "feat: java role",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 7,
+    "agent": 10
+   },
+   "category": "machines",
+   "commit_count": 17,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 13,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "configure-linux-roles.yml",
+    "inventories/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#32",
+   "month": "2026-04",
+   "title": "feat: flutter is provided via a role",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 2,
+    "agent": 6
+   },
+   "category": "machines",
+   "commit_count": 8,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 12,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "configure-linux-roles.yml",
+    "memory-bank-branches/",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#31",
+   "month": "2026-04",
+   "title": "fix: home-folder-files restore failed when .envrc is absent",
+   "author_type": "agent",
+   "commit_author_types": {
+    "manual": 2
+   },
+   "category": "rework",
+   "commit_count": 2,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#30",
+   "month": "2026-04",
+   "title": "fix: assert tasks still failed after is-not-none fix",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "rework",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#29",
+   "month": "2026-04",
+   "title": "fix: assert tasks failed due to non-boolean regex_search result",
+   "author_type": "manual",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "rework",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#27",
+   "month": "2026-04",
+   "title": "build(deps): bump the all-actions group with 5 updates",
+   "author_type": "automated",
+   "commit_author_types": {
+    "automated": 1
+   },
+   "category": "automated",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "channel": "PR",
+   "id": "#28",
+   "month": "2026-04",
+   "title": "Add android_studio role with pre-provisioned SDK for fast first launch",
+   "author_type": "manual",
+   "commit_author_types": {
+    "agent": 15,
+    "manual": 4
+   },
+   "category": "machines",
+   "commit_count": 19,
+   "bump": false,
+   "vote": "machines",
+   "lab": 2,
+   "machines": 7,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "configure-linux-roles.yml",
+    "requirements.yml",
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "e43c6d1",
+   "month": "2026-11",
+   "title": "ai(skills): ensure flow-consultant, commit and record-findings skills",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 1,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "direct",
+   "id": "aa1729f",
+   "month": "2026-11",
+   "title": "ai: let OMC setup conductor match reworded menus and keep wait result",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "c90f1ae",
+   "month": "2026-11",
+   "title": "ai(skills): use skill-manager instead of npx skills",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "CONTRIBUTING.md"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "59a094c",
+   "month": "2026-11",
+   "title": "Revert \"ai(skills): replace skill manager by npx skills\"",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "rework",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 2,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "CONTRIBUTING.md"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "5a181f4",
+   "month": "2026-11",
+   "title": "deps: update roles",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 5,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "b436ae0",
+   "month": "2026-11",
+   "title": "ai(skills): replace skill manager by npx skills",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 2,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "CONTRIBUTING.md"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "f445bb0",
+   "month": "2026-10",
+   "title": "deps: update roles",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 9,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "9093a30",
+   "month": "2026-10",
+   "title": "deps: update roles",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 10,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "ec1006d",
+   "month": "2026-10",
+   "title": "improvement: omc setup prompt",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "b8f8a5a",
+   "month": "2026-10",
+   "title": "deps: update tools",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 8,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "56ade6d",
+   "month": "2026-10",
+   "title": "ai(skills): restore repository-owned changelog guidance",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 5,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "direct",
+   "id": "25d2097",
+   "month": "2026-10",
+   "title": "ai: every mandatory skill invocation is listed with its authority",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 1,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "direct",
+   "id": "ed5eee2",
+   "month": "2026-10",
+   "title": "ai(skills): this repository's own skills carry an ansible- prefix",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 11,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "direct",
+   "id": "121b978",
+   "month": "2026-10",
+   "title": "ai: shared skills come from the skill-manager store",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 5,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "direct",
+   "id": "66c840d",
+   "month": "2026-09",
+   "title": "deps: update beads rust, claude code, opencode, rtk, specify cli",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 5,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "a951734",
+   "month": "2026-09",
+   "title": "build(deps): bump pinned tool versions",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 4,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "54b2404",
+   "month": "2026-09",
+   "title": "feat: update beads rust, beads viewer, claude code, flutter",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 4,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "fc3cf0d",
+   "month": "2026-09",
+   "title": "docs: changelog states the format version it follows",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": true,
+   "default_paths": []
+  },
+  {
+   "channel": "direct",
+   "id": "7aebd3a",
+   "month": "2026-09",
+   "title": "ai(skills): changelog-entry follows Keep a Changelog 2.0.0",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 2,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "direct",
+   "id": "2b87590",
+   "month": "2026-09",
+   "title": "ai(rules): agents invoke changelog-entry before requesting review",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "lab",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "lab",
+   "lab": 1,
+   "machines": 0,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": []
+  },
+  {
+   "channel": "direct",
+   "id": "53bc687",
+   "month": "2026-09",
+   "title": "docs: a pull request carries its changelog entries",
+   "author_type": "agent",
+   "commit_author_types": {
+    "agent": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 1,
+   "machines": 1,
+   "mixed": true,
+   "neutral_only": false,
+   "default_paths": [
+    "CONTRIBUTING.md"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "e1bc665",
+   "month": "2026-09",
+   "title": "docs: prevent statusline-combiner rediscovery in future OMC installs",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "019f6a3",
+   "month": "2026-09",
+   "title": "deps: update dolt, flutter, github cli, nerd font, opencode",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 5,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "4397046",
+   "month": "2026-09",
+   "title": "feat: java is now part of base config",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "f875f86",
+   "month": "2026-06",
+   "title": "feat: tmux installed with basic profile",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "f0f930d",
+   "month": "2026-06",
+   "title": "fix: misconfigured roles path broke configure-profile-roles.yml",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "rework",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "ansible.cfg"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "52344c9",
+   "month": "2026-06",
+   "title": "fix: misconfigured playbook path broke configure-profile.yml",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "rework",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "fe23e77",
+   "month": "2026-06",
+   "title": "feat: increase disk for lorien",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "test/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "2597063",
+   "month": "2026-05",
+   "title": "feat: smaller vm as hcloud default",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "inventories/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "3ca1b0f",
+   "month": "2026-05",
+   "title": "deps: upgrade Windows image to 2026-04-15",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "inventories/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "cb93a66",
+   "month": "2026-05",
+   "title": "feat: update dotnet to 10",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "a369c88",
+   "month": "2026-05",
+   "title": "deps: upgrade aws vm ami id",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": true,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "inventories/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "9d33de3",
+   "month": "2026-05",
+   "title": "feat: access aws vm from any ip",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "provisioners/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "d52d8e7",
+   "month": "2026-05",
+   "title": "feat: update current tart ip",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "inventories/"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "2448d39",
+   "month": "2026-04",
+   "title": "feat: disable flutter dev by default",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "configure-linux-roles.yml"
+   ]
+  },
+  {
+   "channel": "direct",
+   "id": "e9e961c",
+   "month": "2026-04",
+   "title": "feat: make cursor_ide an optional role",
+   "author_type": "manual",
+   "commit_author_types": {
+    "manual": 1
+   },
+   "category": "machines",
+   "commit_count": 1,
+   "bump": false,
+   "vote": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "neutral_only": false,
+   "default_paths": [
+    "configure-linux-roles.yml"
+   ]
+  }
+ ],
+ "discarded_items": [
+  {
+   "id": "#149",
+   "month": "2026-10",
+   "title": "build(deps): bump the all-actions group with 2 updates",
+   "author_type": "automated"
+  },
+  {
+   "id": "#130",
+   "month": "2026-09",
+   "title": "Name the fact a GitHub release fetch writes its tag to",
+   "author_type": "agent"
+  },
+  {
+   "id": "#126",
+   "month": "2026-09",
+   "title": "ci: the Molecule workflow checks out from an immutable pin",
+   "author_type": "agent"
+  },
+  {
+   "id": "#104",
+   "month": "2026-09",
+   "title": "deps: update beads_rust, beads_viewer, claude_code, nerd_font, openco\u2026",
+   "author_type": "manual"
+  },
+  {
+   "id": "#67",
+   "month": "2026-06",
+   "title": "fix: write generated inventory to vagrant_tart_autogenerated.yml",
+   "author_type": "agent"
+  },
+  {
+   "id": "#60",
+   "month": "2026-06",
+   "title": "feat: pre-bake python3+sudo into Dockerfile for all molecule scenarios",
+   "author_type": "agent"
+  },
+  {
+   "id": "#59",
+   "month": "2026-06",
+   "title": "feat(claude_code): configure Exa MCP server for desktop users",
+   "author_type": "agent"
+  },
+  {
+   "id": "#53",
+   "month": "2026-05",
+   "title": "docs: document Branch A spike \u2014 concurrent beads writes already work",
+   "author_type": "agent"
+  },
+  {
+   "id": "#51",
+   "month": "2026-05",
+   "title": "ai(constitution): add DRY, Fail Loud principles and no-version-history rule",
+   "author_type": "agent"
+  },
+  {
+   "id": "#47",
+   "month": "2026-05",
+   "title": "feat: fork-safe Docker CI, Molecule pipeline, and devcontainer size reduction",
+   "author_type": "agent"
+  },
+  {
+   "id": "#46",
+   "month": "2026-05",
+   "title": "ci: enforce GitHub Actions pinning policy in CI",
+   "author_type": "agent"
+  },
+  {
+   "id": "#45",
+   "month": "2026-05",
+   "title": "ai: add missing global skills to AGENTS.md skill index",
+   "author_type": "agent"
+  },
+  {
+   "id": "#44",
+   "month": "2026-05",
+   "title": "ci: pin container-structure-test to v1.22.1 with SHA256 verification",
+   "author_type": "agent"
+  },
+  {
+   "id": "#43",
+   "month": "2026-05",
+   "title": "ci: fork-safe Docker CI with native per-arch matrix builds",
+   "author_type": "agent"
+  },
+  {
+   "id": "#41",
+   "month": "2026-05",
+   "title": "chore(deps): bump the all-actions group with 2 updates",
+   "author_type": "automated"
+  },
+  {
+   "id": "#33",
+   "month": "2026-04",
+   "title": "Install java lts/claude code 01",
+   "author_type": "agent"
+  }
+ ]
+}

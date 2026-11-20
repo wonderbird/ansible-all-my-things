@@ -1,0 +1,130 @@
+{
+ "seed": 20261120,
+ "items": [
+  {
+   "id": "#73",
+   "channel": "PR",
+   "title": "feat: add Hetzner Cloud (hcloud) VM provider",
+   "author_type": "agent",
+   "category": "machines",
+   "lab": 3,
+   "machines": 6,
+   "mixed": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  },
+  {
+   "id": "#32",
+   "channel": "PR",
+   "title": "feat: flutter is provided via a role",
+   "author_type": "agent",
+   "category": "lab",
+   "lab": 7,
+   "machines": 6,
+   "mixed": true,
+   "default_paths": [
+    "configure-linux-roles.yml",
+    "roles/"
+   ]
+  },
+  {
+   "id": "#81",
+   "channel": "PR",
+   "title": "fix: concurrent molecule test runs collided on shared container",
+   "author_type": "agent",
+   "category": "rework",
+   "lab": 3,
+   "machines": 2,
+   "mixed": true,
+   "default_paths": [
+    "scripts/"
+   ]
+  },
+  {
+   "id": "#129",
+   "channel": "PR",
+   "title": "build(deps): bump the all-actions group with 3 updates",
+   "author_type": "automated",
+   "category": "automated",
+   "lab": 0,
+   "machines": 2,
+   "mixed": false,
+   "default_paths": [
+    ".github/"
+   ]
+  },
+  {
+   "id": "121b978",
+   "channel": "direct",
+   "title": "ai: shared skills come from the skill-manager store",
+   "author_type": "manual",
+   "category": "lab",
+   "lab": 5,
+   "machines": 0,
+   "mixed": false,
+   "default_paths": []
+  },
+  {
+   "id": "ec1006d",
+   "channel": "direct",
+   "title": "improvement: omc setup prompt",
+   "author_type": "agent",
+   "category": "machines",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "default_paths": [
+    "roles/"
+   ]
+  },
+  {
+   "id": "#48",
+   "channel": "PR",
+   "title": "ci: fork-safe Docker CI with native per-arch matrix builds",
+   "author_type": "agent",
+   "category": "machines",
+   "lab": 9,
+   "machines": 13,
+   "mixed": true,
+   "default_paths": [
+    ".devcontainer/",
+    ".github/",
+    ".markdownlint.json",
+    "CONTRIBUTING.md",
+    "container-structure-test-linux-arm64",
+    "roles/"
+   ]
+  },
+  {
+   "id": "#140",
+   "channel": "PR",
+   "title": "docs: describe today's version-update mechanism in ADR-006",
+   "author_type": "agent",
+   "category": "machines",
+   "lab": 0,
+   "machines": 0,
+   "mixed": false,
+   "default_paths": []
+  },
+  {
+   "id": "#40",
+   "channel": "PR",
+   "title": "fix: backed up ~/.tmux.conf would be downgraded on restore",
+   "author_type": "manual",
+   "category": "rework",
+   "lab": 0,
+   "machines": 1,
+   "mixed": false,
+   "default_paths": [
+    "playbooks/"
+   ]
+  }
+ ],
+ "discarded": {
+  "id": "#104",
+  "month": "2026-09",
+  "title": "deps: update beads_rust, beads_viewer, claude_code, nerd_font, openco\u2026",
+  "author_type": "manual"
+ }
+}

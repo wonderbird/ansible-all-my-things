@@ -1,0 +1,2794 @@
+[
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-19T19:12:32Z",
+  "mergeCommit": {
+   "oid": "12d06874246419cdbea7d90be01c23c8112013be"
+  },
+  "mergedAt": "2026-11-19T19:12:32Z",
+  "number": 168,
+  "state": "MERGED",
+  "title": "build(deps): update pinned tool versions in roles"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-18T16:09:17Z",
+  "mergeCommit": {
+   "oid": "51a4e97b815507ed2ded0e74de2f1be2692a6379"
+  },
+  "mergedAt": "2026-11-18T16:09:17Z",
+  "number": 167,
+  "state": "MERGED",
+  "title": "ai(constitution): classify playbook logic and keep Principle II lean"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-17T20:42:14Z",
+  "mergeCommit": {
+   "oid": "90136b93f5521065594affd04518e94b6f1c7f76"
+  },
+  "mergedAt": "2026-11-17T20:42:14Z",
+  "number": 166,
+  "state": "MERGED",
+  "title": "feat: optional swap file for Linux VMs"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-17T04:01:10Z",
+  "mergeCommit": {
+   "oid": "759831398064d0d233acf530cbcb607a963a0bca"
+  },
+  "mergedAt": "2026-11-17T04:01:10Z",
+  "number": 165,
+  "state": "MERGED",
+  "title": "ai: let OMC setup conductor decline the fullscreen renderer menu"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-15T14:47:14Z",
+  "mergeCommit": {
+   "oid": "2c1dd71d1d2b3da82100f2ffb49ebaf76cca19db"
+  },
+  "mergedAt": "2026-11-15T14:47:14Z",
+  "number": 164,
+  "state": "MERGED",
+  "title": "feat: init_dev initializes a fresh clone on a provisioned VM"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-15T15:51:35Z",
+  "mergeCommit": {
+   "oid": "56ad1a04b93dcf553768a53ad314c63f9e9ca302"
+  },
+  "mergedAt": "2026-11-15T15:51:35Z",
+  "number": 163,
+  "state": "MERGED",
+  "title": "build(deps): bump docker/login-action from 4.7.0 to 4.8.0 in the all-actions group across 1 directory"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-14T13:13:37Z",
+  "mergeCommit": {
+   "oid": "dbc219f27a27778aaf88cb4436a2c7627e9067b7"
+  },
+  "mergedAt": "2026-11-14T13:13:37Z",
+  "number": 162,
+  "state": "MERGED",
+  "title": "fix(android_studio)!: verify SDK command-line tools by SHA-256"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-14T08:50:46Z",
+  "mergeCommit": {
+   "oid": "4ba790c8ca21cb17a4010fd6cd41d5df447eacfb"
+  },
+  "mergedAt": "2026-11-14T08:50:46Z",
+  "number": 161,
+  "state": "MERGED",
+  "title": "build(deps): update pinned tool versions in roles"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-09T09:51:09Z",
+  "mergeCommit": {
+   "oid": "1500b0864ff4fbab9e91115945773c7998f6d208"
+  },
+  "mergedAt": "2026-11-09T09:51:09Z",
+  "number": 160,
+  "state": "MERGED",
+  "title": "fix: sm skill import failed with 0 skills after skills moved to skill-factory"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-09T04:15:39Z",
+  "mergeCommit": {
+   "oid": "921d5b4b989d613853987c505105037064957205"
+  },
+  "mergedAt": "2026-11-09T04:15:39Z",
+  "number": 159,
+  "state": "MERGED",
+  "title": "build(deps): update pinned tool versions in roles"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-09T04:18:06Z",
+  "mergeCommit": {
+   "oid": "b0fbe119dbd5c6db981b0bf845815d07680f180f"
+  },
+  "mergedAt": "2026-11-09T04:18:06Z",
+  "number": 158,
+  "state": "MERGED",
+  "title": "feat: clone skill-factory for hosts opting into claude_opinionated"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-09T04:15:20Z",
+  "mergeCommit": {
+   "oid": "46f7b3b623d1437ddb9d100c69437ea58e1c7a60"
+  },
+  "mergedAt": "2026-11-09T04:15:20Z",
+  "number": 157,
+  "state": "MERGED",
+  "title": "build(deps): bump the all-actions group with 2 updates"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-08T09:38:17Z",
+  "mergeCommit": {
+   "oid": "5c475cbd40c97d86576905dc5d644fce362cb851"
+  },
+  "mergedAt": "2026-11-08T09:38:17Z",
+  "number": 156,
+  "state": "MERGED",
+  "title": "feat: install shellcheck on every linux host"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-07T18:08:29Z",
+  "mergeCommit": {
+   "oid": "84962f67a864f005b5e453875628c98ed0ce5b70"
+  },
+  "mergedAt": "2026-11-07T18:08:29Z",
+  "number": 155,
+  "state": "MERGED",
+  "title": "build(deps): update pinned tool versions in roles"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-11-07T17:46:22Z",
+  "mergeCommit": {
+   "oid": "0a721ba10b5d6c8badfe586f36244373d6b7d283"
+  },
+  "mergedAt": "2026-11-07T17:46:21Z",
+  "number": 154,
+  "state": "MERGED",
+  "title": "build(deps): bump the all-actions group across 1 directory with 3 updates"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-30T18:37:23Z",
+  "mergeCommit": {
+   "oid": "a8d63f8b727e8727310f57427b495787f46f7019"
+  },
+  "mergedAt": "2026-10-30T18:37:23Z",
+  "number": 153,
+  "state": "MERGED",
+  "title": "fix: nodejs role failed to install node.js 26"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-31T07:24:31Z",
+  "mergeCommit": {
+   "oid": "bbb260c8f536cbf950ce412e5cd6ac039da79aa4"
+  },
+  "mergedAt": "2026-10-31T07:24:30Z",
+  "number": 152,
+  "state": "MERGED",
+  "title": "fix: bun and opencode treated a version containing the pin as current"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-26T06:06:10Z",
+  "mergeCommit": {
+   "oid": "b21e2a4b0c3331f7c2832f3d0faed71d6e0275d0"
+  },
+  "mergedAt": "2026-10-26T06:06:10Z",
+  "number": 151,
+  "state": "MERGED",
+  "title": "fix: pin bumps upgrade rtk, bd, br and bv on existing hosts"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-25T15:04:11Z",
+  "mergeCommit": {
+   "oid": "7215d78f365c0b2ff04ad2a372d9c1634418feb7"
+  },
+  "mergedAt": "2026-10-25T15:04:11Z",
+  "number": 150,
+  "state": "MERGED",
+  "title": "feat(uv): install uv and uvx on every Linux host"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-31T22:53:18Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 149,
+  "state": "CLOSED",
+  "title": "build(deps): bump the all-actions group with 2 updates"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-24T15:16:41Z",
+  "mergeCommit": {
+   "oid": "baec7d1abd074dd1df845f8fb9f4ff3e88f96106"
+  },
+  "mergedAt": "2026-10-24T15:16:41Z",
+  "number": 148,
+  "state": "MERGED",
+  "title": "ai: name the cleanup bd init --stealth needs to keep issues.jsonl stageable"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-24T14:02:10Z",
+  "mergeCommit": {
+   "oid": "cfc599bd7e489be574b5210e4d8f182fe4ca0068"
+  },
+  "mergedAt": "2026-10-24T14:02:10Z",
+  "number": 147,
+  "state": "MERGED",
+  "title": "refactor: claude_code_config no longer depends on ai_agent_workspace"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-24T12:06:59Z",
+  "mergeCommit": {
+   "oid": "ad7e0631fffa73f0b2bd6b600ece9e79457c07a2"
+  },
+  "mergedAt": "2026-10-24T12:06:59Z",
+  "number": 146,
+  "state": "MERGED",
+  "title": "feat: keep ai-agent-workspace skills inactive until activated with sm"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-24T10:08:48Z",
+  "mergeCommit": {
+   "oid": "42c6e1945a7c96c436b02fa2c295b6fc595f211b"
+  },
+  "mergedAt": "2026-10-24T10:08:48Z",
+  "number": 145,
+  "state": "MERGED",
+  "title": "feat: make ai-agent-workspace skills available in sm without deploying them"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-18T18:36:40Z",
+  "mergeCommit": {
+   "oid": "496eecac4b4f5368d92a530a5a2e8b4fc9be0e28"
+  },
+  "mergedAt": "2026-10-18T18:36:40Z",
+  "number": 144,
+  "state": "MERGED",
+  "title": "feat: only claude_opinionated hosts get the ai-agent-workspace clone"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-18T11:12:22Z",
+  "mergeCommit": {
+   "oid": "c4992f6b5f23ce89d8796d09269cb2ba21fd6cd9"
+  },
+  "mergedAt": "2026-10-18T11:12:22Z",
+  "number": 143,
+  "state": "MERGED",
+  "title": "feat: sm never adopts skills in the directory it runs in"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-11T18:20:50Z",
+  "mergeCommit": {
+   "oid": "914af2f9d037ea2611dd71d31c2937716ec3da83"
+  },
+  "mergedAt": "2026-10-11T18:20:50Z",
+  "number": 142,
+  "state": "MERGED",
+  "title": "build(deps): bump the all-actions group with 2 updates"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-11T18:19:44Z",
+  "mergeCommit": {
+   "oid": "e9ad978a8ca478b1659e41beecb713b1a35d6db1"
+  },
+  "mergedAt": "2026-10-11T18:19:44Z",
+  "number": 141,
+  "state": "MERGED",
+  "title": "Update versions"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-05T02:50:17Z",
+  "mergeCommit": {
+   "oid": "2ac9f8a3bed73e19576d186e93c1d4872b5946e2"
+  },
+  "mergedAt": "2026-10-05T02:50:17Z",
+  "number": 140,
+  "state": "MERGED",
+  "title": "docs: describe today's version-update mechanism in ADR-006"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-03T18:39:55Z",
+  "mergeCommit": {
+   "oid": "652ccb212a1252b0657dc3bd66eb9227388053c4"
+  },
+  "mergedAt": "2026-10-03T18:39:55Z",
+  "number": 139,
+  "state": "MERGED",
+  "title": "docs: describe the one-playbook version-update mechanism"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-03T14:15:00Z",
+  "mergeCommit": {
+   "oid": "e63a33ea053f17b2a44dec9ce9beba01a707ae96"
+  },
+  "mergedAt": "2026-10-03T14:15:00Z",
+  "number": 138,
+  "state": "MERGED",
+  "title": "ai: drop outdated RTK command catalogue from AGENTS.md"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-03T14:03:11Z",
+  "mergeCommit": {
+   "oid": "703f7ec8580ba15ad034f25cf9ab4b355d5b24b9"
+  },
+  "mergedAt": "2026-10-03T14:03:11Z",
+  "number": 137,
+  "state": "MERGED",
+  "title": "ai: move durable agent memories into rules files"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-03T09:38:17Z",
+  "mergeCommit": {
+   "oid": "3cb5f879560d3f9edff786a63e40b3fd7ea155be"
+  },
+  "mergedAt": "2026-10-03T09:38:17Z",
+  "number": 136,
+  "state": "MERGED",
+  "title": "ai: harden OMC setup conductor against TUI pitfalls"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-03T08:17:32Z",
+  "mergeCommit": {
+   "oid": "54b2ecb540daadb6919bb42beb41c4a880fe5f4f"
+  },
+  "mergedAt": "2026-10-03T08:17:32Z",
+  "number": 135,
+  "state": "MERGED",
+  "title": "ai: improve OMC setup prompt"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-03T08:15:32Z",
+  "mergeCommit": {
+   "oid": "9f573097bf651e38a22f1363c439f8ad946f35b2"
+  },
+  "mergedAt": "2026-10-03T08:15:32Z",
+  "number": 134,
+  "state": "MERGED",
+  "title": "deps: update roles"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-03T05:55:00Z",
+  "mergeCommit": {
+   "oid": "17420c40e96e9352bd47f53f16c79d058b19a34c"
+  },
+  "mergedAt": "2026-10-03T05:55:00Z",
+  "number": 133,
+  "state": "MERGED",
+  "title": "Record that bd's git hooks stay uninstalled"
+ },
+ {
+  "author": {
+   "id": "U_kgDOCvAQsA",
+   "is_bot": false,
+   "login": "stefanboos",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-10-02T13:28:27Z",
+  "mergeCommit": {
+   "oid": "92f180a5bd2af6a922e2c26e99ac59308d7302f5"
+  },
+  "mergedAt": "2026-10-02T13:28:27Z",
+  "number": 132,
+  "state": "MERGED",
+  "title": "feat: every Linux host provides the bun and bunx commands"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-28T04:16:19Z",
+  "mergeCommit": {
+   "oid": "e83790feaa0c56d42915175de5f251c53dc0eb5e"
+  },
+  "mergedAt": "2026-09-28T04:16:19Z",
+  "number": 131,
+  "state": "MERGED",
+  "title": "Attribute every fetch output to the call that produced it"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-28T04:17:03Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 130,
+  "state": "CLOSED",
+  "title": "Name the fact a GitHub release fetch writes its tag to"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-26T21:22:21Z",
+  "mergeCommit": {
+   "oid": "06be68da9fce96bff63e08ce88a50c39eb61008c"
+  },
+  "mergedAt": "2026-09-26T21:22:21Z",
+  "number": 129,
+  "state": "MERGED",
+  "title": "build(deps): bump the all-actions group with 3 updates"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-26T20:03:31Z",
+  "mergeCommit": {
+   "oid": "f6f4fabc422339347f60a050a065faff8942737f"
+  },
+  "mergedAt": "2026-09-26T20:03:31Z",
+  "number": 128,
+  "state": "MERGED",
+  "title": "ci: pin every workflow action by SHA and enforce it"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-26T18:59:12Z",
+  "mergeCommit": {
+   "oid": "7220add4042d5813b1b608837c281ea02adaa601"
+  },
+  "mergedAt": "2026-09-26T18:59:12Z",
+  "number": 127,
+  "state": "MERGED",
+  "title": "docs: collapse GitHub Actions pinning to a single SHA-pinned tier (ADR-007)"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-26T18:09:48Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 126,
+  "state": "CLOSED",
+  "title": "ci: the Molecule workflow checks out from an immutable pin"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-26T13:49:44Z",
+  "mergeCommit": {
+   "oid": "88c2ce396d45a9056d79c2229b948b26183e555b"
+  },
+  "mergedAt": "2026-09-26T13:49:44Z",
+  "number": 125,
+  "state": "MERGED",
+  "title": "ai(rules): a beads-export-only commit may go straight to main"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-26T05:22:11Z",
+  "mergeCommit": {
+   "oid": "2a5dde930867cdff6eb50bf373febe8e29cc5d18"
+  },
+  "mergedAt": "2026-09-26T05:22:11Z",
+  "number": 124,
+  "state": "MERGED",
+  "title": "docs: clear the last three blockers on review gate 8itk"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-25T04:24:29Z",
+  "mergeCommit": {
+   "oid": "9bfc56bc4b049d521b1be477784a999ea006759f"
+  },
+  "mergedAt": "2026-09-25T04:24:29Z",
+  "number": 123,
+  "state": "MERGED",
+  "title": "Clear the 8itk gate blockers: spec fix, role READMEs, desktop profile wiring"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-23T14:11:36Z",
+  "mergeCommit": {
+   "oid": "d14da01e8372c72ae4895e72b9db8f81b683a1f3"
+  },
+  "mergedAt": "2026-09-23T14:11:36Z",
+  "number": 122,
+  "state": "MERGED",
+  "title": "feat: isolate per-tool failures and drive version updates from one registry"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-16T07:16:32Z",
+  "mergeCommit": {
+   "oid": "85024a2d0d463a65ed703877a23ce4c5258df08c"
+  },
+  "mergedAt": "2026-09-16T07:16:32Z",
+  "number": 121,
+  "state": "MERGED",
+  "title": "feat: a release without the asset a tool installs fails the update run"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-16T03:53:15Z",
+  "mergeCommit": {
+   "oid": "fcf182482b2adf7d372f312160a79353488b372d"
+  },
+  "mergedAt": "2026-09-16T03:53:15Z",
+  "number": 120,
+  "state": "MERGED",
+  "title": "build(deps): bump pinned tool versions"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-16T04:43:51Z",
+  "mergeCommit": {
+   "oid": "475bef74330554b597a6fb404a790b4f0bdcf970"
+  },
+  "mergedAt": "2026-09-16T04:43:51Z",
+  "number": 119,
+  "state": "MERGED",
+  "title": "refactor: each checksum fetch sets its own named fact"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-15T19:22:32Z",
+  "mergeCommit": {
+   "oid": "c480ad4ddb720db34fd806ff2d463da27add840e"
+  },
+  "mergedAt": "2026-09-15T19:22:32Z",
+  "number": 118,
+  "state": "MERGED",
+  "title": "build(deps): update pinned tool versions"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-16T03:30:35Z",
+  "mergeCommit": {
+   "oid": "8b752e23e591c0eab82048315c7b64e8140f93a4"
+  },
+  "mergedAt": "2026-09-16T03:30:35Z",
+  "number": 117,
+  "state": "MERGED",
+  "title": "fix: a renamed pin variable now fails the version-update run"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-13T19:10:37Z",
+  "mergeCommit": {
+   "oid": "076115135ff65eb9e4e5d84a7f68ddfb8d2ec588"
+  },
+  "mergedAt": "2026-09-13T19:10:37Z",
+  "number": 116,
+  "state": "MERGED",
+  "title": "Move agent memories into the constitution, the molecule-testing skill and the version-update docs"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-12T19:34:17Z",
+  "mergeCommit": {
+   "oid": "edd6c40539a0320de2852d7415b941e0273e9e28"
+  },
+  "mergedAt": "2026-09-12T19:34:17Z",
+  "number": 115,
+  "state": "MERGED",
+  "title": "Assert login_user_names is provided in per-user roles"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-11T15:38:46Z",
+  "mergeCommit": {
+   "oid": "60bb29eb5b55ea55410d041e868930ce151217ee"
+  },
+  "mergedAt": "2026-09-11T15:38:46Z",
+  "number": 114,
+  "state": "MERGED",
+  "title": "build(deps): bump pinned tool versions and checksums"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "018-obsidian-desktop-feed",
+  "closedAt": "2026-09-11T03:26:43Z",
+  "mergeCommit": {
+   "oid": "24daeca1a0237f8d14117e4f26649b93972f93c8"
+  },
+  "mergedAt": "2026-09-11T03:26:42Z",
+  "number": 113,
+  "state": "MERGED",
+  "title": "fix: version-update run aborted at bv after upstream versioned its archives"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-11T14:53:23Z",
+  "mergeCommit": {
+   "oid": "03221e434278c03b967610be2357b53a2ae5933e"
+  },
+  "mergedAt": "2026-09-11T14:53:23Z",
+  "number": 112,
+  "state": "MERGED",
+  "title": "fix: version-update playbook aborted at Obsidian and never updated claude_code"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-09T09:20:47Z",
+  "mergeCommit": {
+   "oid": "91a38b9292a54ac86b043fd18198abead95149fe"
+  },
+  "mergedAt": "2026-09-09T09:20:47Z",
+  "number": 111,
+  "state": "MERGED",
+  "title": "feat: add direnv role for system-wide install and per-user bash hook"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-09T06:41:55Z",
+  "mergeCommit": {
+   "oid": "4d0f5e3f63be90ecb4f1f673f35b948c505e9703"
+  },
+  "mergedAt": "2026-09-09T06:41:55Z",
+  "number": 110,
+  "state": "MERGED",
+  "title": "feat: extract dedicated git role, remove per-role duplication"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-06T17:21:44Z",
+  "mergeCommit": {
+   "oid": "9bb93f8c5bfb055c7af569014dd0e95e5ec61664"
+  },
+  "mergedAt": "2026-09-06T17:21:44Z",
+  "number": 109,
+  "state": "MERGED",
+  "title": "chore(deps): bump the all-actions group across 1 directory with 2 updates"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-06T15:00:27Z",
+  "mergeCommit": {
+   "oid": "084bbe677741c4c25ac2c53377d11d4e9f93a6d8"
+  },
+  "mergedAt": "2026-09-06T15:00:27Z",
+  "number": 108,
+  "state": "MERGED",
+  "title": "feat: add role-creator skill for authoring new Ansible roles"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-06T10:16:03Z",
+  "mergeCommit": {
+   "oid": "35333f26af5f73bdeec9322e9037328e6336a45a"
+  },
+  "mergedAt": "2026-09-06T10:16:03Z",
+  "number": 107,
+  "state": "MERGED",
+  "title": "feat: add skill_manager role to install sm CLI from source"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-06T09:03:30Z",
+  "mergeCommit": {
+   "oid": "738e84147ddd7871328fe0d1c44b0dc9430d1ce1"
+  },
+  "mergedAt": "2026-09-06T09:03:30Z",
+  "number": 106,
+  "state": "MERGED",
+  "title": "fix: point ai-agent-workspace clone and refs at wonderbird upstream"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-06T15:02:10Z",
+  "mergeCommit": {
+   "oid": "9127f642596415e4fcff55d478a35a4c15a46f00"
+  },
+  "mergedAt": "2026-09-06T15:02:10Z",
+  "number": 105,
+  "state": "MERGED",
+  "title": "chore(deps): bump docker/setup-buildx-action from 4.2.0 to 4.3.0 in the all-actions group"
+ },
+ {
+  "author": {
+   "id": "U_kgDOCvAQsA",
+   "is_bot": false,
+   "login": "stefanboos",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-09-06T15:01:42Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 104,
+  "state": "CLOSED",
+  "title": "deps: update beads_rust, beads_viewer, claude_code, nerd_font, openco\u2026"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-08-25T08:39:04Z",
+  "mergeCommit": {
+   "oid": "4993019d9dfb175eef6cb40fce4ea56138e6a374"
+  },
+  "mergedAt": "2026-08-25T08:39:04Z",
+  "number": 103,
+  "state": "MERGED",
+  "title": "feat: opinionated claude configuration is deactivated by default"
+ },
+ {
+  "author": {
+   "id": "U_kgDOCvAQsA",
+   "is_bot": false,
+   "login": "stefanboos",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-08-12T15:59:17Z",
+  "mergeCommit": {
+   "oid": "6f9bb9c789b42e3ddd605c84df17dea65c95e98e"
+  },
+  "mergedAt": "2026-08-12T15:59:17Z",
+  "number": 102,
+  "state": "MERGED",
+  "title": "deps: upgrade Android Studio, Dolt SQL Server, Flutter, GitHub CLI, Java, Nerd Font, OpenCode"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-08-12T17:43:07Z",
+  "mergeCommit": {
+   "oid": "565dc502d78084ea4dcd8cf91104637a53ca0c80"
+  },
+  "mergedAt": "2026-08-12T17:43:07Z",
+  "number": 101,
+  "state": "MERGED",
+  "title": "chore(deps): bump the all-actions group across 1 directory with 6 updates"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-07-11T12:23:33Z",
+  "mergeCommit": {
+   "oid": "2afe32ac15276be506f576432a62bcbf241f6da9"
+  },
+  "mergedAt": "2026-07-11T12:23:33Z",
+  "number": 100,
+  "state": "MERGED",
+  "title": "Add vim role, dependency updates, and constitution Principle II clarification"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-07-11T06:24:48Z",
+  "mergeCommit": {
+   "oid": "85173204491a5aa2909a424eb2791d41e6caa094"
+  },
+  "mergedAt": "2026-07-11T06:24:48Z",
+  "number": 99,
+  "state": "MERGED",
+  "title": "feat: add beads_rust role installing br CLI"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-07-10T15:49:01Z",
+  "mergeCommit": {
+   "oid": "60dd2b4037bf75404b8a64fa3d5cbe8381c63e9e"
+  },
+  "mergedAt": "2026-07-10T15:49:01Z",
+  "number": 98,
+  "state": "MERGED",
+  "title": "feat: cross-harness CLI role extraction, version pinning, and Obsidian role"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-07-11T08:04:31Z",
+  "mergeCommit": {
+   "oid": "d293d3e16ad90566b99b8dba934772cc13d9bb6f"
+  },
+  "mergedAt": "2026-07-11T08:04:31Z",
+  "number": 97,
+  "state": "MERGED",
+  "title": "chore(deps): bump the all-actions group with 3 updates"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-30T03:57:28Z",
+  "mergeCommit": {
+   "oid": "bf3102696b227453380ff4c01c8fca437fc4539e"
+  },
+  "mergedAt": "2026-06-30T03:57:28Z",
+  "number": 96,
+  "state": "MERGED",
+  "title": "docs(claude_code): automate omc setup via conductor prompt"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-29T06:54:29Z",
+  "mergeCommit": {
+   "oid": "9ce86b90040ca1e275ccf4ffe8c91ac42205fac8"
+  },
+  "mergedAt": "2026-06-29T06:54:29Z",
+  "number": 95,
+  "state": "MERGED",
+  "title": "refactor(github_cli): migrate apt repo to deb822_repository format"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-29T06:54:31Z",
+  "mergeCommit": {
+   "oid": "eef538f7aa573c266a6b279f1f4a9d6dcb0b8690"
+  },
+  "mergedAt": "2026-06-29T06:54:31Z",
+  "number": 94,
+  "state": "MERGED",
+  "title": "feat: GitHub CLI, Tart hostname, fix verbose assert, docs cleanup"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-29T04:04:15Z",
+  "mergeCommit": {
+   "oid": "0fb551373438e60bb5502dd47b0bc9518fe2a333"
+  },
+  "mergedAt": "2026-06-29T04:04:15Z",
+  "number": 93,
+  "state": "MERGED",
+  "title": "fix: assert task logged excessive file metadata per skill directory"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-29T03:27:13Z",
+  "mergeCommit": {
+   "oid": "5e0a174de9df6764cc3fa249d53e5ef4777d8ba6"
+  },
+  "mergedAt": "2026-06-29T03:27:13Z",
+  "number": 92,
+  "state": "MERGED",
+  "title": "docs: fix macos compatibility in first-steps.md"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-29T03:25:33Z",
+  "mergeCommit": {
+   "oid": "c10230a184d90d23b47b1a572aca034ef7b32704"
+  },
+  "mergedAt": "2026-06-29T03:25:33Z",
+  "number": 91,
+  "state": "MERGED",
+  "title": "fix: ansible_env and ansible_architecture caused deprecation warnings"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-28T18:10:43Z",
+  "mergeCommit": {
+   "oid": "db41bd6a1d54a5d76d0fcc0a1449d83dd3bf6ebb"
+  },
+  "mergedAt": "2026-06-28T18:10:43Z",
+  "number": 90,
+  "state": "MERGED",
+  "title": "fix: git binary was missing before TPM clone in tmux role"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-28T17:47:15Z",
+  "mergeCommit": {
+   "oid": "290c1dded7b0b1c4946298911b87ff12322e0632"
+  },
+  "mergedAt": "2026-06-28T17:47:15Z",
+  "number": 89,
+  "state": "MERGED",
+  "title": "docs: add first-steps guide for Docker VM with basic profile"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-28T16:20:44Z",
+  "mergeCommit": {
+   "oid": "2cad87fe73b3e4b983ff20beabf20ef0a2c87545"
+  },
+  "mergedAt": "2026-06-28T16:20:44Z",
+  "number": 88,
+  "state": "MERGED",
+  "title": "Phase 6: retire legacy provision/destroy stack; overhaul docs and inventory"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-28T15:29:30Z",
+  "mergeCommit": {
+   "oid": "8465c3c32fc20c40e1d28d4be55c1bb7451babad"
+  },
+  "mergedAt": "2026-06-28T15:29:30Z",
+  "number": 87,
+  "state": "MERGED",
+  "title": "feat: bd-guard hook blocks runaway beads command"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-26T03:42:23Z",
+  "mergeCommit": {
+   "oid": "536e4d4ad2caa6459aa1a8f7a4e164c7cdbfd093"
+  },
+  "mergedAt": "2026-06-26T03:42:23Z",
+  "number": 86,
+  "state": "MERGED",
+  "title": "feat: install OpenCode AI CLI; sync roadmap + backup/restore refactor"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-24T05:49:15Z",
+  "mergeCommit": {
+   "oid": "a266b4e545297d1952e2066c11b3f06219ea59f7"
+  },
+  "mergedAt": "2026-06-24T05:49:15Z",
+  "number": 85,
+  "state": "MERGED",
+  "title": "fix: backup playbooks failed with cryptic error when run without -e backup_from_host"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-22T14:20:03Z",
+  "mergeCommit": {
+   "oid": "6f93d32770f561576c4e689cbcb66ba718d220d6"
+  },
+  "mergedAt": "2026-06-22T14:20:03Z",
+  "number": 84,
+  "state": "MERGED",
+  "title": "feat: AWS Windows profile for VM create/destroy/configure"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-22T05:50:29Z",
+  "mergeCommit": {
+   "oid": "33c21d7d27a645635ba758e975600a2373a1e4a2"
+  },
+  "mergedAt": "2026-06-22T05:50:29Z",
+  "number": 83,
+  "state": "MERGED",
+  "title": "build(deps): bump dolt to v2.1.8"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-21T04:55:36Z",
+  "mergeCommit": {
+   "oid": "36d07866822e5d3c5e39dcb4bede378c1160ec60"
+  },
+  "mergedAt": "2026-06-21T04:55:36Z",
+  "number": 82,
+  "state": "MERGED",
+  "title": "Add desktop profile to create-vm/configure-profile/destroy-vm"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-20T11:28:16Z",
+  "mergeCommit": {
+   "oid": "0181344a00b742d671cb26261fc36ceece577a6e"
+  },
+  "mergedAt": "2026-06-20T11:28:16Z",
+  "number": 81,
+  "state": "MERGED",
+  "title": "fix: concurrent molecule test runs collided on shared container"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-19T03:19:21Z",
+  "mergeCommit": {
+   "oid": "884d1d86eb6428100de5527d892d179b3a46aa6d"
+  },
+  "mergedAt": "2026-06-19T03:19:21Z",
+  "number": 80,
+  "state": "MERGED",
+  "title": "fix: tmux role failed on console-only Linux targets"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-19T03:11:26Z",
+  "mergeCommit": {
+   "oid": "4d24c1434061b2dc8e22f42137eedb0f040bed46"
+  },
+  "mergedAt": "2026-06-19T03:11:26Z",
+  "number": 79,
+  "state": "MERGED",
+  "title": "fix: NVM and claude_code role missing prerequisites on fresh hosts"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-17T16:00:58Z",
+  "mergeCommit": {
+   "oid": "977b18030b21968cbcb32e51b69f08b46fea1743"
+  },
+  "mergedAt": "2026-06-17T16:00:58Z",
+  "number": 78,
+  "state": "MERGED",
+  "title": "deps: update dolt_sql_server and flutter versions"
+ },
+ {
+  "author": {
+   "id": "U_kgDOCvAQsA",
+   "is_bot": false,
+   "login": "stefanboos",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-17T15:59:46Z",
+  "mergeCommit": {
+   "oid": "27dc94ee38110667e1e41150308337a1776b15b1"
+  },
+  "mergedAt": "2026-06-17T15:59:46Z",
+  "number": 77,
+  "state": "MERGED",
+  "title": "deps: Windows requires posix.authorized_key"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-17T04:04:36Z",
+  "mergeCommit": {
+   "oid": "8f16348ad280f4a8a05475698ea88c524a1c62aa"
+  },
+  "mergedAt": "2026-06-17T04:04:36Z",
+  "number": 76,
+  "state": "MERGED",
+  "title": "refactor: remove ambient curl from claude_code molecule scenario"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-15T11:53:13Z",
+  "mergeCommit": {
+   "oid": "9d8927ba0cbb96cd7602968eb60cbf3beb311d4c"
+  },
+  "mergedAt": "2026-06-15T11:53:13Z",
+  "number": 75,
+  "state": "MERGED",
+  "title": "fix: uniform SSH key-based auth for local VM providers"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-14T15:27:08Z",
+  "mergeCommit": {
+   "oid": "7de277a73713613c0720cd1bc9ea2404986be9a1"
+  },
+  "mergedAt": "2026-06-14T15:27:08Z",
+  "number": 74,
+  "state": "MERGED",
+  "title": "feat: add AWS EC2 provider for create-vm/destroy-vm"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-14T11:57:04Z",
+  "mergeCommit": {
+   "oid": "d3707310a45b1724df82c73652749a348d027338"
+  },
+  "mergedAt": "2026-06-14T11:57:04Z",
+  "number": 73,
+  "state": "MERGED",
+  "title": "feat: add Hetzner Cloud (hcloud) VM provider"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-13T12:39:36Z",
+  "mergeCommit": {
+   "oid": "1f736ee2b3adf1d5e0d9734a78d11b7fe46628df"
+  },
+  "mergedAt": "2026-06-13T12:39:36Z",
+  "number": 72,
+  "state": "MERGED",
+  "title": "feat: add Docker provider for create-vm/destroy-vm playbooks"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-12T03:59:28Z",
+  "mergeCommit": {
+   "oid": "f14a58772c0a79cc5b89a4ffad6acc8a7ccf8f59"
+  },
+  "mergedAt": "2026-06-12T03:59:28Z",
+  "number": 71,
+  "state": "MERGED",
+  "title": "Remove duplicate speckit command files"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-11T15:46:14Z",
+  "mergeCommit": {
+   "oid": "d8cec3c22b983a1f608f934ba1db692c84bba643"
+  },
+  "mergedAt": "2026-06-11T15:46:14Z",
+  "number": 70,
+  "state": "MERGED",
+  "title": "Update Spec Kit"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-11T07:03:02Z",
+  "mergeCommit": {
+   "oid": "ec18fa078d9e86cf8f5f9fe57673aac48c7ec89d"
+  },
+  "mergedAt": "2026-06-11T07:03:02Z",
+  "number": 69,
+  "state": "MERGED",
+  "title": "Configure basic profile playbook for tart VMs + recent fixes"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-08T07:02:51Z",
+  "mergeCommit": {
+   "oid": "a284f6b94c73c0fa16995cdbfbdf2c6834c149d1"
+  },
+  "mergedAt": "2026-06-08T07:02:51Z",
+  "number": 68,
+  "state": "MERGED",
+  "title": "feat: create-vm boots in 7s via direct tart CLI (replace vagrant)"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-07T08:56:49Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 67,
+  "state": "CLOSED",
+  "title": "fix: write generated inventory to vagrant_tart_autogenerated.yml"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-06T10:11:52Z",
+  "mergeCommit": {
+   "oid": "9eb3e471dcdb25216acad21285c1853391b502f4"
+  },
+  "mergedAt": "2026-06-06T10:11:52Z",
+  "number": 66,
+  "state": "MERGED",
+  "title": "docs: correct bd dep-add type rules and epic-gating semantics"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-05T06:41:45Z",
+  "mergeCommit": {
+   "oid": "7f8437e9b0722c494b079e4a6f7421153e4ba87f"
+  },
+  "mergedAt": "2026-06-05T06:41:45Z",
+  "number": 65,
+  "state": "MERGED",
+  "title": "ai(rules): mandate version-update registration for version-pinning roles"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-04T13:11:18Z",
+  "mergeCommit": {
+   "oid": "2aca3b471ae200b8216fccb2630d1b680d81aefe"
+  },
+  "mergedAt": "2026-06-04T13:11:18Z",
+  "number": 64,
+  "state": "MERGED",
+  "title": "feat: back up and restore RTK token analytics settings"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-04T12:59:01Z",
+  "mergeCommit": {
+   "oid": "01fb662891cd03a87b904c74801af194ef0ca506"
+  },
+  "mergedAt": "2026-06-04T12:59:01Z",
+  "number": 63,
+  "state": "MERGED",
+  "title": "build(deps): bump the all-actions group with 4 updates"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-01T19:07:53Z",
+  "mergeCommit": {
+   "oid": "1ee5943d3ed462114245d084b8ebcaed979e71d7"
+  },
+  "mergedAt": "2026-06-01T19:07:53Z",
+  "number": 62,
+  "state": "MERGED",
+  "title": "feat(backup): narrow claude backup/restore to role-unmanaged state"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-01T11:08:30Z",
+  "mergeCommit": {
+   "oid": "7e2e1ece2afcb96118f2f1a48c8540532d8be94f"
+  },
+  "mergedAt": "2026-06-01T11:08:30Z",
+  "number": 61,
+  "state": "MERGED",
+  "title": "feat(claude_code): clone ai-agent-workspace and symlink skills per user"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-01T06:29:03Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 60,
+  "state": "CLOSED",
+  "title": "feat: pre-bake python3+sudo into Dockerfile for all molecule scenarios"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-01T05:52:30Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 59,
+  "state": "CLOSED",
+  "title": "feat(claude_code): configure Exa MCP server for desktop users"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-06-01T03:19:57Z",
+  "mergeCommit": {
+   "oid": "b31d9598d662979b14a841bb7c63583bcf5a3185"
+  },
+  "mergedAt": "2026-06-01T03:19:57Z",
+  "number": 58,
+  "state": "MERGED",
+  "title": "feat(claude_code): install specify-cli and context7 plugin"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-31T14:39:51Z",
+  "mergeCommit": {
+   "oid": "915ae81b448d1ba5e1cc8a7744ed1831ee3dfa55"
+  },
+  "mergedAt": "2026-05-31T14:39:51Z",
+  "number": 57,
+  "state": "MERGED",
+  "title": "feat: dedicated python role + constitution amendments"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-31T05:23:48Z",
+  "mergeCommit": {
+   "oid": "74d640f43aa0cee71796918085d9f7f8e0b25c1c"
+  },
+  "mergedAt": "2026-05-31T05:23:48Z",
+  "number": 56,
+  "state": "MERGED",
+  "title": "feat: install Ruby on new VMs to support OMC ralph skill"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-30T17:53:56Z",
+  "mergeCommit": {
+   "oid": "7da8ca22dec1ba9bf297d22fde32dbad8c048ed2"
+  },
+  "mergedAt": "2026-05-30T17:53:56Z",
+  "number": 55,
+  "state": "MERGED",
+  "title": "fix: dolt-sql-server failed to start due to missing HOME directory"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-30T16:01:48Z",
+  "mergeCommit": {
+   "oid": "5e0a463b39a67c7dd24c2f964d1b2d2aca75e7dc"
+  },
+  "mergedAt": "2026-05-30T16:01:48Z",
+  "number": 54,
+  "state": "MERGED",
+  "title": "feat: add dolt_sql_server role with loopback SQL server on VM boot"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-30T08:48:21Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 53,
+  "state": "CLOSED",
+  "title": "docs: document Branch A spike \u2014 concurrent beads writes already work"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-30T15:24:08Z",
+  "mergeCommit": {
+   "oid": "f8e00f58c913a8e778b791854c6ebca2b4af9692"
+  },
+  "mergedAt": "2026-05-30T15:24:08Z",
+  "number": 52,
+  "state": "MERGED",
+  "title": "feat: version-update playbooks, CI improvements, beads cleanup"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-27T15:57:53Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 51,
+  "state": "CLOSED",
+  "title": "ai(constitution): add DRY, Fail Loud principles and no-version-history rule"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-26T03:38:41Z",
+  "mergeCommit": {
+   "oid": "2145fdc89068a645e35d31e84f96d52a1ec4210f"
+  },
+  "mergedAt": "2026-05-26T03:38:41Z",
+  "number": 50,
+  "state": "MERGED",
+  "title": "ai(constitution): add DRY, Fail Loud principles and no-version-history rule"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-25T16:02:14Z",
+  "mergeCommit": {
+   "oid": "9464da6973e55f5fc46e87d0d98466e8b5363cfa"
+  },
+  "mergedAt": "2026-05-25T16:02:14Z",
+  "number": 49,
+  "state": "MERGED",
+  "title": "fix(ci): SARIF upload failed with 'Resource not accessible by integration'"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-25T15:51:57Z",
+  "mergeCommit": {
+   "oid": "164bf427cc57a96ec121d82d402d6f99ee9a25eb"
+  },
+  "mergedAt": "2026-05-25T15:51:57Z",
+  "number": 48,
+  "state": "MERGED",
+  "title": "ci: fork-safe Docker CI with native per-arch matrix builds"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-22T19:09:11Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 47,
+  "state": "CLOSED",
+  "title": "feat: fork-safe Docker CI, Molecule pipeline, and devcontainer size reduction"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-21T04:29:47Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 46,
+  "state": "CLOSED",
+  "title": "ci: enforce GitHub Actions pinning policy in CI"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-21T04:29:45Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 45,
+  "state": "CLOSED",
+  "title": "ai: add missing global skills to AGENTS.md skill index"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-21T04:29:43Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 44,
+  "state": "CLOSED",
+  "title": "ci: pin container-structure-test to v1.22.1 with SHA256 verification"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-22T21:00:40Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 43,
+  "state": "CLOSED",
+  "title": "ci: fork-safe Docker CI with native per-arch matrix builds"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-11T18:15:33Z",
+  "mergeCommit": {
+   "oid": "e39fd767d2480a8c6aa771a4f4cfc34b1ce8d424"
+  },
+  "mergedAt": "2026-05-11T18:15:33Z",
+  "number": 42,
+  "state": "MERGED",
+  "title": "RTK integration, run-role script, dotnet 10, claude backup and docs overhaul"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-05-22T21:00:58Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 41,
+  "state": "CLOSED",
+  "title": "chore(deps): bump the all-actions group with 2 updates"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-29T04:16:28Z",
+  "mergeCommit": {
+   "oid": "5d145211c90e47c7f8b54568419aaea7ca2db8b9"
+  },
+  "mergedAt": "2026-04-29T04:16:28Z",
+  "number": 40,
+  "state": "MERGED",
+  "title": "fix: backed up ~/.tmux.conf would be downgraded on restore"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-29T03:39:57Z",
+  "mergeCommit": {
+   "oid": "24d3fd11053ba237778395c3762a434dc66f81f6"
+  },
+  "mergedAt": "2026-04-29T03:39:57Z",
+  "number": 39,
+  "state": "MERGED",
+  "title": "feat(claude_code): install omc cli and config tmux in claude settings"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-26T15:10:11Z",
+  "mergeCommit": {
+   "oid": "e424a3d337a102390477e03ba356e947fc97a9e6"
+  },
+  "mergedAt": "2026-04-26T15:10:11Z",
+  "number": 38,
+  "state": "MERGED",
+  "title": "feat: configure Oh My Claude + install tmux (role)"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-15T15:20:00Z",
+  "mergeCommit": {
+   "oid": "62d5f22587cb60cff2365f6f39d65348fdaf3e48"
+  },
+  "mergedAt": "2026-04-15T15:20:00Z",
+  "number": 37,
+  "state": "MERGED",
+  "title": "docs: move memory banks into permanent docs"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-15T04:06:38Z",
+  "mergeCommit": {
+   "oid": "3415244495f04f0cf4567a7dc2360b817275fa09"
+  },
+  "mergedAt": "2026-04-15T04:06:38Z",
+  "number": 36,
+  "state": "MERGED",
+  "title": "deps(skills): update to latest ai-agent-workspace"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-14T03:54:08Z",
+  "mergeCommit": {
+   "oid": "b19cb98835e48dcff6e23fe518f2acfad21e5960"
+  },
+  "mergedAt": "2026-04-14T03:54:08Z",
+  "number": 35,
+  "state": "MERGED",
+  "title": "feat: add rootless Podman role with Molecule tests"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-10T04:46:01Z",
+  "mergeCommit": {
+   "oid": "b75912552b7a8ced75ad3a697ba67294a372a54b"
+  },
+  "mergedAt": "2026-04-10T04:46:01Z",
+  "number": 34,
+  "state": "MERGED",
+  "title": "feat: java role"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-07T18:20:49Z",
+  "mergeCommit": null,
+  "mergedAt": null,
+  "number": 33,
+  "state": "CLOSED",
+  "title": "Install java lts/claude code 01"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-07T03:32:00Z",
+  "mergeCommit": {
+   "oid": "e83c3e44488ac7d8486234b6e20d049ed1b6ee2b"
+  },
+  "mergedAt": "2026-04-07T03:32:00Z",
+  "number": 32,
+  "state": "MERGED",
+  "title": "feat: flutter is provided via a role"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-04T14:49:51Z",
+  "mergeCommit": {
+   "oid": "8d2b1af6e4a4c591d65e16657e68b009047ce671"
+  },
+  "mergedAt": "2026-04-04T14:49:51Z",
+  "number": 31,
+  "state": "MERGED",
+  "title": "fix: home-folder-files restore failed when .envrc is absent"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-03T20:13:35Z",
+  "mergeCommit": {
+   "oid": "80b53b5f06866c818766214a7ce68eee151b5b0e"
+  },
+  "mergedAt": "2026-04-03T20:13:35Z",
+  "number": 30,
+  "state": "MERGED",
+  "title": "fix: assert tasks still failed after is-not-none fix"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-03T19:50:35Z",
+  "mergeCommit": {
+   "oid": "4dea13743a543dabfc10d47628b5a37363733789"
+  },
+  "mergedAt": "2026-04-03T19:50:35Z",
+  "number": 29,
+  "state": "MERGED",
+  "title": "fix: assert tasks failed due to non-boolean regex_search result"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-03T19:15:11Z",
+  "mergeCommit": {
+   "oid": "279e24d294266c3e09be67712af7ee1621a3b1dd"
+  },
+  "mergedAt": "2026-04-03T19:15:11Z",
+  "number": 28,
+  "state": "MERGED",
+  "title": "Add android_studio role with pre-provisioned SDK for fast first launch"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-04-03T19:18:26Z",
+  "mergeCommit": {
+   "oid": "4065e90033284788cc42bb1306a6696c839f8d59"
+  },
+  "mergedAt": "2026-04-03T19:18:26Z",
+  "number": 27,
+  "state": "MERGED",
+  "title": "build(deps): bump the all-actions group with 5 updates"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-03-31T04:03:42Z",
+  "mergeCommit": {
+   "oid": "4135008bfa161389d0247f1ce9d47346b2b9fcd4"
+  },
+  "mergedAt": "2026-03-31T04:03:42Z",
+  "number": 26,
+  "state": "MERGED",
+  "title": "docs: spec kit setup instructions"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-03-31T03:20:24Z",
+  "mergeCommit": {
+   "oid": "4c61c9398742739103b5a233d063c8c35918ce97"
+  },
+  "mergedAt": "2026-03-31T03:20:24Z",
+  "number": 25,
+  "state": "MERGED",
+  "title": "feat: remove .envrc from home folder backup"
+ },
+ {
+  "author": {
+   "id": "U_kgDODySuyw",
+   "is_bot": false,
+   "login": "eudicy",
+   "name": ""
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-03-28T14:34:09Z",
+  "mergeCommit": {
+   "oid": "512a0402121af190eb2130f2c2fc47f36f3f1425"
+  },
+  "mergedAt": "2026-03-28T14:34:09Z",
+  "number": 24,
+  "state": "MERGED",
+  "title": "feat: back up and restore Google Chrome settings"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-03-15T06:53:17Z",
+  "mergeCommit": {
+   "oid": "6e2aae578635f0e8f2f2fc162e953e65c7920749"
+  },
+  "mergedAt": "2026-03-15T06:53:17Z",
+  "number": 23,
+  "state": "MERGED",
+  "title": "build(deps): bump docker/build-push-action from 6.18.0 to 6.19.2 in the all-actions group"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-02-27T10:37:55Z",
+  "mergeCommit": {
+   "oid": "0cbe595cb4ab99007c147f89eaa28238c5fc5bf4"
+  },
+  "mergedAt": "2026-02-27T10:37:55Z",
+  "number": 22,
+  "state": "MERGED",
+  "title": "Claude code"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjQ5NTk2MDg0",
+   "is_bot": false,
+   "login": "BadWinniePooh",
+   "name": "BadWinniePooh"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-02-27T10:51:03Z",
+  "mergeCommit": {
+   "oid": "55f6e5616f415779f5cd8443233d979f4f567c4c"
+  },
+  "mergedAt": "2026-02-27T10:51:03Z",
+  "number": 21,
+  "state": "MERGED",
+  "title": "Add semver tags to Docker publish workflow"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-02-27T10:39:03Z",
+  "mergeCommit": {
+   "oid": "d98179caa705f8a3a608f455840671636404fb8c"
+  },
+  "mergedAt": "2026-02-27T10:39:03Z",
+  "number": 20,
+  "state": "MERGED",
+  "title": "build(deps): bump docker/login-action from 3.6.0 to 3.7.0 in the all-actions group"
+ },
+ {
+  "author": {
+   "is_bot": true,
+   "login": "app/dependabot"
+  },
+  "baseRefName": "main",
+  "closedAt": "2026-01-24T20:55:44Z",
+  "mergeCommit": {
+   "oid": "d30b88782dfc140683eb84619d9cb393a746fe4f"
+  },
+  "mergedAt": "2026-01-24T20:55:44Z",
+  "number": 19,
+  "state": "MERGED",
+  "title": "build(deps): bump the all-actions group with 6 updates"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-08-08T03:59:40Z",
+  "mergeCommit": {
+   "oid": "eb2ce9967749de414382bc99cadd1d26edc2b41d"
+  },
+  "mergedAt": "2025-08-08T03:59:40Z",
+  "number": 18,
+  "state": "MERGED",
+  "title": "feat: replace broken command restriction script by documentation"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-08-08T03:24:14Z",
+  "mergeCommit": {
+   "oid": "a78a1e31319051a5c72024c00fd79a312ccc956b"
+  },
+  "mergedAt": "2025-08-08T03:24:14Z",
+  "number": 17,
+  "state": "MERGED",
+  "title": "docs: aws cli is a prerequisite"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-08-05T06:49:58Z",
+  "mergeCommit": {
+   "oid": "2cc25b221381db8319c980c269ad79b808c75802"
+  },
+  "mergedAt": "2025-08-05T06:49:58Z",
+  "number": 16,
+  "state": "MERGED",
+  "title": "docs: keep progress markers only in improvement backlog"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-08-05T06:31:25Z",
+  "mergeCommit": {
+   "oid": "4bde22e931a90d0029967e73f8f6bd72fd1c81e3"
+  },
+  "mergedAt": "2025-08-05T06:31:25Z",
+  "number": 15,
+  "state": "MERGED",
+  "title": "docs: concepts for command restrictions"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-08-05T05:58:35Z",
+  "mergeCommit": {
+   "oid": "1ff80954f7c970fa29118a33c243bd29934b6bf8"
+  },
+  "mergedAt": "2025-08-05T05:58:35Z",
+  "number": 14,
+  "state": "MERGED",
+  "title": "fix: merge mistakes"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-08-05T04:06:40Z",
+  "mergeCommit": {
+   "oid": "9f7de1e63e31639d2c551e9630509892d0661abc"
+  },
+  "mergedAt": "2025-08-05T04:06:40Z",
+  "number": 13,
+  "state": "MERGED",
+  "title": "docs: concept for consistent provisioning style"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-08-04T10:07:52Z",
+  "mergeCommit": {
+   "oid": "52386969e04076268c4338dadbf24b69c3efe2ae"
+  },
+  "mergedAt": "2025-08-04T10:07:52Z",
+  "number": 12,
+  "state": "MERGED",
+  "title": "docs: move memory bank insights to central docs"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-08-04T09:58:51Z",
+  "mergeCommit": {
+   "oid": "715bd5d6afeeb339346268a22f159f7beeb31b3d"
+  },
+  "mergedAt": "2025-08-04T09:58:51Z",
+  "number": 11,
+  "state": "MERGED",
+  "title": "docs: memory bank branches"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-07-31T19:59:31Z",
+  "mergeCommit": {
+   "oid": "45de609ead4536e4dcca00c8a727647423c6df2c"
+  },
+  "mergedAt": "2025-07-31T19:59:31Z",
+  "number": 10,
+  "state": "MERGED",
+  "title": "fix: remove reference to non existing vars-usernames.yml"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-07-31T19:40:49Z",
+  "mergeCommit": {
+   "oid": "bec50f946b36f401902fa60dbb6b2b519c28a1c8"
+  },
+  "mergedAt": "2025-07-31T19:40:49Z",
+  "number": 9,
+  "state": "MERGED",
+  "title": "feat: idiomatic secret vars"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-07-27T20:08:39Z",
+  "mergeCommit": {
+   "oid": "4b36a810f2e7f291d94d60da76941f2f4a5a1597"
+  },
+  "mergedAt": "2025-07-27T20:08:39Z",
+  "number": 8,
+  "state": "MERGED",
+  "title": "feat: small improvements"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-07-23T03:56:10Z",
+  "mergeCommit": {
+   "oid": "b5bd8cdb4ee21d446123f8b1287ced8672c34551"
+  },
+  "mergedAt": "2025-07-23T03:56:09Z",
+  "number": 7,
+  "state": "MERGED",
+  "title": "fix: restore home folder files first"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-07-16T07:26:00Z",
+  "mergeCommit": {
+   "oid": "1a6d4cb012efa1984f0457280b70c02b36819de8"
+  },
+  "mergedAt": "2025-07-16T07:26:00Z",
+  "number": 6,
+  "state": "MERGED",
+  "title": "feat: backup files in home directory"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-07-15T03:56:35Z",
+  "mergeCommit": {
+   "oid": "45e806161ace90166b4f0979581857114c325d96"
+  },
+  "mergedAt": "2025-07-15T03:56:35Z",
+  "number": 5,
+  "state": "MERGED",
+  "title": "improvement: simplify environment configuration"
+ },
+ {
+  "author": {
+   "id": "U_kgDOCvAQsA",
+   "is_bot": false,
+   "login": "stefanboos",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-07-14T04:08:25Z",
+  "mergeCommit": {
+   "oid": "9700545eacc57f9d508960d329773e067f442f7e"
+  },
+  "mergedAt": "2025-07-14T04:08:25Z",
+  "number": 4,
+  "state": "MERGED",
+  "title": "improvement: simplify the provisioning structure"
+ },
+ {
+  "author": {
+   "id": "U_kgDOCvAQsA",
+   "is_bot": false,
+   "login": "stefanboos",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-07-13T05:50:57Z",
+  "mergeCommit": {
+   "oid": "9a51d825f71a73e3098bc4af022c16299b5c5e1b"
+  },
+  "mergedAt": "2025-07-13T05:50:57Z",
+  "number": 3,
+  "state": "MERGED",
+  "title": "fix: aws user setup requires passlib"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-07-12T15:25:35Z",
+  "mergeCommit": {
+   "oid": "426ba4f5bf1c202cc5750ef8ae49e990f4d50fed"
+  },
+  "mergedAt": "2025-07-12T15:25:35Z",
+  "number": 2,
+  "state": "MERGED",
+  "title": "feat: unified inventory"
+ },
+ {
+  "author": {
+   "id": "MDQ6VXNlcjE5NTg1NTE=",
+   "is_bot": false,
+   "login": "wonderbird",
+   "name": "Stefan Boos"
+  },
+  "baseRefName": "main",
+  "closedAt": "2025-07-06T17:46:11Z",
+  "mergeCommit": {
+   "oid": "2f335dc6157a5b07ca4f76a5013229f136f86ec6"
+  },
+  "mergedAt": "2025-07-06T17:46:11Z",
+  "number": 1,
+  "state": "MERGED",
+  "title": "feat: windows server"
+ }
+]
