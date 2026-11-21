@@ -2,14 +2,6 @@
   "version": 1,
   "skills": [
     {
-      "name": "commit",
-      "tools": [
-        "cc",
-        "codex"
-      ],
-      "scope": "project"
-    },
-    {
       "name": "commit-message",
       "tools": [
         "cc",
@@ -35,14 +27,6 @@
     },
     {
       "name": "format-markdown",
-      "tools": [
-        "cc",
-        "codex"
-      ],
-      "scope": "project"
-    },
-    {
-      "name": "record-findings",
       "tools": [
         "cc",
         "codex"
