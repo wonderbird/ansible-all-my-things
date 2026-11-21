@@ -16,13 +16,16 @@ import unittest
 from pathlib import Path
 
 from .common import REPO_ROOT
+from .skills import SKILL_DIRS
 
 
 class InitDevAcceptanceTest(unittest.TestCase):
     def setUp(self):
         tmp = Path(self.enterContext(tempfile.TemporaryDirectory()))
         self.clone = copy_working_tree(tmp / "clone")
-        self.env = isolated_env(home=tmp / "home")
+        self.home = tmp / "home"
+        self.env = isolated_env(home=self.home)
+        self.real_home_links = skill_links(Path.home())
 
     def test_prepares_clone_and_can_run_again(self):
         # Run twice: the second run proves that init_dev is re-runnable.
@@ -38,12 +41,22 @@ class InitDevAcceptanceTest(unittest.TestCase):
         self.assert_beads_holds_tracked_issues()
         self.assert_nothing_left_to_commit()
         self.assert_commit_runs_ruff()
+        self.assert_real_home_untouched()
 
     def assert_skills_deployed(self):
+        # Project skills are linked into the clone, user skills into HOME.
         manifest = json.loads((self.clone / ".skills.json").read_text())
         for skill in manifest["skills"]:
-            skill_file = self.clone / ".claude/skills" / skill["name"] / "SKILL.md"
-            self.assertTrue(skill_file.is_file(), f"skill {skill['name']} not deployed")
+            base = self.clone if skill["scope"] == "project" else self.home
+            for tool in skill["tools"]:
+                skill_file = base / SKILL_DIRS[tool] / skill["name"] / "SKILL.md"
+                self.assertTrue(
+                    skill_file.is_file(),
+                    f"{skill['scope']} skill {skill['name']} not deployed for {tool}",
+                )
+
+    def assert_real_home_untouched(self):
+        self.assertEqual(skill_links(Path.home()), self.real_home_links)
 
     def assert_direnv_activates_venv(self):
         prefix = self.in_direnv("python", "-c", "import sys; print(sys.prefix)")
@@ -170,12 +183,29 @@ def copy_working_tree(target):
     return target
 
 
+def skill_links(home):
+    # Map each skill link under home's skill directories to its target.
+    links = {}
+    for skill_dir in SKILL_DIRS.values():
+        directory = home / skill_dir
+        if directory.is_dir():
+            for entry in directory.iterdir():
+                if entry.is_symlink():
+                    links[str(entry)] = os.readlink(entry)
+    return links
+
+
 def isolated_env(home):
     # Give the test its own HOME, so sm's link records and direnv's allow
     # list stay out of the real ones, which would otherwise point at a
-    # deleted clone. sm needs its configuration and store there.
+    # deleted clone. sm needs its configuration and store there, but not its
+    # link records: they name links in the real HOME, and sm in the test's
+    # HOME deletes the user-scope links recorded there.
     shutil.copytree(
-        Path.home() / ".skill-manager", home / ".skill-manager", symlinks=True
+        Path.home() / ".skill-manager",
+        home / ".skill-manager",
+        symlinks=True,
+        ignore=shutil.ignore_patterns("state.json"),
     )
 
     # Keep bd's user settings, such as the answered metrics notice, so bd

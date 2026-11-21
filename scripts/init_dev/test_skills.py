@@ -20,6 +20,8 @@ from .fakes import first_on_path, logged_calls, write_executable
 # FAKE_SM_LOG, so tests can tell whether sm ran at all. Python, not sh,
 # because it parses the manifest.
 #
+# Skills of scope user go below FAKE_SM_USER_HOME instead of the working directory.
+#
 # FAKE_SM_MODE:
 #   link  links the skills like the real sm (default).
 #   noop  exits 0 without linking, like the real sm when it only warns.
@@ -45,10 +47,12 @@ FAKE_SM = textwrap.dedent(f"""\
     if mode == "link":
         skill_dirs = {{"cc": ".claude/skills", "codex": ".agents/skills"}}
         store = Path(os.environ["FAKE_SM_STORE"])
+        home = Path(os.environ["FAKE_SM_USER_HOME"])
         manifest = json.loads(Path(".skills.json").read_text())
         for skill in manifest["skills"]:
             for tool in skill["tools"]:
-                link = Path(skill_dirs[tool]) / skill["name"]
+                base = Path(".") if skill["scope"] == "project" else home
+                link = base / skill_dirs[tool] / skill["name"]
                 link.parent.mkdir(parents=True, exist_ok=True)
                 if not link.is_symlink():
                     link.symlink_to(store / skill["name"])
@@ -65,6 +69,7 @@ class Fixture:
         # Name the parts of the fixture.
         self.repo = tmp / "repo"
         self.sm_home = tmp / "sm_home"
+        self.home = tmp / "home"
         self.store = self.sm_home / "skills"
         self.log = tmp / "sm-calls"
         bin_dir = tmp / "bin"
@@ -86,13 +91,14 @@ class Fixture:
         self.env = {
             **first_on_path(bin_dir),
             "FAKE_SM_STORE": str(self.store),
+            "FAKE_SM_USER_HOME": str(self.home),
             "FAKE_SM_LOG": str(self.log),
         }
 
     def run_skills_install_with(self, sm_mode="link"):
         env = {**self.env, "FAKE_SM_MODE": sm_mode}
         with mock.patch.dict(os.environ, env):
-            skills.install(repo_root=self.repo, sm_home=self.sm_home)
+            skills.install(repo_root=self.repo, sm_home=self.sm_home, home=self.home)
 
 
 class InstallTest(unittest.TestCase):
@@ -103,6 +109,27 @@ class InstallTest(unittest.TestCase):
         self.fixture.run_skills_install_with()
         link = self.fixture.repo / ".claude/skills/demo"
         self.assertEqual(link.resolve(), (self.fixture.store / "demo").resolve())
+
+    def test_links_user_skill_into_home_not_into_repo(self):
+        (self.fixture.repo / ".skills.json").write_text(
+            json_manifest("demo", scope="user", tools=("cc", "codex"))
+        )
+        self.fixture.run_skills_install_with()
+        for link in (
+            self.fixture.home / ".claude/skills/demo",
+            self.fixture.home / ".agents/skills/demo",
+        ):
+            self.assertEqual(link.resolve(), (self.fixture.store / "demo").resolve())
+        self.assertFalse((self.fixture.repo / ".claude/skills/demo").exists())
+        self.assertTrue((self.fixture.home / ".claude/skills/demo").is_symlink())
+
+    def test_user_skill_needs_no_gitignore_entry(self):
+        (self.fixture.repo / ".skills.json").write_text(
+            json_manifest("demo", scope="user")
+        )
+        (self.fixture.repo / ".gitignore").write_text("")
+        self.fixture.run_skills_install_with()
+        self.assertTrue((self.fixture.home / ".claude/skills/demo").is_symlink())
 
     def test_second_run_succeeds(self):
         self.fixture.run_skills_install_with()
@@ -141,11 +168,23 @@ class InstallTest(unittest.TestCase):
 
     def test_fails_on_unsupported_scope(self):
         (self.fixture.repo / ".skills.json").write_text(
-            json_manifest("demo", scope="user")
+            json_manifest("demo", scope="team")
         )
         with self.assertRaisesRegex(InitError, "unsupported"):
             self.fixture.run_skills_install_with()
         self.assert_sm_not_called()
+
+    def test_fails_on_skill_without_scope_or_tools(self):
+        for key in ["scope", "tools"]:
+            with self.subTest(missing=key):
+                skill = {"name": "demo", "tools": ["cc"], "scope": "project"}
+                del skill[key]
+                (self.fixture.repo / ".skills.json").write_text(
+                    json.dumps({"version": 1, "skills": [skill], "profiles": {}})
+                )
+                with self.assertRaisesRegex(InitError, "unsupported"):
+                    self.fixture.run_skills_install_with()
+                self.assert_sm_not_called()
 
     def test_fails_on_unparsable_manifest(self):
         (self.fixture.repo / ".skills.json").write_text("{")
@@ -173,6 +212,46 @@ class InstallTest(unittest.TestCase):
         self.assert_sm_not_called()
         self.assertEqual(tracked.read_text(), "tracked\n")
 
+    def test_refuses_tracked_project_skill_beside_user_skill(self):
+        # A tracked file where sm would place the project skill link.
+        manifest = {
+            "version": 1,
+            "profiles": {},
+            "skills": [
+                {"name": "demo", "tools": ["cc"], "scope": "project"},
+                {"name": "other", "tools": ["cc"], "scope": "user"},
+            ],
+        }
+        (self.fixture.repo / ".skills.json").write_text(json.dumps(manifest))
+        (self.fixture.store / "other").mkdir()
+        (self.fixture.store / "other" / "SKILL.md").write_text("# other\n")
+        tracked = self.fixture.repo / ".claude/skills/demo/SKILL.md"
+        tracked.parent.mkdir(parents=True)
+        tracked.write_text("tracked\n")
+        subprocess.run(
+            ["git", "add", "-f", str(tracked)], cwd=self.fixture.repo, check=True
+        )
+
+        with self.assertRaisesRegex(InitError, "collide"):
+            self.fixture.run_skills_install_with()
+        self.assert_sm_not_called()
+
+    def test_user_skill_may_share_its_name_with_a_tracked_project_path(self):
+        # A tracked file at the path a project link would take, but the
+        # manifest lists the skill with scope user.
+        (self.fixture.repo / ".skills.json").write_text(
+            json_manifest("demo", scope="user")
+        )
+        tracked = self.fixture.repo / ".claude/skills/demo/SKILL.md"
+        tracked.parent.mkdir(parents=True)
+        tracked.write_text("tracked\n")
+        subprocess.run(
+            ["git", "add", "-f", str(tracked)], cwd=self.fixture.repo, check=True
+        )
+
+        self.fixture.run_skills_install_with()
+        self.assertEqual(tracked.read_text(), "tracked\n")
+
     def test_fails_when_sm_exits_nonzero(self):
         with self.assertRaises(subprocess.CalledProcessError):
             self.fixture.run_skills_install_with(sm_mode="fail")
@@ -185,6 +264,23 @@ class InstallTest(unittest.TestCase):
         link = self.fixture.repo / ".claude/skills/demo"
         link.parent.mkdir(parents=True)
         link.symlink_to(self.fixture.repo)
+        with self.assertRaisesRegex(InitError, "not a symlink"):
+            self.fixture.run_skills_install_with(sm_mode="noop")
+
+    def test_fails_when_user_link_points_elsewhere(self):
+        (self.fixture.repo / ".skills.json").write_text(
+            json_manifest("demo", scope="user")
+        )
+        link = self.fixture.home / ".claude/skills/demo"
+        link.parent.mkdir(parents=True)
+        link.symlink_to(self.fixture.repo)
+        with self.assertRaisesRegex(InitError, "not a symlink"):
+            self.fixture.run_skills_install_with(sm_mode="noop")
+
+    def test_fails_when_user_skill_not_linked(self):
+        (self.fixture.repo / ".skills.json").write_text(
+            json_manifest("demo", scope="user")
+        )
         with self.assertRaisesRegex(InitError, "not a symlink"):
             self.fixture.run_skills_install_with(sm_mode="noop")
 
