@@ -72,8 +72,8 @@ automatically and has no knowledge of any specific repository.
 ## Non-goals
 
 - Database initialization (`dolt init`) — handled by `bd bootstrap` at session start.
-- Data restore or backup — handled by `bd dolt push` / `bd dolt pull`
-  at session boundaries.
+- Data restore or backup — handled by the git-tracked beads export
+  described in the repository's `AGENTS.md`.
 - Repository task-tracking configuration (`bd init --server`) — a
   one-time developer action.
 - Multi-host or remote server setup — the service is local to each VM.
