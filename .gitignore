@@ -1,6 +1,9 @@
+# Beads: track only the issue export, the config and the project metadata;
+# see AGENTS.md.
 .beads/*
 !.beads/issues.jsonl
 !.beads/config.yaml
+!.beads/metadata.json
 
 # bv (beads viewer) local config and caches
 .bv/
