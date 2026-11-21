@@ -1,25 +1,16 @@
 <!--
-Sync Impact Report — 2.4.0 → 2.5.0 (MINOR)
-- Size: 5134 → 4861 words.
-- Principle II (Role-First Organisation) keeps only its rules and their why.
-  Playbook classes replace the closed directory allowlist; a new procedure
-  or user-environment playbook needs a plan whose architect review decides;
-  new role rule for configuration files in a user's home directory.
-- Moved detail: the playbook classes and the fresh-host test to
-  docs/architecture/concepts/playbook-classes.md (authoritative); role
-  how-to (version-update wiring, meta dependencies, Molecule) stays in the
-  ansible-role-creator and ansible-molecule-testing skills, which agents MUST
-  invoke; docs/architecture/concepts/role-dependency-declaration.md stays
-  authoritative for the dependency decision.
-- Governance: new amendment step 5, a size review (rule plus why in the
-  constitution, detail behind a pointer, word count before → after in this
-  report); it also applies to AGENTS.md.
-- MINOR: everything allowed before stays allowed; the VM-lifecycle
-  playbooks, precondition assertions and bootstrap access, before covered
-  only by per-plan exceptions, are now named; the home-directory rule and
-  the size review are new guidance.
-- Modified principles: II. Role-First Organisation. Modified sections:
-  Governance.
+Sync Impact Report — 2.5.0 → 2.5.1 (PATCH)
+- Size: 4861 → 4790 words.
+- Agent Environment: skill-owned rules go to a tracked SKILL.md — the
+  repository's own skills under `.claude/skills/`, or the upstream source of a
+  skill listed in `.skills.json`, whose link in the clone is gitignored.
+- Tracker-Export Commit Exception rationale: the export runs once per response
+  that mutates bd, and it carries issues and gates; memory records are kept out
+  of it (AGENTS.md "Durable knowledge lives in tracked files").
+- PATCH: wording aligned with the bd 1.3.4 rules in AGENTS.md; no principle
+  changed.
+- Modified principles: none. Modified sections: Agent Environment,
+  Development Workflow (Tracker-Export Commit Exception).
 - Added sections: none. Removed sections: none.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
@@ -28,14 +19,8 @@ Sync Impact Report — 2.4.0 → 2.5.0 (MINOR)
   ✅ .specify/templates/checklist-template.md — no changes required
   ✅ .specify/templates/constitution-template.md — no changes required
   ✅ .specify/templates/agent-file-template.md — no changes required
-- AGENTS.md and CLAUDE.md checked: no propagation required.
-- Skills updated: ansible-role-creator (home-directory configuration rule),
-  ansible-review-documentation (rule files stay lean).
-- Runtime guidance updated: docs/architecture/solution-strategy.md,
-  docs/architecture/concepts/playbook-classes.md (new).
-- Technical debt: TD-002 updated (reboot-if-required.yml removed, shared
-  setup task files added); TD-013 added for roles that overwrite a user's
-  configuration files.
+- AGENTS.md updated in the same change (bd 1.3.4 beads rules); CLAUDE.md
+  checked: no propagation required.
 - Follow-up TODOs: none.
 -->
 # ansible-all-my-things Constitution
@@ -541,7 +526,9 @@ All durable knowledge MUST be committed to git:
 
 - Ansible patterns and prohibitions → this constitution
 - Skill-owned rules (Molecule, commit format, Markdown formatting,
-  documentation review) → `.claude/skills/<skill>/SKILL.md`
+  documentation review) → the skill's `SKILL.md`: under `.claude/skills/` for
+  a skill tracked in this repository, in its upstream source for a skill
+  listed in `.skills.json`
 
 Never rely on in-session memory or local files for knowledge that must
 carry forward to the next agent session.
@@ -597,8 +584,8 @@ in addition or instead, is an ordinary change and every step above applies to
 it in full.
 
 **Rationale**: the file is generated state, not authored content. It is a
-passive export rewritten wholesale by `bd export --all` after every tracker
-mutation, and it is the primary durability path for issues and memories — see
+passive export rewritten wholesale by `bd export --all` once per response
+that mutates bd, and it is the primary durability path for issues and gates — see
 "Beads: Data Safety and Workflow Rules" in `AGENTS.md`. A reviewer therefore
 has nothing to review: its correctness is decided by the tracker state the
 export was taken from, not by the diff. Routing it through a branch and a pull
@@ -648,4 +635,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 2.5.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-11-18
+**Version**: 2.5.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-11-21

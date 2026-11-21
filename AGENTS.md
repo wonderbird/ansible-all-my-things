@@ -1,7 +1,7 @@
 # Agent Instructions
 
 <!-- markdownlint-disable MD013 MD022 MD025 MD031 MD032 MD034 -->
-<!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:970c3bf2 -->
+<!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:1105d646 -->
 ## Beads Issue Tracker
 
 This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
@@ -21,7 +21,7 @@ bd close <id>         # Complete work
 - Run `bd prime` for detailed command reference and session close protocol
 - Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
 
-**Architecture in one line:** issues live in a local Dolt DB; sync uses `refs/dolt/data` on your git remote; `.beads/issues.jsonl` is a passive export. See https://github.com/gastownhall/beads/blob/main/docs/SYNC_CONCEPTS.md for details and anti-patterns.
+**Architecture in one line:** issues live in a local Dolt DB; sync uses `refs/dolt/data` on your git remote; `.beads/issues.jsonl` is a passive export. See https://github.com/gastownhall/beads/blob/main/docs/core-concepts/sync-concepts.md for details and anti-patterns.
 
 ## Agent Context Profiles
 
@@ -45,7 +45,6 @@ This protocol applies when ending a Beads implementation workflow. It is subordi
 
    # Team-maintainer opt-in only, unless current instructions forbid it:
    git pull --rebase
-   bd dolt push
    git push
    git status
    ```
@@ -58,26 +57,45 @@ This protocol applies when ending a Beads implementation workflow. It is subordi
 <!-- END BEADS INTEGRATION -->
 <!-- markdownlint-enable MD013 MD022 MD025 MD031 MD032 MD034 -->
 
+## Session Completion: Repository Steps
+
+Run these steps as part of the Session Completion checklist above, after
+step 3 (update issue status) and before step 4 (git/sync). They live outside
+the managed Beads block because bd may regenerate that block and drop local
+edits.
+
+1. **Check for memories** - `bd memories` must report none. Otherwise follow
+   "Durable knowledge lives in tracked files, not in bd memories" below.
+2. **Export beads** - run `bd export --all -o .beads/issues.jsonl`, then
+   check that `git status --short .beads/` lists no path other than
+   `.beads/issues.jsonl`, `.beads/config.yaml` and `.beads/metadata.json`.
+
 ## Beads: Data Safety and Workflow Rules
 
 ### `.beads/issues.jsonl` is git-tracked
 
-`.beads/issues.jsonl` is intentionally force-added and tracked in git — the
-root `.gitignore` uses `.beads/*` with `!.beads/issues.jsonl` and
-`!.beads/config.yaml` negations, because a directory-pattern ignore blocks
-any later negation from any ignore file, so the whitelist must live in the
-tracked `.gitignore`. This makes the file survive across clones even without
-a Dolt remote sync.
+`.beads/issues.jsonl` is tracked in git through a whitelist in the root
+`.gitignore`: `.beads/*` with `!.beads/issues.jsonl`,
+`!.beads/config.yaml` and `!.beads/metadata.json` negations. The pattern is
+`.beads/*`, not `.beads/`, because a directory-pattern ignore blocks any later
+negation from any ignore file. This makes the file survive across clones even
+without a Dolt remote sync.
+
+`.beads/metadata.json` holds the beads `project_id` and the Dolt database
+name. Tracking it keeps both identical in every clone.
 
 The same rule cuts the other way: `bd init --stealth` writes the directory
 pattern `.beads/` into the clone-local `.git/info/exclude`, and git then
-never reads the `.gitignore` negations — `git add .beads/issues.jsonl`
-refuses the file. `python3 -m scripts.init_dev` initializes beads, removes
-that line and verifies that git sees `.beads/issues.jsonl`. After a `bd init`
-by hand, run init_dev again.
+never reads the `.gitignore` negations. Git still shows changes to the
+committed files, but `git add .beads/issues.jsonl` prints an "ignored by one
+of your .gitignore files" hint and exits 1 (verified with bd 1.3.4).
+`python3 -m scripts.init_dev` initializes beads, removes that line and
+verifies that git sees all three files. After a `bd init` by hand, run
+init_dev again. If `git add .beads/issues.jsonl` still reports the file as
+ignored, the clone is misconfigured: report it to the user.
 
-Never stage the file with `git add -f` to work around this: the next agent
-hits the same refusal, and the clone stays misconfigured.
+Never stage the file with `git add -f` to work around this: the clone stays
+misconfigured, and the next agent hits the same refusal.
 
 `.beads/config.yaml` sets `issue-prefix`, because bd otherwise derives the
 prefix of new issues from the clone's directory name. bd rewrites the file
@@ -89,32 +107,63 @@ runs no git operation of its own, and no auto-export is configured. bd's
 auto-export hardcodes memories, infra, templates, and gates out of every
 write (`includeMemories=false`, unconditionally — GH#3650: memories may hold
 private agent context that must not land in git history via the automatic
-path), and no config key widens that scope. Since memories must be captured
-too, the export is manual and full:
+path), and no config key widens that scope. The findings gates of the
+`record-findings` skill must be captured, and a stray memory must stay visible
+to the pre-commit check in "Durable knowledge lives in tracked files" below.
+The export is therefore manual and full:
 
 ```bash
-bd export --all -o .beads/issues.jsonl   # run after EACH bd mutation
+bd export --all -o .beads/issues.jsonl   # after the last bd mutation
 ```
 
+Run the export in every response that mutates bd, once, after all bd
+operations in that response are done — not after each individual `bd`
+command. This saves `bd` invocations without letting the file fall behind.
+
 **Always use `--all`, never plain `bd export` and never re-enable
-`export.auto`, on this file.** Verified: bd's own overwrite guard compares
-the new write's scope against what is already in the file — if a
-narrower-scope write (e.g. a plain `bd export`, or auto-export) follows a
-`--all` write, it refuses to overwrite (`auto-export shrink guard: refusing
-to overwrite ... contains N record(s) outside auto-export scope`) and every
-later export silently stops updating the file until manually repaired.
-Consistency of scope, not any single flag, is what keeps this working.
+`export.auto`, on this file.** A narrower-scope write loses records without
+warning: with bd 1.3.4, a plain `bd export -o .beads/issues.jsonl` after an
+`--all` export rewrote the file without its memory records.
 
 Staging and committing the file still follow the normal Agent Context
 Profile git policy above (Conservative default: report status, do not
-commit without being asked). Bundle the export once per response, after all
-bd operations in that response are done — not once per individual `bd`
-command.
+commit without being asked).
 
-bd's Dolt-backed sync (`refs/dolt/data`) remains available as a secondary
-mechanism, but the tracked, `--all`-exported JSONL is the primary durability
-path here: issues and memories are both recoverable from a plain git clone
-without ever needing `bd dolt pull`.
+**This overrides the managed Beads block above.** That block calls
+`.beads/issues.jsonl` a passive export and names `refs/dolt/data` as the sync
+path. In this repository, the tracked, `--all`-exported JSONL is the primary
+durability path: issues and gates are recoverable from a plain git clone
+without ever needing `bd dolt pull`. bd's Dolt-backed sync
+(`refs/dolt/data`) remains available as a secondary mechanism only.
+
+### Durable knowledge lives in tracked files, not in bd memories
+
+**This overrides the managed Beads block above and the text that `bd prime`
+injects.** Both say to use `bd remember` for persistent knowledge. In this
+repository, do not use it.
+
+- Record a durable insight in a tracked file in the same response that
+  discovers it: where the constitution's "Agent Environment" section places
+  it, agent runtime rules in this file, other project knowledge under
+  `docs/`. Reason: a tracked file is reviewed in diffs and survives the loss
+  of this machine once it is pushed.
+- Do not use `bd remember` or Claude Code's file-based auto memory under
+  `~/.claude/projects/`. Both live only on this machine and are lost when the
+  virtual machine is destroyed.
+- At commit time, `.beads/issues.jsonl` holds no memory records. Check before
+  every commit:
+
+  ```bash
+  bd memories                                         # must report no memories
+  grep -c '"_type":"memory"' .beads/issues.jsonl      # must print 0
+  ```
+
+  If a memory exists, move its content into a tracked file, remove it with
+  `bd forget <key>`, and run the export again.
+- Knowledge in the working tree is still lost with the machine until it is
+  committed and pushed. Under the Conservative profile, agents do not commit
+  or push on their own. At handoff, name every knowledge file that changed
+  and state that it is not yet pushed.
 
 ### bd's git hooks stay uninstalled
 
@@ -130,12 +179,13 @@ skill is this repository's only authority on commit format.
 
 ### Never run `bd list --all`
 
-**NEVER run `bd list --all`** — at ~350 issues it enters an unbounded output
-loop (5.6 GB, 100% CPU, SIGKILL, nearly fills the 17 GB agent disk). For bulk
-reads, query `.beads/issues.jsonl` directly with `grep`/`jq`. For live queries
-use only scoped commands: `bd ready`, `bd list --status <s>`,
-`bd list --priority <p>`, `bd show <id>`. If unavoidable, bound it:
-`timeout 20 bd list --all`. (Bug tracked: 1fg7)
+**NEVER run `bd list --all`.** At ~350 issues (bd v1.0.x), it entered an
+unbounded output loop that wrote 5.6 GB at 100% CPU and nearly filled the
+17 GB agent disk before it was killed. The current bd version has not been
+re-tested. For bulk reads, query `.beads/issues.jsonl` directly with
+`grep`/`jq`. For live queries use only scoped commands: `bd ready`,
+`bd list --status <s>`, `bd list --priority <p>`, `bd show <id>`. If
+unavoidable, bound it: `timeout 20 bd list --all`. (Bug tracked: 1fg7)
 
 ### Findings are always tied to WIP
 
@@ -146,6 +196,9 @@ headline must **not** contain the word "Finding", though the description may
 note provenance.
 
 ### Findings gates are closed by humans only
+
+The user-level `record-findings` skill defines findings gates and their
+lifecycle; invoke it to record findings.
 
 **AI agents MUST NOT close a findings gate.** A findings gate is a human
 review checkpoint — it signals that a set of findings has been collected and
@@ -194,20 +247,20 @@ Built-in types and when to use each:
 | `gate`      | Async coordination checkpoint (blocks until cleared). |
 | `molecule`  | Beads work template — NOT Ansible Molecule testing.   |
 
-### Attaching Issues to Epics (epics cannot be gated)
+Create a human gate with `bd gate create --type=human`; see
+[triage.md](docs/architecture/concepts/issue-tracking/triage.md#gates) for why.
 
-`bd dep add` connects **any pair of issue types except `epic`** — an epic
-connects only to another epic. So an epic cannot be gated out of `bd ready`
-by its non-epic children:
+### Attaching Issues to Epics (an epic stays ready while children are open)
 
-- `bd dep add` between an epic and a non-epic is rejected in **both**
-  directions (`<epic> <non-epic>` and `<non-epic> <epic>`), each printing
-  `Error: epics can only block other epics, not tasks` (the message always
-  says "not tasks", whatever the real type). A non-epic therefore cannot block
-  its epic. Epic↔epic edges ARE permitted; non-epic pairs gate normally (a
-  task can block a task, a feature, etc.).
-- `--parent` attaches a child for display/scope only. It does NOT gate
-  readiness and does NOT exclude the parent from `bd ready`.
+Verified with bd 1.3.4:
+
+- `--parent` attaches a child for display/scope only. It does NOT gate the
+  parent's readiness and does NOT exclude the parent from `bd ready`.
+- An issue and its own descendant cannot block each other: `bd dep add`
+  rejects `<epic-id> <child-id>` and `<child-id> <epic-id>`.
+- A block does cascade to descendants: while an epic is blocked, its open
+  children are absent from `bd ready` too.
+- Otherwise `bd dep add` connects any pair of issue types, epics included.
 
 ```shell
 bd update <child-id> --parent <epic-id>
@@ -217,20 +270,15 @@ An epic with open children therefore REMAINS in `bd ready`. Do not rely on
 `bd ready` exclusion to track epic scope — read the epic's CHILDREN section
 via `bd show <epic-id>` instead. See
 [triage.md](docs/architecture/concepts/issue-tracking/triage.md) for the
-validated dep-add type matrix and `--parent` / `bd ready` semantics
-(bd v1.0.4).
+validated dep-add matrix and `--parent` / `bd ready` semantics.
 
 ### Beads Dependency Wiring — Cross-Tree Follow-Ups
 
 Operationalizes Principle VIII (cross-tree blocking). When a policy or review
 decision constrains in-flight work in another tree, wire the blocking dep
-**immediately** — but mind the type rule: `bd dep add` cannot make an `epic`
-block a non-epic (rejected; see "Attaching Issues to Epics" above). If the
-follow-up is tracked as an epic, use a **non-epic** issue as the actual
-blocker — a concrete task under that epic, or a `gate` checkpoint (verified:
-a `gate` blocks a non-epic and gates it out of `bd ready`). Wire it as
-`bd dep add <in-flight-issue> <non-epic-blocker>` (in-flight depends on
-blocker).
+**immediately**: `bd dep add <in-flight-issue> <follow-up>` (in-flight
+depends on follow-up). If the in-flight issue is an epic, the block also
+hides its open children from `bd ready` (see above).
 
 **Signal the next action for the next session**: after wiring the deps, claim
 both the blocked issue and the immediate actionable follow-up:
@@ -240,9 +288,8 @@ bd update <blocked-issue> --claim   # signals "this goal is in flight"
 bd update <follow-up> --claim       # signals "work on this next"
 ```
 
-Without claiming, triage ranks by graph score. A high-impact unrelated issue
-will outrank the follow-up you actually need to work on, causing the next
-session to pick up the wrong work.
+`bd ready` excludes claimed (`in_progress`) issues, so the next session finds
+both with `bd list --status in_progress`.
 
 ## Repository Remotes and Pull-Request Workflow
 
@@ -314,11 +361,11 @@ section of the constitution unless the entry says otherwise.
 | `ansible-molecule-testing` | when creating/modifying a role's Molecule scenario | II |
 | `ansible-review-documentation` | at task close, before `format-markdown` | Documentation Standards |
 
-Skills without the `ansible-` prefix live outside this repository and are not
-pinned by it, so the rules they carry can change without review here.
-`caveman` comes from a third party; the others are authored by the repository
-owner. Adopting a skill from outside that set changes the trust boundary and is
-a decision to take deliberately.
+The skills listed in `.skills.json` are authored by the repository owner and
+managed with skill-manager; `caveman` comes from a third party. Both live
+outside this repository and are not pinned by it, so the rules they carry can
+change without review here. Adopting a skill from outside that set changes
+the trust boundary and is a decision to take deliberately.
 
 ## Test environment host architecture
 
