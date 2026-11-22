@@ -41,12 +41,15 @@ A sandbox repo was used to change one wiring variable at a time and record
 `bd dep add` accepts any pair of issue types, epics included (verified
 2026-11-21: `task←task`, `feature←task`, `milestone←task`, `gate←task`,
 `epic←epic`, `epic←task` and `task←epic` succeed). It refuses only an edge
-between an issue and its own ancestor or descendant, in both directions:
+between an issue and its own ancestor or descendant, in both directions
+(verified 2026-11-22 for a child and a grandchild):
 
-- `<parent> <child>`: `cannot be blocked by its descendant ...: blocked status
-  cascades to descendants, so ... would inherit the block and never close`.
-- `<child> <parent>`: `cannot be blocked by its ancestor ...: ... cannot close
-  until its descendants finish, so the gate would never clear`.
+- `<ancestor> <descendant>`: `cannot be blocked by its descendant ...: blocked
+  status cascades to descendants, so ... would inherit the block and never
+  close`.
+- `<descendant> <ancestor>`: `cannot add dependency: ... is already a child of
+  .... Children inherit dependency on parent completion via hierarchy. Adding
+  an explicit dependency would create a deadlock`.
 
 A `--parent` link adds the CHILDREN section to `bd show` and a `← parent`
 annotation in `bd ready`. It never gates the parent. A block on the parent,
