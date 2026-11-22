@@ -2,6 +2,22 @@
   "version": 1,
   "skills": [
     {
+      "name": "commit",
+      "tools": [
+        "cc",
+        "codex"
+      ],
+      "scope": "project"
+    },
+    {
+      "name": "record-findings",
+      "tools": [
+        "cc",
+        "codex"
+      ],
+      "scope": "project"
+    },
+    {
       "name": "commit-message",
       "tools": [
         "cc",
@@ -34,6 +50,22 @@
       "scope": "project"
     },
     {
+      "name": "flow-consultant",
+      "tools": [
+        "codex",
+        "cc"
+      ],
+      "scope": "project"
+    },
+    {
+      "name": "format-markdown",
+      "tools": [
+        "cc",
+        "codex"
+      ],
+      "scope": "user"
+    },
+    {
       "name": "commit",
       "tools": [
         "cc",
@@ -50,10 +82,18 @@
       "scope": "user"
     },
     {
-      "name": "flow-consultant",
+      "name": "code-review",
       "tools": [
-        "codex",
-        "cc"
+        "cc",
+        "codex"
+      ],
+      "scope": "project"
+    },
+    {
+      "name": "python-conventions",
+      "tools": [
+        "cc",
+        "codex"
       ],
       "scope": "project"
     }
