@@ -56,6 +56,12 @@ annotation in `bd ready`. It never gates the parent. A block on the parent,
 however, cascades: while an epic is blocked, its open children are absent from
 `bd ready` and listed in `bd blocked`.
 
+A `--parent` link does gate closing. `bd close` refuses any issue with an open
+direct child, whatever the types: `cannot close <id>: 1 open child issue(s);
+close children first or use --force to override` (verified 2026-11-22 for
+epic, feature and task parents with a gate child). The guard checks direct
+children only, and `--force` bypasses it.
+
 ## Canonical command sequence
 
 ```bash
@@ -78,6 +84,9 @@ bv --robot-triage --format toon  # 6. priority ranking only — never readiness
    cannot gate its epic. `--parent` alone sequences nothing.
 4. Blocking an epic also blocks all its open children. Before you block an
    epic, check with `bd show <epic-id>` that no child must stay actionable.
+5. To keep an epic open until a check is done, make the check a child of the
+   epic, as the `record-findings` skill does with its findings gate. Never
+   close a parent with `bd close --force`.
 
 ## Gates
 
@@ -90,4 +99,5 @@ person closes it.
 ---
 
 *Derived from a bd/bv semantics spike (sandbox experiment, 2026-06-04;
-dep-add matrix re-validated with bd v1.3.4, 2026-11-21).*
+dep-add matrix re-validated with bd v1.3.4, 2026-11-21; close guard verified
+2026-11-22).*

@@ -206,6 +206,10 @@ is awaiting human sign-off. Only the human reviewer closes it after confirming
 each child finding has been addressed. This applies regardless of how many
 child tasks have been closed.
 
+**Never run `bd close --force` on an issue with open children.** The flag
+bypasses the close guard, and that guard is what keeps an epic open while its
+findings gate is open (Principle VIII).
+
 ## Beads: Description Formatting
 
 Beads issue descriptions render in the beads viewer (`bv`). Write them as
@@ -261,6 +265,9 @@ Verified with bd 1.3.4:
 - A block does cascade to descendants: while an epic is blocked, its open
   children are absent from `bd ready` too.
 - Otherwise `bd dep add` connects any pair of issue types, epics included.
+- `bd close` refuses an issue with an open direct child: `cannot close <id>:
+  1 open child issue(s); close children first or use --force to override`.
+  A findings gate that is a child of an epic therefore keeps the epic open.
 
 ```shell
 bd update <child-id> --parent <epic-id>
