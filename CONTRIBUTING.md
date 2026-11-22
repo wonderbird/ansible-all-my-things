@@ -18,7 +18,8 @@ When developing in this repository I use Claude Code with the
 
 In addition, I use the skills listed in `.skills.json` with
 [Skill Manager](https://github.com/omrikais/skill-manager). The
-initialization above deploys them into the clone.
+initialization above deploys them into the clone, or into the home
+directory for user-scope skills.
 
 [GitHub Spec Kit](https://github.com/github/spec-kit) and
 [Claude Code](https://claude.ai)
