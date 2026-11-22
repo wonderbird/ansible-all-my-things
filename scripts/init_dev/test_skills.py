@@ -212,7 +212,7 @@ class InstallTest(unittest.TestCase):
         self.assert_sm_not_called()
         self.assertEqual(tracked.read_text(), "tracked\n")
 
-    def test_refuses_tracked_project_skill_beside_user_skill(self):
+    def test_refuses_tracked_project_skill_in_mixed_manifest(self):
         # A tracked file where sm would place the project skill link.
         manifest = {
             "version": 1,
