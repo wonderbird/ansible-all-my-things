@@ -110,9 +110,9 @@ Ansible configuration, so they run without the vault secret the repository root
 configuration expects. CI runs them, together with a syntax check of the
 playbook and a network-free run of the real task files over a fixture registry;
 `.github/workflows/version-update-lint.yml` is the authoritative list of gates.
-`scripts/ci-local.sh` runs a local subset of them before a commit. Neither runs
-the playbook against real upstreams, so a change can pass every gate and still
-fail against one.
+`scripts/ci-local.sh` runs every one of them before a commit. Neither runs the
+playbook against real upstreams, so a change can pass every gate and still fail
+against one.
 
 The authoritative enumeration of **tracked tools** is `vars/tools.yml`. Each
 entry names the role whose defaults carry the pins, the task file that queries
