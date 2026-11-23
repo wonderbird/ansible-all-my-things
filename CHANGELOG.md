@@ -84,5 +84,7 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
 - `perform-updates.yml` fails, naming the build, when the Android download page
   lacks exactly one SHA-256 for the Linux command-line tools.
 - `destroy-vm.yml` keeps the remaining hosts in `claude_opinionated`.
+- `scripts/ci-local.sh` runs every gate of the version-update CI workflow, and
+  fails, naming the file, when a gate file is missing.
 
 [Unreleased]: https://github.com/wonderbird/ansible-all-my-things/commits/main
