@@ -367,6 +367,7 @@ section of the constitution unless the entry says otherwise.
 | `fix-problem` | before fixing any unexpected obstacle | VII |
 | `ansible-molecule-testing` | when creating/modifying a role's Molecule scenario | II |
 | `ansible-review-documentation` | at task close, before `format-markdown` | Documentation Standards |
+| `python-conventions` | when writing, changing or reviewing Python under `scripts/` | Python Scripts |
 
 The skills listed in `.skills.json` are authored by the repository owner and
 managed with skill-manager; `caveman` comes from a third party. Both live

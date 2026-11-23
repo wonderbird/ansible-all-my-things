@@ -19,13 +19,13 @@ VM provisioning should have installed.
 ## Development
 
 Every change follows the section "Python Scripts" of the
-[constitution](../../.specify/memory/constitution.md). The rules below add
-what is specific to init_dev.
+[constitution](../../.specify/memory/constitution.md), which binds the skill
+`python-conventions`. The rules below add what is specific to init_dev.
 
 ### Add a step
 
-1. Create the step module, with its entry point as its only public function.
-2. Create its `test_<module>.py`.
+1. Create the step module.
+2. Create its unit test module.
 3. Call the function from `main()` in [`__main__.py`](__main__.py), at the
    point in the sequence where its prerequisites exist.
 4. If the step automates a manual instruction in
@@ -38,12 +38,10 @@ what is specific to init_dev.
 
 - **Standard library only.** The package runs on the system `python3` before
   the venv and its packages exist.
-- **One module per step**, with its tests in a sibling `test_<module>.py`.
-  Test support that several test modules share, such as the fake executables
-  in [`fakes.py`](fakes.py), lives in its own module.
-- **Re-runnable.** A second run must leave the clone unchanged and succeed.
-- **Fail with `InitError`.** A step raises `InitError` with a message that
-  names the cause and the fix; `main()` reports it and exits with 1.
+- **One module per step.** Shared test support, e.g. the fake executables,
+  lives in [`fakes.py`](fakes.py).
+- **`InitError` is the package's own error type.** A step raises it for an
+  expected failure; `main()` reports it and exits with 1.
 
 ### Run the tests
 
