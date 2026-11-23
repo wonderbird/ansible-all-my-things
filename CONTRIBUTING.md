@@ -42,9 +42,10 @@ Agent-specific runtime guidance lives in [AGENTS.md](AGENTS.md).
 
 ### Python Scripts
 
-The section "Python Scripts" of the
-[constitution](.specify/memory/constitution.md) defines the rules for the
-Python scripts under `scripts/`.
+The skill `python-conventions` defines the rules for the Python scripts under
+`scripts/`. The section "Python Scripts" of the
+[constitution](.specify/memory/constitution.md) makes it binding and adds the
+rules specific to this repository.
 
 ruff formats and lints them, configured by
 [`ruff.toml`](ruff.toml). The pre-commit git hook, which the initialization

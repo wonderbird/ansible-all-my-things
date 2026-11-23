@@ -86,31 +86,19 @@ no swap file yet, without editing the inventory, run
 
 ## Python Script Tests
 
-This section describes how `scripts/init_dev` is tested; new Python scripts
-follow the same pattern. The rules for writing the tests themselves are in the
+This section describes how `scripts/init_dev` is tested. The skill
+`python-conventions` holds the rules for writing the tests, including the
+fake-executable pattern; the
 [constitution](../../../.specify/memory/constitution.md), section "Python
-Scripts".
+Scripts", makes them binding.
 
 ### Unit Tests
 
-Unit tests use `unittest`, run under pytest, and sit next to their module as
-`test_<module>.py`. They test the script's own logic and replace only what
-lies outside it:
-
-- **External tools are fake executables.** A test writes a short shell script
-  named like the tool into a temporary directory. A tool the script finds on
-  `PATH`, e.g. `sm` or `bd`, reaches it through that directory placed first
-  on `PATH`. A tool the script receives as a path, e.g. the venv's `python`,
-  reaches it as that path. The fake logs its arguments and succeeds or fails
-  as the test requires. The script under test runs unchanged through its real
-  `subprocess` calls, so the test checks what the script asks of the tool,
-  not how it calls Python.
-  [`fakes.py`](../../../scripts/init_dev/fakes.py) holds the plumbing all
-  fakes share; each test states what its fake does.
-- **Fast, local tools stay real.** git and direnv run for real, in a temporary
-  repository, with `HOME` and the XDG directories redirected, so no test
-  touches the developer's checkout or configuration.
-
+The unit tests replace external tools, e.g. `sm`, `bd` or the venv's
+`python`, with fake executables;
+[`fakes.py`](../../../scripts/init_dev/fakes.py) holds the plumbing they
+share. Fast local tools, e.g. git and direnv, run for real in a temporary
+repository.
 Unit tests need no network and finish in seconds.
 
 ### Acceptance Tests
@@ -127,8 +115,9 @@ promises. For init_dev, `acceptance_init_dev.py`:
   `assert_direnv_activates_venv()`.
 
 It needs network access and the tools of a provisioned VM, and it takes
-minutes. Its file name does not match pytest's default pattern `test_*.py`, so
-the default test run skips it; run it by naming the file.
+minutes. The default test run skips it; the
+[init_dev README](../../../scripts/init_dev/README.md#run-the-tests) shows how
+to run it.
 
 ### Continuous Integration
 
@@ -139,13 +128,6 @@ the tests, the playbook
 applies the repository's own roles to the runner. CI therefore uses the tool
 versions of the development VMs, and it also exercises those roles on a real
 Ubuntu host.
-
-### Proving the Tests
-
-Principle XV (Guards Proven by Failure) applies to every test: break the
-guarded code, e.g. delete a check or drop a command-line flag, run the tests,
-see at least one fail, then restore the code. A guard that no test catches
-needs a new test.
 
 ## Host Architecture Map
 

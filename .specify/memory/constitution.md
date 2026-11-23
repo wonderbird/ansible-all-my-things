@@ -1,17 +1,19 @@
 <!--
-Sync Impact Report — 2.5.0 → 2.5.1 (PATCH)
-- Size: 4861 → 4790 words.
-- Agent Environment: skill-owned rules go to a tracked SKILL.md — the
-  repository's own skills under `.claude/skills/`, or the upstream source of a
-  skill listed in `.skills.json`, whose link in the clone is gitignored.
-- Tracker-Export Commit Exception rationale: the export runs once per response
-  that mutates bd, and it carries issues and gates; memory records are kept out
-  of it (AGENTS.md "Durable knowledge lives in tracked files").
-- PATCH: wording aligned with the bd 1.3.4 rules in AGENTS.md; no principle
-  changed.
-- Modified principles: none. Modified sections: Agent Environment,
-  Development Workflow (Tracker-Export Commit Exception).
-- Added sections: none. Removed sections: none.
+Sync Impact Report — 2.5.1 → 2.6.0 (MINOR)
+- Size: 4790 → 4489 words.
+- Python Scripts: the code and test rules and their rationale move to the
+  skill `python-conventions` (listed in `.skills.json`), which the section now
+  makes binding. The skill adds rules the section lacked (one error type,
+  preconditions first, re-runnable, environment inputs as parameters,
+  acceptance tests run by name), hence MINOR. Kept here as repository rules:
+  standard library before custom code, and the ruff configuration.
+- Technology Stack: the test-sibling requirement is dropped; the skill's rule
+  "Test module per module" holds it.
+- Agent Environment: Python conventions added to the skill-owned rules.
+- Modified principles: none. Modified sections: Python Scripts, Technology
+  Stack, Agent Environment.
+- Added sections: none. Removed sections: Python Scripts subsections Code and
+  Tests.
 - Templates checked for propagation:
   ✅ .specify/templates/plan-template.md — no changes required
   ✅ .specify/templates/tasks-template.md — no changes required
@@ -19,9 +21,12 @@ Sync Impact Report — 2.5.0 → 2.5.1 (PATCH)
   ✅ .specify/templates/checklist-template.md — no changes required
   ✅ .specify/templates/constitution-template.md — no changes required
   ✅ .specify/templates/agent-file-template.md — no changes required
-- AGENTS.md updated in the same change (bd 1.3.4 beads rules); CLAUDE.md
-  checked: no propagation required.
-- Follow-up TODOs: none.
+- AGENTS.md updated in the same change (`python-conventions` made mandatory);
+  CLAUDE.md checked: no propagation required. Pointers updated in
+  CONTRIBUTING.md, docs/architecture/concepts/testing.md and
+  scripts/init_dev/README.md.
+- Follow-up TODOs: bring the existing scripts in line with the skill (beads
+  epic ansible-all-my-things-03fg).
 -->
 # ansible-all-my-things Constitution
 
@@ -353,8 +358,6 @@ something.
   script that carries tests or is large enough for its structure to matter,
   because it supports a natural unit-test layout and scales better as the
   script grows; Bash remains the right choice for short command sequences.
-  A Python script MUST ship with a `test_`-prefixed sibling unless it is too
-  trivial to test.
 
 This covers tooling run on the control node. No additional runtime languages
 (Python services, Node apps, etc.) are introduced on managed hosts without
@@ -362,56 +365,23 @@ explicit justification and documentation.
 
 ## Python Scripts
 
-These rules bind every Python script under `scripts/` and its tests. A
-script's own README MAY add rules specific to that script; it MUST NOT
-restate these. Principle XII (Fail Loud) applies to scripts as it does to
-tasks: a script MUST stop with an actionable error and never skip silently.
-Principle XV (Guards Proven by Failure) applies to every check a script makes.
-
-### Code
+Every Python script under `scripts/` and its tests MUST follow the skill
+`python-conventions`, which holds the code and test rules and their
+rationale. A script's own README MAY add rules specific to that script; it
+MUST NOT restate the skill's rules or this section's. Principles XII (Fail
+Loud) and XV (Guards Proven by Failure) apply to scripts as they do to tasks.
+This repository adds:
 
 - **Standard library before custom code.** Where the standard library already
   solves a part of the problem, a script MUST use it instead of its own
   version.
-- **One public entry point.** A module exposes only the functions its callers
-  use. Every internal helper carries a `_` prefix.
-- **Name by meaning.** A name MUST state what it holds, e.g.
-  `for skill in skills`. Single letters are permitted only for the Python
-  idioms `e` (caught exception), `k, v` (dict items), `_` (ignored value) and
-  `i` (index).
-- **One block per intent.** A function longer than five lines MUST separate
-  each block that serves one intent by an empty line, under a short comment
-  stating the intent. That comment names its block the way `name:` names an
-  Ansible task; any further comment follows "Comments State What the Code
-  Cannot".
-- **Explicit over implicit.** Comparisons MUST be explicit, e.g.
-  `name != ""` rather than relying on truthiness, and every `subprocess.run`
-  MUST pass `check=`.
-- **Formatted and linted by ruff.** Every script MUST pass `ruff format` and
-  `ruff check` as configured in `ruff.toml`. The pre-commit hook defined in
-  `.pre-commit-config.yaml` enforces both on each commit.
+- **Ruff configured here.** `ruff.toml` configures the skill's ruff gate. The
+  pre-commit hook defined in `.pre-commit-config.yaml` enforces it on each
+  commit.
 
-### Tests
-
-- **Test our own logic.** Tests mock the standard library and external tools
-  at their boundary. They MUST NOT test the behaviour of either.
-- **Outcomes, not call order.** That a program runs all its parts MUST be
-  proven through their outcomes, in an integration or acceptance test. A test
-  that mocks the order of calls only cements the internal design.
-- **A test body reads as its specification.** Mechanics live in helpers named
-  by intent, e.g. `assert_skills_deployed()`. A helper that runs the function
-  under test is named after it, e.g. `run_platform_check_with`.
-- **Top-down order.** A test class lists `setUp`, then the tests, then the
-  helpers they call. Module-level fixture builders follow the class.
-- **Fixture builders take explicit inputs.** A builder takes its inputs as
-  arguments and returns what it builds, so `setUp` shows the data flow.
-
-**Rationale**: Scripts are read far more often than written, and often by
-contributors who know another language better than Python. Uniform names,
-blocks with stated intent, and explicit comparisons let such a reader follow
-any script without knowing Python's idioms, and tests that read as
-specifications state what a script promises before showing how it is
-checked.
+**Rationale**: The skill gives the Python rules one home that other
+repositories share (Principle XI). Only the rules that bind this repository
+alone stay here.
 
 ## Secret Management
 
@@ -526,9 +496,9 @@ All durable knowledge MUST be committed to git:
 
 - Ansible patterns and prohibitions → this constitution
 - Skill-owned rules (Molecule, commit format, Markdown formatting,
-  documentation review) → the skill's `SKILL.md`: under `.claude/skills/` for
-  a skill tracked in this repository, in its upstream source for a skill
-  listed in `.skills.json`
+  documentation review, Python conventions) → the skill's `SKILL.md`: under
+  `.claude/skills/` for a skill tracked in this repository, in its upstream
+  source for a skill listed in `.skills.json`
 
 Never rely on in-session memory or local files for knowledge that must
 carry forward to the next agent session.
@@ -635,4 +605,4 @@ of any non-trivial task and verify that their plan complies with each principle.
 Runtime guidance for AI agents is in `AGENTS.md`; `CLAUDE.md` only points to
 it and to this constitution.
 
-**Version**: 2.5.1 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-11-21
+**Version**: 2.6.0 | **Ratified**: 2026-03-11 | **Last Amended**: 2026-11-22
