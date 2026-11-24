@@ -230,9 +230,9 @@ class UncollectedTestFileTest(unittest.TestCase):
 def make_temporary_directory(test_case):
     directory = tempfile.TemporaryDirectory()
     test_case.addCleanup(directory.cleanup)
-    tests_dir = Path(directory.name) / "tests"
-    tests_dir.mkdir()
-    return tests_dir
+    root = Path(directory.name) / "tests"
+    root.mkdir()
+    return root
 
 
 def write_file(directory, relative, text):
@@ -246,7 +246,3 @@ def write_trigger_cases(tests_dir):
     write_file(tests_dir, "test-trigger.yml", TRIGGER_HARNESS)
     write_file(tests_dir, "trigger-case.yml", TRIGGER_CASE)
     write_file(tests_dir, "trigger-noop.yml", TASK)
-
-
-if __name__ == "__main__":
-    unittest.main(verbosity=2)

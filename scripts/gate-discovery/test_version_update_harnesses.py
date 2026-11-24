@@ -84,7 +84,3 @@ def harness_environment():
     child_env["ANSIBLE_CONFIG"] = str(TESTS_DIR / "ansible.cfg")
     child_env.pop("ANSIBLE_VAULT_PASSWORD", None)
     return child_env
-
-
-if __name__ == "__main__":
-    unittest.main(verbosity=2)
