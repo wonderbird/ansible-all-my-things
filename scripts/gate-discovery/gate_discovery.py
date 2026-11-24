@@ -22,7 +22,7 @@ from pathlib import Path
 
 import yaml
 
-HARNESS_GLOB = "test-*.yml"
+_HARNESS_GLOB = "test-*.yml"
 _YAML_SUFFIXES = (".yml", ".yaml")
 _INCLUDE_KEYS = (
     "include_tasks",
@@ -43,10 +43,10 @@ def find_harnesses(tests_dir):
 
     Raises when there is none, because a loop over zero harnesses passes.
     """
-    harnesses = sorted(tests_dir.glob(HARNESS_GLOB))
+    harnesses = sorted(tests_dir.glob(_HARNESS_GLOB))
     if len(harnesses) == 0:
         raise GateDiscoveryError(
-            f"{tests_dir / HARNESS_GLOB} matches no harness playbook; "
+            f"{tests_dir / _HARNESS_GLOB} matches no harness playbook; "
             f"name each harness test-<name>.yml in {tests_dir}"
         )
     return harnesses
@@ -98,8 +98,10 @@ def find_orphan_harness_files(tests_dir):
                     reached.add(used)
                     pending.append(used)
 
-    # Add every play hidden in a subdirectory.
+    # Report each top-level file no harness reaches.
     orphans = [path.name for path in top_level if path.name not in reached]
+
+    # Add every play hidden in a subdirectory.
     for path in tests_dir.rglob("*"):
         nested = path.parent != tests_dir and path.suffix in _YAML_SUFFIXES
         if nested and path.is_file() and _contains_play(_load_yaml(path)):
