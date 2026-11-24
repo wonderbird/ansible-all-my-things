@@ -27,15 +27,6 @@
   vars:
     _registry_file: "{{ (playbook_dir ~ '/fixtures/loop-registry.yml') | realpath }}"
     _registry_tasks_dir: "{{ (playbook_dir ~ '/fixtures') | realpath }}"
-    _expected_pins:
-      first_tool:
-        first_version: v-first
-        first_extra: extra-first
-      third_tool:
-        third_version: v-third
-        third_extra: extra-third
-      broken_tool:
-        broken_version: v-unchanged
   tasks:
     - name: Create the harness working directory
       ansible.builtin.tempfile:
