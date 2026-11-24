@@ -20,9 +20,9 @@ committing.
 reads and writes, facts, asserts); `community.general.version_sort` (already in
 `requirements.yml`)
 **Storage**: Local filesystem — role `defaults/main.yml` files modified in-place
-**Testing**: localhost harnesses under `playbooks/update-versions/tests/`, run by
-`.github/workflows/version-update-lint.yml`; no Molecule scenario (the playbook
-runs on localhost, not managed hosts)
+**Testing**: localhost harnesses under `playbooks/update-versions/tests/`, run as
+pytest test cases by `scripts/ci-local.sh` locally and in CI; no Molecule
+scenario (the playbook runs on localhost, not managed hosts)
 **Target Platform**: Control node (localhost, Linux)
 **Project Type**: Ansible maintenance playbooks
 **Performance Goals**: N/A — on-demand maintenance run; no SLA
