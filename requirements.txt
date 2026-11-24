@@ -22,8 +22,9 @@ PyYAML>=5.4.0
 molecule>=24.0.0
 molecule-plugins[podman]>=23.0.0
 
-# Unit tests for the Python scripts under scripts/, with `ptw` as watcher
-pytest>=8.0.0
+# Unit tests for the Python scripts under scripts/, with `ptw` as watcher;
+# pytest 9 reports each failing subTest on its own
+pytest>=9.0.0
 pytest-watcher>=0.6.0
 
 # Formatter and linter for the Python scripts under scripts/, run by the
