@@ -2,13 +2,15 @@
 ---
 name: init_dev Tests
 
-# Test scripts/init_dev, the script that initializes a fresh clone, and lint
-# the Python scripts.
+# Run the fast gates of every commit, lint the Python scripts, and test
+# scripts/init_dev, the script that initializes a fresh clone.
 #
 # The job provisions the runner with the repository's own roles, so the
 # tests use the tool versions of the development VMs. Then it runs the
-# pre-commit hooks (ruff), the unit tests, and the acceptance test, which runs
-# init_dev twice on a copy of the checkout.
+# pre-commit hooks (ruff), scripts/ci-local.sh, which runs every test that
+# pytest discovers, and the init_dev acceptance test, which runs init_dev
+# twice on a copy of the checkout. Gates belong in pytest or pre-commit, not
+# in a step of their own here, so that ci-local.sh runs them locally too.
 #
 # The root ansible.cfg runs a vault password script that fails without
 # ANSIBLE_VAULT_PASSWORD. No step reads a vault secret, so a placeholder
@@ -56,8 +58,8 @@ jobs:
           ansible-playbook -i localhost,
           scripts/init_dev/ci_prerequisites.yml
 
-      - name: Run the unit tests
-        run: python -m pytest scripts/init_dev
+      - name: Run the fast gates
+        run: ./scripts/ci-local.sh
 
       # On a VM the developer fills the store once by hand, as the error
       # message of the skills step says.
