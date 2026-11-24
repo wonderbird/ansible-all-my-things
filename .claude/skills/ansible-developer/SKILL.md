@@ -121,9 +121,10 @@ bash scripts/ci-local.sh </dev/null >"$log" 2>&1; echo EXIT=$?; tail -n 20 "$log
 ```
 
 A fresh agent VM has no `ansible-playbook` on `PATH`. Create the repository's
-gitignored `.venv` from `requirements.txt`, which lists `ansible-core`, then
-put `.venv/bin` on `PATH`, or pass the interpreter as the header of
-`scripts/ci-local.sh` describes.
+gitignored `.venv` from `requirements.txt`, which lists `ansible-core` and
+pytest, then put `.venv/bin` on `PATH`: `scripts/ci-local.sh` runs `python3`
+from `PATH` and fails with a fix hint when it lacks pytest or PyYAML, or when
+direnv or git is missing.
 
 ### Comment and Documentation Robustness
 
