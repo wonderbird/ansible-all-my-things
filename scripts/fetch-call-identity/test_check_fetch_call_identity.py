@@ -8,7 +8,9 @@ that defeat the contract as well as the shape that honours it.
 Usage: test_check_fetch_call_identity.py
 """
 
+import contextlib
 import importlib.util
+import io
 import os
 import tempfile
 import textwrap
@@ -182,6 +184,13 @@ class CallIdentityCheckerTest(unittest.TestCase):
         )
         self.assertEqual(len(findings), 1)
         self.assertIn("writes no output of its own", findings[0][1])
+
+    def test_the_real_tree_is_clean(self):
+        repo = os.path.dirname(os.path.dirname(HERE))
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = checker.main([os.path.join(repo, "playbooks", "update-versions")])
+        self.assertEqual(code, 0, out.getvalue())
 
 
 if __name__ == "__main__":
