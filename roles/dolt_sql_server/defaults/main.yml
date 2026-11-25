@@ -1,14 +1,14 @@
 #SPDX-License-Identifier: MIT-0
 ---
-dolt_version: "v2.7.5"
+dolt_version: "v2.7.6"
 # SHA-256 checksums for the linux release tarballs (amd64 and arm64).
 # All three values must be updated together when upgrading dolt_version.
 # Compute (download to file first — pipe-only sha256sum can truncate and give wrong hash):
 #   curl -sL https://github.com/dolthub/dolt/releases/download/<version>/dolt-linux-<arch>.tar.gz -o /tmp/dolt.tar.gz
 #   sha256sum /tmp/dolt.tar.gz
 # Updated automatically by playbooks/update-versions/perform-updates.yml
-dolt_sha256_amd64: "ab4f57f6031da5123d4edb9fa43676d5fe50cd08d099cdf3e0ae632bf378dbba"
-dolt_sha256_arm64: "56d1fbf89f173ba386421f13d401efce1dc1bd50f7f981ce37479b6aaa548d69"
+dolt_sha256_amd64: "02479bf57f3c46c46c4f6977e948d56e88f5ee5f2a73da8226e7ebc31039639e"
+dolt_sha256_arm64: "143ed0be2948be091fe61cbebb3de4501dc1e924dd0829ecbc447db2a3c8e42d"
 dolt_install_path: /usr/local/bin/dolt
 dolt_listen_host: 127.0.0.1
 dolt_listen_port: 3306
