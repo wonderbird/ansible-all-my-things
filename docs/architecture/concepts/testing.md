@@ -27,16 +27,23 @@ scan. All phases MUST pass before committing.
 ### Molecule CI
 
 The [Molecule Tests workflow](../../../.github/workflows/molecule.yml) runs
-affected scenarios on pull requests to `main`. A scenario is affected when its
-role or a role it uses changes, including transitive dependencies. Shared test
-inputs, such as dependency manifests and the runner, select every scenario.
+affected scenarios on pull requests targeting `main` and on every push to
+`main`, including merges. A scenario is affected when its role, a role it uses,
+or a playbook or task file it imports changes, including transitive
+dependencies. Selection fails if it cannot resolve an import. Shared test
+inputs, such as `ansible.cfg` and dependency manifests, select every scenario.
 Markdown at a role's top level is documentation; Markdown deeper in a role
 can be a runtime asset and counts as a change.
 
-If nothing is affected, the selection job logs that result and the test job
-reports **Skipped**. A new push cancels the older run for that pull request.
-Merging does not start a second run. A weekly full run catches upstream
-package and download drift even when the repository has not changed.
+Retargeting a pull request to `main` triggers selection. Title and body edits
+do not select tests or cancel a real run. A new push to the pull request cancels
+its superseded run. A push to a newly created `main` or a force push runs the
+full suite. A weekly full run catches upstream package and download drift.
+
+To require Molecule in branch protection, select **Molecule CI gate**, not
+**Run Molecule tests**. The test job can be skipped after either empty or failed
+selection. The gate passes only when selection succeeds and either finds no
+scenarios or the selected tests pass.
 
 To force a full run, open **Actions → Molecule Tests → Run workflow** and
 select the branch to test.

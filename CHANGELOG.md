@@ -54,7 +54,8 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   only after removing `/usr/local/bin/node` and re-running the role.
 - **Breaking:** The `android_studio` role reads its checksum pin from
   `android_cmdlinetools_sha256`. Rename host overrides of `android_cmdlinetools_sha1`.
-- Molecule CI runs affected scenarios on pull requests and the full suite weekly.
+- Molecule CI tests affected scenarios on pull requests and pushes to `main`,
+  with a weekly full run.
 
 ### Removed
 

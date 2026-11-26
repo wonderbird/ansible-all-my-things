@@ -120,14 +120,61 @@ class MoleculeSelectionTest(unittest.TestCase):
             self.run_selected(self.base), ["consumer", "git_new", "scenario_consumer"]
         )
 
-    def test_runs_every_scenario_when_shared_requirements_change(self) -> None:
-        self.write("requirements.yml", "collections: []\n")
+    def test_runs_every_scenario_when_shared_input_changes(self) -> None:
+        for path, content in (
+            ("requirements.yml", "collections: []\n"),
+            ("ansible.cfg", "[galaxy]\nserver_list = galaxy\n"),
+        ):
+            with self.subTest(path=path):
+                base = self.git("rev-parse", "HEAD").strip()
+                self.write(path, content)
+                self.commit()
+
+                self.assertEqual(
+                    self.run_selected(base),
+                    ["consumer", "git", "leaf", "scenario_consumer"],
+                )
+
+    def test_runs_only_importing_scenario_when_external_file_or_role_changes(
+        self,
+    ) -> None:
+        self.write(
+            "roles/leaf/molecule/default/converge.yml",
+            "- ansible.builtin.import_playbook: ../../../../playbooks/leaf.yml\n",
+        )
+        play = "- hosts: all\n  roles: [external]\n  tasks:\n"
+        play += "  - import_tasks: tasks/leaf.yml\n"
+        task = "- ansible.builtin.include_tasks:\n    file: ../more.yml\n"
+        self.write("playbooks/leaf.yml", play)
+        self.write("playbooks/tasks/leaf.yml", task)
+        self.write("playbooks/more.yml", "[]\n")
+        self.write("roles/external/tasks/main.yml", "[]\n")
+        base = self.commit()
+
+        for path in (
+            "playbooks/leaf.yml",
+            "playbooks/tasks/leaf.yml",
+            "playbooks/more.yml",
+            "roles/external/tasks/main.yml",
+        ):
+            with self.subTest(path=path):
+                self.write(path, (self.root / path).read_text() + "# changed\n")
+                head = self.commit()
+
+                self.assertEqual(self.run_selected(base), ["leaf"])
+                base = head
+
+    def test_unresolved_import_fails_even_when_only_docs_change(self) -> None:
+        source = "roles/leaf/molecule/default/converge.yml"
+        self.write(source, '- import_playbook: "{{ external_playbook }}"\n')
+        base = self.commit()
+        self.write("docs/guide.md", "changed\n")
         self.commit()
 
-        self.assertEqual(
-            self.run_selected(self.base),
-            ["consumer", "git", "leaf", "scenario_consumer"],
-        )
+        result = self.select(base)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(source, result.stderr)
 
     def test_runs_every_scenario_without_a_base(self) -> None:
         self.assertEqual(
