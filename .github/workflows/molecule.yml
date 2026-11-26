@@ -1,22 +1,75 @@
 # SPDX-License-Identifier: MIT-0
+# Select inside the workflow so a skipped test job still reports a check.
+# Run the full suite weekly to catch upstream drift without rerunning on merge.
 ---
 name: Molecule Tests
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     branches: ["main"]
+  schedule:
+    - cron: "23 5 * * 1"
   workflow_dispatch:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}-${{ github.event_name }}
+  cancel-in-progress: true
+
 jobs:
+  changes:
+    name: Select Molecule roles
+    runs-on: ubuntu-24.04
+    outputs:
+      roles: ${{ steps.select.outputs.roles }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+
+      - name: Install selection dependency
+        run: pip install "$(grep '^PyYAML' requirements.txt)"
+
+      - name: Test scenario selection
+        run: python -m unittest discover -s scripts -p test_select_molecule_roles.py
+
+      - name: Select scenarios
+        id: select
+        shell: bash
+        run: |
+          args=()
+          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then
+            # The merge commit's first parent is the PR base tested by this run.
+            args=(--base HEAD^1)
+          fi
+          roles=$(python scripts/select_molecule_roles.py "${args[@]}")
+          printf 'roles=%s\n' "$roles" >> "$GITHUB_OUTPUT"
+          if [[ -n "$roles" ]]; then
+            printf 'Selected Molecule roles: %s\n' "$roles"
+          else
+            echo 'No affected Molecule roles; skipping tests.'
+          fi
+
   molecule:
     name: Run Molecule tests
+    needs: changes
+    if: needs.changes.outputs.roles != ''
     runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
@@ -34,7 +87,11 @@ jobs:
         run: echo "XDG_RUNTIME_DIR=/run/user/$(id -u)" >> "$GITHUB_ENV"
 
       - name: Run Molecule tests
-        run: ./scripts/test-molecule-all.sh
+        shell: bash
+        run: |
+          read -r -a roles <<< "$MOLECULE_ROLES"
+          ./scripts/test-molecule-all.sh --roles "${roles[@]}"
         env:
+          MOLECULE_ROLES: ${{ needs.changes.outputs.roles }}
           ANSIBLE_FORCE_COLOR: "true"
           PY_COLORS: "1"

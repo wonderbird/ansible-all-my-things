@@ -24,6 +24,23 @@ scenario, tests each even if one fails, and exits `1` if any failed. It is the
 canonical discovery mechanism for CI — invoke it rather than reimplementing the
 scan. All phases MUST pass before committing.
 
+### Molecule CI
+
+The [Molecule Tests workflow](../../../.github/workflows/molecule.yml) runs
+affected scenarios on pull requests to `main`. A scenario is affected when its
+role or a role it uses changes, including transitive dependencies. Shared test
+inputs, such as dependency manifests and the runner, select every scenario.
+Markdown at a role's top level is documentation; Markdown deeper in a role
+can be a runtime asset and counts as a change.
+
+If nothing is affected, the selection job logs that result and the test job
+reports **Skipped**. A new push cancels the older run for that pull request.
+Merging does not start a second run. A weekly full run catches upstream
+package and download drift even when the repository has not changed.
+
+To force a full run, open **Actions → Molecule Tests → Run workflow** and
+select the branch to test.
+
 ## Running a Single Role on a Live Host
 
 ```shell
