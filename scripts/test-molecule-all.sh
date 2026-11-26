@@ -46,8 +46,8 @@ case "${1:-}" in
   --roles)
     shift
     if [ "$#" -eq 0 ]; then
-      echo "No affected Molecule roles; skipping tests."
-      exit 0
+      echo "ERROR: --roles requires at least one role name" >&2
+      exit 1
     fi
     for name in "$@"; do
       found=false
@@ -66,7 +66,7 @@ case "${1:-}" in
     ;;
   *)
     if [ "$#" -ne 0 ]; then
-      echo "Usage: $0 [--list | --roles [role ...]]" >&2
+      echo "Usage: $0 [--list | --roles role [role ...]]" >&2
       exit 1
     fi
     ;;

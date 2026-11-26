@@ -44,6 +44,9 @@ class MoleculeSelectionTest(unittest.TestCase):
         shutil.copy2(Path(__file__).with_name(self.runner.name), self.runner)
         self.selector = self.runner.with_name("select_molecule_roles.py")
         shutil.copy2(Path(__file__).with_name(self.selector.name), self.selector)
+        shutil.copy2(
+            Path(__file__).with_name("molecule_references.py"), self.runner.parent
+        )
 
         # git is used through both metadata and a scenario-only import.
         for role in ("consumer", "git", "leaf", "scenario_consumer"):
@@ -112,13 +115,14 @@ class MoleculeSelectionTest(unittest.TestCase):
             self.run_selected(self.base), ["consumer", "scenario_consumer"]
         )
 
-    def test_runs_surviving_consumers_and_destination_of_renamed_role(self) -> None:
+    def test_stale_reference_to_renamed_role_fails_selection(self) -> None:
         self.git("mv", "roles/git", "roles/git_new")
         self.commit()
 
-        self.assertEqual(
-            self.run_selected(self.base), ["consumer", "git_new", "scenario_consumer"]
-        )
+        result = self.select(self.base)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("roles/bridge/meta/main.yml", result.stderr)
 
     def test_runs_every_scenario_when_shared_input_changes(self) -> None:
         for path, content in (
@@ -164,6 +168,115 @@ class MoleculeSelectionTest(unittest.TestCase):
                 self.assertEqual(self.run_selected(base), ["leaf"])
                 base = head
 
+    def test_runs_importer_when_playbook_adjacent_role_changes(self) -> None:
+        self.write(
+            "roles/leaf/molecule/default/converge.yml",
+            "- import_playbook: ../../../../playbooks/leaf.yml\n",
+        )
+        self.write("playbooks/leaf.yml", "- hosts: all\n  roles: [colocated]\n")
+        tasks = "playbooks/roles/colocated/tasks/main.yml"
+        self.write(tasks, "[]\n")
+        base = self.commit()
+        self.write(tasks, "# changed\n[]\n")
+        self.commit()
+
+        self.assertEqual(self.run_selected(base), ["leaf"])
+
+    def test_ambiguous_playbook_adjacent_role_fails_with_source(self) -> None:
+        source = "playbooks/leaf.yml"
+        self.write(
+            "roles/leaf/molecule/default/converge.yml",
+            "- import_playbook: ../../../../playbooks/leaf.yml\n",
+        )
+        self.write(source, "- hosts: all\n  roles: [git]\n")
+        self.write("playbooks/roles/git/tasks/main.yml", "[]\n")
+        self.commit()
+
+        result = self.select(self.base)
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn(source, result.stderr)
+
+    def test_follows_configured_playbook_and_role_entry(self) -> None:
+        self.write(
+            "roles/leaf/molecule/default/molecule.yml",
+            "provisioner:\n  playbooks: {converge: ../../../../playbooks/leaf.yml}\n",
+        )
+        self.write(
+            "roles/leaf/molecule/default/converge.yml",
+            '- import_playbook: "{{ unused_default }}"\n',
+        )
+        self.write(
+            "playbooks/leaf.yml",
+            "- hosts: all\n  tasks:\n"
+            "  - module: include_role name=bridge tasks_from=extra\n",
+        )
+        self.write("roles/bridge/tasks/extra.yml", "- include_role: {name: helper}\n")
+        base = self.commit()
+        self.write("roles/helper/tasks/main.yml", "# changed\n[]\n")
+        self.commit()
+
+        self.assertEqual(self.run_selected(base), ["leaf", "scenario_consumer"])
+
+    def test_runs_importer_when_external_vars_change(self) -> None:
+        self.write(
+            "roles/leaf/molecule/default/converge.yml",
+            "- hosts: all\n  vars_files: [../../../../playbooks/values.yml]\n",
+        )
+        self.write("playbooks/values.yml", "value: 1\n")
+        base = self.commit()
+        self.write("playbooks/values.yml", "value: 2\n")
+        self.commit()
+
+        self.assertEqual(self.run_selected(base), ["leaf"])
+
+    def test_runs_consumer_of_role_invoked_in_free_form(self) -> None:
+        for action in (
+            "action: ansible.builtin.import_role name=git",
+            "local_action: include_role name=git",
+            "action: {module: 'ansible.legacy.include_role name=git'}",
+            "local_action: {module: import_role, name: git}",
+            "import_role: name=git",
+        ):
+            with self.subTest(action=action):
+                self.write(
+                    "roles/leaf/molecule/default/converge.yml",
+                    f"- hosts: all\n  tasks:\n  - {action}\n",
+                )
+                base = self.commit()
+                tasks = "roles/git/tasks/main.yml"
+                self.write(tasks, (self.root / tasks).read_text() + "# changed\n")
+                self.commit()
+
+                self.assertEqual(
+                    self.run_selected(base),
+                    ["consumer", "git", "leaf", "scenario_consumer"],
+                )
+
+    def test_ignores_unreachable_templated_includes(self) -> None:
+        for source in (
+            "roles/leaf/tasks/unused.yml",
+            "roles/leaf/molecule/default/unused.yml",
+        ):
+            self.write(source, '- include_tasks: "{{ unused_path }}"\n')
+        base = self.commit()
+        self.write("docs/guide.md", "changed\n")
+        self.commit()
+
+        self.assertEqual(self.run_selected(base), [])
+
+    def test_runner_rejects_empty_explicit_selection(self) -> None:
+        result = subprocess.run(
+            [self.runner, "--roles"],
+            cwd=self.root,
+            env=self.env,
+            check=False,
+            capture_output=True,
+        )
+
+        self.assertNotEqual(result.returncode, 0)
+        self.assertFalse(self.record.exists())
+
     def test_unresolved_import_fails_even_when_only_docs_change(self) -> None:
         source = "roles/leaf/molecule/default/converge.yml"
         self.write(source, '- import_playbook: "{{ external_playbook }}"\n')
@@ -201,9 +314,12 @@ class MoleculeSelectionTest(unittest.TestCase):
     def run_selected(self, base: str | None = None) -> list[str]:
         selection = self.select(base)
         self.assertEqual(selection.returncode, 0, selection.stderr)
+        roles = selection.stdout.split()
+        if len(roles) == 0:
+            return []
         self.record.unlink(missing_ok=True)
         subprocess.run(
-            [self.runner, "--roles", *selection.stdout.split()],
+            [self.runner, "--roles", *roles],
             cwd=self.root,
             env=self.env,
             check=True,

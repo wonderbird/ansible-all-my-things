@@ -112,6 +112,10 @@ jobs:
         shell: bash
         run: |
           read -r -a roles <<< "$MOLECULE_ROLES"
+          if (( ${#roles[@]} == 0 )); then
+            echo 'ERROR: selection reported affected roles but supplied no role names.' >&2
+            exit 1
+          fi
           ./scripts/test-molecule-all.sh --roles "${roles[@]}"
         env:
           MOLECULE_ROLES: ${{ needs.changes.outputs.roles }}

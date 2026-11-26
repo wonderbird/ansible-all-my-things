@@ -6,12 +6,18 @@ import os
 import re
 import subprocess
 import sys
-from collections.abc import Iterator
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Final
 
 import yaml
-from yaml.nodes import MappingNode, Node, ScalarNode, SequenceNode
+from molecule_references import (
+    ROLE_NAME,
+    RoleReference,
+    SelectionError,
+    references,
+    scenario_playbooks,
+)
 
 _RUNNER: Final = "scripts/test-molecule-all.sh"
 _SHARED_INPUTS: Final = frozenset(
@@ -23,184 +29,135 @@ _SHARED_INPUTS: Final = frozenset(
         _RUNNER,
         "scripts/with-molecule-lock.sh",
         "scripts/select_molecule_roles.py",
+        "scripts/molecule_references.py",
     }
 )
-_ROLE_NAME: Final = re.compile(r"[\w-]+(?:\.[\w-]+)*", re.ASCII)
 
 
-class _SelectionError(Exception):
-    """An input prevents accurate scenario selection."""
+@dataclass(frozen=True, slots=True)
+class _Entry:
+    path: Path
+    playbook_dir: Path
+    role_dir: Path | None = None
 
 
-def _field(node: Node, key: str) -> Node | None:
-    if isinstance(node, MappingNode):
-        for name, value in node.value:
-            if isinstance(name, ScalarNode) and name.value == key:
-                return value
-    return None
+def _inside(root: Path, path: Path, source: Path) -> Path:
+    resolved = path.resolve()
+    if not path.is_relative_to(root) or not resolved.is_relative_to(root):
+        raise SelectionError(f"{source}: {path} must stay inside the checkout")
+    return resolved
 
 
-def _role_name(node: Node | None, path: Path) -> str:
-    if isinstance(node, ScalarNode) and _ROLE_NAME.fullmatch(node.value) is not None:
-        return node.value
-    raise _SelectionError(f"{path}: use a literal role name for Molecule selection")
-
-
-def _role_list(node: Node, key: str, path: Path) -> set[str]:
-    entries = _field(node, key)
-    if entries is None:
-        return set()
-    if not isinstance(entries, SequenceNode):
-        raise _SelectionError(f"{path}: expected a list under {key}")
-    return {
-        _role_name(
-            _field(entry, "role") if isinstance(entry, MappingNode) else entry, path
-        )
-        for entry in entries.value
-    }
-
-
-def _actions(task: Node) -> Iterator[tuple[str, Node]]:
-    for module in (
-        "include_role",
-        "import_role",
-        "import_playbook",
-        "include_tasks",
-        "import_tasks",
-    ):
-        for name in (module, f"ansible.builtin.{module}", f"ansible.legacy.{module}"):
-            arguments = _field(task, name)
-            if arguments is not None:
-                yield module, arguments
-    for key in (
-        "pre_tasks",
-        "tasks",
-        "post_tasks",
-        "handlers",
-        "block",
-        "rescue",
-        "always",
-    ):
-        children = _field(task, key)
-        if isinstance(children, SequenceNode):
-            for child in children.value:
-                yield from _actions(child)
-
-
-def _declared_dependencies(path: Path) -> Iterator[tuple[str, str]]:
-    # Inspect YAML nodes without constructing Ansible-tagged values or rendering Jinja.
-    with path.open(encoding="utf-8") as stream:
-        document = yaml.compose(stream, Loader=yaml.SafeLoader)
-    if document is None:
-        return
-    if not isinstance(document, SequenceNode):
-        yield from (
-            ("role", role) for role in _role_list(document, "dependencies", path)
-        )
-        return
-
-    # Scenario YAML can contain a playbook or a task list included by a playbook.
-    for entry in document.value:
-        yield from (("role", role) for role in _role_list(entry, "roles", path))
-        for module, arguments in _actions(entry):
-            if module in {"include_role", "import_role"}:
-                yield "role", _role_name(_field(arguments, "name"), path)
-                continue
-            target = (
-                arguments
-                if isinstance(arguments, ScalarNode)
-                else _field(arguments, "file")
+def _file(root: Path, entry: _Entry, kind: str, target: str) -> Path:
+    explicit = re.sub(r"^\{\{\s*playbook_dir\s*\}\}", str(entry.playbook_dir), target)
+    directories = [entry.path.parent]
+    if kind != "import_playbook":
+        directories.append(entry.playbook_dir)
+        if kind == "vars":
+            directories.append(entry.playbook_dir / "vars")
+        if entry.role_dir is not None:
+            directories.extend(
+                (
+                    entry.role_dir,
+                    entry.role_dir / ("vars" if kind == "vars" else "tasks"),
+                )
             )
-            if not isinstance(target, ScalarNode) or not re.fullmatch(
-                r"[\w./-]+", target.value
-            ):
-                raise _SelectionError(f"{path}: use a literal file path for {module}")
-            yield module, target.value
 
-
-def _yaml_files(directory: Path) -> list[Path]:
-    return [
-        path
-        for path in directory.rglob("*")
-        if path.is_file() and path.suffix in {".yml", ".yaml"}
-    ]
-
-
-def _import_path(source: Path, target: str, directories: tuple[Path, ...]) -> Path:
     # Do not guess Ansible's precedence if multiple search locations match.
-    matches = {
-        Path(os.path.abspath(directory / target))
-        for directory in directories
-        if (directory / target).is_file()
+    candidates = {
+        Path(os.path.abspath(directory / explicit)) for directory in directories
     }
+    matches = {path for path in candidates if path.is_file()}
     if len(matches) != 1:
-        raise _SelectionError(f"{source}: cannot uniquely resolve import {target!r}")
-    return matches.pop()
+        raise SelectionError(f"{entry.path}: cannot uniquely resolve {kind} {target!r}")
+    path = matches.pop()
+    _inside(root, path, entry.path)
+    return path
 
 
-def _affected_roles(root: Path, scenarios: list[str], changed: set[str]) -> list[str]:
-    # Treat a renamed path as a deletion plus an addition, including old role names.
-    changed_roles = set()
-    for path in changed:
-        parts = Path(path).parts
-        if len(parts) < 3 or parts[0] != "roles":
+def _role_directory(root: Path, entry: _Entry, name: str) -> Path | None:
+    candidates = (entry.playbook_dir / "roles" / name, root / "roles" / name)
+    matches = {path for path in candidates if path.is_dir()}
+    if len(matches) == 0 and name.count(".") >= 2:
+        return None  # External collection roles are installed through requirements.yml.
+    if len(matches) != 1:
+        raise SelectionError(f"{entry.path}: cannot uniquely resolve role {name!r}")
+    directory = matches.pop()
+    _inside(root, directory, entry.path)
+    return directory
+
+
+def _role_entries(directory: Path, entry: _Entry, role: RoleReference) -> list[_Entry]:
+    files = []
+    overrides = dict(role.entries)
+    for kind in ("meta", "tasks", "handlers", "defaults", "vars"):
+        name = overrides.get(kind, "main")
+        base = directory / kind / name
+        # An explicit suffix names one exact role entry, not another convention.
+        candidates = (
+            (base,)
+            if base.suffix != ""
+            else (base, base.with_suffix(".yml"), base.with_suffix(".yaml"))
+        )
+        matches = [path for path in candidates if path.is_file()]
+        if len(matches) > 1 or (kind in overrides and len(matches) != 1):
+            raise SelectionError(
+                f"{entry.path}: cannot uniquely resolve role entry {base}"
+            )
+        if kind in {"meta", "tasks", "handlers"}:
+            files.extend(
+                _Entry(path, entry.playbook_dir, directory) for path in matches
+            )
+    return files
+
+
+def _scenario_affected(root: Path, role_dir: Path, changed: set[Path]) -> bool:
+    # Seed with Molecule's playbooks and the scenario role, not every YAML file.
+    scenario = role_dir / "molecule" / "default"
+    config = _Entry(scenario / "molecule.yml", scenario)
+    _inside(root, config.path, config.path)
+    pending = [
+        _Entry(path, path.parent)
+        for target in scenario_playbooks(config.path)
+        for path in [_file(root, config, "import_playbook", target)]
+    ]
+    pending.extend(_role_entries(role_dir, config, RoleReference(role_dir.name)))
+    directories = {_inside(root, role_dir, config.path), role_dir}
+    inputs = {config.path}
+    visited: set[_Entry] = set()
+
+    # A file can resolve references differently under two playbook directories.
+    while len(pending) > 0:
+        entry = pending.pop()
+        if entry in visited:
             continue
-        if len(parts) == 3 and Path(path).suffix.lower() == ".md":
-            continue
-        changed_roles.add(parts[1])
-    if len(changed) == 0:
-        return []
-
-    # Keep references to absent roles so deletion still selects surviving consumers.
-    selected = []
-    for scenario in scenarios:
-        scenario_dir = root / "roles" / scenario / "molecule" / "default"
-        files = [(path, (scenario_dir,)) for path in _yaml_files(scenario_dir)]
-        pending_roles = {scenario}
-        visited_roles: set[str] = set()
-        visited_files: set[tuple[Path, tuple[Path, ...]]] = set()
-        input_paths: set[str] = set()
-
-        # Walk files and roles until neither introduces an unvisited dependency.
-        while len(files) > 0 or len(pending_roles) > 0:
-            if len(pending_roles) > 0:
-                role = pending_roles.pop()
-                visited_roles.add(role)
-                directory = root / "roles" / role
-                paths = [
-                    directory / "meta" / filename
-                    for filename in ("main.yml", "main.yaml", "main")
-                ]
-                for kind in ("tasks", "handlers"):
-                    paths.extend(_yaml_files(directory / kind))
-                search = (directory / "tasks", directory, scenario_dir)
-                files.extend((path, search) for path in paths if path.is_file())
-                continue
-
-            path, search = files.pop()
-            if (path, search) in visited_files:
-                continue
-            visited_files.add((path, search))
-            resolved = path.resolve()
-            if not path.is_relative_to(root) or not resolved.is_relative_to(root):
-                raise _SelectionError(f"{path}: imports must stay inside the checkout")
-            input_paths.update(str(file.relative_to(root)) for file in (path, resolved))
-            for kind, target in _declared_dependencies(path):
-                if kind == "role":
-                    if target not in visited_roles:
-                        pending_roles.add(target)
-                elif kind == "import_playbook":
-                    imported = _import_path(path, target, (path.parent,))
-                    files.append((imported, (imported.parent,)))
+        visited.add(entry)
+        inputs.update((entry.path, _inside(root, entry.path, entry.path)))
+        for reference in references(entry.path):
+            if isinstance(reference, RoleReference):
+                directory = _role_directory(root, entry, reference.name)
+                if directory is not None:
+                    directories.update((directory, directory.resolve()))
+                    pending.extend(_role_entries(directory, entry, reference))
+            else:
+                path = _file(root, entry, reference.kind, reference.target)
+                if reference.kind == "vars":
+                    inputs.update((path, path.resolve()))
+                elif reference.kind == "import_playbook":
+                    pending.append(_Entry(path, path.parent))
                 else:
-                    imported = _import_path(path, target, (path.parent, *search))
-                    files.append((imported, search))
+                    pending.append(_Entry(path, entry.playbook_dir, entry.role_dir))
 
-        if not changed_roles.isdisjoint(visited_roles) or not changed.isdisjoint(
-            input_paths
-        ):
-            selected.append(scenario)
-    return selected
+    # Files, templates, defaults and vars of a reached role are scenario inputs.
+    return any(
+        path in inputs
+        or any(
+            path.is_relative_to(directory)
+            and not (path.parent == directory and path.suffix.lower() == ".md")
+            for directory in directories
+        )
+        for path in changed
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -219,9 +176,9 @@ def main(argv: list[str] | None = None) -> int:
         )
         scenarios = os.fsdecode(discovery.stdout).splitlines()
         if len(scenarios) == 0 or any(
-            _ROLE_NAME.fullmatch(role) is None for role in scenarios
+            ROLE_NAME.fullmatch(role) is None for role in scenarios
         ):
-            raise _SelectionError(f"{_RUNNER} --list returned invalid scenario names")
+            raise SelectionError(f"{_RUNNER} --list returned invalid scenario names")
 
         # Compare the exact trees GitHub will test, rather than only the latest push.
         if args.base is not None:
@@ -241,10 +198,17 @@ def main(argv: list[str] | None = None) -> int:
                 stdout=subprocess.PIPE,
             )
             changed = set(os.fsdecode(diff.stdout).split("\0")) - {""}
-            if _SHARED_INPUTS.isdisjoint(changed):
-                scenarios = _affected_roles(root, scenarios, changed)
+            if len(changed) == 0:
+                scenarios = []
+            elif _SHARED_INPUTS.isdisjoint(changed):
+                paths = {root / path for path in changed}
+                scenarios = [
+                    scenario
+                    for scenario in scenarios
+                    if _scenario_affected(root, root / "roles" / scenario, paths)
+                ]
     except (
-        _SelectionError,
+        SelectionError,
         OSError,
         subprocess.CalledProcessError,
         yaml.YAMLError,

@@ -29,8 +29,10 @@ scan. All phases MUST pass before committing.
 The [Molecule Tests workflow](../../../.github/workflows/molecule.yml) runs
 affected scenarios on pull requests targeting `main` and on every push to
 `main`, including merges. A scenario is affected when its role, a role it uses,
-or a playbook or task file it imports changes, including transitive
-dependencies. Selection fails if it cannot resolve an import. Shared test
+or a reachable playbook, task file, or variable file changes. Selection follows
+roles next to imported playbooks as well as repository roles. It starts at
+scenario and role entry points and fails if a reachable reference is missing
+or ambiguous. Shared test
 inputs, such as `ansible.cfg` and dependency manifests, select every scenario.
 Markdown at a role's top level is documentation; Markdown deeper in a role
 can be a runtime asset and counts as a change.
@@ -43,7 +45,8 @@ full suite. A weekly full run catches upstream package and download drift.
 To require Molecule in branch protection, select **Molecule CI gate**, not
 **Run Molecule tests**. The test job can be skipped after either empty or failed
 selection. The gate passes only when selection succeeds and either finds no
-scenarios or the selected tests pass.
+scenarios or the selected tests pass. A missing role list after non-empty
+selection fails the test job; it is not an empty selection.
 
 To force a full run, open **Actions → Molecule Tests → Run workflow** and
 select the branch to test.
