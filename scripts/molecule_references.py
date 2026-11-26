@@ -44,11 +44,18 @@ class FileReference:
     target: str
 
 
-def _field(node: Node | None, key: str) -> Node | None:
-    if isinstance(node, MappingNode):
-        for name, value in node.value:
-            if isinstance(name, ScalarNode) and name.value == key:
-                return value
+def _fields(node: Node | None, path: Path) -> list[tuple[Node, Node]]:
+    if not isinstance(node, MappingNode):
+        return []
+    if any(name.tag == "tag:yaml.org,2002:merge" for name, _ in node.value):
+        raise SelectionError(f"{path}: replace YAML merge keys with explicit fields")
+    return node.value
+
+
+def _field(node: Node | None, key: str, path: Path) -> Node | None:
+    for name, value in _fields(node, path):
+        if isinstance(name, ScalarNode) and name.value == key:
+            return value
     return None
 
 
@@ -71,20 +78,20 @@ def _role(name: str, options: Node | None, path: Path) -> RoleReference:
         raise SelectionError(f"{path}: use a literal role name, got {name!r}")
     entries = []
     for part in _ROLE_PARTS:
-        override = _field(options, f"{part}_from")
+        override = _field(options, f"{part}_from", path)
         if override is not None:
             entries.append((part, _literal(override, path, f"{part}_from")))
     return RoleReference(name, tuple(entries))
 
 
 def _roles(node: Node, key: str, path: Path) -> Iterator[RoleReference]:
-    entries = _field(node, key)
+    entries = _field(node, key, path)
     if entries is None:
         return
     if not isinstance(entries, SequenceNode):
         raise SelectionError(f"{path}: expected a list under {key}")
     for entry in entries.value:
-        name = _field(entry, "role") if isinstance(entry, MappingNode) else entry
+        name = _field(entry, "role", path) if isinstance(entry, MappingNode) else entry
         yield _role(_literal(name, path, key), entry, path)
 
 
@@ -92,17 +99,19 @@ def _module_name(name: str) -> str:
     return name.removeprefix("ansible.builtin.").removeprefix("ansible.legacy.")
 
 
-def _actions(task: Node) -> Iterator[tuple[str, Node, Node | None]]:
+def _actions(task: Node, path: Path) -> Iterator[tuple[str, Node, Node | None]]:
     for module in _ROLE_MODULES | _FILE_MODULES:
         for name in (module, f"ansible.builtin.{module}", f"ansible.legacy.{module}"):
-            arguments = _field(task, name)
+            arguments = _field(task, name, path)
             if arguments is not None:
-                yield module, arguments, _field(task, "args")
+                yield module, arguments, _field(task, "args", path)
 
     for key in ("action", "local_action", "module"):
-        action = _field(task, key)
+        action = _field(task, key, path)
         command = (
-            _field(action, "module") if isinstance(action, MappingNode) else action
+            _field(action, "module", path)
+            if isinstance(action, MappingNode)
+            else action
         )
         if isinstance(command, ScalarNode) and command.value.strip() != "":
             words = command.value.split(maxsplit=1)
@@ -116,14 +125,14 @@ def _actions(task: Node) -> Iterator[tuple[str, Node, Node | None]]:
                         action
                         if isinstance(action, MappingNode)
                         else ScalarNode(command.tag, ""),
-                        _field(task, "args"),
+                        _field(task, "args", path),
                     )
 
 
 def _arguments(value: Node, options: Node | None, path: Path) -> MappingNode:
-    fields = list(options.value) if isinstance(options, MappingNode) else []
+    fields = list(_fields(options, path))
     if isinstance(value, MappingNode):
-        fields = value.value + fields
+        fields = _fields(value, path) + fields
     elif isinstance(value, ScalarNode) and value.value != "":
         try:
             tokens = shlex.split(value.value)
@@ -142,7 +151,7 @@ def _arguments(value: Node, options: Node | None, path: Path) -> MappingNode:
 
 
 def _vars_files(node: Node, path: Path) -> Iterator[FileReference]:
-    entries = _field(node, "vars_files")
+    entries = _field(node, "vars_files", path)
     if entries is None:
         return
     for entry in entries.value if isinstance(entries, SequenceNode) else [entries]:
@@ -150,12 +159,12 @@ def _vars_files(node: Node, path: Path) -> Iterator[FileReference]:
 
 
 def _task_references(task: Node, path: Path) -> Iterator[RoleReference | FileReference]:
-    for module, value, options in _actions(task):
+    for module, value, options in _actions(task, path):
         args = _arguments(value, options, path)
         if module in _ROLE_MODULES:
-            yield _role(_literal(_field(args, "name"), path, module), args, path)
+            yield _role(_literal(_field(args, "name", path), path, module), args, path)
         else:
-            target = _literal(_field(args, "file"), path, module)
+            target = _literal(_field(args, "file", path), path, module)
             yield FileReference("vars" if module == "include_vars" else module, target)
 
     for key in (
@@ -167,7 +176,7 @@ def _task_references(task: Node, path: Path) -> Iterator[RoleReference | FileRef
         "rescue",
         "always",
     ):
-        children = _field(task, key)
+        children = _field(task, key, path)
         if isinstance(children, SequenceNode):
             for child in children.value:
                 yield from _task_references(child, path)
@@ -188,14 +197,14 @@ def scenario_playbooks(config: Path) -> Iterator[str]:
     document = _load(config)
     configured: set[str] = set()
     for section in ("provisioner", "ansible"):
-        playbooks = _field(_field(document, section), "playbooks")
+        playbooks = _field(_field(document, section, config), "playbooks", config)
         if playbooks is None:
             continue
         if not isinstance(playbooks, MappingNode):
             raise SelectionError(f"{config}: expected a mapping of playbooks")
-        for name, value in playbooks.value:
+        for name, value in _fields(playbooks, config):
             if isinstance(value, MappingNode):
-                for _, driver_playbook in value.value:
+                for _, driver_playbook in _fields(value, config):
                     yield _literal(driver_playbook, config, "driver playbook")
             else:
                 configured.add(_literal(name, config, "playbook action"))
@@ -203,14 +212,14 @@ def scenario_playbooks(config: Path) -> Iterator[str]:
     for action in _LIFECYCLE:
         if action not in configured and (config.parent / f"{action}.yml").is_file():
             yield f"{action}.yml"
-    scenario = _field(document, "scenario")
+    scenario = _field(document, "scenario", config)
     for sequence in (
         "test_sequence",
         "check_sequence",
         "destroy_sequence",
         "converge_sequence",
     ):
-        steps = _field(scenario, sequence)
+        steps = _field(scenario, sequence, config)
         if isinstance(steps, SequenceNode):
             for step in steps.value:
                 if isinstance(step, ScalarNode):

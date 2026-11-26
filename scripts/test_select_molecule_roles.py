@@ -91,15 +91,36 @@ class MoleculeSelectionTest(unittest.TestCase):
 
         self.assertEqual(self.run_selected(self.base), ["leaf"])
 
-    def test_runs_git_and_transitive_consumers_across_entire_diff(self) -> None:
-        self.write("roles/git/tasks/main.yml", "# changed\n[]\n")
-        self.commit()
-        self.write("docs/guide.md", "latest commit only changes docs\n")
-        self.commit()
-
-        self.assertEqual(
-            self.run_selected(self.base), ["consumer", "git", "scenario_consumer"]
+    def test_matches_runtime_consumers_and_explicit_scenario_file_importers(
+        self,
+    ) -> None:
+        # leaf imports git's verifier without running the git role.
+        verifier = "roles/git/molecule/default/verify.yml"
+        self.write(verifier, "- hosts: all\n")
+        self.write(
+            "roles/leaf/molecule/default/converge.yml",
+            "- import_playbook: ../../../git/molecule/default/verify.yml\n",
         )
+        base = self.commit()
+
+        # Check each path independently across a diff spanning two commits.
+        for path, content, expected in (
+            (
+                "roles/git/tasks/main.yml",
+                "[]\n",
+                ["consumer", "git", "scenario_consumer"],
+            ),
+            (verifier, "- hosts: all\n", ["git", "leaf"]),
+            ("roles/git/molecule/default/assets/data.txt", "data\n", ["git"]),
+        ):
+            with self.subTest(path=path):
+                self.write(path, f"# changed\n{content}")
+                self.commit()
+                self.write("docs/guide.md", f"Latest commit after changing {path}\n")
+                head = self.commit()
+
+                self.assertEqual(self.run_selected(base), expected)
+                base = head
 
     def test_runs_consumer_for_role_imported_by_scenario_task(self) -> None:
         self.write("roles/helper/tasks/main.yml", "# changed\n[]\n")

@@ -50,7 +50,9 @@ jobs:
         run: pip install "$(grep '^PyYAML' requirements.txt)"
 
       - name: Test scenario selection
-        run: python -m unittest discover -s scripts -p test_select_molecule_roles.py
+        run: |
+          python -m unittest discover -s scripts -p test_molecule_references.py
+          python -m unittest discover -s scripts -p test_select_molecule_roles.py
 
       - name: Select scenarios
         id: select

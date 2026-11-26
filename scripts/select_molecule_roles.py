@@ -148,11 +148,13 @@ def _scenario_affected(root: Path, role_dir: Path, changed: set[Path]) -> bool:
                 else:
                     pending.append(_Entry(path, entry.playbook_dir, entry.role_dir))
 
-    # Files, templates, defaults and vars of a reached role are scenario inputs.
+    # Role consumers inherit runtime files, not the role's own test suite.
     return any(
         path in inputs
+        or path.is_relative_to(role_dir / "molecule")
         or any(
             path.is_relative_to(directory)
+            and not path.is_relative_to(directory / "molecule")
             and not (path.parent == directory and path.suffix.lower() == ".md")
             for directory in directories
         )

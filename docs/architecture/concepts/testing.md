@@ -28,14 +28,17 @@ scan. All phases MUST pass before committing.
 
 The [Molecule Tests workflow](../../../.github/workflows/molecule.yml) runs
 affected scenarios on pull requests targeting `main` and on every push to
-`main`, including merges. A scenario is affected when its role, a role it uses,
-or a reachable playbook, task file, or variable file changes. Selection follows
-roles next to imported playbooks as well as repository roles. It starts at
-scenario and role entry points and fails if a reachable reference is missing
-or ambiguous. Shared test
+`main`, including merges. A change to a role's runtime files selects its own
+scenario and scenarios that use the role. Markdown at a role's top level is
+documentation; Markdown deeper in a role can be a runtime asset. A change
+under a role's `molecule/` directory selects its own scenario and any other
+scenario whose reference walk reaches the changed file.
+
+Selection starts at scenario and role entry points. It follows reachable
+playbooks, task files, variables, and roles, including roles next to imported
+playbooks. Selection fails on missing or ambiguous references and on YAML merge
+keys in mappings it inspects. Use explicit keys for those mappings. Shared test
 inputs, such as `ansible.cfg` and dependency manifests, select every scenario.
-Markdown at a role's top level is documentation; Markdown deeper in a role
-can be a runtime asset and counts as a change.
 
 Retargeting a pull request to `main` triggers selection. Title and body edits
 do not select tests or cancel a real run. A new push to the pull request cancels
