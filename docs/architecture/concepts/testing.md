@@ -27,7 +27,7 @@ scan. All phases MUST pass before committing.
 ### Molecule CI
 
 The [Molecule Tests workflow](../../../.github/workflows/molecule.yml) runs on
-pull requests targeting `main` and on every push to `main`, including merges.
+pull requests targeting `main` and on pushes to `main`, including merges.
 It runs either every scenario or none. It runs none only when every changed
 file is on the skip list in the workflow's `paths` filter. The list names paths
 that no scenario reads: the tracker export, documentation, specifications,
