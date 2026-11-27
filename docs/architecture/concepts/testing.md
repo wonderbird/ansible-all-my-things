@@ -29,25 +29,21 @@ scan. All phases MUST pass before committing.
 The [Molecule Tests workflow](../../../.github/workflows/molecule.yml) runs on
 pull requests targeting `main` and on every push to `main`, including merges.
 It runs either every scenario or none. It runs none only when every changed
-file is on the skip list in
-[`molecule_run_needed.py`](../../../scripts/molecule_run_needed.py). The list
-names paths that no scenario reads: the tracker export, documentation,
-specifications, Markdown outside `roles/`, agent configuration, other GitHub
-configuration, lint settings, and the container image and role template files.
-Any other path runs the full suite, so coupling that nobody listed fails safe.
-Markdown inside `roles/` runs the suite, because a role can ship it as a file.
+file is on the skip list in the workflow's `paths` filter. The list names paths
+that no scenario reads: the tracker export, documentation, specifications,
+Markdown outside `roles/`, agent configuration, other GitHub configuration,
+lint settings, and the container image and role template files. Any other path
+runs the full suite, so coupling that nobody listed fails safe. Markdown inside
+`roles/` runs the suite, because a role can ship it as a file.
 
-Retargeting a pull request to `main` triggers the decision. Title and body
-edits do not run tests or cancel a real run. A new push to the pull request
-cancels its superseded run. A push to a newly created `main` or a force push
-runs the full suite. A weekly full run catches upstream package and download
-drift.
+A new push to a pull request cancels its superseded run. Editing or retargeting
+a pull request starts no run. A weekly full run catches upstream package and
+download drift, and changes the filter misses: GitHub evaluates only the first
+300 changed files.
 
-To require Molecule in branch protection, select **Molecule CI gate**, not
-**Run Molecule tests**. GitHub counts a skipped job as passing, and the test
-job is skipped both when the decision says skip and when the decision fails.
-The gate passes only when the decision succeeds and either says skip or the
-tests pass.
+A run that the filter skips reports no check. Requiring this workflow's check
+in branch protection would therefore block every documentation-only pull
+request; the workflow header names the way out.
 
 To force a full run, open **Actions → Molecule Tests → Run workflow** and
 select the branch to test.

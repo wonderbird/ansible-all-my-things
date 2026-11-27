@@ -1,17 +1,53 @@
 # SPDX-License-Identifier: MIT-0
-# Run the full suite unless every changed file is on the skip list in
-# scripts/molecule_run_needed.py. Decide inside the workflow so the explicit
-# gate can distinguish skips from failures.
-# Run the full suite weekly to catch upstream drift even without repository changes.
+# Run the full suite unless every changed file is on the skip list in `paths`.
+# The list names paths that no scenario reads; any other path runs the suite,
+# so coupling that nobody listed fails safe. Later patterns override earlier
+# ones, so each re-include must follow the exclusion it undoes.
+#
+# Trade-offs of GitHub's path filter:
+# - A filtered-out run reports no check at all. If branch protection ever
+#   requires this workflow's check, docs-only pull requests wait for it forever;
+#   then move the decision into a job.
+# - GitHub evaluates only the first 300 changed files. A larger change whose
+#   first 300 files are all on the skip list does not run.
+# - The `edited` pull request event is not used: a title edit would re-run the
+#   suite. Retargeting a pull request therefore starts no run.
+# The weekly run catches upstream drift and anything the filter missed.
 ---
 name: Molecule Tests
 
 on:
   push:
     branches: ["main"]
+    paths: &molecule_paths
+      - "**"
+      - "!**.md"
+      - "roles/**"
+      - "!.agents/**"
+      - "!.beads/**"
+      - "!.claude/**"
+      - "!.codex/**"
+      - "!.devcontainer/**"
+      - "!.github/**"
+      - ".github/workflows/molecule.yml"
+      - "!.omc/**"
+      - "!.rtk/**"
+      - "!.specify/**"
+      - "!docs/**"
+      - "!role-template/**"
+      - "!specs/**"
+      - "!.gitignore"
+      - "!.markdownlint.json"
+      - "!.pre-commit-config.yaml"
+      - "!.shellcheckrc"
+      - "!.skills.json"
+      - "!LICENSE"
+      - "!container-structure-test-linux-arm64"
+      - "!ruff.toml"
+      - "!skills-lock.json"
   pull_request:
     branches: ["main"]
-    types: [opened, synchronize, reopened, edited]
+    paths: *molecule_paths
   schedule:
     - cron: "23 5 * * 1"
   workflow_dispatch:
@@ -20,66 +56,14 @@ permissions:
   contents: read
 
 concurrency:
-  # Metadata-only edits must not replace even a pending run for the same PR.
   group: >-
     ${{ github.workflow }}-${{ github.event_name }}-${{
-      (github.event.action != 'edited' || github.event.changes.base != null)
-      && github.event.pull_request.number || github.run_id }}
+      github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-  changes:
-    name: Decide Molecule run
-    if: github.event.action != 'edited' || github.event.changes.base != null
-    runs-on: ubuntu-24.04
-    outputs:
-      run: ${{ steps.decide.outputs.run }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          # A single push can span more than one commit.
-          fetch-depth: ${{ github.event_name == 'push' && '0' || '2' }}
-          persist-credentials: false
-
-      - name: Set up Python
-        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
-        with:
-          python-version: "3.14"
-
-      - name: Test the skip list
-        run: python -m unittest discover -s scripts -p test_molecule_run_needed.py
-
-      - name: Decide whether Molecule runs
-        id: decide
-        shell: bash
-        env:
-          PUSH_BEFORE: ${{ github.event.before }}
-          PUSH_FORCED: ${{ github.event.forced }}
-        run: |
-          args=()
-          if [[ "$GITHUB_EVENT_NAME" == pull_request ]]; then
-            # The merge commit's first parent is the PR base tested by this run.
-            args=(--base HEAD^1)
-          elif [[ "$GITHUB_EVENT_NAME" == push ]]; then
-            if [[ "$PUSH_FORCED" == true || "$PUSH_BEFORE" =~ ^0+$ ]]; then
-              echo 'New or force-pushed branch; running all Molecule scenarios.'
-            else
-              : "${PUSH_BEFORE:?Missing before SHA for push}"
-              args=(--base "$PUSH_BEFORE")
-            fi
-          fi
-          run=$(python scripts/molecule_run_needed.py "${args[@]}")
-          if [[ "$run" != true && "$run" != false ]]; then
-            printf 'ERROR: molecule_run_needed.py printed %q, not true or false.\n' "$run" >&2
-            exit 1
-          fi
-          printf 'run=%s\n' "$run" >> "$GITHUB_OUTPUT"
-
   molecule:
     name: Run Molecule tests
-    needs: changes
-    if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-24.04
 
     steps:
@@ -108,27 +92,3 @@ jobs:
         env:
           ANSIBLE_FORCE_COLOR: "true"
           PY_COLORS: "1"
-
-  gate:
-    name: >-
-      ${{ github.event.action == 'edited' && github.event.changes.base == null
-      && 'Molecule metadata edit' || 'Molecule CI gate' }}
-    needs: [changes, molecule]
-    if: always() && (github.event.action != 'edited' || github.event.changes.base != null)
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Verify decision and test outcomes
-        shell: bash
-        env:
-          DECISION_RESULT: ${{ needs.changes.result }}
-          RUN: ${{ needs.changes.outputs.run }}
-          TEST_RESULT: ${{ needs.molecule.result }}
-        run: |
-          case "$DECISION_RESULT:$RUN:$TEST_RESULT" in
-            success:true:success | success:false:skipped) ;;
-            *)
-              printf 'Molecule CI failed: decision=%s, run=%s, tests=%s\n' \
-                "$DECISION_RESULT" "$RUN" "$TEST_RESULT" >&2
-              exit 1
-              ;;
-          esac
