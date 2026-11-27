@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: MIT-0
-# Select inside the workflow so the explicit gate can distinguish skips from failures.
+# Run the full suite unless every changed file is on the skip list in
+# scripts/molecule_run_needed.py. Decide inside the workflow so the explicit
+# gate can distinguish skips from failures.
 # Run the full suite weekly to catch upstream drift even without repository changes.
 ---
 name: Molecule Tests
@@ -27,12 +29,11 @@ concurrency:
 
 jobs:
   changes:
-    name: Select Molecule roles
+    name: Decide Molecule run
     if: github.event.action != 'edited' || github.event.changes.base != null
     runs-on: ubuntu-24.04
     outputs:
-      roles: ${{ steps.select.outputs.roles }}
-      has_roles: ${{ steps.select.outputs.has_roles }}
+      run: ${{ steps.decide.outputs.run }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -46,16 +47,11 @@ jobs:
         with:
           python-version: "3.14"
 
-      - name: Install selection dependency
-        run: pip install "$(grep '^PyYAML' requirements.txt)"
+      - name: Test the skip list
+        run: python -m unittest discover -s scripts -p test_molecule_run_needed.py
 
-      - name: Test scenario selection
-        run: |
-          python -m unittest discover -s scripts -p test_molecule_references.py
-          python -m unittest discover -s scripts -p test_select_molecule_roles.py
-
-      - name: Select scenarios
-        id: select
+      - name: Decide whether Molecule runs
+        id: decide
         shell: bash
         env:
           PUSH_BEFORE: ${{ github.event.before }}
@@ -67,26 +63,23 @@ jobs:
             args=(--base HEAD^1)
           elif [[ "$GITHUB_EVENT_NAME" == push ]]; then
             if [[ "$PUSH_FORCED" == true || "$PUSH_BEFORE" =~ ^0+$ ]]; then
-              echo 'New or force-pushed branch; selecting all Molecule scenarios.'
+              echo 'New or force-pushed branch; running all Molecule scenarios.'
             else
               : "${PUSH_BEFORE:?Missing before SHA for push}"
               args=(--base "$PUSH_BEFORE")
             fi
           fi
-          roles=$(python scripts/select_molecule_roles.py "${args[@]}")
-          printf 'roles=%s\n' "$roles" >> "$GITHUB_OUTPUT"
-          if [[ -n "$roles" ]]; then
-            echo 'has_roles=true' >> "$GITHUB_OUTPUT"
-            printf 'Selected Molecule roles: %s\n' "$roles"
-          else
-            echo 'has_roles=false' >> "$GITHUB_OUTPUT"
-            echo 'No affected Molecule roles; skipping tests.'
+          run=$(python scripts/molecule_run_needed.py "${args[@]}")
+          if [[ "$run" != true && "$run" != false ]]; then
+            printf 'ERROR: molecule_run_needed.py printed %q, not true or false.\n' "$run" >&2
+            exit 1
           fi
+          printf 'run=%s\n' "$run" >> "$GITHUB_OUTPUT"
 
   molecule:
     name: Run Molecule tests
     needs: changes
-    if: needs.changes.outputs.has_roles == 'true'
+    if: needs.changes.outputs.run == 'true'
     runs-on: ubuntu-24.04
 
     steps:
@@ -111,16 +104,8 @@ jobs:
         run: echo "XDG_RUNTIME_DIR=/run/user/$(id -u)" >> "$GITHUB_ENV"
 
       - name: Run Molecule tests
-        shell: bash
-        run: |
-          read -r -a roles <<< "$MOLECULE_ROLES"
-          if (( ${#roles[@]} == 0 )); then
-            echo 'ERROR: selection reported affected roles but supplied no role names.' >&2
-            exit 1
-          fi
-          ./scripts/test-molecule-all.sh --roles "${roles[@]}"
+        run: ./scripts/test-molecule-all.sh
         env:
-          MOLECULE_ROLES: ${{ needs.changes.outputs.roles }}
           ANSIBLE_FORCE_COLOR: "true"
           PY_COLORS: "1"
 
@@ -132,18 +117,18 @@ jobs:
     if: always() && (github.event.action != 'edited' || github.event.changes.base != null)
     runs-on: ubuntu-24.04
     steps:
-      - name: Verify selection and test outcomes
+      - name: Verify decision and test outcomes
         shell: bash
         env:
-          SELECTION_RESULT: ${{ needs.changes.result }}
-          HAS_ROLES: ${{ needs.changes.outputs.has_roles }}
+          DECISION_RESULT: ${{ needs.changes.result }}
+          RUN: ${{ needs.changes.outputs.run }}
           TEST_RESULT: ${{ needs.molecule.result }}
         run: |
-          case "$SELECTION_RESULT:$HAS_ROLES:$TEST_RESULT" in
+          case "$DECISION_RESULT:$RUN:$TEST_RESULT" in
             success:true:success | success:false:skipped) ;;
             *)
-              printf 'Molecule CI failed: selection=%s, has_roles=%s, tests=%s\n' \
-                "$SELECTION_RESULT" "$HAS_ROLES" "$TEST_RESULT" >&2
+              printf 'Molecule CI failed: decision=%s, run=%s, tests=%s\n' \
+                "$DECISION_RESULT" "$RUN" "$TEST_RESULT" >&2
               exit 1
               ;;
           esac

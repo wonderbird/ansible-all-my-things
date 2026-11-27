@@ -26,30 +26,28 @@ scan. All phases MUST pass before committing.
 
 ### Molecule CI
 
-The [Molecule Tests workflow](../../../.github/workflows/molecule.yml) runs
-affected scenarios on pull requests targeting `main` and on every push to
-`main`, including merges. A change to a role's runtime files selects its own
-scenario and scenarios that use the role. Markdown at a role's top level is
-documentation; Markdown deeper in a role can be a runtime asset. A change
-under a role's `molecule/` directory selects its own scenario and any other
-scenario whose reference walk reaches the changed file.
+The [Molecule Tests workflow](../../../.github/workflows/molecule.yml) runs on
+pull requests targeting `main` and on every push to `main`, including merges.
+It runs either every scenario or none. It runs none only when every changed
+file is on the skip list in
+[`molecule_run_needed.py`](../../../scripts/molecule_run_needed.py). The list
+names paths that no scenario reads: the tracker export, documentation,
+specifications, Markdown outside `roles/`, agent configuration, other GitHub
+configuration, lint settings, and the container image and role template files.
+Any other path runs the full suite, so coupling that nobody listed fails safe.
+Markdown inside `roles/` runs the suite, because a role can ship it as a file.
 
-Selection starts at scenario and role entry points. It follows reachable
-playbooks, task files, variables, and roles, including roles next to imported
-playbooks. Selection fails on missing or ambiguous references and on YAML merge
-keys in mappings it inspects. Use explicit keys for those mappings. Shared test
-inputs, such as `ansible.cfg` and dependency manifests, select every scenario.
-
-Retargeting a pull request to `main` triggers selection. Title and body edits
-do not select tests or cancel a real run. A new push to the pull request cancels
-its superseded run. A push to a newly created `main` or a force push runs the
-full suite. A weekly full run catches upstream package and download drift.
+Retargeting a pull request to `main` triggers the decision. Title and body
+edits do not run tests or cancel a real run. A new push to the pull request
+cancels its superseded run. A push to a newly created `main` or a force push
+runs the full suite. A weekly full run catches upstream package and download
+drift.
 
 To require Molecule in branch protection, select **Molecule CI gate**, not
-**Run Molecule tests**. The test job can be skipped after either empty or failed
-selection. The gate passes only when selection succeeds and either finds no
-scenarios or the selected tests pass. A missing role list after non-empty
-selection fails the test job; it is not an empty selection.
+**Run Molecule tests**. GitHub counts a skipped job as passing, and the test
+job is skipped both when the decision says skip and when the decision fails.
+The gate passes only when the decision succeeds and either says skip or the
+tests pass.
 
 To force a full run, open **Actions → Molecule Tests → Run workflow** and
 select the branch to test.
