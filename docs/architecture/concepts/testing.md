@@ -110,11 +110,27 @@ no swap file yet, without editing the inventory, run
 
 ## Python Script Tests
 
-This section describes how `scripts/init_dev` is tested. The skill
+This section describes how the Python scripts under `scripts/` are tested,
+with `scripts/init_dev` as the worked example. The skill
 `python-conventions` holds the rules for writing the tests, including the
 fake-executable pattern; the
 [constitution](../../../.specify/memory/constitution.md), section "Python
 Scripts", makes them binding.
+
+### Fast Gates
+
+A plain `pytest` run from the repository root is the list of fast gates, the
+checks every commit must pass. [`pytest.ini`](../../../pytest.ini) makes it
+collect every `test_*.py` module under `scripts/`. The tests in
+[`scripts/gate-discovery/`](../../../scripts/gate-discovery/) add the
+version-update harness playbooks and the syntax check of the version-update
+playbook, and fail when a harness or a test file escapes discovery.
+[ADR-008](../decisions/008-pytest-discovers-fast-gates.md) records why.
+
+[`scripts/ci-local.sh`](../../../scripts/ci-local.sh) runs that pytest run
+before a push; its header names what it needs. Because the harnesses run the
+real `ansible-playbook` for minutes, run `pytest scripts/init_dev` or
+`pytest -k 'not VersionUpdateHarness'` while developing.
 
 ### Unit Tests
 
@@ -146,8 +162,8 @@ to run it.
 ### Continuous Integration
 
 The workflow [`init-dev.yml`](../../../.github/workflows/init-dev.yml) runs
-the pre-commit hooks (ruff), the unit tests and the acceptance test. Before
-the tests, the playbook
+the pre-commit hooks (ruff), the fast gates through `scripts/ci-local.sh`,
+and the init_dev acceptance test. Before the tests, the playbook
 [`ci_prerequisites.yml`](../../../scripts/init_dev/ci_prerequisites.yml)
 applies the repository's own roles to the runner. CI therefore uses the tool
 versions of the development VMs, and it also exercises those roles on a real

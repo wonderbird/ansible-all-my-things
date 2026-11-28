@@ -6,7 +6,7 @@
 #
 # Run from the repository root:
 #   ANSIBLE_CONFIG=playbooks/update-versions/tests/ansible.cfg \
-#     ansible-playbook playbooks/update-versions/tests/smoke-fixture-registry.yml
+#     ansible-playbook playbooks/update-versions/tests/test-fixture-registry-smoke.yml
 #
 # This is what proves a commit works rather than merely passing CI: CI never
 # runs either real playbook, because both need the network and the GitHub API
@@ -27,32 +27,26 @@
   vars:
     _registry_file: "{{ (playbook_dir ~ '/fixtures/loop-registry.yml') | realpath }}"
     _registry_tasks_dir: "{{ (playbook_dir ~ '/fixtures') | realpath }}"
-    _expected_pins:
-      first_tool:
-        first_version: v-first
-        first_extra: extra-first
-      third_tool:
-        third_version: v-third
-        third_extra: extra-third
-      broken_tool:
-        broken_version: v-unchanged
   tasks:
-    - name: Create the fixture roles tree
-      ansible.builtin.file:
-        path: "{{ _smoke_dir }}/{{ _tool }}/defaults"
+    - name: Create the harness working directory
+      ansible.builtin.tempfile:
         state: directory
-        mode: "0755"
-      vars:
-        _smoke_dir: "{{ playbook_dir }}/../../../.smoke-roles"
-      loop: "{{ _tools.keys() | list }}"
-      loop_control:
-        loop_var: _tool
-      register: _smoke_dirs
+        suffix: fixture-registry-smoke
+      register: _harness_dir
 
     - name: Name the fixture roles tree
       ansible.builtin.set_fact:
-        _roles_dir: "{{ (playbook_dir ~ '/../../../.smoke-roles') | realpath }}"
-        _registry_roles_dir: "{{ (playbook_dir ~ '/../../../.smoke-roles') | realpath }}"
+        _roles_dir: "{{ _harness_dir.path }}/roles"
+        _registry_roles_dir: "{{ _harness_dir.path }}/roles"
+
+    - name: Create the fixture roles tree
+      ansible.builtin.file:
+        path: "{{ _roles_dir }}/{{ _tool }}/defaults"
+        state: directory
+        mode: "0755"
+      loop: "{{ _tools.keys() | list }}"
+      loop_control:
+        loop_var: _tool
 
     - name: Write the fixture role defaults
       ansible.builtin.copy:
@@ -143,9 +137,9 @@
           failures={{ _update_failures }}, files={{ _contents }}
         quiet: true
 
-    - name: Remove the fixture roles tree
+    - name: Remove the harness working directory
       ansible.builtin.file:
-        path: "{{ _roles_dir }}"
+        path: "{{ _harness_dir.path }}"
         state: absent
 
     - name: Report what the smoke run proved

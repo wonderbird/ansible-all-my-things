@@ -107,12 +107,14 @@ playbooks/update-versions/
 
 `tests/` holds the harnesses for the shared task files, with its own minimal
 Ansible configuration, so they run without the vault secret the repository root
-configuration expects. CI runs them, together with a syntax check of the
-playbook and a network-free run of the real task files over a fixture registry;
-`.github/workflows/version-update-lint.yml` is the authoritative list of gates.
-`scripts/ci-local.sh` runs every one of them before a commit. Neither runs the
-playbook against real upstreams, so a change can pass every gate and still fail
-against one.
+configuration expects. Each `test-*.yml` harness is a pytest test case, found
+by its file name, together with a syntax check of the playbook and a
+network-free run of the real task files over a fixture registry; tests fail
+when a harness escapes that discovery
+([ADR-008](decisions/008-pytest-discovers-fast-gates.md)).
+`scripts/ci-local.sh` runs them before a push, and CI runs the same script.
+Neither runs the playbook against real upstreams, so a change can pass every
+gate and still fail against one.
 
 The authoritative enumeration of **tracked tools** is `vars/tools.yml`. Each
 entry names the role whose defaults carry the pins, the task file that queries

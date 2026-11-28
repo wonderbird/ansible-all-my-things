@@ -1,60 +1,45 @@
 #!/usr/bin/env bash
-# Run the gates that must hold for EVERY commit of a version-update change.
+# Run every fast gate a commit must pass, locally and in CI.
 #
-# Every gate below also runs as a job of .github/workflows/version-update-lint.yml,
-# so this script adds no coverage of its own: it is the pre-push convenience
-# that runs them all in one command, per commit rather than per branch, and
-# without waiting for a runner. Keep the two in step -- a gate added to either
-# belongs in the other too.
+# pytest is the gate list: pytest.ini makes a plain run collect every test
+# under scripts/, and the tests in scripts/gate-discovery/ run each
+# version-update harness and the syntax check of the version-update playbook.
+# Tests also fail when a harness or a test file escapes discovery. CI runs
+# this script and names no test of its own.
 #
-# What neither can cover is the playbook run itself. It needs the network and
-# the unauthenticated GitHub API budget of 60 requests an hour, so a commit can
-# pass every gate here and still fail against a real upstream.
+# CI also runs checks this script does not: the pre-commit hooks (they also
+# run as the git pre-commit hook), the init_dev acceptance test (it needs the
+# network and minutes, so it runs only in CI) and the zizmor workflow scan.
+# Neither runs the version-update playbook against real upstreams, so a
+# commit can pass every gate and still fail against one.
+#
+# Needs python3 with the packages of requirements.txt (put the repository's
+# .venv/bin on PATH), and direnv and git, which the init_dev tests run.
 #
 # Usage, from the repository root:
 #   ./scripts/ci-local.sh
 #   git rebase -i --exec './scripts/ci-local.sh' <base>   # every commit
 #
-# ANSIBLE_PLAYBOOK may name an interpreter outside PATH (a scratch venv).
+# ANSIBLE_PLAYBOOK may name an ansible-playbook outside PATH (a scratch venv).
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-ansible_playbook="${ANSIBLE_PLAYBOOK:-ansible-playbook}"
-config="playbooks/update-versions/tests/ansible.cfg"
-export ANSIBLE_CONFIG="$config"
-
-run() {
-  echo "== $*"
-  "$@"
-}
-
-run python3 scripts/version-update-order/test_check_write_pins_bypass.py
-run python3 scripts/version-update-order/check-write-pins-bypass.py \
-  playbooks/update-versions
-
-# The call-identity checker parses task files with PyYAML, which python3 may
-# lack outside the repository's venv; without this check the gate would stop
-# on an ImportError that does not say how to fix it.
-if ! python3 -c 'import yaml' 2>/dev/null; then
-  echo "ci-local: PyYAML is missing for python3; the fetch call-identity" \
-       "gates need it. Install it into the repository's .venv with:" \
-       "python3 -m pip install \"\$(grep -E '^PyYAML' requirements.txt)\"" >&2
+# Check every tool first: pytest would otherwise stop on an import error or a
+# missing executable that does not say how to fix it.
+if ! python3 -c 'import pytest, yaml' 2>/dev/null; then
+  echo "ci-local: python3 lacks pytest or PyYAML. Put the repository's" \
+       ".venv/bin on PATH, or run: python3 -m pip install -r requirements.txt" >&2
   exit 1
 fi
-
-run python3 scripts/fetch-call-identity/test_check_fetch_call_identity.py
-run python3 scripts/fetch-call-identity/check-fetch-call-identity.py \
-  playbooks/update-versions
-
-run env -u ANSIBLE_VAULT_PASSWORD "$ansible_playbook" --syntax-check \
-  playbooks/update-versions/perform-updates.yml
-
-for harness in test-write-pins test-tool-isolation test-tool-registry \
-               test-fixture-registry-smoke test-failure-source \
-               test-fetch-call-identity test-android-page-parse; do
-  path="playbooks/update-versions/tests/$harness.yml"
-  run env -u ANSIBLE_VAULT_PASSWORD "$ansible_playbook" "$path"
+for tool in direnv git; do
+  if ! command -v "$tool" >/dev/null; then
+    echo "ci-local: $tool is missing; the init_dev tests run it. Install it" \
+         "as scripts/init_dev/ci_prerequisites.yml does." >&2
+    exit 1
+  fi
 done
 
+echo "== python3 -m pytest"
+python3 -m pytest
 echo "== ci-local: all gates passed"
