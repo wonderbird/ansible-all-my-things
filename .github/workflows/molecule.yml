@@ -1,13 +1,65 @@
 # SPDX-License-Identifier: MIT-0
+# Run the full suite unless every changed file is on the skip list in `paths`.
+# The list names paths that no scenario reads; any other path runs the suite,
+# so coupling that nobody listed fails safe. Later patterns override earlier
+# ones, so each re-include must follow the exclusion it undoes.
+#
+# Trade-offs of GitHub's path filter:
+# - A filtered-out run reports no check at all. If branch protection ever
+#   requires this workflow's check, docs-only pull requests wait for it forever;
+#   then move the decision into a job.
+# - GitHub evaluates only the first 300 changed files. A larger change whose
+#   first 300 files are all on the skip list does not run.
+# - The `edited` pull request event is not used: a title edit would re-run the
+#   suite. Retargeting a pull request therefore starts no run.
+# The weekly run catches upstream drift and anything the filter missed.
 ---
 name: Molecule Tests
 
 on:
   push:
     branches: ["main"]
+    paths: &molecule_paths
+      - "**"
+      - "!**.md"
+      - "roles/**"
+      - "!.agents/**"
+      - "!.beads/**"
+      - "!.claude/**"
+      - "!.codex/**"
+      - "!.devcontainer/**"
+      - "!.github/**"
+      - ".github/workflows/molecule.yml"
+      - "!.omc/**"
+      - "!.rtk/**"
+      - "!.specify/**"
+      - "!docs/**"
+      - "!role-template/**"
+      - "!specs/**"
+      - "!.gitignore"
+      - "!.markdownlint.json"
+      - "!.pre-commit-config.yaml"
+      - "!.shellcheckrc"
+      - "!.skills.json"
+      - "!LICENSE"
+      - "!container-structure-test-linux-arm64"
+      - "!ruff.toml"
+      - "!skills-lock.json"
   pull_request:
     branches: ["main"]
+    paths: *molecule_paths
+  schedule:
+    - cron: "23 5 * * 1"
   workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: >-
+    ${{ github.workflow }}-${{ github.event_name }}-${{
+      github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
 
 jobs:
   molecule:
@@ -17,6 +69,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Python
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0

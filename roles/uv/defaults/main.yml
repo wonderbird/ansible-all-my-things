@@ -3,7 +3,7 @@
 # Pinned uv release tag. Upstream tags are bare semver, without a `v` prefix.
 # See https://github.com/astral-sh/uv/releases for available versions.
 # Updated automatically by playbooks/update-versions/perform-updates.yml.
-uv_version: "0.13.9"
+uv_version: "0.13.10"
 
 # Maps an Ansible architecture fact to the upstream target triple that names
 # the release archive (uv-<triple>.tar.gz) and the directory inside it.
@@ -16,5 +16,5 @@ uv_platform_map:
 # The version and every checksum must be updated together.
 #
 # Updated automatically by playbooks/update-versions/perform-updates.yml.
-uv_sha256_x86_64_gnu: "a7fbaff2b9a271d85c1bdb540941090fd1ce011797b4abeb48e4dcd39c2471d5"
-uv_sha256_aarch64_gnu: "0797542018e541a9288855df555c8077eed06f7a47d206362030480e8ecc9f3d"
+uv_sha256_x86_64_gnu: "bf65ac1a0af10f92c522d91ac096c7c0a39657647b155577e7836c2cbbb4526c"
+uv_sha256_aarch64_gnu: "14590f644805a6234ffe071154340669e38137f38e60aa9629690119704107d2"
