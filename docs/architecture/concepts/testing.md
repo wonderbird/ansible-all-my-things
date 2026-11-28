@@ -24,6 +24,30 @@ scenario, tests each even if one fails, and exits `1` if any failed. It is the
 canonical discovery mechanism for CI — invoke it rather than reimplementing the
 scan. All phases MUST pass before committing.
 
+### Molecule CI
+
+The [Molecule Tests workflow](../../../.github/workflows/molecule.yml) runs on
+pull requests targeting `main` and on pushes to `main`, including merges.
+It runs either every scenario or none. It runs none only when every changed
+file is on the skip list in the workflow's `paths` filter. The list names paths
+that no scenario reads: the tracker export, documentation, specifications,
+Markdown outside `roles/`, agent configuration, other GitHub configuration,
+lint settings, and the container image and role template files. Any other path
+runs the full suite, so coupling that nobody listed fails safe. Markdown inside
+`roles/` runs the suite, because a role can ship it as a file.
+
+A new push to a pull request cancels its superseded run. Editing or retargeting
+a pull request starts no run. A weekly full run catches upstream package and
+download drift, and changes the filter misses: GitHub evaluates only the first
+300 changed files.
+
+A run that the filter skips reports no check. Requiring this workflow's check
+in branch protection would therefore block every documentation-only pull
+request; the workflow header names the way out.
+
+To force a full run, open **Actions → Molecule Tests → Run workflow** and
+select the branch to test.
+
 ## Running a Single Role on a Live Host
 
 ```shell

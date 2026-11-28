@@ -58,6 +58,8 @@ Changelog](https://keepachangelog.com/en/2.0.0/), and this project adheres to
   test or version-update harness escapes pytest discovery.
 - **Breaking:** `scripts/ci-local.sh` needs the repository's `.venv/bin` on
   `PATH`, plus direnv and git. Put `.venv/bin` first on `PATH` before running it.
+- Molecule CI runs every scenario weekly and on each change, except changes
+  that touch only files on its skip list.
 
 ### Removed
 

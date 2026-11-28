@@ -23,6 +23,7 @@
 # directories; list every project-scope skill here. User-scope skills live
 # outside the repository and need no entry.
 .agents
+.claude/skills/caveman
 .claude/skills/code-review
 .claude/skills/commit
 .claude/skills/commit-message
